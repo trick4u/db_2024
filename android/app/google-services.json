@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "377259467324",
+    "project_id": "tusharboard-1bf20",
+    "storage_bucket": "tusharboard-1bf20.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:377259467324:android:968da10bf7635e57479939",
+        "android_client_info": {
+          "package_name": "com.example.tushar_db"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBTo5u2FhF0PtiF8_Ej2WTPTYxxDMuZiMY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
