@@ -326,6 +326,7 @@ class _CalendarPageState extends State<CalendarPage> {
   final EventService _eventService = EventService();
   Map<DateTime, List<Event>> _events = {};
   DateTime _selectedDay = DateTime.now();
+  DateTime _focusedDay = DateTime.now();
 
   @override
   void initState() {
@@ -334,19 +335,23 @@ class _CalendarPageState extends State<CalendarPage> {
   }
 
   void _loadEventsForDay(DateTime day) async {
-    List<Event> events = await _eventService.getEventsForDay(day);
+    // Normalize the date to ensure consistency
+    DateTime normalizedDay = DateTime.utc(day.year, day.month, day.day);
+    List<Event> events = await _eventService.getEventsForDay(normalizedDay);
     setState(() {
-      _events[day] = events;
+      _events[normalizedDay] = events;
     });
   }
 
   List<Event> _getEventsForDay(DateTime day) {
-    return _events[day] ?? [];
+    DateTime normalizedDay = DateTime.utc(day.year, day.month, day.day);
+    return _events[normalizedDay] ?? [];
   }
 
   void _onDaySelected(DateTime selectedDay, DateTime focusedDay) {
     setState(() {
       _selectedDay = selectedDay;
+      _focusedDay = focusedDay;
     });
     _loadEventsForDay(selectedDay);
   }
@@ -374,7 +379,7 @@ class _CalendarPageState extends State<CalendarPage> {
           TableCalendar(
             firstDay: DateTime(2000),
             lastDay: DateTime(2100),
-            focusedDay: _selectedDay,
+            focusedDay: _focusedDay,
             selectedDayPredicate: (day) => isSameDay(day, _selectedDay),
             onDaySelected: _onDaySelected,
           ),
@@ -392,9 +397,7 @@ class _CalendarPageState extends State<CalendarPage> {
         ],
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          _showAddEventDialog();
-        },
+        onPressed: _showAddEventDialog,
         child: Icon(Icons.add),
       ),
     );
@@ -461,8 +464,6 @@ class _EventFormState extends State<EventForm> {
   }
 
   // okay
-  
-
 
   @override
   Widget build(BuildContext context) {
