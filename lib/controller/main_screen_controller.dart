@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
 
 import '../projectController/page_threeController.dart';
@@ -52,21 +53,28 @@ class MainScreenController extends GetxController {
   //persistent bottom navigation bar
   final List<PersistentBottomNavBarItem> navBarItems = [
     PersistentBottomNavBarItem(
-      icon: Icons.home,
-      title: "Home",
-      activeColor: Colors.blue,
+      icon: FontAwesomeIcons.calendarDay,
+      title: "Calendar",
+      activeColor: Colors.purple,
       inactiveColor: Colors.grey,
     ),
     PersistentBottomNavBarItem(
-      icon: Icons.search,
-      title: "Search",
-      activeColor: Colors.blue,
+      icon: FontAwesomeIcons.rectangleList,
+      title: "Tasks",
+      activeColor: Colors.purple,
       inactiveColor: Colors.grey,
     ),
     PersistentBottomNavBarItem(
-      icon: Icons.person,
+      icon: FontAwesomeIcons.clock,
+      title: "Clock",
+      activeColor: Colors.purple,
+      inactiveColor: Colors.grey,
+    ),
+    PersistentBottomNavBarItem(
+      icon: FontAwesomeIcons.user,
+      
       title: "Profile",
-      activeColor: Colors.blue,
+      activeColor: Colors.purple,
       inactiveColor: Colors.grey,
       onTap: () {
         showPopover(
