@@ -1,5 +1,8 @@
+import 'dart:math';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:table_calendar/table_calendar.dart';
 
 // class CalendarPage extends StatefulWidget {
@@ -327,15 +330,40 @@ class _CalendarPageState extends State<CalendarPage> {
   Map<DateTime, List<Event>> _events = {};
   DateTime _selectedDay = DateTime.now();
   DateTime _focusedDay = DateTime.now();
+  DateTime? _previousSelectedDay;
+  CalendarFormat _calendarFormat = CalendarFormat.month;
 
   @override
   void initState() {
     super.initState();
+    _loadAllEvents();
+  }
+
+  void _loadAllEvents() async {
+    QuerySnapshot snapshot =
+        await FirebaseFirestore.instance.collection('events').get();
+    Map<DateTime, List<Event>> allEvents = {};
+
+    for (var doc in snapshot.docs) {
+      Event event = Event.fromDocument(doc);
+      DateTime eventDate =
+          DateTime.utc(event.date.year, event.date.month, event.date.day);
+
+      if (allEvents.containsKey(eventDate)) {
+        allEvents[eventDate]!.add(event);
+      } else {
+        allEvents[eventDate] = [event];
+      }
+    }
+
+    setState(() {
+      _events = allEvents;
+    });
+
     _loadEventsForDay(_selectedDay);
   }
 
   void _loadEventsForDay(DateTime day) async {
-    // Normalize the date to ensure consistency
     DateTime normalizedDay = DateTime.utc(day.year, day.month, day.day);
     List<Event> events = await _eventService.getEventsForDay(normalizedDay);
     setState(() {
@@ -350,10 +378,32 @@ class _CalendarPageState extends State<CalendarPage> {
 
   void _onDaySelected(DateTime selectedDay, DateTime focusedDay) {
     setState(() {
+      if (_previousSelectedDay != null &&
+          _getEventsForDay(_previousSelectedDay!).isEmpty) {
+        _events.remove(_previousSelectedDay);
+      }
+
+      _previousSelectedDay = _selectedDay;
       _selectedDay = selectedDay;
       _focusedDay = focusedDay;
+      // select only one day at a time
+      _events.remove(_selectedDay);
     });
+
     _loadEventsForDay(selectedDay);
+  }
+
+  double _getCalendarHeight() {
+    switch (_calendarFormat) {
+      case CalendarFormat.month:
+        return 400;
+      case CalendarFormat.twoWeeks:
+        return 200;
+      case CalendarFormat.week:
+        return 100;
+      default:
+        return 400;
+    }
   }
 
   void _showAddEventDialog() {
@@ -362,10 +412,20 @@ class _CalendarPageState extends State<CalendarPage> {
       builder: (context) {
         return EventForm(
           selectedDate: _selectedDay,
-          onEventAdded: () => _loadEventsForDay(_selectedDay),
+          onEventAdded: () {
+            _loadEventsForDay(_selectedDay);
+            _loadAllEvents();
+          },
         );
       },
-    );
+    ).then((_) {
+      if (_previousSelectedDay != null &&
+          _getEventsForDay(_previousSelectedDay!).isEmpty) {
+        setState(() {
+          _events.remove(_previousSelectedDay);
+        });
+      }
+    });
   }
 
   @override
@@ -376,13 +436,166 @@ class _CalendarPageState extends State<CalendarPage> {
       ),
       body: Column(
         children: [
-          TableCalendar(
-            firstDay: DateTime(2000),
-            lastDay: DateTime(2100),
-            focusedDay: _focusedDay,
-            selectedDayPredicate: (day) => isSameDay(day, _selectedDay),
-            onDaySelected: _onDaySelected,
+          Container(
+            color: Colors.blue.withOpacity(0.5),
+            child: TableCalendar(
+              firstDay: DateTime(2000),
+              lastDay: DateTime(2100),
+              focusedDay: _focusedDay,
+              calendarFormat: _calendarFormat,
+              selectedDayPredicate: (day) {
+                return isSameDay(_selectedDay, day);
+              },
+              onDaySelected: _onDaySelected,
+              //     eventLoader: _getEventsForDay,
+              startingDayOfWeek: StartingDayOfWeek.monday,
+              headerStyle: HeaderStyle(
+                formatButtonVisible: false, // Hide the format button
+                titleCentered: false,
+                titleTextStyle: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                    fontFamily: GoogleFonts.poppins().fontFamily),
+              ),
+              onFormatChanged: (format) {
+                if (_calendarFormat != format) {
+                  setState(() {
+                    _calendarFormat = format;
+                  });
+                }
+              },
+              headerVisible: true,
+
+              onHeaderTapped: (focusedDay) {
+                //change the calendar format
+                setState(() {
+                  // Toggle between month and week format
+                  _calendarFormat = _calendarFormat == CalendarFormat.month
+                      ? CalendarFormat.twoWeeks
+                      : CalendarFormat.month;
+                });
+              },
+              daysOfWeekStyle: DaysOfWeekStyle(
+                weekdayStyle: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    fontFamily: GoogleFonts.poppins().fontFamily),
+                weekendStyle: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    fontFamily: GoogleFonts.poppins().fontFamily),
+              ),
+              calendarStyle: CalendarStyle(
+                todayTextStyle: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    fontFamily: GoogleFonts.poppins().fontFamily),
+              ),
+              daysOfWeekHeight: 40,
+              calendarBuilders: CalendarBuilders(
+                defaultBuilder: (context, date, _) {
+                  final events = _events[date];
+                  if (events != null && events.isNotEmpty) {
+                    return Container(
+                      margin: const EdgeInsets.all(4.0),
+                      alignment: Alignment.center,
+                      decoration: BoxDecoration(
+                        color:
+                            Colors.orange, // Custom color for dates with events
+                        shape: BoxShape.circle,
+                      ),
+                      child: Text(
+                        '${date.day}',
+                        style: TextStyle(color: Colors.white),
+                      ),
+                    );
+                  } else {
+                    return null; // Return null for dates without events
+                  }
+                },
+                todayBuilder: (context, day, focusedDay) {
+                  DateTime normalizedDay =
+                      DateTime.utc(day.year, day.month, day.day);
+                  if (_events.containsKey(normalizedDay)) {
+                    return Container(
+                      margin: const EdgeInsets.all(4.0),
+                      alignment: Alignment.center,
+                      decoration: BoxDecoration(
+                        color: Colors.purple,
+                        borderRadius: BorderRadius.circular(8.0),
+                      ),
+                      child: Text(
+                        day.day.toString(),
+                        style: TextStyle(color: Colors.white),
+                      ),
+                    );
+                  } else {
+                    return Container(
+                      margin: const EdgeInsets.all(4.0),
+                      alignment: Alignment.center,
+                      decoration: BoxDecoration(
+                        color: Colors.green,
+                        borderRadius: BorderRadius.circular(8.0),
+                      ),
+                      child: Text(
+                        day.day.toString(),
+                        style: TextStyle(color: Colors.white),
+                      ),
+                    );
+                  }
+                },
+                selectedBuilder: (context, day, focusedDay) {
+                  DateTime normalizedDay =
+                      DateTime.utc(day.year, day.month, day.day);
+                  final events = _getEventsForDay(normalizedDay);
+                  if (events.isNotEmpty) {
+                    return Container(
+                      margin: const EdgeInsets.all(4.0),
+                      alignment: Alignment.center,
+                      decoration: BoxDecoration(
+                        color: Colors.red,
+                        borderRadius: BorderRadius.circular(8.0),
+                      ),
+                      child: Text(
+                        day.day.toString(),
+                        style: TextStyle(color: Colors.white),
+                      ),
+                    );
+                  } else {
+                    return Container(
+                      margin: const EdgeInsets.all(4.0),
+                      alignment: Alignment.center,
+                      decoration: BoxDecoration(
+                        color: Colors.orange,
+                        borderRadius: BorderRadius.circular(8.0),
+                      ),
+                      child: Text(
+                        day.day.toString(),
+                        style: TextStyle(color: Colors.black),
+                      ),
+                    );
+                  }
+                  // if (_events.containsKey(normalizedDay)) {
+                  //   return Container(
+                  //     margin: const EdgeInsets.all(4.0),
+                  //     alignment: Alignment.center,
+                  //     decoration: BoxDecoration(
+                  //       color: Colors.blueAccent,
+                  //       borderRadius: BorderRadius.circular(8.0),
+                  //     ),
+                  //     child: Text(
+                  //       day.day.toString(),
+                  //       style: TextStyle(color: Colors.white),
+                  //     ),
+                  //   );
+                  // } else {
+                  //   return null;
+                  // }
+                },
+              ),
+            ),
           ),
+          //SizedBox(height: _getCalendarHeight()),
           Expanded(
             child: ListView.builder(
               itemCount: _getEventsForDay(_selectedDay).length,
