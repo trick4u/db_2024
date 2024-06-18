@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:intl/intl.dart';
 import 'package:table_calendar/table_calendar.dart';
 
 // class CalendarPage extends StatefulWidget {
@@ -449,6 +450,7 @@ class _CalendarPageState extends State<CalendarPage> {
               onDaySelected: _onDaySelected,
               //     eventLoader: _getEventsForDay,
               startingDayOfWeek: StartingDayOfWeek.monday,
+
               headerStyle: HeaderStyle(
                 formatButtonVisible: false, // Hide the format button
                 titleCentered: false,
@@ -493,6 +495,33 @@ class _CalendarPageState extends State<CalendarPage> {
               ),
               daysOfWeekHeight: 40,
               calendarBuilders: CalendarBuilders(
+                headerTitleBuilder: (context, day) {
+                  // Format the header title
+                  String month = DateFormat.MMMM().format(day);
+                  // get the month
+
+                  String year = DateFormat.y().format(day);
+
+                  return Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        year,
+                        style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                            fontFamily: GoogleFonts.poppins().fontFamily),
+                      ),
+                      Text(
+                        month,
+                        style: TextStyle(
+                            fontSize: 24,
+                            fontWeight: FontWeight.bold,
+                            fontFamily: GoogleFonts.poppins().fontFamily),
+                      ),
+                    ],
+                  );
+                },
                 defaultBuilder: (context, date, _) {
                   final events = _events[date];
                   if (events != null && events.isNotEmpty) {
