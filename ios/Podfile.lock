@@ -946,6 +946,9 @@ PODS:
     - abseil/meta/type_traits
     - abseil/xcprivacy
   - abseil/xcprivacy (1.20240116.2)
+  - awesome_notifications (0.9.3):
+    - Flutter
+    - IosAwnCore (~> 0.9.3)
   - BoringSSL-GRPC (0.0.32):
     - BoringSSL-GRPC/Implementation (= 0.0.32)
     - BoringSSL-GRPC/Interface (= 0.0.32)
@@ -1116,6 +1119,7 @@ PODS:
   - GTMSessionFetcher/Core (3.4.1)
   - home_widget (0.0.1):
     - Flutter
+  - IosAwnCore (0.9.3)
   - leveldb-library (1.22.5)
   - nanopb (2.30910.0):
     - nanopb/decode (= 2.30910.0)
@@ -1131,6 +1135,7 @@ PODS:
   - RecaptchaInterop (100.0.0)
 
 DEPENDENCIES:
+  - awesome_notifications (from `.symlinks/plugins/awesome_notifications/ios`)
   - cloud_firestore (from `.symlinks/plugins/cloud_firestore/ios`)
   - firebase_auth (from `.symlinks/plugins/firebase_auth/ios`)
   - firebase_core (from `.symlinks/plugins/firebase_core/ios`)
@@ -1158,12 +1163,15 @@ SPEC REPOS:
     - "gRPC-C++"
     - gRPC-Core
     - GTMSessionFetcher
+    - IosAwnCore
     - leveldb-library
     - nanopb
     - PromisesObjC
     - RecaptchaInterop
 
 EXTERNAL SOURCES:
+  awesome_notifications:
+    :path: ".symlinks/plugins/awesome_notifications/ios"
   cloud_firestore:
     :path: ".symlinks/plugins/cloud_firestore/ios"
   firebase_auth:
@@ -1185,6 +1193,7 @@ EXTERNAL SOURCES:
 
 SPEC CHECKSUMS:
   abseil: d121da9ef7e2ff4cab7666e76c5a3e0915ae08c3
+  awesome_notifications: 66d28ab7174ca2823b04d275cb043e0a4a3eb9cf
   BoringSSL-GRPC: 1e2348957acdbcad360b80a264a90799984b2ba6
   cloud_firestore: 33319d8646cb250b3385e5fea751bd36232561b5
   Firebase: 26b040b20866a55f55eb3611b9fcf3ae64816b86
@@ -1206,6 +1215,7 @@ SPEC CHECKSUMS:
   gRPC-Core: eee4be35df218649fe66d721a05a7f27a28f069b
   GTMSessionFetcher: 8000756fc1c19d2e5697b90311f7832d2e33f6cd
   home_widget: 0434835a4c9a75704264feff6be17ea40e0f0d57
+  IosAwnCore: b8601fbb37f7b3560f31b84ebf55a72f65812e05
   leveldb-library: e8eadf9008a61f9e1dde3978c086d2b6d9b9dc28
   nanopb: 438bc412db1928dac798aa6fd75726007be04262
   path_provider_foundation: 2b6b4c569c0fb62ec74538f866245ac84301af46
@@ -1213,6 +1223,6 @@ SPEC CHECKSUMS:
   PromisesObjC: f5707f49cb48b9636751c5b2e7d227e43fba9f47
   RecaptchaInterop: 7d1a4a01a6b2cb1610a47ef3f85f0c411434cb21
 
-PODFILE CHECKSUM: a57f30d18f102dd3ce366b1d62a55ecbef2158e5
+PODFILE CHECKSUM: 2bf8dcf75d27f09da62c0851061a6618ad6ebfc8
 
 COCOAPODS: 1.15.2

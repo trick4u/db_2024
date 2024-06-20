@@ -3,6 +3,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
 
 import '../projectController/page_threeController.dart';
+import '../projectPages/awesome_noti.dart';
 import '../projectPages/main_screen.dart';
 
 import 'package:popover/popover.dart';
@@ -16,6 +17,8 @@ class MainScreenController extends GetxController {
     Page1(),
     CalendarPage(),
     Page3(),
+    AwesomeNoti(),
+  
   ].obs;
 
   void changePage(

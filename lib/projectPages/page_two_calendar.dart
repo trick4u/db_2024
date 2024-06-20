@@ -470,12 +470,7 @@ class _CalendarPageState extends State<CalendarPage> {
 
               onHeaderTapped: (focusedDay) {
                 //change the calendar format
-                setState(() {
-                  // Toggle between month and week format
-                  _calendarFormat = _calendarFormat == CalendarFormat.month
-                      ? CalendarFormat.twoWeeks
-                      : CalendarFormat.month;
-                });
+                print('Header tapped');
               },
               daysOfWeekStyle: DaysOfWeekStyle(
                 weekdayStyle: TextStyle(
@@ -502,24 +497,35 @@ class _CalendarPageState extends State<CalendarPage> {
 
                   String year = DateFormat.y().format(day);
 
-                  return Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        year,
-                        style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                            fontFamily: GoogleFonts.poppins().fontFamily),
-                      ),
-                      Text(
-                        month,
-                        style: TextStyle(
-                            fontSize: 24,
-                            fontWeight: FontWeight.bold,
-                            fontFamily: GoogleFonts.poppins().fontFamily),
-                      ),
-                    ],
+                  return GestureDetector(
+                    onTap: () {
+                      setState(() {
+                        // Toggle between month and week format
+                        _calendarFormat =
+                            _calendarFormat == CalendarFormat.month
+                                ? CalendarFormat.twoWeeks
+                                : CalendarFormat.month;
+                      });
+                    },
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          year,
+                          style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                              fontFamily: GoogleFonts.poppins().fontFamily),
+                        ),
+                        Text(
+                          month,
+                          style: TextStyle(
+                              fontSize: 24,
+                              fontWeight: FontWeight.bold,
+                              fontFamily: GoogleFonts.poppins().fontFamily),
+                        ),
+                      ],
+                    ),
                   );
                 },
                 defaultBuilder: (context, date, _) {

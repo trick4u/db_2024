@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
 
 import '../constants/colors.dart';
@@ -10,6 +11,7 @@ class MainScreen extends GetWidget<MainScreenController> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white,
       appBar: AppBar(
         title: Text('Main Screen'),
       ),
@@ -29,32 +31,21 @@ class MainScreen extends GetWidget<MainScreenController> {
             ),
           ),
           child: Icon(
-            Icons.add,
-            size: 40,
+            FontAwesomeIcons.plus,
+            size: 30,
             color: Colors.white,
           ),
         ),
       ),
       body: Obx(() => controller.pages[controller.currentIndex.value]),
-      bottomNavigationBar: Obx(() => Container(
-            height: 80,
-            decoration: BoxDecoration(
-              //border radius
-              borderRadius: BorderRadius.only(
-                topLeft: Radius.circular(20),
-                topRight: Radius.circular(20),
-              ),
-
-              color: Colors.white,
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.grey,
-                  offset: Offset(0.0, 1.0),
-                  blurRadius: 6.0,
-                ),
-              ],
+      bottomNavigationBar: Obx(() => ClipRRect(
+            borderRadius: BorderRadius.only(
+              topLeft: Radius.circular(30),
+              topRight: Radius.circular(30),
             ),
             child: BottomAppBar(
+              color: Colors.black,
+              shadowColor: Colors.grey.withOpacity(0.3),
               shape: const CircularNotchedRectangle(),
               notchMargin: 6,
 
