@@ -40,11 +40,10 @@ class MainScreen extends GetWidget<MainScreenController> {
       body: Obx(() => controller.pages[controller.currentIndex.value]),
       bottomNavigationBar: Obx(() => ClipRRect(
             borderRadius: BorderRadius.only(
-              topLeft: Radius.circular(30),
-              topRight: Radius.circular(30),
+              topLeft: Radius.circular(20),
+              topRight: Radius.circular(20),
             ),
             child: BottomAppBar(
-              color: Colors.black,
               shadowColor: Colors.grey.withOpacity(0.3),
               shape: const CircularNotchedRectangle(),
               notchMargin: 6,
@@ -100,24 +99,7 @@ class MainScreen extends GetWidget<MainScreenController> {
                   ),
                 ],
               ),
-              // child: Row(
-              //   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              //   children: controller.navBarItems
-              //       .map((item) => IconButton(
-              //             onPressed: () => controller.changePage(
-              //               controller.navBarItems.indexOf(item),
-              //               context,
-              //             ),
-              //             icon: Icon(
-              //               item.icon,
-              //               color: controller.currentIndex.value ==
-              //                       controller.navBarItems.indexOf(item)
-              //                   ? item.activeColor
-              //                   : null,
-              //             ),
-              //           ))
-              //       .toList(),
-              // ),
+          
             ),
           )),
     );
