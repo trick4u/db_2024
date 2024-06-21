@@ -46,23 +46,6 @@ class _AwesomeNotiState extends State<AwesomeNoti> {
     super.dispose();
   }
 
-  // showNotification() async {
-  //   AwesomeNotifications().createNotification(
-  //     content: NotificationContent(
-  //       id: 10,
-  //       channelKey: 'basic_channel',
-  //       title: 'Simple Notification',
-  //       body: 'Simple body',
-  //       color: Colors.amber,
-  //       backgroundColor: Colors.blueAccent,
-  //       payload: Map<String, String>.from({'uuid': '123'}),
-  //     ),
-  //     schedule: NotificationInterval(
-  //       interval: 5,
-  //       timeZone: await AwesomeNotifications().getLocalTimeZoneIdentifier(),
-  //     ),
-  //   );
-  // }
 
 
    Future<void> scheduleNotification(DateTime scheduledDateTime, String message) async {

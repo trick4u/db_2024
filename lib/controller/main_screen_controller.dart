@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
+import 'package:tushar_db/constants/colors.dart';
 
 import '../projectController/page_threeController.dart';
 import '../projectPages/awesome_noti.dart';
@@ -8,17 +9,20 @@ import '../projectPages/main_screen.dart';
 
 import 'package:popover/popover.dart';
 
+import '../projectPages/page_one.dart';
 import '../projectPages/page_three.dart';
 import '../projectPages/page_two_calendar.dart';
 
-class MainScreenController extends GetxController {
+class MainScreenController extends GetxController
+    with GetSingleTickerProviderStateMixin {
+  //variables
   final RxInt currentIndex = 0.obs;
+
   final RxList<Widget> pages = [
     Page1(),
     CalendarPage(),
     Page3(),
     AwesomeNoti(),
-  
   ].obs;
 
   void changePage(
@@ -30,6 +34,22 @@ class MainScreenController extends GetxController {
       Get.lazyPut<PageThreecontroller>(() => PageThreecontroller());
       showDialog(context);
     }
+  }
+
+
+  Color scaffoldBackgroundColor (){
+   switch(currentIndex.value){
+     case 0:
+       return ColorsConstants().lightPurple;
+     case 1:
+       return ColorsConstants().lightPink;
+     case 2:
+       return ColorsConstants().lightOrange;
+     case 3:
+       return ColorsConstants().lightGreen;
+     default:
+       return ColorsConstants().lightBlue;
+   }
   }
 
   // if page index ==2 then show dialog
@@ -58,26 +78,25 @@ class MainScreenController extends GetxController {
     PersistentBottomNavBarItem(
       icon: FontAwesomeIcons.calendarDay,
       title: "Calendar",
-      activeColor: Colors.purple,
+      activeColor: ColorsConstants().deepPurple,
       inactiveColor: Colors.grey,
     ),
     PersistentBottomNavBarItem(
       icon: FontAwesomeIcons.rectangleList,
       title: "Tasks",
-      activeColor: Colors.purple,
+      activeColor: ColorsConstants().deepPurple,
       inactiveColor: Colors.grey,
     ),
     PersistentBottomNavBarItem(
       icon: FontAwesomeIcons.clock,
       title: "Clock",
-      activeColor: Colors.purple,
+      activeColor: ColorsConstants().deepPurple,
       inactiveColor: Colors.grey,
     ),
     PersistentBottomNavBarItem(
       icon: FontAwesomeIcons.user,
-      
       title: "Profile",
-      activeColor: Colors.purple,
+      activeColor: ColorsConstants().deepPurple,
       inactiveColor: Colors.grey,
       onTap: () {
         showPopover(

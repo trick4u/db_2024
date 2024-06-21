@@ -431,14 +431,12 @@ class _CalendarPageState extends State<CalendarPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Calendar'),
-      ),
-      body: Column(
+    return SafeArea(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Container(
-            color: Colors.blue.withOpacity(0.5),
+            //color: Colors.blue.withOpacity(0.5),
             child: TableCalendar(
               firstDay: DateTime(2000),
               lastDay: DateTime(2100),
@@ -644,11 +642,12 @@ class _CalendarPageState extends State<CalendarPage> {
           ),
         ],
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _showAddEventDialog,
-        child: Icon(Icons.add),
-      ),
     );
+    //   floatingActionButton: FloatingActionButton(
+    //     onPressed: _showAddEventDialog,
+    //     child: Icon(Icons.add),
+    //   ),
+    // );
   }
 }
 
