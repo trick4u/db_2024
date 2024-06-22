@@ -33,23 +33,24 @@ class MainScreenController extends GetxController
     if (currentIndex.value == 2) {
       Get.lazyPut<PageThreecontroller>(() => PageThreecontroller());
       showDialog(context);
+    } else if (currentIndex.value == 3) {
+      Get.lazyPut<AwesomeNoti>(() => AwesomeNoti());
     }
   }
 
-
-  Color scaffoldBackgroundColor (){
-   switch(currentIndex.value){
-     case 0:
-       return ColorsConstants().lightPurple;
-     case 1:
-       return ColorsConstants().lightPink;
-     case 2:
-       return ColorsConstants().lightOrange;
-     case 3:
-       return ColorsConstants().lightGreen;
-     default:
-       return ColorsConstants().lightBlue;
-   }
+  Color scaffoldBackgroundColor() {
+    switch (currentIndex.value) {
+      case 0:
+        return ColorsConstants().lightPurple;
+      case 1:
+        return ColorsConstants().lightPink;
+      case 2:
+        return ColorsConstants().lightOrange;
+      case 3:
+        return ColorsConstants().lightTeal;
+      default:
+        return ColorsConstants().lightBlue;
+    }
   }
 
   // if page index ==2 then show dialog

@@ -12,6 +12,7 @@ class AwesomeNoti extends StatefulWidget {
 }
 
 class _AwesomeNotiState extends State<AwesomeNoti> {
+  
   OmniDateTimePicker omniDateTimePicker = OmniDateTimePicker(
     onDateTimeChanged: (DateTime dateTime) {
       print(dateTime);

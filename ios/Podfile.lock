@@ -1133,6 +1133,8 @@ PODS:
     - Flutter
   - PromisesObjC (2.4.0)
   - RecaptchaInterop (100.0.0)
+  - sensors (0.0.1):
+    - Flutter
 
 DEPENDENCIES:
   - awesome_notifications (from `.symlinks/plugins/awesome_notifications/ios`)
@@ -1145,6 +1147,7 @@ DEPENDENCIES:
   - home_widget (from `.symlinks/plugins/home_widget/ios`)
   - path_provider_foundation (from `.symlinks/plugins/path_provider_foundation/darwin`)
   - permission_handler_apple (from `.symlinks/plugins/permission_handler_apple/ios`)
+  - sensors (from `.symlinks/plugins/sensors/ios`)
 
 SPEC REPOS:
   trunk:
@@ -1190,6 +1193,8 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/path_provider_foundation/darwin"
   permission_handler_apple:
     :path: ".symlinks/plugins/permission_handler_apple/ios"
+  sensors:
+    :path: ".symlinks/plugins/sensors/ios"
 
 SPEC CHECKSUMS:
   abseil: d121da9ef7e2ff4cab7666e76c5a3e0915ae08c3
@@ -1222,6 +1227,7 @@ SPEC CHECKSUMS:
   permission_handler_apple: 9878588469a2b0d0fc1e048d9f43605f92e6cec2
   PromisesObjC: f5707f49cb48b9636751c5b2e7d227e43fba9f47
   RecaptchaInterop: 7d1a4a01a6b2cb1610a47ef3f85f0c411434cb21
+  sensors: 84eb7a30e47a649e4172b71d6e81be614c280336
 
 PODFILE CHECKSUM: 2bf8dcf75d27f09da62c0851061a6618ad6ebfc8
 
