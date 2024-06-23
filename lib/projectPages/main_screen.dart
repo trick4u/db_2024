@@ -3,10 +3,14 @@ import 'package:dough_sensors/dough_sensors.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
+import 'package:tushar_db/app_routes.dart';
+import 'package:tushar_db/pages/network_screen.dart';
 
 import '../constants/colors.dart';
 import '../controller/main_screen_controller.dart';
 import 'package:animate_gradient/animate_gradient.dart';
+
+import '../controller/network_controller.dart';
 
 class MainScreen extends GetWidget<MainScreenController> {
   const MainScreen({super.key});
@@ -105,11 +109,15 @@ class BottomBar extends StatelessWidget {
 }
 
 class FabButton extends StatelessWidget {
-  final MainScreenController controller = Get.put(MainScreenController());
+  final MainScreenController controller = Get.find<MainScreenController>();
 
   @override
   Widget build(BuildContext context) {
     return PressableDough(
+      onReleased: (details) {
+        Get.toNamed(AppRoutes.ADDTASK);
+        
+      },
       child: ClipRRect(
         borderRadius: BorderRadius.circular(30),
         child: Container(

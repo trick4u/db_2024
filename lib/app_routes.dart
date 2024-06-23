@@ -1,14 +1,17 @@
 import 'package:get/get.dart';
 
-
 import 'bindings/email_binding.dart';
 import 'bindings/home_binding.dart';
 import 'bindings/main_screen_binding.dart';
+import 'bindings/network_binding.dart';
 import 'bindings/otp_binding.dart';
 import 'bindings/phone_binding.dart';
-import 'bindings/splash_binding.dart';
+import 'bindings/initial_binding.dart';
 import 'pages/email_verification.dart';
 import 'pages/home_page.dart';
+import 'pages/network_screen.dart';
+import 'projectBinding/add_taskBinding.dart';
+import 'projectPages/add_task.dart';
 import 'projectPages/main_screen.dart';
 import 'pages/otp_screen.dart';
 import 'pages/phone_auth.dart';
@@ -32,14 +35,19 @@ class AppRoutes {
   static const String MAIN = '/main';
   // email verification
   static const String EMAIL = '/emailVerification';
+  // add task
+  static const String ADDTASK = '/addTask';
 
-  
+  //network
+  static const String NETWORK = '/network';
 
   static List<GetPage> routes = [
+    GetPage(name: NETWORK, page: () => NetworkScreen(), binding: NetworkBinding(), ),
+    
     GetPage(
       name: SPLASH,
       page: () => SplashScreen(),
-      binding: SplashBinding(),
+      binding: InitialBinding(),
     ),
     GetPage(
       name: HOME,
@@ -56,9 +64,20 @@ class AppRoutes {
       page: () => OtpScreen(),
       binding: OtpBinding(),
     ),
-    GetPage(name: MAIN, page: () => MainScreen(), binding: MainScreenBinding(),),
-    GetPage(name: EMAIL, page: () => EmailVerificationScreen(), binding: EmailBinding(),),
-
-  
+    GetPage(
+      name: MAIN,
+      page: () => MainScreen(),
+      binding: MainScreenBinding(),
+    ),
+    GetPage(
+      name: EMAIL,
+      page: () => EmailVerificationScreen(),
+      binding: EmailBinding(),
+    ),
+    GetPage(
+      name: ADDTASK,
+      page: () => AddTaskScreen(),
+      binding: AddTaskbinding(),
+    ),
   ];
 }

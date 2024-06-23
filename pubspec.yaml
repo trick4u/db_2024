@@ -60,6 +60,8 @@ dependencies:
   dough_sensors: ^0.0.2
   
   animate_gradient: ^0.0.3
+  connectivity_plus: ^6.0.3
+  internet_connection_checker_plus: ^2.4.2
   
   
 
