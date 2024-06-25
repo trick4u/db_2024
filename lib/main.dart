@@ -21,6 +21,7 @@ import 'app_routes.dart';
 import 'bindings/initial_binding.dart';
 import 'controller/home_controller.dart';
 import 'loading_screen.dart';
+import 'pages/home_page.dart';
 import 'projectPages/page_three.dart';
 import 'package:timezone/timezone.dart' as tz;
 
@@ -91,9 +92,9 @@ class MyApp extends StatelessWidget {
       themeMode:
           themeController.isDarkMode.value ? ThemeMode.dark : ThemeMode.light,
       initialBinding: InitialBinding(),
-      initialRoute: AppRoutes.MAIN,
+      initialRoute: AppRoutes.HOME,
       getPages: AppRoutes.routes,
-    //  home: SplashScreen(),
+      // home: MyHomePage(),
     );
   }
 }

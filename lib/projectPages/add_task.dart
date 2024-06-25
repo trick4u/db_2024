@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:tushar_db/constants/colors.dart';
 import 'package:tushar_db/projectController/add_task_controller.dart';
 
 class AddTaskScreen extends GetWidget<AddTaskController> {
@@ -7,57 +10,306 @@ class AddTaskScreen extends GetWidget<AddTaskController> {
 
   @override
   Widget build(BuildContext context) {
-    return Material(
-      child: Container(
+    return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Colors.white,
+        title: Text(
+          "Add Task",
+          style: TextStyle(
+            fontSize: 20,
+            color: Colors.black,
+            fontWeight: FontWeight.bold,
+            fontFamily: GoogleFonts.poppins().fontFamily,
+          ),
+        ),
+        centerTitle: true,
+        actions: [
+          IconButton(
+            icon: Icon(FontAwesomeIcons.notesMedical),
+            onPressed: () {},
+          ),
+          IconButton(
+            icon: Icon(Icons.delete),
+            onPressed: () {},
+          ),
+        ],
+      ),
+      body: Container(
         alignment: Alignment.center,
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.bottomCenter,
+            end: Alignment.topCenter,
+            colors: [
+              Color.fromARGB(255, 251, 196, 204),
+              Colors.white,
+              //  Colors.green,
+            ],
+          ),
+        ),
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.start,
           children: [
-            // stack wisget
+            //chips
             Container(
-              height: 500,
-              child: Stack(
-                fit: StackFit.loose,
+              height: 50,
+              margin: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+              child: ListView(
+                physics: BouncingScrollPhysics(),
+                scrollDirection: Axis.horizontal,
                 children: [
-                  // top container
-                  Obx(() {
-                    return AnimatedPositioned(
-                      top: 100.0,
-                      left: controller.isTopMoved.value ? 200.0 : 100.0,
-                      duration: Duration(milliseconds: 500),
-                      child: GestureDetector(
-                        onTap: controller.moveTopRight,
-                        child: Container(
-                          width: 100,
-                          height: 100,
-                          color: Colors.red,
-                          child: Center(
-                            child: Text('Top'),
-                          ),
-                        ),
+                  Chip(
+                    label: Text("#All"),
+                    backgroundColor: ColorsConstants().lightPurple,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                      side: BorderSide(
+                        color: Colors.transparent,
+                        width: 0,
                       ),
-                    );
-                  }),
-                  GestureDetector(
-                    onTap: controller.moveBottomRight,
-                    child: Positioned(
-                      top: 100.0,
-                      left: 100.0,
-                      child: Container(
-                        width: 100,
-                        height: 100,
-                        color: Colors.blue,
-                        child: Center(
-                          child: Text('Bottom'),
-                        ),
+                    ),
+                  ),
+                  SizedBox(
+                    width: 10,
+                  ),
+                  Chip(
+                    label: Text("Work"),
+                    backgroundColor: ColorsConstants().deepPink,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                      side: BorderSide(
+                        color: Colors.transparent,
+                        width: 0,
+                      ),
+                    ),
+                  ),
+                  SizedBox(
+                    width: 10,
+                  ),
+                  Chip(
+                    label: Text("Home"),
+                    backgroundColor: ColorsConstants().deepOrange,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                      side: BorderSide(
+                        color: Colors.transparent,
+                        width: 0,
+                      ),
+                    ),
+                  ),
+                  SizedBox(
+                    width: 10,
+                  ),
+                  Chip(
+                    label: Text("Personal"),
+                    backgroundColor: ColorsConstants().lightPurple,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                      side: BorderSide(
+                        color: Colors.transparent,
+                        width: 0,
+                      ),
+                    ),
+                  ),
+                  SizedBox(
+                    width: 10,
+                  ),
+                  Chip(
+                    label: Text(
+                      "#GOALS",
+                      style: TextStyle(color: Colors.white),
+                    ),
+                    backgroundColor: Colors.blueAccent,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                      side: BorderSide(
+                        color: Colors.transparent,
+                        width: 0,
                       ),
                     ),
                   ),
                 ],
               ),
             ),
+
+            // text field
+            Container(
+              height: 50,
+              margin: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+              child: TextField(
+                controller: controller.goalsController,
+                decoration: InputDecoration(
+                  //add shadow
+                  enabledBorder: OutlineInputBorder(
+                    borderSide: BorderSide(
+                      color: Colors.transparent,
+                    ),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  border: InputBorder.none,
+                  filled: true,
+                  fillColor: Colors.white,
+                  hintText: "Enter your goals here",
+                  hintStyle: TextStyle(
+                    fontSize: 20,
+                    color: Colors.grey,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+            ),
+
+            // save button
+            ElevatedButton(
+              onPressed: () {},
+              child: Text(
+                "Save",
+                style: TextStyle(
+                  fontSize: 20,
+                  color: Colors.black,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+
+            //month task widget
+            MonthTaskWidget(),
           ],
         ),
+      ),
+    );
+  }
+}
+
+class MonthTaskWidget extends StatelessWidget {
+  const MonthTaskWidget({
+    super.key,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      height: 300,
+      width: 400,
+      child: Stack(
+        alignment: Alignment.center,
+        children: [
+          // Container
+          Positioned(
+            left: 20,
+            child: Container(
+              height: 150,
+              width: 300,
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.bottomCenter,
+                  end: Alignment.topCenter,
+                  colors: [
+                    ColorsConstants().deepPurple,
+                    ColorsConstants().deepPink,
+                    ColorsConstants().deepOrange,
+                    //  Colors.green,
+                  ],
+                ),
+                borderRadius: BorderRadius.circular(30),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.only(left: 10.0),
+                child: RotatedBox(
+                  quarterTurns: 3,
+                  child: Text(
+                    "JANNUARY",
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: 20,
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+          AnimatedPositioned(
+            top: 75,
+            right: 20,
+            duration: Duration(seconds: 1),
+            curve: Curves.easeIn,
+            child: GestureDetector(
+              onTap: () {},
+              child: Container(
+                height: 150,
+                width: 300,
+                padding: EdgeInsets.only(left: 10, top: 30),
+                decoration: BoxDecoration(
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.1),
+                      blurRadius: 10,
+                      spreadRadius: 5,
+                      offset: Offset(0, 5),
+                    ),
+                  ],
+                  gradient: LinearGradient(
+                    begin: Alignment.topRight,
+                    end: Alignment.bottomLeft,
+                    colors: [
+                      Colors.white,
+                      ColorsConstants().lightPurple,
+                    ],
+                  ),
+                  borderRadius: BorderRadius.circular(30),
+                ),
+                child: Column(
+                  //  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      "TODAY",
+                      style: TextStyle(
+                        fontSize: 10,
+                        color: Colors.grey,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    Text(
+                      "22",
+                      style: TextStyle(
+                        fontSize: 20,
+                        color: Colors.black,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    //check box and text
+                    SizedBox(
+                      height: 10,
+                    ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: [
+                        Icon(
+                          Icons.check_circle,
+                          color: Colors.green,
+                        ),
+                        SizedBox(
+                          width: 10,
+                        ),
+                        Text(
+                          "Task Completed",
+                          style: TextStyle(
+                            fontSize: 15,
+                            color: Colors.grey,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }

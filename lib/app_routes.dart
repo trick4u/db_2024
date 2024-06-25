@@ -11,14 +11,16 @@ import 'pages/email_verification.dart';
 import 'pages/home_page.dart';
 import 'pages/network_screen.dart';
 import 'projectBinding/add_taskBinding.dart';
+import 'projectBinding/goals_binding.dart';
 import 'projectPages/add_task.dart';
+import 'projectPages/goals.dart';
 import 'projectPages/main_screen.dart';
 import 'pages/otp_screen.dart';
 import 'pages/phone_auth.dart';
 import 'pages/splash_screen.dart';
 
 class AppRoutes {
-  static const String HOME = '/';
+  static const String HOME = '/home';
   static const String LOGIN = '/login';
   static const String REGISTER = '/register';
   static const String PROFILE = '/profile';
@@ -40,10 +42,20 @@ class AppRoutes {
 
   //network
   static const String NETWORK = '/network';
+  // goals
+  static const String GOALS = '/goals';
 
   static List<GetPage> routes = [
-    GetPage(name: NETWORK, page: () => NetworkScreen(), binding: NetworkBinding(), ),
-    
+    GetPage(
+      name: GOALS,
+      page: () => GoalsScreen(),
+      binding: GoalsBinding(),
+    ),
+    GetPage(
+      name: NETWORK,
+      page: () => NetworkScreen(),
+      binding: NetworkBinding(),
+    ),
     GetPage(
       name: SPLASH,
       page: () => SplashScreen(),

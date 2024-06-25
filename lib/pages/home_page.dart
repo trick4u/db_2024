@@ -17,7 +17,7 @@ class MyHomePage extends GetWidget<HomeController> {
   //dispose the tab controller
   @override
   Widget build(BuildContext context) {
-    timeDilation = 10.0;
+    // timeDilation = 10.0;
 
     return Scaffold(
         backgroundColor:

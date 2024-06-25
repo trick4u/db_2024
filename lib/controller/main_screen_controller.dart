@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
 import 'package:tushar_db/constants/colors.dart';
+import 'package:tushar_db/projectPages/goals.dart';
 
 import '../projectController/page_threeController.dart';
 import '../projectPages/awesome_noti.dart';
@@ -21,7 +22,7 @@ class MainScreenController extends GetxController
   final RxList<Widget> pages = [
     Page1(),
     CalendarPage(),
-    Page3(),
+    GoalsScreen(),
     AwesomeNoti(),
   ].obs;
 
@@ -89,7 +90,7 @@ class MainScreenController extends GetxController
       inactiveColor: Colors.grey,
     ),
     PersistentBottomNavBarItem(
-      icon: FontAwesomeIcons.clock,
+      icon: FontAwesomeIcons.noteSticky,
       title: "Clock",
       activeColor: ColorsConstants().deepPurple,
       inactiveColor: Colors.grey,

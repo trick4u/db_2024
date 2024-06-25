@@ -12,8 +12,8 @@ class InitialBinding extends Bindings {
   void dependencies() {
     Get.lazyPut<SplashController>(() => SplashController());
 
-    Get.lazyPut<MainScreenController>(() => MainScreenController(),
-        fenix: true);
+    // Get.lazyPut<MainScreenController>(() => MainScreenController(),
+    //     fenix: true);
     Get.put(NetworkController(), permanent: true);
   }
 }

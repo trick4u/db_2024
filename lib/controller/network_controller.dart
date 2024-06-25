@@ -7,7 +7,7 @@ import 'package:internet_connection_checker_plus/internet_connection_checker_plu
 import 'package:tushar_db/app_routes.dart';
 
 class NetworkController extends GetxController {
-  RxBool isOnline = false.obs;
+  RxBool isOnline = true.obs;
 
   StreamSubscription? connectionStream;
 
@@ -15,11 +15,11 @@ class NetworkController extends GetxController {
   void onInit() {
     super.onInit();
     InternetConnection().onStatusChange.listen((event) {
-      print('Internet Status: $event');
+    
       switch (event) {
         case InternetStatus.connected:
           isOnline.value = true;
-          Get.toNamed(AppRoutes.MAIN);
+       // Get.toNamed(AppRoutes.HOME);
           break;
         case InternetStatus.disconnected:
           isOnline.value = false;

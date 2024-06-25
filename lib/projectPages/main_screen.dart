@@ -1,5 +1,6 @@
 import 'package:dough/dough.dart';
 import 'package:dough_sensors/dough_sensors.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
@@ -17,6 +18,7 @@ class MainScreen extends GetWidget<MainScreenController> {
 
   @override
   Widget build(BuildContext context) {
+    print("Current Usre: ${FirebaseAuth.instance.currentUser!.uid}");
     return Obx(
       () => Scaffold(
         backgroundColor: controller.scaffoldBackgroundColor(),
@@ -116,7 +118,6 @@ class FabButton extends StatelessWidget {
     return PressableDough(
       onReleased: (details) {
         Get.toNamed(AppRoutes.ADDTASK);
-        
       },
       child: ClipRRect(
         borderRadius: BorderRadius.circular(30),
