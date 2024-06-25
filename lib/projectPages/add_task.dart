@@ -5,6 +5,8 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:tushar_db/constants/colors.dart';
 import 'package:tushar_db/projectController/add_task_controller.dart';
 
+import '../widgets/chip_widgets.dart';
+
 class AddTaskScreen extends GetWidget<AddTaskController> {
   const AddTaskScreen({super.key});
 
@@ -51,117 +53,47 @@ class AddTaskScreen extends GetWidget<AddTaskController> {
           mainAxisAlignment: MainAxisAlignment.start,
           children: [
             //chips
-            Container(
-              height: 50,
-              margin: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-              child: ListView(
-                physics: BouncingScrollPhysics(),
-                scrollDirection: Axis.horizontal,
-                children: [
-                  Chip(
-                    label: Text("#All"),
-                    backgroundColor: ColorsConstants().lightPurple,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
-                      side: BorderSide(
-                        color: Colors.transparent,
-                        width: 0,
-                      ),
-                    ),
-                  ),
-                  SizedBox(
-                    width: 10,
-                  ),
-                  Chip(
-                    label: Text("Work"),
-                    backgroundColor: ColorsConstants().deepPink,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
-                      side: BorderSide(
-                        color: Colors.transparent,
-                        width: 0,
-                      ),
-                    ),
-                  ),
-                  SizedBox(
-                    width: 10,
-                  ),
-                  Chip(
-                    label: Text("Home"),
-                    backgroundColor: ColorsConstants().deepOrange,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
-                      side: BorderSide(
-                        color: Colors.transparent,
-                        width: 0,
-                      ),
-                    ),
-                  ),
-                  SizedBox(
-                    width: 10,
-                  ),
-                  Chip(
-                    label: Text("Personal"),
-                    backgroundColor: ColorsConstants().lightPurple,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
-                      side: BorderSide(
-                        color: Colors.transparent,
-                        width: 0,
-                      ),
-                    ),
-                  ),
-                  SizedBox(
-                    width: 10,
-                  ),
-                  Chip(
-                    label: Text(
-                      "#GOALS",
-                      style: TextStyle(color: Colors.white),
-                    ),
-                    backgroundColor: Colors.blueAccent,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
-                      side: BorderSide(
-                        color: Colors.transparent,
-                        width: 0,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
+            ChipWidgets(
+              addTaskController: controller,
             ),
 
             // text field
             Container(
               height: 50,
               margin: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-              child: TextField(
-                controller: controller.goalsController,
-                decoration: InputDecoration(
-                  //add shadow
-                  enabledBorder: OutlineInputBorder(
-                    borderSide: BorderSide(
-                      color: Colors.transparent,
-                    ),
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  border: InputBorder.none,
-                  filled: true,
-                  fillColor: Colors.white,
-                  hintText: "Enter your goals here",
-                  hintStyle: TextStyle(
-                    fontSize: 20,
-                    color: Colors.grey,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
+              child: Obx(
+                () {
+                  return controller.selectedChipIndex != 0
+                      ? TextField(
+                          controller: controller.goalsController,
+                          decoration: InputDecoration(
+                            //add shadow
+                            enabledBorder: OutlineInputBorder(
+                              borderSide: BorderSide(
+                                color: Colors.transparent,
+                              ),
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            border: InputBorder.none,
+                            filled: true,
+                            fillColor: Colors.white,
+                            hintText: controller.hintText(),
+                            hintStyle: TextStyle(
+                              fontSize: 20,
+                              color: Colors.grey,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ))
+                      : SizedBox.shrink();
+                },
               ),
             ),
 
             // save button
             ElevatedButton(
-              onPressed: () {},
+              onPressed: () {
+                //controller.addTask();
+              },
               child: Text(
                 "Save",
                 style: TextStyle(
