@@ -26,12 +26,35 @@ import 'loading_screen.dart';
 import 'pages/home_page.dart';
 import 'projectPages/page_three.dart';
 import 'package:timezone/timezone.dart' as tz;
+import 'package:workmanager/workmanager.dart';
+
+
+
+
+
 
 
 FlutterLocalNotificationsPlugin notificationsPlugin =
     FlutterLocalNotificationsPlugin();
 
-    
+void callbackDispatcher() {
+  Workmanager().executeTask((task, inputData) async{
+    AwesomeNotifications().createNotification(
+      content: NotificationContent(
+        id: 10,
+        channelKey: 'basic_channel',
+        title: 'Periodic Reminder',
+        body: 'This is your reminder notification!',
+      ),
+      schedule: NotificationInterval(
+        interval: 15 * 60, // 15 minutes in seconds
+        timeZone: await AwesomeNotifications().getLocalTimeZoneIdentifier(),
+        repeats: true
+      )
+    );
+    return Future.value(true);
+  });
+}
 
 
 void main() async {
@@ -39,6 +62,14 @@ void main() async {
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
   await initializeTimeZone();
+  Workmanager().initialize(callbackDispatcher, isInDebugMode: true);
+  //   Workmanager().registerPeriodicTask(
+  //   "1",
+  //   "simplePeriodicTask",
+  //   frequency: Duration(minutes: 15),
+  //   inputData: Map<String, dynamic>.from({"data": "simplePeriodicTask"}),
+  
+  // );
  
 
   await AwesomeNotifications().initialize(

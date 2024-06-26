@@ -62,8 +62,9 @@ dependencies:
   animate_gradient: ^0.0.3
   connectivity_plus: ^6.0.3
   internet_connection_checker_plus: ^2.4.2
-  workmanager_workspace:
-    path: /Volumes/Tushar SSD/Flutter Products/flutter_workmanager-main
+  workmanager:
+    path: /Volumes/Tushar SSD/Flutter Products/flutter_workmanager-main/workmanager
+  
 
     
  

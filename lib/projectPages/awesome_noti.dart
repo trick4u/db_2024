@@ -1,5 +1,6 @@
 import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:flutter/material.dart';
+import 'package:workmanager/workmanager.dart';
 
 import '../services/notification_service.dart';
 import 'package:omni_datetime_picker/omni_datetime_picker.dart';
@@ -37,6 +38,7 @@ class _AwesomeNotiState extends State<AwesomeNoti> {
       }
     });
     //listen for notification
+  
 
     super.initState();
   }
@@ -98,6 +100,8 @@ class _AwesomeNotiState extends State<AwesomeNoti> {
       scheduleNotification(dateTime, 'This is your custom scheduled reminder!');
     }
   }
+ 
+
 
   @override
   Widget build(BuildContext context) {
@@ -119,9 +123,29 @@ class _AwesomeNotiState extends State<AwesomeNoti> {
           child: ElevatedButton(
             onPressed: () {
               // Awesome Notifications
+
               schedulePeriodicNotifications();
             },
             child: Text('Periodic Notification'),
+          ),
+        ),
+        Container(
+          alignment: Alignment.center,
+          child: ElevatedButton(
+            onPressed: () {
+              // Awesome Notifications
+              // schedulePeriodicNotifications();
+           Workmanager().registerPeriodicTask(
+              "1",
+              "periodicNotification",
+              
+              frequency: Duration(minutes: 10),
+              inputData: {"data": "periodicNotification"},
+            );
+            
+         
+            },
+            child: Text(' Schedule Periodic Notification'),
           ),
         ),
       ],
