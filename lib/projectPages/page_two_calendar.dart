@@ -629,6 +629,12 @@ class _CalendarPageState extends State<CalendarPage> {
             ),
           ),
           //SizedBox(height: _getCalendarHeight()),
+          SizedBox(height: 16),
+          ElevatedButton(
+              onPressed: () {
+                _showAddEventDialog();
+              },
+              child: Text('Add Event')),
           Expanded(
             child: ListView.builder(
               itemCount: _getEventsForDay(_selectedDay).length,
@@ -643,11 +649,7 @@ class _CalendarPageState extends State<CalendarPage> {
         ],
       ),
     );
-    //   floatingActionButton: FloatingActionButton(
-    //     onPressed: _showAddEventDialog,
-    //     child: Icon(Icons.add),
-    //   ),
-    // );
+  
   }
 }
 

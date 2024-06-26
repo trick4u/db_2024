@@ -6,11 +6,13 @@ import '../controller/home_controller.dart';
 import '../controller/main_screen_controller.dart';
 import '../controller/network_controller.dart';
 import '../controller/splash_controller.dart';
+import '../controller/work_manager_controller.dart';
 
 class InitialBinding extends Bindings {
   @override
   void dependencies() {
     Get.lazyPut<SplashController>(() => SplashController());
+ 
 
     // Get.lazyPut<MainScreenController>(() => MainScreenController(),
     //     fenix: true);

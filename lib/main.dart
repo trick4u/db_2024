@@ -17,22 +17,29 @@ import 'package:tushar_db/pages/splash_screen.dart';
 import 'package:tushar_db/projectPages/main_screen.dart';
 import 'package:tushar_db/theme.dart';
 
+
 import 'app_routes.dart';
 import 'bindings/initial_binding.dart';
 import 'controller/home_controller.dart';
+import 'controller/work_manager_controller.dart';
 import 'loading_screen.dart';
 import 'pages/home_page.dart';
 import 'projectPages/page_three.dart';
 import 'package:timezone/timezone.dart' as tz;
 
+
 FlutterLocalNotificationsPlugin notificationsPlugin =
     FlutterLocalNotificationsPlugin();
+
+    
+
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
   await initializeTimeZone();
+ 
 
   await AwesomeNotifications().initialize(
       null,
@@ -83,7 +90,9 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final HomeController themeController = Get.put(HomeController());
+   
 
+    
     return GetMaterialApp(
       title: 'DoBoard Demo',
       debugShowCheckedModeBanner: false,

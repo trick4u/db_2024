@@ -13,12 +13,13 @@ import 'package:animate_gradient/animate_gradient.dart';
 
 import '../controller/network_controller.dart';
 
+
 class MainScreen extends GetWidget<MainScreenController> {
   const MainScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    print("Current Usre: ${FirebaseAuth.instance.currentUser!.uid}");
+   
     return Obx(
       () => Scaffold(
         backgroundColor: controller.scaffoldBackgroundColor(),

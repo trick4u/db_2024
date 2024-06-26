@@ -12,7 +12,6 @@ class AwesomeNoti extends StatefulWidget {
 }
 
 class _AwesomeNotiState extends State<AwesomeNoti> {
-  
   OmniDateTimePicker omniDateTimePicker = OmniDateTimePicker(
     onDateTimeChanged: (DateTime dateTime) {
       print(dateTime);
@@ -47,21 +46,20 @@ class _AwesomeNotiState extends State<AwesomeNoti> {
     super.dispose();
   }
 
-
-
-   Future<void> scheduleNotification(DateTime scheduledDateTime, String message) async {
+  Future<void> scheduleNotification(
+      DateTime scheduledDateTime, String message) async {
     await AwesomeNotifications().createNotification(
       content: NotificationContent(
         id: scheduledDateTime.hashCode, // Unique ID
         channelKey: 'basic_channel',
-        title: 'Scheduled Reminder',
+        title: 'Scheduled Reminder 📅',
         body: message,
         notificationLayout: NotificationLayout.BigPicture,
         color: Color(0xFF00FF00),
         backgroundColor: Colors.blue,
-        bigPicture: 'https://cdn.pixabay.com/photo/2024/03/24/17/10/background-8653526_1280.jpg',
+        bigPicture:
+            'https://cdn.pixabay.com/photo/2024/03/24/17/10/background-8653526_1280.jpg',
       ),
-      
       schedule: NotificationCalendar(
         weekday: scheduledDateTime.weekday,
         hour: scheduledDateTime.hour,
@@ -72,6 +70,20 @@ class _AwesomeNotiState extends State<AwesomeNoti> {
         timeZone: AwesomeNotifications.localTimeZoneIdentifier,
       ),
     );
+  }
+
+  Future<void> schedulePeriodicNotifications() async {
+    AwesomeNotifications().createNotification(
+        content: NotificationContent(
+          id: 10,
+          channelKey: 'basic_channel',
+          title: 'Periodic Reminder',
+          body: 'This is your reminder notification!',
+        ),
+        schedule: NotificationInterval(
+            interval: 2 * 60,
+            timeZone: await AwesomeNotifications().getLocalTimeZoneIdentifier(),
+            repeats: true));
   }
 
   void pickDateTime() async {
@@ -89,16 +101,30 @@ class _AwesomeNotiState extends State<AwesomeNoti> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      alignment: Alignment.center,
-      child: ElevatedButton(
-        onPressed: () {
-          // Awesome Notifications
-          pickDateTime();
-        
-        },
-        child: Text('Awesome Notification'),
-      ),
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Container(
+          alignment: Alignment.center,
+          child: ElevatedButton(
+            onPressed: () {
+              // Awesome Notifications
+              pickDateTime();
+            },
+            child: Text('Awesome Notification'),
+          ),
+        ),
+        Container(
+          alignment: Alignment.center,
+          child: ElevatedButton(
+            onPressed: () {
+              // Awesome Notifications
+              schedulePeriodicNotifications();
+            },
+            child: Text('Periodic Notification'),
+          ),
+        ),
+      ],
     );
   }
 }
