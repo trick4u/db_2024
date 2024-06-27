@@ -17,7 +17,6 @@ import 'package:tushar_db/pages/splash_screen.dart';
 import 'package:tushar_db/projectPages/main_screen.dart';
 import 'package:tushar_db/theme.dart';
 
-
 import 'app_routes.dart';
 import 'bindings/initial_binding.dart';
 import 'controller/home_controller.dart';
@@ -28,49 +27,48 @@ import 'projectPages/page_three.dart';
 import 'package:timezone/timezone.dart' as tz;
 import 'package:workmanager/workmanager.dart';
 
-
-
-
-
-
-
 FlutterLocalNotificationsPlugin notificationsPlugin =
     FlutterLocalNotificationsPlugin();
 
 void callbackDispatcher() {
-  Workmanager().executeTask((task, inputData) async{
+  Workmanager().executeTask((task, inputData) async {
     AwesomeNotifications().createNotification(
-      content: NotificationContent(
-        id: 10,
-        channelKey: 'basic_channel',
-        title: 'Periodic Reminder',
-        body: 'This is your reminder notification!',
-      ),
-      schedule: NotificationInterval(
-        interval: 15 * 60, // 15 minutes in seconds
-        timeZone: await AwesomeNotifications().getLocalTimeZoneIdentifier(),
-        repeats: true
-      )
-    );
+        content: NotificationContent(
+          id: 10,
+          channelKey: 'basic_channel',
+          title: 'Periodic Reminder',
+          body: 'This is your reminder notification! okay',
+        ),
+        schedule: NotificationInterval(
+            interval: 5 * 60, // 15 minutes in seconds
+            timeZone: await AwesomeNotifications().getLocalTimeZoneIdentifier(),
+            repeats: true));
     return Future.value(true);
   });
+  print('Periodic notification dispatched!');
 }
-
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
   await initializeTimeZone();
-  Workmanager().initialize(callbackDispatcher, isInDebugMode: true);
-  //   Workmanager().registerPeriodicTask(
+  // Workmanager().initialize(callbackDispatcher, isInDebugMode: true);
+  // Workmanager().registerPeriodicTask(
   //   "1",
   //   "simplePeriodicTask",
   //   frequency: Duration(minutes: 15),
-  //   inputData: Map<String, dynamic>.from({"data": "simplePeriodicTask"}),
-  
+  //   inputData: {"data": "TusharPeriodicTask"},
   // );
- 
+
+  // await Workmanager().registerOneOffTask(
+  //   "2",
+  //   "simpleOneOffTask",
+  //   initialDelay: Duration(minutes: 1),
+  //   inputData: {"data": "TusharOneOffTask"},
+  // );
+
+  // print('Registered all tasks!');
 
   await AwesomeNotifications().initialize(
       null,
@@ -121,9 +119,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final HomeController themeController = Get.put(HomeController());
-   
 
-    
     return GetMaterialApp(
       title: 'DoBoard Demo',
       debugShowCheckedModeBanner: false,

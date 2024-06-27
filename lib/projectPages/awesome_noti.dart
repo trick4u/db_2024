@@ -38,7 +38,6 @@ class _AwesomeNotiState extends State<AwesomeNoti> {
       }
     });
     //listen for notification
-  
 
     super.initState();
   }
@@ -76,16 +75,36 @@ class _AwesomeNotiState extends State<AwesomeNoti> {
 
   Future<void> schedulePeriodicNotifications() async {
     AwesomeNotifications().createNotification(
-        content: NotificationContent(
-          id: 10,
-          channelKey: 'basic_channel',
-          title: 'Periodic Reminder',
-          body: 'This is your reminder notification!',
+      content: NotificationContent(
+        id: 10,
+        channelKey: 'basic_channel',
+        title: 'Periodic Reminder',
+        body: 'This is your reminder notification! Tushar 219',
+      ),
+      actionButtons: [
+        NotificationActionButton(
+          key: 'ACTION1',
+          label: 'Action 1',
+          actionType: ActionType.Default,
         ),
-        schedule: NotificationInterval(
-            interval: 2 * 60,
-            timeZone: await AwesomeNotifications().getLocalTimeZoneIdentifier(),
-            repeats: true));
+        NotificationActionButton(
+          key: 'ACTION2',
+          label: 'Action 2',
+        ),
+      ],
+      schedule: NotificationCalendar(
+        hour: 17,
+        minute: 0,
+        second: 0,
+        millisecond: 0,
+        repeats: true,
+        timeZone: await AwesomeNotifications().getLocalTimeZoneIdentifier(),
+      ),
+      // schedule: NotificationInterval(
+      //     interval: 5 * 60,
+      //     timeZone: await AwesomeNotifications().getLocalTimeZoneIdentifier(),
+      //     repeats: true),
+    );
   }
 
   void pickDateTime() async {
@@ -100,8 +119,6 @@ class _AwesomeNotiState extends State<AwesomeNoti> {
       scheduleNotification(dateTime, 'This is your custom scheduled reminder!');
     }
   }
- 
-
 
   @override
   Widget build(BuildContext context) {
@@ -129,25 +146,24 @@ class _AwesomeNotiState extends State<AwesomeNoti> {
             child: Text('Periodic Notification'),
           ),
         ),
-        Container(
-          alignment: Alignment.center,
-          child: ElevatedButton(
-            onPressed: () {
-              // Awesome Notifications
-              // schedulePeriodicNotifications();
-           Workmanager().registerPeriodicTask(
-              "1",
-              "periodicNotification",
-              
-              frequency: Duration(minutes: 10),
-              inputData: {"data": "periodicNotification"},
-            );
-            
-         
-            },
-            child: Text(' Schedule Periodic Notification'),
-          ),
-        ),
+        // Container(
+        //   alignment: Alignment.center,
+        //   child: ElevatedButton(
+        //     onPressed: () {
+        //       // Awesome Notifications
+        //       // schedulePeriodicNotifications();
+        //       Workmanager().registerPeriodicTask(
+        //         "1",
+        //         "periodicNotification ok",
+        //         frequency: Duration(minutes: 10),
+        //         inputData: {"data": "TusharPeriodicTaskAwesome"},
+        //       );
+
+        //       print('Periodic Notification Scheduled');
+        //     },
+        //     child: Text(' Schedule Periodic Notification'),
+        //   ),
+        // ),
       ],
     );
   }
