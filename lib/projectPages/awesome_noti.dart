@@ -78,22 +78,27 @@ class _AwesomeNotiState extends State<AwesomeNoti> {
       content: NotificationContent(
         id: 10,
         channelKey: 'basic_channel',
-        title: 'Periodic Reminder',
-        body: 'This is your reminder notification! Tushar 219',
+        title: 'DoBoara Reminder 📅',
+        body: 'Get ahead of your schedule',
+        largeIcon: 'https://cdn.pixabay.com/photo/2024/03/24/17/10/background-8653526_1280.jpg',
+      //  icon: "https://cdn.pixabay.com/photo/2023/06/11/01/24/flowers-8055013_1280.jpg",
       ),
-      actionButtons: [
-        NotificationActionButton(
-          key: 'ACTION1',
-          label: 'Action 1',
-          actionType: ActionType.Default,
-        ),
-        NotificationActionButton(
-          key: 'ACTION2',
-          label: 'Action 2',
-        ),
-      ],
+    
+      // actionButtons: [
+      //   NotificationActionButton(
+      //     key: 'ACTION1',
+      //     label: 'Action 1',
+      //     actionType: ActionType.Default,
+      //   ),
+      //   NotificationActionButton(
+      //     key: 'ACTION2',
+      //     label: 'Action 2',
+      //   ),
+      // ],
+      
+      
       schedule: NotificationCalendar(
-        hour: 17,
+        hour: 13,
         minute: 0,
         second: 0,
         millisecond: 0,
@@ -104,7 +109,10 @@ class _AwesomeNotiState extends State<AwesomeNoti> {
       //     interval: 5 * 60,
       //     timeZone: await AwesomeNotifications().getLocalTimeZoneIdentifier(),
       //     repeats: true),
+          
     );
+    print(
+        "time zone: ${await AwesomeNotifications().getLocalTimeZoneIdentifier()}");
   }
 
   void pickDateTime() async {

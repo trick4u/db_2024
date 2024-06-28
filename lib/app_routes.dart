@@ -12,12 +12,14 @@ import 'pages/home_page.dart';
 import 'pages/network_screen.dart';
 import 'projectBinding/add_taskBinding.dart';
 import 'projectBinding/goals_binding.dart';
+import 'projectBinding/page_one_binding.dart';
 import 'projectPages/add_task.dart';
 import 'projectPages/goals.dart';
 import 'projectPages/main_screen.dart';
 import 'pages/otp_screen.dart';
 import 'pages/phone_auth.dart';
 import 'pages/splash_screen.dart';
+import 'projectPages/page_one.dart';
 
 class AppRoutes {
   static const String HOME = '/home';
@@ -44,8 +46,15 @@ class AppRoutes {
   static const String NETWORK = '/network';
   // goals
   static const String GOALS = '/goals';
+  //page one
+  static const String PAGEONE = '/pageOne';
 
   static List<GetPage> routes = [
+    GetPage(
+      name: PAGEONE,
+      page: () => PageOneScreen(),
+      binding: PageOneBinding(),
+    ),
     GetPage(
       name: GOALS,
       page: () => GoalsScreen(),

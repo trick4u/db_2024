@@ -45,7 +45,7 @@ void callbackDispatcher() {
             repeats: true));
     return Future.value(true);
   });
-  print('Periodic notification dispatched!');
+
 }
 
 void main() async {

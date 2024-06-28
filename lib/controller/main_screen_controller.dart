@@ -20,7 +20,7 @@ class MainScreenController extends GetxController
   final RxInt currentIndex = 0.obs;
 
   final RxList<Widget> pages = [
-    Page1(),
+    PageOneScreen(),
     CalendarPage(),
     GoalsScreen(),
     AwesomeNoti(),
