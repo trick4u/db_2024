@@ -64,6 +64,7 @@ dependencies:
   internet_connection_checker_plus: ^2.4.2
   workmanager:
     path: /Volumes/Tushar SSD/Flutter Products/flutter_workmanager-main/workmanager
+  flutter_carousel_slider: ^1.1.0
   
 
     

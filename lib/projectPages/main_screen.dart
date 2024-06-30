@@ -13,13 +13,11 @@ import 'package:animate_gradient/animate_gradient.dart';
 
 import '../controller/network_controller.dart';
 
-
 class MainScreen extends GetWidget<MainScreenController> {
   const MainScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-   
     return Obx(
       () => Scaffold(
         backgroundColor: controller.scaffoldBackgroundColor(),
@@ -128,6 +126,7 @@ class FabButton extends StatelessWidget {
           //box shadow
 
           child: AnimateGradient(
+            animateAlignments: false,
             duration: const Duration(seconds: 10),
             primaryColors: [
               Colors.pink,

@@ -15,6 +15,7 @@ class PageOneController extends GetxController {
   var fireStoreInstance = FirebaseFirestore.instance;
   var repeat = false.obs;
 
+  RxInt carouselPageIndex = 0.obs;
 
   @override
   void onInit() {
@@ -88,7 +89,6 @@ class PageOneController extends GetxController {
         body: body,
         largeIcon:
             'https://cdn.pixabay.com/photo/2024/03/24/17/10/background-8653526_1280.jpg',
-            
       ),
       schedule: NotificationInterval(
           interval: interval * 60,
@@ -106,8 +106,6 @@ class PageOneController extends GetxController {
     AwesomeNotifications().cancel(10);
   }
 
-  
-
   //save data into firestore
   Future saveReminder(bool repeat) async {
     await fireStoreInstance
@@ -117,7 +115,6 @@ class PageOneController extends GetxController {
         .add({
       "reminder": reminderTextController.text,
       "time": timeSelected.value,
-      
       "isReminderSet": true,
       "createdAt": FieldValue.serverTimestamp(),
       "repeat": repeat,

@@ -98,8 +98,8 @@ class _AwesomeNotiState extends State<AwesomeNoti> {
       
       
       schedule: NotificationCalendar(
-        hour: 13,
-        minute: 0,
+        hour: 10,
+        minute: 30,
         second: 0,
         millisecond: 0,
         repeats: true,
@@ -111,8 +111,7 @@ class _AwesomeNotiState extends State<AwesomeNoti> {
       //     repeats: true),
           
     );
-    print(
-        "time zone: ${await AwesomeNotifications().getLocalTimeZoneIdentifier()}");
+   
   }
 
   void pickDateTime() async {
