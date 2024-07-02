@@ -10,9 +10,11 @@ import 'bindings/initial_binding.dart';
 import 'pages/email_verification.dart';
 import 'pages/home_page.dart';
 import 'pages/network_screen.dart';
+import 'projectBinding/add_everything_binding.dart';
 import 'projectBinding/add_taskBinding.dart';
 import 'projectBinding/goals_binding.dart';
 import 'projectBinding/page_one_binding.dart';
+import 'projectPages/add_everyting.dart';
 import 'projectPages/add_task.dart';
 import 'projectPages/goals.dart';
 import 'projectPages/main_screen.dart';
@@ -48,8 +50,18 @@ class AppRoutes {
   static const String GOALS = '/goals';
   //page one
   static const String PAGEONE = '/pageOne';
+  //add everything
+  static const String ADDEVERYTHING = '/addEverything';
 
-  static List<GetPage> routes = [
+  
+
+  static List<GetPage>   routes = [
+     GetPage(
+      name: ADDEVERYTHING,
+      page: () => AddEveryting(),
+      binding: AddEverythingBinding(),
+    ),
+
     GetPage(
       name: PAGEONE,
       page: () => PageOneScreen(),

@@ -6,6 +6,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
 import 'package:tushar_db/constants/colors.dart';
 
+import '../models/goals_model.dart';
 import '../projectController/page_one_controller.dart';
 import '../widgets/four_boxes.dart';
 import '../widgets/goals_box.dart';
@@ -41,6 +42,7 @@ class PageOneScreen extends GetWidget<PageOneController> {
                 initialPage: 0,
                 onSlideChanged: (int index) {
                   controller.carouselPageIndex.value = index;
+                 
                 },
                 children: [
                   FourBoxes(),
@@ -61,19 +63,19 @@ class PageOneScreen extends GetWidget<PageOneController> {
                 return Container();
               }
             }),
-            PageOneBottomPart()
+            PageOneBottomPart(),
+            InkWell(
+              onTap: () {
+                // bottom sheet
+                showBottomSheet();
+              },
+              child: const Text(
+                'Quick Task',
+                style: TextStyle(fontSize: 20),
+              ),
+            ),
 
             // text quick task
-            // InkWell(
-            //   onTap: () {
-            //     // bottom sheet
-            //     showBottomSheet();
-            //   },
-            //   child: const Text(
-            //     'Quick Task',
-            //     style: TextStyle(fontSize: 20),
-            //   ),
-            // ),
           ],
         ),
       ),
@@ -83,7 +85,7 @@ class PageOneScreen extends GetWidget<PageOneController> {
   void showBottomSheet() {
     Get.bottomSheet(
       Container(
-        height: 400,
+        // height: 900,
         decoration: BoxDecoration(
           color: Colors.white,
           // border: Border.all(color: Colors.black),
@@ -92,77 +94,103 @@ class PageOneScreen extends GetWidget<PageOneController> {
         margin: const EdgeInsets.all(20),
         child: Padding(
           padding: EdgeInsets.symmetric(horizontal: 15),
-          child: Column(
-            children: [
-              const SizedBox(height: 20),
-              const Text(
-                'Quick Reminder',
-                style: TextStyle(fontSize: 30),
-              ),
-              const SizedBox(height: 20),
-              const Text(
-                'Remind me about',
-                style: TextStyle(fontSize: 20),
-              ),
-              const SizedBox(height: 20),
-              TextField(
-                controller: controller.reminderTextController,
-                onChanged: (value) {},
-                decoration: InputDecoration(
-                  border: OutlineInputBorder(),
-                  labelText: 'Enter Task Name',
+          child: SingleChildScrollView(
+            child: Column(
+              children: [
+                const SizedBox(height: 20),
+                const Text(
+                  'Quick Reminder',
+                  style: TextStyle(fontSize: 30),
                 ),
-              ),
-              const SizedBox(height: 20),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    'Remind me after',
-                    style: TextStyle(fontSize: 20),
+                const SizedBox(height: 20),
+                const Text(
+                  'Remind me about',
+                  style: TextStyle(fontSize: 20),
+                ),
+                const SizedBox(height: 20),
+                TextField(
+                  controller: controller.reminderTextController,
+                  onChanged: (value) {},
+                  decoration: InputDecoration(
+                    border: OutlineInputBorder(),
+                    labelText: 'Enter Task Name',
                   ),
-                  Obx(() => Text(
-                        'Switch is ${controller.repeat.value ? "ON" : "OFF"}',
-                      )),
-                  // checkbox
-                  Obx(() => Switch(
-                        value: controller.repeat.value,
-                        onChanged: (value) {
-                          controller.toggleSwitch(value);
-                        },
-                      )),
-                ],
-              ),
-              const SizedBox(height: 20),
-              // 3 chips
-              ChipWidgets(
-                pageOneController: controller,
-              ),
-              const SizedBox(height: 20),
-              ElevatedButton(
-                onPressed: () {
-                  if (controller.timeSelected.value == 1) {
-                    controller.schedulePeriodicNotifications(
-                        controller.reminderTextController.text,
-                        15,
-                        controller.repeat.value);
-                  } else if (controller.timeSelected.value == 2) {
-                    controller.schedulePeriodicNotifications(
-                        controller.reminderTextController.text,
-                        30,
-                        controller.repeat.value);
-                  } else if (controller.timeSelected.value == 3) {
-                    controller.schedulePeriodicNotifications(
-                        controller.reminderTextController.text,
-                        60,
-                        controller.repeat.value);
-                  }
-                  //save the reminder into firestore
-                  controller.saveReminder(controller.repeat.value);
-                },
-                child: const Text('Save'),
-              ),
-            ],
+                ),
+                const SizedBox(height: 20),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      'Remind me after',
+                      style: TextStyle(fontSize: 20),
+                    ),
+                    Obx(() => Text(
+                          'Switch is ${controller.repeat.value ? "ON" : "OFF"}',
+                        )),
+                    // checkbox
+                    Obx(() => Switch(
+                          value: controller.repeat.value,
+                          onChanged: (value) {
+                            controller.toggleSwitch(value);
+                          },
+                        )),
+                  ],
+                ),
+                const SizedBox(height: 20),
+                // 3 chips
+                ChipWidgets(
+                  pageOneController: controller,
+                ),
+                const SizedBox(height: 20),
+                Obx(() {
+                  return Wrap(
+                    spacing: 8.0,
+                    children: [
+                      'Monday',
+                      'Tuesday',
+                      'Wednesday',
+                      'Thursday',
+                      'Friday',
+                      'Saturday',
+                      'Sunday'
+                    ].map((day) {
+                      final isSelected = controller.selectedDays.contains(day);
+                      return FilterChip(
+                        label: Text(day),
+                        selected: isSelected,
+                        onSelected: (_) => controller.toggleDay(day),
+                      );
+                    }).toList(),
+                  );
+                }),
+                SizedBox(height: 20),
+                ElevatedButton(
+                  onPressed: () {
+                    controller.scheduleNotifications(
+                        controller.reminderTextController.text, 15, true);
+                    // if (controller.timeSelected.value == 1) {
+                    //   controller.schedulePeriodicNotifications(
+                    //       controller.reminderTextController.text,
+                    //       15,
+                    //       controller.repeat.value);
+                    // } else if (controller.timeSelected.value == 2) {
+                    //   controller.schedulePeriodicNotifications(
+                    //       controller.reminderTextController.text,
+                    //       30,
+                    //       controller.repeat.value);
+                    // } else if (controller.timeSelected.value == 3) {
+                    //   controller.schedulePeriodicNotifications(
+                    //       controller.reminderTextController.text,
+                    //       60,
+                    //       controller.repeat.value);
+                    // }
+                    // //save the reminder into firestore
+                    // controller.saveReminder(controller.repeat.value);
+                  },
+                  child: const Text('Save'),
+                ),
+              ],
+            ),
           ),
         ),
       ),
@@ -190,8 +218,7 @@ class ThreeDayTasks extends StatelessWidget {
             // 3 equal parts
             Expanded(
               child: Padding(
-                padding: EdgeInsets.symmetric(
-                    horizontal: 10, vertical: 10),
+                padding: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
                 child: FadeInDownBig(
                   child: Container(
                     width: double.infinity,
@@ -211,8 +238,7 @@ class ThreeDayTasks extends StatelessWidget {
             ),
             Expanded(
               child: Padding(
-                padding: EdgeInsets.symmetric(
-                    horizontal: 10, vertical: 10),
+                padding: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
                 child: SlideInRight(
                   child: Container(
                     width: double.infinity,
@@ -232,8 +258,7 @@ class ThreeDayTasks extends StatelessWidget {
             ),
             Expanded(
               child: Padding(
-                padding: EdgeInsets.symmetric(
-                    horizontal: 10, vertical: 10),
+                padding: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
                 child: FadeInUp(
                   delay: Duration(milliseconds: 500),
                   duration: Duration(milliseconds: 100),
@@ -262,9 +287,7 @@ class ThreeDayTasks extends StatelessWidget {
   }
 }
 
-
-
-class PageOneBottomPart extends StatelessWidget {
+class PageOneBottomPart extends GetWidget<PageOneController> {
   const PageOneBottomPart({
     super.key,
   });
@@ -272,26 +295,65 @@ class PageOneBottomPart extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Expanded(
-        child: PressableDough(
-      child: AnimatedSize(
-        duration: Duration(milliseconds: 500),
-        curve: Curves.easeIn,
-        child: Container(
-          decoration: BoxDecoration(
-            color: Colors.black,
-            borderRadius: BorderRadius.circular(20),
-            //shadow
-            boxShadow: [
-              BoxShadow(
-                color: Colors.grey.withOpacity(0.3),
-                spreadRadius: 5,
-                blurRadius: 5,
-                offset: Offset(0, 3),
-              ),
-            ],
+      child: PressableDough(
+        child: AnimatedSize(
+          duration: Duration(milliseconds: 500),
+          curve: Curves.easeIn,
+          child: Container(
+            decoration: BoxDecoration(
+              color: Colors.black,
+              borderRadius: BorderRadius.circular(20),
+              //shadow
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.grey.withOpacity(0.3),
+                  spreadRadius: 5,
+                  blurRadius: 5,
+                  offset: Offset(0, 3),
+                ),
+              ],
+            ),
+            child: Obx(
+              () {
+                if(controller.goalsStatus.value.isLoading){
+                  return CircularProgressIndicator();
+                } else if( controller.goalsStatus.value.isSuccess){
+                    return ListView.builder(
+                  itemCount: controller.allGoals.length,
+                  itemBuilder: (context, index) {
+                    return ListTile(
+                      title: Text(
+                        controller.allGoals.elementAt(index).goal ?? "",
+                        style: TextStyle(color: Colors.white),
+                      ),
+                      //  subtitle: Text(),
+                    );
+                  },
+                );
+                } else{
+                  return Text("error");
+                }
+              
+              
+              }
+            ),
           ),
         ),
       ),
-    ));
+    );
   }
 }
+
+
+// ListView.builder(
+//                 itemCount: controller.allGoals.length,
+//                 itemBuilder: (context, index) {
+//                   return ListTile(
+//                     title: Text(
+//                       controller.allGoals.elementAt(index).goal ?? "",
+//                       style: TextStyle(color: Colors.white),
+//                     ),
+//                     //  subtitle: Text(),
+//                   );
+//                 },
+//               ),

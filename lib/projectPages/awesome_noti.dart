@@ -83,7 +83,14 @@ class _AwesomeNotiState extends State<AwesomeNoti> {
         largeIcon: 'https://cdn.pixabay.com/photo/2024/03/24/17/10/background-8653526_1280.jpg',
       //  icon: "https://cdn.pixabay.com/photo/2023/06/11/01/24/flowers-8055013_1280.jpg",
       ),
-    
+        schedule: NotificationCalendar(
+        hour: 10,
+        minute: 30,
+        second: 0,
+        millisecond: 0,
+        repeats: true,
+        timeZone: await AwesomeNotifications().getLocalTimeZoneIdentifier(),
+      ),
       // actionButtons: [
       //   NotificationActionButton(
       //     key: 'ACTION1',
@@ -97,14 +104,7 @@ class _AwesomeNotiState extends State<AwesomeNoti> {
       // ],
       
       
-      schedule: NotificationCalendar(
-        hour: 10,
-        minute: 30,
-        second: 0,
-        millisecond: 0,
-        repeats: true,
-        timeZone: await AwesomeNotifications().getLocalTimeZoneIdentifier(),
-      ),
+    
       // schedule: NotificationInterval(
       //     interval: 5 * 60,
       //     timeZone: await AwesomeNotifications().getLocalTimeZoneIdentifier(),

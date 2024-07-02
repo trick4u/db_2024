@@ -4,6 +4,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import '../models/goals_model.dart';
 import 'add_task_controller.dart';
 
 class PageOneController extends GetxController {
@@ -14,11 +15,21 @@ class PageOneController extends GetxController {
   RxInt timeSelected = 0.obs;
   var fireStoreInstance = FirebaseFirestore.instance;
   var repeat = false.obs;
+  var text = "".obs;
 
   RxInt carouselPageIndex = 0.obs;
+  // Rx<GoalsModel> allGoals = GoalsModel().obs;
+
+  final RxList<GoalsModel> allGoals = RxList<GoalsModel>([]);
+
+  
+
+  //rx status
+  Rx<RxStatus> goalsStatus = RxStatus.loading().obs;
 
   @override
   void onInit() {
+  //   getAllGoals();
     reminderTextController = TextEditingController();
     originalFontColor.value = chips[0].fontColor!;
 
@@ -26,15 +37,104 @@ class PageOneController extends GetxController {
 
     chips[0].fontColor = Colors.black;
     chips[0].backgroundColor = Colors.blue;
+   
 
     super.onInit();
   }
+
+  //onReady
+    @override
+  void onReady(){
+    getAllGoals();
+  
+  }
+
 
   @override
   void dispose() {
     reminderTextController.dispose();
 
     super.dispose();
+  }
+
+  // filter days for notification
+  var selectedDays = <String>[].obs;
+
+  void toggleDay(String day) {
+    if (selectedDays.contains(day)) {
+      selectedDays.remove(day);
+    } else {
+      selectedDays.add(day);
+    }
+  }
+
+  //get all goals
+  void getAllGoals() async {
+    goalsStatus.value = RxStatus.loading();
+    try {
+      await fireStoreInstance
+          .collection("goals")
+          .doc(FirebaseAuth.instance.currentUser!.uid)
+          .collection("userGoals").get().then((value){
+            allGoals.clear();
+         allGoals.value = value.docs.map((e) => GoalsModel.fromJson(e.data())).toList();
+         
+         
+          });
+       goalsStatus.value = RxStatus.success();
+          
+    } catch (e) {
+      goalsStatus.value = RxStatus.error(e.toString());
+    }
+  
+
+  }
+
+  void scheduleNotifications(String body, int interval, bool repeat) {
+    AwesomeNotifications().cancelAll(); // Clear all existing notifications
+
+    for (String day in selectedDays) {
+      int weekday = _dayToWeekday(day);
+
+      AwesomeNotifications().createNotification(
+        content: NotificationContent(
+          id: weekday, // Unique id for each notification
+          channelKey: 'basic_channel',
+          title: 'Scheduled Notification',
+          body: body,
+          notificationLayout: NotificationLayout.Default,
+        ),
+        schedule: NotificationCalendar(
+          weekday: weekday,
+          hour: 21, // Example time, adjust as needed
+          minute: 0,
+          second: 0,
+          millisecond: 0,
+          repeats: repeat,
+        ),
+      );
+    }
+  }
+
+  int _dayToWeekday(String day) {
+    switch (day) {
+      case 'Monday':
+        return DateTime.monday;
+      case 'Tuesday':
+        return DateTime.tuesday;
+      case 'Wednesday':
+        return DateTime.wednesday;
+      case 'Thursday':
+        return DateTime.thursday;
+      case 'Friday':
+        return DateTime.friday;
+      case 'Saturday':
+        return DateTime.saturday;
+      case 'Sunday':
+        return DateTime.sunday;
+      default:
+        return DateTime.monday;
+    }
   }
 
   var chips = <ChipProperties>[
@@ -91,14 +191,19 @@ class PageOneController extends GetxController {
             'https://cdn.pixabay.com/photo/2024/03/24/17/10/background-8653526_1280.jpg',
       ),
       schedule: NotificationInterval(
-          interval: interval * 60,
-          timeZone: await AwesomeNotifications().getLocalTimeZoneIdentifier(),
-          repeats: repeat),
+        interval: interval * 60,
+        timeZone: await AwesomeNotifications().getLocalTimeZoneIdentifier(),
+        repeats: repeat,
+      ),
     );
   }
 
   void toggleSwitch(bool value) {
     repeat.value = value;
+  }
+
+  void setText(String value) {
+    text.value = value;
   }
 
   //cancel notification
@@ -123,5 +228,25 @@ class PageOneController extends GetxController {
     });
   }
 
-  //bottom sheet
+  //get goals from firestore
+  Stream<QuerySnapshot> getGoals() {
+    return fireStoreInstance
+        .collection("goals")
+        .doc(FirebaseAuth.instance.currentUser!.uid)
+        .collection("userGoals")
+        .snapshots();
+  }
+
+  Future<void> addGoals(String goal) async {
+    await fireStoreInstance
+        .collection("goals")
+        .doc(FirebaseAuth.instance.currentUser!.uid)
+        .collection("userGoals")
+        .add({
+      "goal": goal,
+      "createdAt": FieldValue.serverTimestamp(),
+    }).then((_) {
+      Get.back();
+    });
+  }
 }
