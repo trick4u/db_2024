@@ -3,6 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:intl/intl.dart';
 
 import '../models/goals_model.dart';
 import 'add_task_controller.dart';
@@ -22,14 +23,12 @@ class PageOneController extends GetxController {
 
   final RxList<GoalsModel> allGoals = RxList<GoalsModel>([]);
 
-  
-
   //rx status
   Rx<RxStatus> goalsStatus = RxStatus.loading().obs;
 
   @override
   void onInit() {
-  //   getAllGoals();
+    //   getAllGoals();
     reminderTextController = TextEditingController();
     originalFontColor.value = chips[0].fontColor!;
 
@@ -37,18 +36,15 @@ class PageOneController extends GetxController {
 
     chips[0].fontColor = Colors.black;
     chips[0].backgroundColor = Colors.blue;
-   
 
     super.onInit();
   }
 
   //onReady
-    @override
-  void onReady(){
+  @override
+  void onReady() {
     getAllGoals();
-  
   }
-
 
   @override
   void dispose() {
@@ -72,22 +68,26 @@ class PageOneController extends GetxController {
   void getAllGoals() async {
     goalsStatus.value = RxStatus.loading();
     try {
-      await fireStoreInstance
+      // oreder by created at
+      fireStoreInstance
           .collection("goals")
           .doc(FirebaseAuth.instance.currentUser!.uid)
-          .collection("userGoals").get().then((value){
-            allGoals.clear();
-         allGoals.value = value.docs.map((e) => GoalsModel.fromJson(e.data())).toList();
-         
-         
-          });
-       goalsStatus.value = RxStatus.success();
-          
+          .collection("userGoals")
+          .orderBy("createdAt", descending: true)
+          .snapshots()
+          .listen((event) {
+        allGoals.clear();
+        allGoals.value =
+            event.docs.map((e) => GoalsModel.fromJson(e.data())).toList();
+      });
+      
+      
+    
+      
+      goalsStatus.value = RxStatus.success();
     } catch (e) {
       goalsStatus.value = RxStatus.error(e.toString());
     }
-  
-
   }
 
   void scheduleNotifications(String body, int interval, bool repeat) {
@@ -249,4 +249,9 @@ class PageOneController extends GetxController {
       Get.back();
     });
   }
+
+  String getReadableTime(Timestamp timestamp) {
+  DateTime dateTime = timestamp.toDate();
+  return DateFormat('yyyy-MM-dd HH:mm:ss').format(dateTime);
+}
 }

@@ -1,5 +1,6 @@
 import 'package:animate_do/animate_do.dart';
 import 'package:animate_gradient/animate_gradient.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dough/dough.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -32,38 +33,43 @@ class PageOneScreen extends GetWidget<PageOneController> {
             ),
             const SizedBox(height: 20),
             // rounded rect container
-            Container(
+            SizedBox(
               height: MediaQuery.of(context).size.height * 0.4,
               width: double.infinity,
               child: CarouselSlider(
                 key: UniqueKey(),
                 slideTransform: CubeTransform(),
-                unlimitedMode: true,
+                unlimitedMode: false,
                 initialPage: 0,
                 onSlideChanged: (int index) {
                   controller.carouselPageIndex.value = index;
-                 
                 },
                 children: [
                   FourBoxes(),
                   ThreeDayTasks(),
-                  // 3rd box
                   GoalsContainer(),
                 ],
               ),
             ),
             SizedBox(height: 20),
-            Obx(() {
-              if (controller.carouselPageIndex.value == 0) {
-                return Text(
-                  'Morning Tasks',
-                  style: TextStyle(fontSize: 20),
-                );
-              } else {
-                return Container();
-              }
-            }),
-            PageOneBottomPart(),
+            Obx(
+              () {
+                if (controller.carouselPageIndex.value == 0) {
+                  return Text(
+                    'Morning Tasks',
+                    style: TextStyle(fontSize: 20),
+                  );
+                } else {
+                  return Container();
+                }
+              },
+            ),
+            Obx(
+              () => controller.carouselPageIndex.value == 0 ||
+                      controller.carouselPageIndex.value == 2
+                  ? PageOneBottomPart()
+                  : Container(),
+            ),
             InkWell(
               onTap: () {
                 // bottom sheet
@@ -313,12 +319,11 @@ class PageOneBottomPart extends GetWidget<PageOneController> {
                 ),
               ],
             ),
-            child: Obx(
-              () {
-                if(controller.goalsStatus.value.isLoading){
-                  return CircularProgressIndicator();
-                } else if( controller.goalsStatus.value.isSuccess){
-                    return ListView.builder(
+            child: Obx(() {
+              if (controller.goalsStatus.value.isLoading) {
+                return CircularProgressIndicator();
+              } else if (controller.goalsStatus.value.isSuccess) {
+                return ListView.builder(
                   itemCount: controller.allGoals.length,
                   itemBuilder: (context, index) {
                     return ListTile(
@@ -326,17 +331,18 @@ class PageOneBottomPart extends GetWidget<PageOneController> {
                         controller.allGoals.elementAt(index).goal ?? "",
                         style: TextStyle(color: Colors.white),
                       ),
+                      subtitle: Text(
+                       controller.getReadableTime(controller.allGoals.elementAt(index).createdAt ?? Timestamp.now()),
+                        style: TextStyle(color: Colors.white),
+                      ),
                       //  subtitle: Text(),
                     );
                   },
                 );
-                } else{
-                  return Text("error");
-                }
-              
-              
+              } else {
+                return Text("error");
               }
-            ),
+            }),
           ),
         ),
       ),

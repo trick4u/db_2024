@@ -17,8 +17,16 @@ class GoalsContainer extends GetWidget<PageOneController> {
       borderRadius: BorderRadius.circular(20),
       child: Container(
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: Colors.red,
           borderRadius: BorderRadius.circular(20),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.grey,
+              blurRadius: 10,
+              spreadRadius: 5,
+              offset: const Offset(0, 5),
+            ),
+          ],
         ),
         padding: const EdgeInsets.symmetric(
           horizontal: 20,
@@ -103,7 +111,7 @@ class GoalsContainer extends GetWidget<PageOneController> {
                         ElevatedButton(
                           onPressed: () {
                             controller.addGoals(controller.text.value);
-                            Get.back();
+                            // Get.back();
                           },
                           child: Text('Add'),
                         ),
