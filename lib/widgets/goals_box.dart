@@ -1,9 +1,13 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
+import 'package:get/get_connect/http/src/utils/utils.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:tushar_db/app_routes.dart';
 
+import '../models/goals_model.dart';
 import '../projectController/page_one_controller.dart';
 
 class GoalsContainer extends GetWidget<PageOneController> {
@@ -110,8 +114,11 @@ class GoalsContainer extends GetWidget<PageOneController> {
                         ),
                         ElevatedButton(
                           onPressed: () {
-                            controller.addGoals(controller.text.value);
-                            // Get.back();
+                            controller.addGoals(GoalsModel(
+                              goal: controller.reminderTextController.text,
+                              createdAt: Timestamp.now(),
+                           
+                            ));
                           },
                           child: Text('Add'),
                         ),

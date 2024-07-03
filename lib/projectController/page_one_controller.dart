@@ -18,6 +18,9 @@ class PageOneController extends GetxController {
   var repeat = false.obs;
   var text = "".obs;
 
+  CollectionReference userGoals =
+      FirebaseFirestore.instance.collection('goals').doc().collection('userGoals');
+
   RxInt carouselPageIndex = 0.obs;
   // Rx<GoalsModel> allGoals = GoalsModel().obs;
 
@@ -80,10 +83,7 @@ class PageOneController extends GetxController {
         allGoals.value =
             event.docs.map((e) => GoalsModel.fromJson(e.data())).toList();
       });
-      
-      
-    
-      
+
       goalsStatus.value = RxStatus.success();
     } catch (e) {
       goalsStatus.value = RxStatus.error(e.toString());
@@ -232,26 +232,73 @@ class PageOneController extends GetxController {
   Stream<QuerySnapshot> getGoals() {
     return fireStoreInstance
         .collection("goals")
-        .doc(FirebaseAuth.instance.currentUser!.uid)
+        .doc()
         .collection("userGoals")
         .snapshots();
   }
 
-  Future<void> addGoals(String goal) async {
+  Future<void> addGoals(GoalsModel goal, ) async {
+  User user = FirebaseAuth.instance.currentUser!;
+    
+    DocumentReference docRef =  fireStoreInstance
+        .collection("goals")
+        .doc(user.uid)
+        .collection("userGoals").doc();
+        await docRef.set(goal.toJson(), );
+  
+   
+    print("Document ID: ${docRef.id}");
+    Get.back();
+  }
+
+  //delete goals
+  Future<void> deleteGoal(String docId) async {
+    User user = FirebaseAuth.instance.currentUser!;
+    
+   DocumentSnapshot doc = await fireStoreInstance
+        .collection("goals")
+        .doc(user.uid)
+        .collection("userGoals")
+        .doc(docId)
+        .get();
+    doc.reference.delete();
+    
+   
+  }
+
+  //update goals
+  Future<void> updateGoals(String goal, String docId) async {
     await fireStoreInstance
         .collection("goals")
         .doc(FirebaseAuth.instance.currentUser!.uid)
         .collection("userGoals")
-        .add({
+        .doc(docId)
+        .update({
       "goal": goal,
-      "createdAt": FieldValue.serverTimestamp(),
     }).then((_) {
       Get.back();
     });
   }
 
+  //delete goals
+  Future<void> deleteGoals(String docId) async {
+    try {
+     QuerySnapshot querySnapshot = await fireStoreInstance
+          .collection("goals")
+          .doc(FirebaseAuth.instance.currentUser!.uid)
+          .collection("userGoals")
+          .get();
+   for (DocumentSnapshot doc in querySnapshot.docs) {
+        doc.reference.delete();
+      }
+
+    } catch (e) {
+      print(e.toString());
+    }
+  }
+
   String getReadableTime(Timestamp timestamp) {
-  DateTime dateTime = timestamp.toDate();
-  return DateFormat('yyyy-MM-dd HH:mm:ss').format(dateTime);
-}
+    DateTime dateTime = timestamp.toDate();
+    return DateFormat('yyyy-MM-dd HH:mm:ss').format(dateTime);
+  }
 }

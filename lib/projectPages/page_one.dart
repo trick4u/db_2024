@@ -2,6 +2,7 @@ import 'package:animate_do/animate_do.dart';
 import 'package:animate_gradient/animate_gradient.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dough/dough.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
@@ -326,13 +327,26 @@ class PageOneBottomPart extends GetWidget<PageOneController> {
                 return ListView.builder(
                   itemCount: controller.allGoals.length,
                   itemBuilder: (context, index) {
+                    var goal = controller.allGoals.elementAt(index);
+
                     return ListTile(
                       title: Text(
                         controller.allGoals.elementAt(index).goal ?? "",
                         style: TextStyle(color: Colors.white),
                       ),
+                      trailing: IconButton(
+                        icon: Icon(
+                          FontAwesomeIcons.trash,
+                          color: Colors.white,
+                        ),
+                        onPressed: () {
+                       //   controller.deleteGoal();
+                        },
+                      ),
                       subtitle: Text(
-                       controller.getReadableTime(controller.allGoals.elementAt(index).createdAt ?? Timestamp.now()),
+                        controller.getReadableTime(
+                            controller.allGoals.elementAt(index).createdAt ??
+                                Timestamp.now()),
                         style: TextStyle(color: Colors.white),
                       ),
                       //  subtitle: Text(),
@@ -340,7 +354,7 @@ class PageOneBottomPart extends GetWidget<PageOneController> {
                   },
                 );
               } else {
-                return Text("error");
+                return Text("unable to load goals");
               }
             }),
           ),

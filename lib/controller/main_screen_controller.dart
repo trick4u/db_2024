@@ -23,7 +23,9 @@ class MainScreenController extends GetxController
     PageOneScreen(),
     CalendarPage(),
     GoalsScreen(),
-    AwesomeNoti(),
+    GoalsScreenOne(),
+  
+    
   ].obs;
 
   void changePage(
@@ -35,7 +37,7 @@ class MainScreenController extends GetxController
       Get.lazyPut<PageThreecontroller>(() => PageThreecontroller());
       showDialog(context);
     } else if (currentIndex.value == 3) {
-      Get.lazyPut<AwesomeNoti>(() => AwesomeNoti());
+    //  Get.lazyPut<AwesomeNoti>(() => AwesomeNoti());
     }
   }
 
