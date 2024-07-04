@@ -1,5 +1,6 @@
 import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:workmanager/workmanager.dart';
@@ -273,7 +274,10 @@ class GoalsScreenOne extends StatelessWidget {
 
 class GoalsController extends GetxController {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  final FirebaseAuth _auth = FirebaseAuth.instance;
   var goalsList = <Goals>[].obs;
+
+  User? get currentUser => _auth.currentUser;
 
   @override
   void onInit() {
@@ -282,37 +286,60 @@ class GoalsController extends GetxController {
   }
 
   void fetchGoals() async {
-    var snapshot = await _firestore.collection('goals').get();
-    goalsList.value = snapshot.docs
-        .map((doc) => Goals.fromMap(doc.data() as Map<String, dynamic>, doc.id))
-        .toList();
+    if (currentUser != null) {
+      var snapshot = await _firestore
+          .collection('users')
+          .doc(currentUser!.uid)
+          .collection('goals')
+          .get();
+      goalsList.value = snapshot.docs
+          .map((doc) => Goals.fromMap(doc.data() as Map<String, dynamic>, doc.id))
+          .toList();
+    }
   }
 
   void addGoal(String goal) async {
-    var docRef = await _firestore.collection('goals').add({
-      'goal': goal,
-      'createdTime': Timestamp.now(),
-    });
-    goalsList.add(Goals(id: docRef.id, goal: goal, createdTime: Timestamp.now()));
+    if (currentUser != null) {
+      var docRef = await _firestore
+          .collection('users')
+          .doc(currentUser!.uid)
+          .collection('goals')
+          .add({
+        'goal': goal,
+        'createdTime': Timestamp.now(),
+      });
+      goalsList.add(Goals(id: docRef.id, goal: goal, createdTime: Timestamp.now()));
+    }
   }
 
-  void updateGoal(String id, String goal) async {
-    await _firestore.collection('goals').doc(id).update({
-      'goal': goal,
-    });
-      goalsList.refresh();
-    var index = goalsList.indexWhere((goal) => goal.id == id);
-    if (index != -1) {
-      goalsList[index].goal = goal;
+  void updateGoal(String id, String newGoal) async {
+    if (currentUser != null) {
+      await _firestore
+          .collection('users')
+          .doc(currentUser!.uid)
+          .collection('goals')
+          .doc(id)
+          .update({'goal': newGoal});
+      var index = goalsList.indexWhere((goal) => goal.id == id);
+      if (index != -1) {
+        goalsList[index] = Goals(id: id, goal: newGoal, createdTime: goalsList[index].createdTime);
+        goalsList.refresh(); // Notify GetX to update the UI
+      }
     }
   }
 
   void deleteGoal(String id) async {
-    await _firestore.collection('goals').doc(id).delete();
-    goalsList.removeWhere((goal) => goal.id == id);
+    if (currentUser != null) {
+      await _firestore
+          .collection('users')
+          .doc(currentUser!.uid)
+          .collection('goals')
+          .doc(id)
+          .delete();
+      goalsList.removeWhere((goal) => goal.id == id);
+    }
   }
 }
-
 
 
 class Goals {

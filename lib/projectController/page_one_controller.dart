@@ -6,6 +6,7 @@ import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 
 import '../models/goals_model.dart';
+import '../projectPages/awesome_noti.dart';
 import 'add_task_controller.dart';
 
 class PageOneController extends GetxController {
@@ -17,9 +18,11 @@ class PageOneController extends GetxController {
   var fireStoreInstance = FirebaseFirestore.instance;
   var repeat = false.obs;
   var text = "".obs;
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+  var goalsList = <Goals>[].obs;
 
-  CollectionReference userGoals =
-      FirebaseFirestore.instance.collection('goals').doc().collection('userGoals');
+  User? get currentUser => _auth.currentUser;
 
   RxInt carouselPageIndex = 0.obs;
   // Rx<GoalsModel> allGoals = GoalsModel().obs;
@@ -46,7 +49,8 @@ class PageOneController extends GetxController {
   //onReady
   @override
   void onReady() {
-    getAllGoals();
+    //getAllGoals();
+    fetchGoals();
   }
 
   @override
@@ -229,71 +233,69 @@ class PageOneController extends GetxController {
   }
 
   //get goals from firestore
-  Stream<QuerySnapshot> getGoals() {
-    return fireStoreInstance
-        .collection("goals")
-        .doc()
-        .collection("userGoals")
-        .snapshots();
-  }
-
-  Future<void> addGoals(GoalsModel goal, ) async {
-  User user = FirebaseAuth.instance.currentUser!;
-    
-    DocumentReference docRef =  fireStoreInstance
-        .collection("goals")
-        .doc(user.uid)
-        .collection("userGoals").doc();
-        await docRef.set(goal.toJson(), );
-  
-   
-    print("Document ID: ${docRef.id}");
-    Get.back();
-  }
-
-  //delete goals
-  Future<void> deleteGoal(String docId) async {
-    User user = FirebaseAuth.instance.currentUser!;
-    
-   DocumentSnapshot doc = await fireStoreInstance
-        .collection("goals")
-        .doc(user.uid)
-        .collection("userGoals")
-        .doc(docId)
-        .get();
-    doc.reference.delete();
-    
-   
-  }
-
-  //update goals
-  Future<void> updateGoals(String goal, String docId) async {
-    await fireStoreInstance
-        .collection("goals")
-        .doc(FirebaseAuth.instance.currentUser!.uid)
-        .collection("userGoals")
-        .doc(docId)
-        .update({
-      "goal": goal,
-    }).then((_) {
-      Get.back();
-    });
-  }
-
-  //delete goals
-  Future<void> deleteGoals(String docId) async {
+  void fetchGoals() async {
+    goalsStatus.value = RxStatus.loading();
     try {
-     QuerySnapshot querySnapshot = await fireStoreInstance
-          .collection("goals")
-          .doc(FirebaseAuth.instance.currentUser!.uid)
-          .collection("userGoals")
-          .get();
-   for (DocumentSnapshot doc in querySnapshot.docs) {
-        doc.reference.delete();
+      if (currentUser != null) {
+        var snapshot = await _firestore
+            .collection('users')
+            .doc(currentUser!.uid)
+            .collection('goals')
+            .get();
+        goalsList.value = snapshot.docs
+            .map((doc) =>
+                Goals.fromMap(doc.data() as Map<String, dynamic>, doc.id))
+            .toList();
+        goalsStatus.value = RxStatus.success();
       }
-
     } catch (e) {
-      print(e.toString());
+      goalsStatus.value = RxStatus.error(e.toString());
+
+      print(e);
+    }
+  }
+
+  void addGoal(String goal) async {
+    if (currentUser != null) {
+      var docRef = await _firestore
+          .collection('users')
+          .doc(currentUser!.uid)
+          .collection('goals')
+          .add({
+        'goal': goal,
+        'createdTime': Timestamp.now(),
+      });
+      goalsList
+          .add(Goals(id: docRef.id, goal: goal, createdTime: Timestamp.now()));
+    }
+  }
+
+  void updateGoal(String id, String newGoal) async {
+    if (currentUser != null) {
+      await _firestore
+          .collection('users')
+          .doc(currentUser!.uid)
+          .collection('goals')
+          .doc(id)
+          .update({'goal': newGoal});
+      var index = goalsList.indexWhere((goal) => goal.id == id);
+      if (index != -1) {
+        goalsList[index] = Goals(
+            id: id, goal: newGoal, createdTime: goalsList[index].createdTime);
+        goalsList.refresh(); // Notify GetX to update the UI
+      }
+    }
+  }
+
+  void deleteGoal(String id) async {
+    if (currentUser != null) {
+      await _firestore
+          .collection('users')
+          .doc(currentUser!.uid)
+          .collection('goals')
+          .doc(id)
+          .delete();
+      goalsList.removeWhere((goal) => goal.id == id);
     }
   }
 

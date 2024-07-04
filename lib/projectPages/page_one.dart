@@ -15,6 +15,8 @@ import '../widgets/goals_box.dart';
 import '../widgets/quick_reminder_chips.dart';
 import 'package:flutter_carousel_slider/carousel_slider.dart';
 
+import '../widgets/three_shaped_box.dart';
+
 class PageOneScreen extends GetWidget<PageOneController> {
   @override
   Widget build(BuildContext context) {
@@ -46,6 +48,7 @@ class PageOneScreen extends GetWidget<PageOneController> {
                   controller.carouselPageIndex.value = index;
                 },
                 children: [
+                  ThreeShapedBox(),
                   FourBoxes(),
                   ThreeDayTasks(),
                   GoalsContainer(),
@@ -325,27 +328,37 @@ class PageOneBottomPart extends GetWidget<PageOneController> {
                 return CircularProgressIndicator();
               } else if (controller.goalsStatus.value.isSuccess) {
                 return ListView.builder(
-                  itemCount: controller.allGoals.length,
+                  itemCount: controller.goalsList.length,
                   itemBuilder: (context, index) {
-                    var goal = controller.allGoals.elementAt(index);
+                    var goal = controller.goalsList[index];
 
                     return ListTile(
                       title: Text(
-                        controller.allGoals.elementAt(index).goal ?? "",
+                        controller.goalsList.elementAt(index).goal ?? "",
                         style: TextStyle(color: Colors.white),
                       ),
+                      leading: IconButton(
+                        icon: Icon(
+                          FontAwesomeIcons.edit,
+                          color: Colors.white,
+                        ),
+                        onPressed: () {
+                          controller.updateGoal(goal.id, goal.goal ?? "");
+                        },
+                      ),
+
                       trailing: IconButton(
                         icon: Icon(
                           FontAwesomeIcons.trash,
                           color: Colors.white,
                         ),
                         onPressed: () {
-                       //   controller.deleteGoal();
+                          controller.deleteGoal(goal.id ?? "");
                         },
                       ),
                       subtitle: Text(
                         controller.getReadableTime(
-                            controller.allGoals.elementAt(index).createdAt ??
+                            controller.goalsList.elementAt(index).createdTime ??
                                 Timestamp.now()),
                         style: TextStyle(color: Colors.white),
                       ),

@@ -114,11 +114,7 @@ class GoalsContainer extends GetWidget<PageOneController> {
                         ),
                         ElevatedButton(
                           onPressed: () {
-                            controller.addGoals(GoalsModel(
-                              goal: controller.reminderTextController.text,
-                              createdAt: Timestamp.now(),
-                           
-                            ));
+                            controller.addGoal(controller.reminderTextController.text);
                           },
                           child: Text('Add'),
                         ),
