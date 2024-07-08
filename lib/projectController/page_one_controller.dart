@@ -4,9 +4,12 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
+import 'package:just_audio/just_audio.dart';
+import 'package:youtube_explode_dart/youtube_explode_dart.dart';
 
 import '../models/goals_model.dart';
 import '../projectPages/awesome_noti.dart';
+import '../services/notification_service.dart';
 import 'add_task_controller.dart';
 
 class PageOneController extends GetxController {
@@ -32,9 +35,37 @@ class PageOneController extends GetxController {
   //rx status
   Rx<RxStatus> goalsStatus = RxStatus.loading().obs;
 
+  var greeting = ''.obs;
+
+  //pomodor timer
+  var isRunning = false.obs;
+  var isBreak = false.obs;
+  var seconds = 0.obs;
+  var workDuration = 25 * 60; // 25 minutes
+  var breakDuration = 5 * 60; // 5 minutes
+  late AudioPlayer audioPlayer;
+
   @override
   void onInit() {
     //   getAllGoals();
+      AwesomeNotifications().setListeners(
+      onActionReceivedMethod: NotificationService.onActionReceivedMethod,
+      onNotificationCreatedMethod:
+          NotificationService.onNotificationCreatedMethod,
+      onNotificationDisplayedMethod:
+          NotificationService.onNotificationDisplayedMethod,
+      onDismissActionReceivedMethod:
+          NotificationService.onDismissActionReceivedMethod,
+    );
+
+    AwesomeNotifications().isNotificationAllowed().then((isAllowed) {
+      if (!isAllowed) {
+        AwesomeNotifications().requestPermissionToSendNotifications();
+      } else {
+        print('Notification Allowed');
+      }
+    });
+    audioPlayer = AudioPlayer();
     reminderTextController = TextEditingController();
     originalFontColor.value = chips[0].fontColor!;
 
@@ -51,13 +82,69 @@ class PageOneController extends GetxController {
   void onReady() {
     //getAllGoals();
     fetchGoals();
+    updateGreeting();
   }
 
   @override
   void dispose() {
     reminderTextController.dispose();
+    audioPlayer.dispose();
 
     super.dispose();
+  }
+
+  //increase volume
+  void increaseVolume() {
+    audioPlayer.setVolume(5);
+  }
+  
+
+  void startTimer() async {
+    isRunning.value = true;
+    seconds.value = isBreak.value ? breakDuration : workDuration;
+    var audioUrl =
+        'https://www.bensound.com/bensound-music/bensound-slowmotion.mp3'; // YouTube video ID
+    audioPlayer.setUrl(audioUrl);
+    //increase volume of audio
+    increaseVolume();
+
+    audioPlayer.play();
+    _timerTick();
+  }
+
+  void _timerTick() {
+    if (seconds.value > 0) {
+      Future.delayed(Duration(seconds: 1), () {
+        if (isRunning.value) {
+          seconds.value--;
+          _timerTick();
+        }
+      });
+    } else {
+      _onTimerComplete();
+    }
+  }
+
+  void _onTimerComplete() {
+    isRunning.value = false;
+    isBreak.value = !isBreak.value;
+    audioPlayer.stop();
+  }
+
+  void stopTimer() {
+    isRunning.value = false;
+    audioPlayer.stop();
+  }
+
+  void updateGreeting() {
+    final now = DateTime.now();
+    if (now.hour >= 5 && now.hour < 12) {
+      greeting.value = 'Good Morning';
+    } else if (now.hour >= 12 && now.hour < 17) {
+      greeting.value = 'Good Afternoon';
+    } else {
+      greeting.value = 'Good Evening';
+    }
   }
 
   // filter days for notification
@@ -103,7 +190,7 @@ class PageOneController extends GetxController {
       AwesomeNotifications().createNotification(
         content: NotificationContent(
           id: weekday, // Unique id for each notification
-          channelKey: 'basic_channel',
+          channelKey: 'quick_reminder',
           title: 'Scheduled Notification',
           body: body,
           notificationLayout: NotificationLayout.Default,
@@ -188,7 +275,7 @@ class PageOneController extends GetxController {
     AwesomeNotifications().createNotification(
       content: NotificationContent(
         id: 10,
-        channelKey: 'basic_channel',
+        channelKey: 'quickschedule',
         title: 'DoBoara Reminder 📅',
         body: body,
         largeIcon:

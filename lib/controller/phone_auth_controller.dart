@@ -20,7 +20,7 @@ class PhoneAuthController extends GetxController {
 
   @override
   void onInit() {
-    SystemChannels.textInput.invokeMethod('TextInput.hide');
+    // SystemChannels.textInput.invokeMethod('TextInput.hide');
     super.onInit();
   }
 

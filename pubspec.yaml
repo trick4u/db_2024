@@ -66,6 +66,10 @@ dependencies:
     path: /Volumes/Tushar SSD/Flutter Products/flutter_workmanager-main/workmanager
   flutter_carousel_slider: ^1.1.0
   shape_of_view_null_safe: ^3.0.0
+  http: ^1.2.1
+  shared_preferences: ^2.2.3
+  just_audio: ^0.9.38
+  youtube_explode_dart: ^2.2.1
   
 
     

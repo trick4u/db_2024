@@ -23,6 +23,7 @@ import 'controller/home_controller.dart';
 import 'controller/work_manager_controller.dart';
 import 'loading_screen.dart';
 import 'pages/home_page.dart';
+import 'projectPages/awesome_noti.dart';
 import 'projectPages/page_three.dart';
 import 'package:timezone/timezone.dart' as tz;
 import 'package:workmanager/workmanager.dart';
@@ -30,30 +31,40 @@ import 'package:workmanager/workmanager.dart';
 FlutterLocalNotificationsPlugin notificationsPlugin =
     FlutterLocalNotificationsPlugin();
 
+// void callbackDispatcher() {
+//   print('Periodic notification callback fired!');
+
+//   Workmanager().executeTask((task, inputData) async {
+//     AwesomeNotifications().createNotification(
+//         content: NotificationContent(
+//           id: 10,
+//           channelKey: 'basic_channel',
+//           title: 'Periodic Reminder',
+//           body: 'This is your reminder notification! okay',
+//         ),
+//         schedule: NotificationInterval(
+//             interval: 5 * 60, // 15 minutes in seconds
+//             timeZone: await AwesomeNotifications().getLocalTimeZoneIdentifier(),
+//             repeats: true));
+//     return Future.value(true);
+//   });
+
+// }
 void callbackDispatcher() {
   Workmanager().executeTask((task, inputData) async {
-    AwesomeNotifications().createNotification(
-        content: NotificationContent(
-          id: 10,
-          channelKey: 'basic_channel',
-          title: 'Periodic Reminder',
-          body: 'This is your reminder notification! okay',
-        ),
-        schedule: NotificationInterval(
-            interval: 5 * 60, // 15 minutes in seconds
-            timeZone: await AwesomeNotifications().getLocalTimeZoneIdentifier(),
-            repeats: true));
+    NotificationController().fetchAndDisplayQuote();
     return Future.value(true);
   });
-
 }
 
 void main() async {
+
+
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
   await initializeTimeZone();
-  // Workmanager().initialize(callbackDispatcher, isInDebugMode: true);
+  Workmanager().initialize(callbackDispatcher, isInDebugMode: false);
   // Workmanager().registerPeriodicTask(
   //   "1",
   //   "simplePeriodicTask",
@@ -78,7 +89,27 @@ void main() async {
             channelName: 'Basic notifications',
             channelDescription: 'Notification channel for basic tests',
             defaultColor: const Color(0xFF9D50DD),
-            ledColor: Colors.blue)
+            ledColor: Colors.blue),
+             
+      NotificationChannel(
+        channelKey: 'quote_channel',
+        channelName: 'Daily Quote Notifications',
+        channelDescription: 'Notification channel for daily motivational quotes',
+        defaultColor: Color(0xFF9D50DD),
+        ledColor: Colors.white,
+        importance: NotificationImportance.High,
+        channelShowBadge: true,
+      ),
+        NotificationChannel(
+        channelKey: 'quickschedule',
+        channelName: 'Reminder Notifications',
+        channelDescription: 'Notification channel for daily motivational quotes',
+        defaultColor: Color(0xFF9D50DD),
+        ledColor: Colors.white,
+        importance: NotificationImportance.Low,
+        channelShowBadge: true,
+      ),
+    
       ],
       debug: true);
 

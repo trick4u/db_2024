@@ -12,10 +12,12 @@ import 'pages/home_page.dart';
 import 'pages/network_screen.dart';
 import 'projectBinding/add_everything_binding.dart';
 import 'projectBinding/add_taskBinding.dart';
+import 'projectBinding/eat_the_frog_binding.dart';
 import 'projectBinding/goals_binding.dart';
 import 'projectBinding/page_one_binding.dart';
 import 'projectPages/add_everyting.dart';
 import 'projectPages/add_task.dart';
+import 'projectPages/eat_the_frog.dart';
 import 'projectPages/goals.dart';
 import 'projectPages/main_screen.dart';
 import 'pages/otp_screen.dart';
@@ -52,10 +54,15 @@ class AppRoutes {
   static const String PAGEONE = '/pageOne';
   //add everything
   static const String ADDEVERYTHING = '/addEverything';
+  //eat the frog
+  static const String EATTHEFROG = '/eatTheFrog';
+
+  
 
   
 
   static List<GetPage>   routes = [
+
      GetPage(
       name: ADDEVERYTHING,
       page: () => AddEveryting(),
@@ -112,5 +119,12 @@ class AppRoutes {
       page: () => AddTaskScreen(),
       binding: AddTaskbinding(),
     ),
+    //eat the frog
+    GetPage(
+      name: EATTHEFROG,
+      page: () => EatTheFrog(),
+      binding: EatTheFrogBinding(),
+    ),
+  
   ];
 }

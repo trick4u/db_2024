@@ -20,6 +20,7 @@ class MainScreen extends GetWidget<MainScreenController> {
   Widget build(BuildContext context) {
     return Obx(
       () => Scaffold(
+        resizeToAvoidBottomInset: false,
         backgroundColor: controller.scaffoldBackgroundColor(),
         floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
         floatingActionButton: Padding(

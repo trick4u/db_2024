@@ -59,8 +59,12 @@ class GoalsContainer extends GetWidget<PageOneController> {
                 // Get.toNamed(AppRoutes.ADDEVERYTHING);
 
                 Get.bottomSheet(
+                  isScrollControlled: true,
                   Container(
-                    padding: const EdgeInsets.all(20),
+                    padding: EdgeInsets.symmetric(
+                      horizontal: 20,
+                      vertical: 20,
+                    ),
                     decoration: BoxDecoration(
                       color: Colors.white,
                       borderRadius: BorderRadius.only(
@@ -69,6 +73,7 @@ class GoalsContainer extends GetWidget<PageOneController> {
                       ),
                     ),
                     child: Column(
+                      mainAxisSize: MainAxisSize.min,
                       children: [
                         Row(
                           children: [
@@ -87,6 +92,7 @@ class GoalsContainer extends GetWidget<PageOneController> {
                                 color: Colors.black,
                               ),
                               onPressed: () {
+                                // close the bottom sheet
                                 Get.back();
                               },
                             ),
@@ -114,7 +120,8 @@ class GoalsContainer extends GetWidget<PageOneController> {
                         ),
                         ElevatedButton(
                           onPressed: () {
-                            controller.addGoal(controller.reminderTextController.text);
+                            controller.addGoal(
+                                controller.reminderTextController.text);
                           },
                           child: Text('Add'),
                         ),
