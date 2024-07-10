@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:tushar_db/app_routes.dart';
 
 import '../projectController/page_one_controller.dart';
 
@@ -26,16 +27,27 @@ class FourBoxes extends GetWidget<PageOneController> {
                 children: [
                   Expanded(
                     child: Container(
+                      height: MediaQuery.of(context).size.height,
                       color: Colors.white,
-                      child: Center(
-                        child: Text(
-                          ' All Notes',
-                          style: TextStyle(
-                            fontFamily: GoogleFonts.poppins().fontFamily,
-                            fontSize: 25,
-                            fontWeight: FontWeight.w500,
+                      alignment: Alignment.center,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: [
+                          Text(
+                            'all notes',
+                            style: TextStyle(
+                              fontFamily: 'Euclid',
+                              fontSize: 25,
+                              fontWeight: FontWeight.w500,
+                            ),
                           ),
-                        ),
+                          IconButton(
+                            icon: Icon(Icons.add),
+                            onPressed: () {
+                              Get.toNamed(AppRoutes.NOTES);
+                            },
+                          ),
+                        ],
                       ),
                     ),
                   ),

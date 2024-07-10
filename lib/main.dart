@@ -28,6 +28,8 @@ import 'projectPages/page_three.dart';
 import 'package:timezone/timezone.dart' as tz;
 import 'package:workmanager/workmanager.dart';
 
+import 'services/notification_service.dart';
+
 FlutterLocalNotificationsPlugin notificationsPlugin =
     FlutterLocalNotificationsPlugin();
 
@@ -131,6 +133,23 @@ void main() async {
   });
 
   log("Notifications: $initialized");
+     AwesomeNotifications().setListeners(
+      onActionReceivedMethod: NotificationService.onActionReceivedMethod,
+      onNotificationCreatedMethod:
+          NotificationService.onNotificationCreatedMethod,
+      onNotificationDisplayedMethod:
+          NotificationService.onNotificationDisplayedMethod,
+      onDismissActionReceivedMethod:
+          NotificationService.onDismissActionReceivedMethod,
+    );
+
+    AwesomeNotifications().isNotificationAllowed().then((isAllowed) {
+      if (!isAllowed) {
+        AwesomeNotifications().requestPermissionToSendNotifications();
+      } else {
+        print('Notification Allowed');
+      }
+    });
 
   runApp(const MyApp());
 }

@@ -93,34 +93,35 @@ class PageOneScreen extends GetWidget<PageOneController> {
                     ),
                   );
                 } else if (controller.carouselPageIndex.value == 3) {
-                  return Container(
-                    height: 200,
-                    color: Colors.blue,
-                    width: double.infinity,
-                    child: Column(
-                      children: [
-                        Obx(() => Text(
-                              controller.isBreak.value
-                                  ? 'Break Time'
-                                  : 'Work Time',
-                              style: TextStyle(fontSize: 24),
-                            )),
-                        Obx(() => Text(
-                              '${(controller.seconds.value / 60).floor().toString().padLeft(2, '0')}:${(controller.seconds.value % 60).toString().padLeft(2, '0')}',
-                              style: TextStyle(fontSize: 48),
-                            )),
-                        SizedBox(height: 20),
-                        Obx(() => ElevatedButton(
-                              onPressed: controller.isRunning.value
-                                  ? controller.stopTimer
-                                  : controller.startTimer,
-                              child: Text(controller.isRunning.value
-                                  ? 'Stop'
-                                  : 'Start'),
-                            )),
-                      ],
-                    ),
-                  );
+                  return Obx(() => AnimatedContainer(
+                        height: 200,
+                        duration: Duration(seconds: 1),
+                        color: controller.backgroundColor.value,
+                        width: double.infinity,
+                        child: Column(
+                          children: [
+                            Obx(() => Text(
+                                  controller.isBreak.value
+                                      ? 'Break Time'
+                                      : 'Work Time',
+                                  style: TextStyle(fontSize: 24),
+                                )),
+                            Obx(() => Text(
+                                  '${(controller.seconds.value / 60).floor().toString().padLeft(2, '0')}:${(controller.seconds.value % 60).toString().padLeft(2, '0')}',
+                                  style: TextStyle(fontSize: 48),
+                                )),
+                            SizedBox(height: 20),
+                            Obx(() => ElevatedButton(
+                                  onPressed: controller.isRunning.value
+                                      ? controller.stopTimer
+                                      : controller.startTimer,
+                                  child: Text(controller.isRunning.value
+                                      ? 'Stop'
+                                      : 'Start'),
+                                )),
+                          ],
+                        ),
+                      ));
                 } else {
                   return Container();
                 }

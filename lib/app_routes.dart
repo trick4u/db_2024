@@ -14,7 +14,9 @@ import 'projectBinding/add_everything_binding.dart';
 import 'projectBinding/add_taskBinding.dart';
 import 'projectBinding/eat_the_frog_binding.dart';
 import 'projectBinding/goals_binding.dart';
+import 'projectBinding/notes_binding.dart';
 import 'projectBinding/page_one_binding.dart';
+import 'projectBinding/three_tasks_binding.dart';
 import 'projectPages/add_everyting.dart';
 import 'projectPages/add_task.dart';
 import 'projectPages/eat_the_frog.dart';
@@ -23,7 +25,10 @@ import 'projectPages/main_screen.dart';
 import 'pages/otp_screen.dart';
 import 'pages/phone_auth.dart';
 import 'pages/splash_screen.dart';
+import 'projectPages/notes_page.dart';
 import 'projectPages/page_one.dart';
+import 'projectPages/three_tasks_screen.dart';
+import 'widgets/three_day.dart';
 
 class AppRoutes {
   static const String HOME = '/home';
@@ -56,14 +61,18 @@ class AppRoutes {
   static const String ADDEVERYTHING = '/addEverything';
   //eat the frog
   static const String EATTHEFROG = '/eatTheFrog';
+  //three tasksscreen
+  static const String THREETASKSSCREEN = '/threeTasksScreen';
+  //notes
+  static const String NOTES = '/notes';
 
-  
-
-  
-
-  static List<GetPage>   routes = [
-
-     GetPage(
+  static List<GetPage> routes = [
+    GetPage(
+      name: NOTES,
+      page: () => NotesPage(),
+      binding: NotesBinding(),
+    ),
+    GetPage(
       name: ADDEVERYTHING,
       page: () => AddEveryting(),
       binding: AddEverythingBinding(),
@@ -125,6 +134,12 @@ class AppRoutes {
       page: () => EatTheFrog(),
       binding: EatTheFrogBinding(),
     ),
-  
+    //three tasksscreen
+    GetPage(
+      name: THREETASKSSCREEN,
+      page: () => ThreeTasksScreen(),
+      binding: ThreeTasksBinding(),
+      transition: Transition.cupertinoDialog,
+    ),
   ];
 }

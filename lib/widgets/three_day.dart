@@ -1,14 +1,21 @@
 import 'package:animate_do/animate_do.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:tushar_db/app_routes.dart';
+import 'package:tushar_db/projectController/page_one_controller.dart';
 
-class ThreeDayTasks extends StatelessWidget {
+import '../projectBinding/three_tasks_binding.dart';
+import '../projectPages/three_tasks_screen.dart';
+
+class ThreeDayTasks extends GetWidget<PageOneController> {
   const ThreeDayTasks({
     super.key,
   });
 
   @override
   Widget build(BuildContext context) {
+    final GlobalKey buttonKey = GlobalKey();
     return ClipRRect(
       borderRadius: BorderRadius.circular(20),
       child: Container(
@@ -32,14 +39,39 @@ class ThreeDayTasks extends StatelessWidget {
                     ),
                     padding: const EdgeInsets.symmetric(
                         horizontal: 10, vertical: 10),
-                    child: Text(
-                      'Morning Tasks',
-                      style: TextStyle(
-                        fontSize: 20,
-                        color: Colors.black,
-                        fontWeight: FontWeight.w500,
-                        fontFamily: GoogleFonts.poppins().fontFamily,
-                      ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          'Morning Tasks',
+                          style: TextStyle(
+                            fontSize: 20,
+                            color: Colors.black,
+                            fontWeight: FontWeight.w500,
+                            fontFamily: GoogleFonts.poppins().fontFamily,
+                          ),
+                        ),
+                        //iconbutton
+
+                        IconButton(
+                          onPressed: () {
+                            Get.toNamed(
+                              AppRoutes.THREETASKSSCREEN,
+                              arguments: {
+                                'timeOfDay': 'Morning',
+                              },
+                            );
+
+                         
+                          
+            
+                          },
+                          icon: Icon(
+                            Icons.add,
+                            color: Colors.black,
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 ),
@@ -57,14 +89,34 @@ class ThreeDayTasks extends StatelessWidget {
                     ),
                     padding: const EdgeInsets.symmetric(
                         horizontal: 10, vertical: 10),
-                    child: Text(
-                      'Afternoon Tasks',
-                      style: TextStyle(
-                        fontSize: 20,
-                        color: Colors.black,
-                        fontWeight: FontWeight.w500,
-                        fontFamily: GoogleFonts.poppins().fontFamily,
-                      ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          'Afternoon Tasks',
+                          style: TextStyle(
+                            fontSize: 20,
+                            color: Colors.black,
+                            fontWeight: FontWeight.w500,
+                            fontFamily: GoogleFonts.poppins().fontFamily,
+                          ),
+                        ),
+                        //iconbutton
+                        IconButton(
+                          onPressed: () {
+                            Get.toNamed(
+                              AppRoutes.THREETASKSSCREEN,
+                              arguments: {
+                                'timeOfDay': 'Afternoon',
+                              },
+                            );
+                          },
+                          icon: Icon(
+                            Icons.add,
+                            color: Colors.black,
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 ),
@@ -85,14 +137,34 @@ class ThreeDayTasks extends StatelessWidget {
                     child: Padding(
                       padding: const EdgeInsets.symmetric(
                           horizontal: 10, vertical: 10),
-                      child: Text(
-                        'Evening Tasks',
-                        style: TextStyle(
-                          fontSize: 20,
-                          color: Colors.black,
-                          fontWeight: FontWeight.w500,
-                          fontFamily: GoogleFonts.poppins().fontFamily,
-                        ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            'Evening Tasks',
+                            style: TextStyle(
+                              fontSize: 20,
+                              color: Colors.black,
+                              fontWeight: FontWeight.w500,
+                              fontFamily: GoogleFonts.poppins().fontFamily,
+                            ),
+                          ),
+                          //iconbutton
+                          IconButton(
+                            onPressed: () {
+                              Get.toNamed(
+                                AppRoutes.THREETASKSSCREEN,
+                                arguments: {
+                                  'timeOfDay': 'Evening',
+                                },
+                              );
+                            },
+                            icon: Icon(
+                              Icons.add,
+                              color: Colors.black,
+                            ),
+                          ),
+                        ],
                       ),
                     ),
                   ),

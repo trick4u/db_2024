@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -24,6 +26,7 @@ class PageOneController extends GetxController {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final FirebaseAuth _auth = FirebaseAuth.instance;
   var goalsList = <Goals>[].obs;
+  
 
   User? get currentUser => _auth.currentUser;
 
@@ -44,27 +47,15 @@ class PageOneController extends GetxController {
   var workDuration = 25 * 60; // 25 minutes
   var breakDuration = 5 * 60; // 5 minutes
   late AudioPlayer audioPlayer;
+  final Color startColor = Color(0xFF2196F3);
+  final Color endColor = Color(0xFFF44336);
+  late Timer _colorTimer;
+  var backgroundColor = Color(0xFF2196F3).obs;
 
   @override
   void onInit() {
     //   getAllGoals();
-      AwesomeNotifications().setListeners(
-      onActionReceivedMethod: NotificationService.onActionReceivedMethod,
-      onNotificationCreatedMethod:
-          NotificationService.onNotificationCreatedMethod,
-      onNotificationDisplayedMethod:
-          NotificationService.onNotificationDisplayedMethod,
-      onDismissActionReceivedMethod:
-          NotificationService.onDismissActionReceivedMethod,
-    );
-
-    AwesomeNotifications().isNotificationAllowed().then((isAllowed) {
-      if (!isAllowed) {
-        AwesomeNotifications().requestPermissionToSendNotifications();
-      } else {
-        print('Notification Allowed');
-      }
-    });
+ 
     audioPlayer = AudioPlayer();
     reminderTextController = TextEditingController();
     originalFontColor.value = chips[0].fontColor!;
@@ -83,6 +74,8 @@ class PageOneController extends GetxController {
     //getAllGoals();
     fetchGoals();
     updateGreeting();
+    _initializeColorAnimation();
+    fetchMorningTasks();
   }
 
   @override
@@ -94,10 +87,19 @@ class PageOneController extends GetxController {
   }
 
   //increase volume
+
+  void _initializeColorAnimation() {
+    _colorTimer = Timer.periodic(Duration(seconds: 1), (timer) {
+      if (isRunning.value) {
+        double progress = (workDuration - seconds.value) / workDuration;
+        backgroundColor.value = Color.lerp(startColor, endColor, progress)!;
+      }
+    });
+  }
+
   void increaseVolume() {
     audioPlayer.setVolume(5);
   }
-  
 
   void startTimer() async {
     isRunning.value = true;
@@ -108,7 +110,7 @@ class PageOneController extends GetxController {
     //increase volume of audio
     increaseVolume();
 
-    audioPlayer.play();
+    //  audioPlayer.play();
     _timerTick();
   }
 
@@ -182,7 +184,9 @@ class PageOneController extends GetxController {
   }
 
   void scheduleNotifications(String body, int interval, bool repeat) {
-    AwesomeNotifications().cancelAll(); // Clear all existing notifications
+    AwesomeNotifications().cancelAll(
+      
+    ); // Clear all existing notifications
 
     for (String day in selectedDays) {
       int weekday = _dayToWeekday(day);
@@ -390,4 +394,21 @@ class PageOneController extends GetxController {
     DateTime dateTime = timestamp.toDate();
     return DateFormat('yyyy-MM-dd HH:mm:ss').format(dateTime);
   }
+
+  //fetch morning tasks
+  void fetchMorningTasks() async {
+    try {
+      var snapshot = await _firestore
+          .collection('users')
+          .doc(currentUser!.uid)
+          .collection('Morning')
+          .get();
+      print(snapshot.docs);
+    } catch (e) {
+      print(e);
+    }
+  }
+
+
+
 }

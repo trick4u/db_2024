@@ -36,25 +36,31 @@ class EatTheFrog extends GetWidget<EatTheFrogController> {
               ),
             ),
           ),
-          Expanded(
-            child: Obx(() {
-              return ReorderableListView(
+          Obx(() {
+            return Container(
+              height: MediaQuery.of(context).size.height * 0.5,
+              child: ReorderableListView(
                 onReorder: controller.reorderTasks,
                 children: [
                   for (final task in controller.tasks)
                     ListTile(
                       key: ValueKey(task.id),
                       title: Text(task.title),
-                      leading: task.isFrog ? Icon(Icons.star) : null,
+                      leading: IconButton(
+                          onPressed: () {
+                            // task.isFrog = !task.isFrog;
+                            controller.updateTask(task);
+                          },
+                          icon: Icon(Icons.edit)),
                       trailing: IconButton(
                         icon: Icon(Icons.delete),
                         onPressed: () => controller.deleteTask(task.id),
                       ),
                     ),
                 ],
-              );
-            }),
-          ),
+              ),
+            );
+          }),
         ],
       ),
     );
