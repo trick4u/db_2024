@@ -426,9 +426,9 @@ class _TabBarDesignState extends State<TabBarDesign>
           fontFamily: GoogleFonts.poppins().fontFamily,
         ),
         tabs: [
-          Tab(text: 'Neha'),
-          Tab(text: 'Neha bua'),
-          Tab(text: 'Diya bua'),
+          Tab(text: 'Today'),
+          Tab(text: 'This week'),
+          Tab(text: 'This month'),
         ],
       ),
     );

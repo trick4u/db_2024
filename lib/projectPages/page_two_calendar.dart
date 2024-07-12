@@ -536,7 +536,7 @@ class _CalendarPageState extends State<CalendarPage> {
                       decoration: BoxDecoration(
                         color:
                             Colors.orange, // Custom color for dates with events
-                        shape: BoxShape.circle,
+                        shape: BoxShape.rectangle,
                       ),
                       child: Text(
                         '${date.day}',
@@ -649,7 +649,7 @@ class _CalendarPageState extends State<CalendarPage> {
                 );
               },
             ),
-          )
+          ),
         ],
       ),
     );

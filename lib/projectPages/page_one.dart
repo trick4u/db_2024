@@ -76,9 +76,14 @@ class PageOneScreen extends GetWidget<PageOneController> {
                 if (controller.carouselPageIndex.value == 0) {
                   return PageOneBottomPart();
                 } else if (controller.carouselPageIndex.value == 1) {
-                  return Container(
-                    height: 200,
-                    color: Colors.pink,
+                  return GestureDetector(
+                    onTap: () {
+                      Get.to(() => JustCheck());
+                    },
+                    child: Container(
+                      height: 200,
+                      color: Colors.pink,
+                    ),
                   );
                 } else if (controller.carouselPageIndex.value == 2) {
                   return InkWell(
@@ -381,7 +386,6 @@ class PageOneBottomPart extends GetWidget<PageOneController> {
   }
 }
 
-
 // ListView.builder(
 //                 itemCount: controller.allGoals.length,
 //                 itemBuilder: (context, index) {
@@ -394,3 +398,143 @@ class PageOneBottomPart extends GetWidget<PageOneController> {
 //                   );
 //                 },
 //               ),
+
+class JustCheck extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('FAB and Bottom Sheet Interaction'),
+      ),
+      body: Stack(
+        children: [
+          Center(
+            child: Text(
+              'Press the FAB to reveal the container',
+              style: TextStyle(fontSize: 18),
+            ),
+          ),
+          GetBuilder<MyController>(
+            init: MyController(),
+            builder: (controller) {
+              return AnimatedPositioned(
+                duration: Duration(milliseconds: 500),
+                curve: Curves.easeInOut,
+                left: 20,
+                right: 20,
+                top: controller.isExpanded
+                    ? 100
+                    : MediaQuery.of(context).size.height - 80,
+                bottom: controller.isExpanded ? 130 : 20,
+                child: Container(
+                  padding: EdgeInsets.only(bottom: 20),
+                  decoration: BoxDecoration(
+                    color: Colors.blue,
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: controller.isExpanded
+                      ? Center(
+                          child: SingleChildScrollView(
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Text(
+                                  'Expanded Container',
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 18,
+                                  ),
+                                ),
+                                SizedBox(height: 10),
+                                ElevatedButton(
+                                  onPressed: controller.toggleExpand,
+                                  child: Text('Close'),
+                                ),
+                              ],
+                            ),
+                          ),
+                        )
+                      : Icon(Icons.add, color: Colors.white),
+                ),
+              );
+            },
+          ),
+        ],
+      ),
+      floatingActionButton: GetBuilder<MyController>(
+        builder: (controller) {
+          return controller.isFabExpanded
+              ? Padding(
+                  padding: const EdgeInsets.only(top: 80),
+                  child: AnimatedContainer(
+                    duration: Duration(seconds: 2),
+                    curve: Curves.easeInOut,
+                    width: 200,
+                    height: 60,
+                    margin: EdgeInsets.symmetric(horizontal: 20),
+                    decoration: BoxDecoration(
+                      color: Colors.blue,
+                      borderRadius: BorderRadius.circular(30),
+                    ),
+                    child: Row(
+                      children: [
+                        IconButton(
+                          onPressed: controller.toggleFabExpand,
+                          icon: Icon(Icons.close, color: Colors.white),
+                        ),
+                        SizedBox(width: 10),
+                        InkWell(
+                          onTap: () {
+                            controller.toggleExpand();
+                          },
+                          child: Text(
+                            'Expanded FAB',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 18,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                )
+              : AnimatedContainer(
+                  duration: Duration(seconds: 2),
+                  curve: Curves.easeInOut,
+                  width: 60,
+                  height: 60,
+                  margin: EdgeInsets.symmetric(horizontal: 20),
+                  decoration: BoxDecoration(
+                    color: Colors.blue,
+                    borderRadius: BorderRadius.circular(30),
+                  ),
+                  child: IconButton(
+                    onPressed: () {
+                      controller.toggleFabExpand();
+                    },
+                    icon: Icon(Icons.add, color: Colors.white),
+                  ),
+                );
+        },
+      ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
+    );
+  }
+}
+
+class MyController extends GetxController {
+  bool isExpanded = false;
+
+  bool isFabExpanded = false;
+
+  void toggleExpand() {
+    isExpanded = !isExpanded;
+    update();
+  }
+
+  void toggleFabExpand() {
+    isFabExpanded = !isFabExpanded;
+    update();
+  }
+}

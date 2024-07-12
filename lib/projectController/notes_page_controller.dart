@@ -1,10 +1,24 @@
-
-
 import 'package:get/get.dart';
 
 class NotesPageController extends GetxController {
   var selectedFilter = ''.obs;
   var notes = <Note>[
+    Note(
+      title: 'how I found a new dream',
+      content: 'Today my wish has come true – to devote the whole d...',
+    ),
+    Note(
+      title: 'my plan for the future me',
+      content: 'Imagine the perfect life, the perfect family, dream house...',
+    ),
+    Note(
+      title: 'how I found a new dream',
+      content: 'Today my wish has come true – to devote the whole d...Imagine the perfect life, the perfect family, dream house..',
+    ),
+    Note(
+      title: 'my plan for the future me',
+      content: 'Imagine the perfect life, the perfect family, dream house...',
+    ),
     Note(
       title: 'how I found a new dream',
       content: 'Today my wish has come true – to devote the whole d...',
@@ -31,6 +45,7 @@ class NotesPageController extends GetxController {
     }
   }
 }
+
 class Note {
   final String title;
   final String content;

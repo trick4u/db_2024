@@ -48,7 +48,7 @@ class EatTheFrog extends GetWidget<EatTheFrogController> {
                       title: Text(task.title),
                       leading: IconButton(
                           onPressed: () {
-                            // task.isFrog = !task.isFrog;
+                            task.isFrog = !task.isFrog;
                             controller.updateTask(task);
                           },
                           icon: Icon(Icons.edit)),
