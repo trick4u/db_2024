@@ -18,7 +18,11 @@ class MainScreenController extends GetxController
     with GetSingleTickerProviderStateMixin {
   //variables
   final RxInt currentIndex = 0.obs;
+  var selectedIndex = 0.obs;
 
+  void changeIndex(int index) {
+    selectedIndex.value = index;
+  }
 
   final RxList<Widget> pages = [
     PageOneScreen(),
@@ -40,14 +44,13 @@ class MainScreenController extends GetxController
     }
   }
 
-   @override
+  @override
   void onInit() {
     super.onInit();
-   
   }
 
   Color scaffoldBackgroundColor() {
-    switch (currentIndex.value) {
+    switch (selectedIndex.value) {
       case 0:
         return ColorsConstants().lightPurple;
       case 1:
@@ -55,13 +58,11 @@ class MainScreenController extends GetxController
       case 2:
         return ColorsConstants().lightOrange;
       case 3:
-        return ColorsConstants().lightTeal;
+        return Colors.grey[200]!;
       default:
-        return ColorsConstants().lightBlue;
+        return Colors.black;
     }
   }
-
- 
 
   // if page index ==2 then show dialog
   void showDialog(BuildContext context) {

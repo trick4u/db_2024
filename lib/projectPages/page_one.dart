@@ -7,11 +7,15 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:shape_of_view_null_safe/shape_of_view_null_safe.dart';
 import 'package:tushar_db/app_routes.dart';
 import 'package:tushar_db/constants/colors.dart';
+import 'package:tushar_db/services/app_text_style.dart';
 
+import '../controller/theme_controller.dart';
 import '../models/goals_model.dart';
 import '../projectController/page_one_controller.dart';
+import '../projectController/pomodoro_controller.dart';
 import '../widgets/four_boxes.dart';
 import '../widgets/goals_box.dart';
 import '../widgets/quick_reminder_chips.dart';
@@ -35,7 +39,7 @@ class PageOneScreen extends GetWidget<PageOneController> {
 
             Obx(() => Text(
                   '${controller.greeting}',
-                  style: TextStyle(fontSize: 30),
+                  style: AppTextStyles.heading1,
                 )),
             const SizedBox(height: 20),
             // rounded rect container
@@ -76,14 +80,25 @@ class PageOneScreen extends GetWidget<PageOneController> {
                 if (controller.carouselPageIndex.value == 0) {
                   return PageOneBottomPart();
                 } else if (controller.carouselPageIndex.value == 1) {
-                  return GestureDetector(
-                    onTap: () {
-                      Get.to(() => JustCheck());
-                    },
-                    child: Container(
-                      height: 200,
-                      color: Colors.pink,
-                    ),
+                  return Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      GestureDetector(
+                        onTap: () {
+                          Get.to(() => JustCheck());
+                        },
+                        child: Container(
+                          height: 200,
+                          width: double.infinity,
+                          color: Colors.pink,
+                          child: Column(
+                            children: [
+                              Text("Just Check"),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
                   );
                 } else if (controller.carouselPageIndex.value == 2) {
                   return InkWell(
@@ -450,6 +465,23 @@ class JustCheck extends StatelessWidget {
                                   onPressed: controller.toggleExpand,
                                   child: Text('Close'),
                                 ),
+                                SizedBox(height: 10),
+                                ElevatedButton(
+                                  onPressed: () {
+                                    Get.to(() => RegistryCheck());
+                                  },
+                                  child: Text('Registry check'),
+                                ),
+                                ElevatedButton(
+                                    onPressed: () {
+                                      Get.to(() => LoginPage());
+                                    },
+                                    child: Text('Login check')),
+                                ElevatedButton(
+                                    onPressed: () {
+                                      Get.to(() => PomodoroView());
+                                    },
+                                    child: Text("Pomodoro check"))
                               ],
                             ),
                           ),
@@ -538,3 +570,346 @@ class MyController extends GetxController {
     update();
   }
 }
+
+class RegistryCheck extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.black,
+      appBar: AppBar(
+        title: Text('Eat The Frog'),
+      ),
+      body: Center(
+        child: CustomCard(),
+      ),
+    );
+  }
+}
+
+class CustomCard extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Stack(
+      alignment: Alignment.bottomCenter,
+      children: [
+        Container(
+          width: double.infinity,
+          height: double.infinity,
+          margin: EdgeInsets.symmetric(horizontal: 20),
+          decoration: BoxDecoration(
+            color: Colors.deepPurple[900],
+            borderRadius: BorderRadius.circular(20),
+          ),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: [
+              ClipRRect(
+                borderRadius: BorderRadius.all(
+                  Radius.circular(20),
+                ),
+                child: ShapeOfView(
+                  height: 500,
+                  elevation: 4,
+                  shape: DiagonalShape(
+                    position: DiagonalPosition.Bottom,
+                    direction: DiagonalDirection.Left,
+                    angle: DiagonalAngle.deg(angle: 10),
+                  ),
+                  child: Container(
+                    color: Colors.purpleAccent,
+                    // child: Image.network(
+                    //   'https://example.com/illustration.png',
+                    //   fit: BoxFit.cover,
+                    // ),
+                  ),
+                ),
+              ),
+              SizedBox(height: 20),
+              Text(
+                'Organize it all with Estaro',
+                style: GoogleFonts.poppins(
+                  textStyle: TextStyle(
+                    color: Colors.white,
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                textAlign: TextAlign.center,
+              ),
+              SizedBox(height: 10),
+              Text(
+                'A task manager you can trust for life',
+                style: GoogleFonts.poppins(
+                  textStyle: TextStyle(
+                    color: Colors.white70,
+                    fontSize: 16,
+                  ),
+                ),
+                textAlign: TextAlign.center,
+              ),
+              SizedBox(height: 20),
+            ],
+          ),
+        ),
+        Positioned(
+          bottom: 50,
+          child: GlowingButton(),
+        ),
+      ],
+    );
+  }
+}
+
+class GlowingButton extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        boxShadow: [
+          BoxShadow(
+            color: Colors.purpleAccent.withOpacity(0.5),
+            spreadRadius: 10,
+            blurRadius: 20,
+          ),
+        ],
+        borderRadius: BorderRadius.circular(30),
+      ),
+      child: ElevatedButton(
+        onPressed: () {},
+        style: ElevatedButton.styleFrom(
+          padding: EdgeInsets.symmetric(horizontal: 40, vertical: 15),
+          backgroundColor: Colors.purpleAccent,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(30),
+          ),
+        ),
+        child: Text(
+          'Create New Task',
+          style: GoogleFonts.poppins(
+            textStyle: TextStyle(
+              fontSize: 18,
+              color: Colors.white,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class LoginPage extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    final ThemeController themeController = Get.put(ThemeController());
+
+    return Scaffold(
+      body: Center(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 24.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(
+                'Hello Again!',
+              ),
+              SizedBox(height: 8.0),
+              Text(
+                'Welcome back you\'ve been missed!',
+                //
+              ),
+              SizedBox(height: 16.0),
+              TextField(
+                decoration: InputDecoration(
+                  hintText: 'Enter username',
+                ),
+              ),
+              SizedBox(height: 16.0),
+              TextField(
+                decoration: InputDecoration(
+                  hintText: 'Password',
+                  suffixIcon: Icon(Icons.visibility, color: Colors.white70),
+                ),
+                obscureText: true,
+              ),
+              SizedBox(height: 16.0),
+              TextButton(
+                onPressed: () {},
+                child: Text(
+                  'Recovery Password',
+                  style: TextStyle(color: Colors.white70),
+                ),
+              ),
+              SizedBox(height: 16.0),
+              ElevatedButton(
+                onPressed: () {},
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.redAccent,
+                  padding: EdgeInsets.symmetric(horizontal: 50, vertical: 15),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12.0),
+                  ),
+                ),
+                child: Text('Sign In'),
+              ),
+              SizedBox(height: 16.0),
+              Text('Or continue with',
+                  style: Theme.of(context).textTheme.bodyLarge),
+              SizedBox(height: 16.0),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  IconButton(
+                    icon: Icon(Icons.account_circle, color: Colors.white70),
+                    onPressed: () {},
+                  ),
+                  IconButton(
+                    icon: Icon(Icons.account_circle, color: Colors.white70),
+                    onPressed: () {},
+                  ),
+                  IconButton(
+                    icon: Icon(Icons.account_circle, color: Colors.white70),
+                    onPressed: () {},
+                  ),
+                ],
+              ),
+              SizedBox(height: 16.0),
+              TextButton(
+                onPressed: () {},
+                child: Text(
+                  'Register now',
+                  style: TextStyle(color: Colors.blueAccent),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: themeController.toggleTheme,
+        child: Icon(Icons.brightness_6),
+      ),
+    );
+  }
+}
+
+// class PomodoroWidget extends StatelessWidget {
+//   @override
+//   Widget build(BuildContext context) {
+//     final PomodoroController controller = Get.put(PomodoroController());
+
+//     return Scaffold(
+//       appBar: AppBar(
+//         title: Text('Pomodoro Timer'),
+//       ),
+//       body: Center(
+//         child: Column(
+//           mainAxisAlignment: MainAxisAlignment.center,
+//           children: [
+//             Obx(() {
+//               final minutes = controller.timeLeft ~/ 60;
+//               final seconds = controller.timeLeft % 60;
+//               return Text(
+//                 '$minutes:${seconds.toString().padLeft(2, '0')}',
+//                 style: TextStyle(fontSize: 48.0),
+//               );
+//             }),
+//             SizedBox(height: 20.0),
+//             Obx(() => CustomPaint(
+//                   size: Size(200, 200),
+//                   painter: TimerPainter(
+//                     percentage: (controller.timeLeft /
+//                             (controller.isBreak.value ? 5 * 60 : 25 * 60)) *
+//                         100,
+//                     color: controller.isBreak.value ? Colors.green : Colors.red,
+//                   ),
+//                 )),
+//             // SizedBox(height: 20.0),
+//             Obx(() => controller.isRunning.value
+//                 ? ElevatedButton(
+//                     onPressed: controller.stopTimer,
+//                     child: Text('Stop'),
+//                   )
+//                 : ElevatedButton(
+//                     onPressed: controller.startTimer,
+//                     child: Text('Start'),
+//                   )),
+//             ElevatedButton(
+//               onPressed: controller.resetTimer,
+//               child: Text('Reset'),
+//             ),
+//           ],
+//         ),
+//       ),
+//     );
+//   }
+// }
+
+
+class PomodoroView extends StatelessWidget {
+  final PomodoroController controller = Get.put(PomodoroController());
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Container(
+        color: Get.isDarkMode ? Colors.black : Colors.white,
+        child: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Obx(() => Text(
+                    controller.currentMode.value,
+                    style: TextStyle(fontSize: 24, color: Get.isDarkMode ? Colors.white : Colors.black),
+                  )),
+              SizedBox(height: 20),
+              Obx(() => CustomPaint(
+                    painter: CircleProgressPainter(
+                      progress: 1 - (controller.timeLeft.value / (25 * 60)),
+                      color: controller.currentMode.value == 'FOCUS' ? Colors.red : Colors.blue,
+                    ),
+                    child: Container(
+                      width: 300,
+                      height: 300,
+                      child: Center(
+                        child: Text(
+                          '${(controller.timeLeft.value ~/ 60).toString().padLeft(2, '0')}:${(controller.timeLeft.value % 60).toString().padLeft(2, '0')}',
+                          style: TextStyle(fontSize: 48, color: Get.isDarkMode ? Colors.white : Colors.black),
+                        ),
+                      ),
+                    ),
+                  )),
+              SizedBox(height: 20),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: List.generate(
+                  4,
+                  (index) => Obx(() => Container(
+                        width: 10,
+                        height: 10,
+                        margin: EdgeInsets.symmetric(horizontal: 5),
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: index < controller.currentRound.value
+                              ? (controller.currentMode.value == 'FOCUS' ? Colors.red : Colors.blue)
+                              : Colors.grey,
+                        ),
+                      )),
+                ),
+              ),
+              SizedBox(height: 20),
+              Obx(() => ElevatedButton(
+                    onPressed: controller.isRunning.value ? controller.pauseTimer : controller.startTimer,
+                    child: Icon(controller.isRunning.value ? Icons.pause : Icons.play_arrow),
+                    style: ElevatedButton.styleFrom(
+                      shape: CircleBorder(), backgroundColor: controller.currentMode.value == 'FOCUS' ? Colors.red : Colors.blue,
+                      padding: EdgeInsets.all(20),
+                    ),
+                  )),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+

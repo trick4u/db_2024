@@ -9,9 +9,11 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_native_timezone_updated_gradle/flutter_native_timezone.dart';
 import 'package:get/get.dart';
 import 'package:get/route_manager.dart';
+import 'package:get_storage/get_storage.dart';
 
 import 'package:timezone/data/latest_10y.dart';
 import 'package:tushar_db/controller/network_controller.dart';
+import 'package:tushar_db/controller/theme_controller.dart';
 import 'package:tushar_db/firebase_options.dart';
 import 'package:tushar_db/pages/splash_screen.dart';
 import 'package:tushar_db/projectPages/main_screen.dart';
@@ -60,7 +62,7 @@ void callbackDispatcher() {
 }
 
 void main() async {
-
+  await GetStorage.init();
 
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
@@ -92,26 +94,26 @@ void main() async {
             channelDescription: 'Notification channel for basic tests',
             defaultColor: const Color(0xFF9D50DD),
             ledColor: Colors.blue),
-             
-      NotificationChannel(
-        channelKey: 'quote_channel',
-        channelName: 'Daily Quote Notifications',
-        channelDescription: 'Notification channel for daily motivational quotes',
-        defaultColor: Color(0xFF9D50DD),
-        ledColor: Colors.white,
-        importance: NotificationImportance.High,
-        channelShowBadge: true,
-      ),
         NotificationChannel(
-        channelKey: 'quickschedule',
-        channelName: 'Reminder Notifications',
-        channelDescription: 'Notification channel for daily motivational quotes',
-        defaultColor: Color(0xFF9D50DD),
-        ledColor: Colors.white,
-        importance: NotificationImportance.Low,
-        channelShowBadge: true,
-      ),
-    
+          channelKey: 'quote_channel',
+          channelName: 'Daily Quote Notifications',
+          channelDescription:
+              'Notification channel for daily motivational quotes',
+          defaultColor: Color(0xFF9D50DD),
+          ledColor: Colors.white,
+          importance: NotificationImportance.High,
+          channelShowBadge: true,
+        ),
+        NotificationChannel(
+          channelKey: 'quickschedule',
+          channelName: 'Reminder Notifications',
+          channelDescription:
+              'Notification channel for daily motivational quotes',
+          defaultColor: Color(0xFF9D50DD),
+          ledColor: Colors.white,
+          importance: NotificationImportance.Low,
+          channelShowBadge: true,
+        ),
       ],
       debug: true);
 
@@ -133,23 +135,23 @@ void main() async {
   });
 
   log("Notifications: $initialized");
-     AwesomeNotifications().setListeners(
-      onActionReceivedMethod: NotificationService.onActionReceivedMethod,
-      onNotificationCreatedMethod:
-          NotificationService.onNotificationCreatedMethod,
-      onNotificationDisplayedMethod:
-          NotificationService.onNotificationDisplayedMethod,
-      onDismissActionReceivedMethod:
-          NotificationService.onDismissActionReceivedMethod,
-    );
+  AwesomeNotifications().setListeners(
+    onActionReceivedMethod: NotificationService.onActionReceivedMethod,
+    onNotificationCreatedMethod:
+        NotificationService.onNotificationCreatedMethod,
+    onNotificationDisplayedMethod:
+        NotificationService.onNotificationDisplayedMethod,
+    onDismissActionReceivedMethod:
+        NotificationService.onDismissActionReceivedMethod,
+  );
 
-    AwesomeNotifications().isNotificationAllowed().then((isAllowed) {
-      if (!isAllowed) {
-        AwesomeNotifications().requestPermissionToSendNotifications();
-      } else {
-        print('Notification Allowed');
-      }
-    });
+  AwesomeNotifications().isNotificationAllowed().then((isAllowed) {
+    if (!isAllowed) {
+      AwesomeNotifications().requestPermissionToSendNotifications();
+    } else {
+      print('Notification Allowed');
+    }
+  });
 
   runApp(const MyApp());
 }
@@ -168,19 +170,19 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final HomeController themeController = Get.put(HomeController());
+    final HomeController homeController = Get.put(HomeController());
+    final ThemeController themeController = Get.put(ThemeController());
 
-    return GetMaterialApp(
-      title: 'DoBoard Demo',
-      debugShowCheckedModeBanner: false,
-      darkTheme: ThemeData.dark(),
-      theme: lightTheme,
-      themeMode:
-          themeController.isDarkMode.value ? ThemeMode.dark : ThemeMode.light,
-      initialBinding: InitialBinding(),
-      initialRoute: AppRoutes.HOME,
-      getPages: AppRoutes.routes,
-      // home: MyHomePage(),
-    );
+    return Obx(() => GetMaterialApp(
+          title: 'DoBoard Demo',
+          debugShowCheckedModeBanner: false,
+          darkTheme: ThemeData.dark(),
+          theme: ThemeData.light(),
+           themeMode: themeController.isDarkMode.value ? ThemeMode.dark : ThemeMode.light,
+          initialBinding: InitialBinding(),
+          initialRoute: AppRoutes.HOME,
+          getPages: AppRoutes.routes,
+          // home: MyHomePage(),
+        ));
   }
 }

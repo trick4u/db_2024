@@ -1,9 +1,12 @@
+import 'dart:ui';
+
 import 'package:dough/dough.dart';
 import 'package:dough_sensors/dough_sensors.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
+import 'package:glassmorphism_ui/glassmorphism_ui.dart';
 import 'package:tushar_db/app_routes.dart';
 import 'package:tushar_db/pages/network_screen.dart';
 
@@ -18,17 +21,70 @@ class MainScreen extends GetWidget<MainScreenController> {
 
   @override
   Widget build(BuildContext context) {
-    return Obx(
-      () => Scaffold(
-        resizeToAvoidBottomInset: false,
-        backgroundColor: controller.scaffoldBackgroundColor(),
-        floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
-        floatingActionButton: Padding(
-          padding: const EdgeInsets.all(10.0),
-          child: FabButton(),
+    return Obx(() => Scaffold(
+          resizeToAvoidBottomInset: false,
+          backgroundColor: controller.scaffoldBackgroundColor(),
+          floatingActionButtonLocation:
+              FloatingActionButtonLocation.centerDocked,
+          // floatingActionButton: Padding(
+          //   padding: const EdgeInsets.all(10.0),
+          //   child: FabButton(),
+          // ),
+          body: Obx(() => controller.pages[controller.selectedIndex.value]),
+          bottomNavigationBar: Obx(() {
+            return GlassContainer(
+              blur: 10,
+              height: 100,
+              color: Colors.black,
+              shadowColor: Colors.black.withOpacity(0.2),
+              borderRadius: BorderRadius.circular(30),
+           
+              
+              child: Padding(
+                padding: const EdgeInsets.only(
+                    bottom: 20, top: 20, left: 20, right: 20),
+                child: Container(
+                  height: 60,
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(30),
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    children: [
+                      _buildNavItem(Icons.home, 0),
+                      _buildNavItem(Icons.article, 1),
+                      _buildNavItem(Icons.search, 2),
+                      _buildNavItem(Icons.add_box, 3),
+                    ],
+                  ),
+                ),
+              ),
+            );
+          }),
+        ));
+  }
+
+  Widget _buildNavItem(IconData icon, int index) {
+    return GestureDetector(
+      onTap: () => controller.changeIndex(index),
+      child: AnimatedContainer(
+        duration: Duration(milliseconds: 300),
+        curve: Curves.easeOutCubic,
+        padding: EdgeInsets.all(8),
+        decoration: BoxDecoration(
+          color: controller.selectedIndex.value == index
+              ? Colors.black
+              : Colors.white,
+          borderRadius: BorderRadius.circular(30),
         ),
-        body: Obx(() => controller.pages[controller.currentIndex.value]),
-        bottomNavigationBar: BottomBar(controller: controller),
+        child: Icon(
+          icon,
+          color: controller.selectedIndex.value == index
+              ? Colors.white
+              : Colors.black,
+          size: 30,
+        ),
       ),
     );
   }
