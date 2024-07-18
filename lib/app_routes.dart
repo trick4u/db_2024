@@ -137,7 +137,7 @@ class AppRoutes {
     //three tasksscreen
     GetPage(
       name: THREETASKSSCREEN,
-      page: () => ThreeTasksScreen(),
+      page: () => CommentScreen(),
       binding: ThreeTasksBinding(),
       transition: Transition.cupertinoDialog,
     ),

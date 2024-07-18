@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
 import 'package:tushar_db/constants/colors.dart';
+import 'package:tushar_db/projectController/calendar_controller.dart';
 import 'package:tushar_db/projectPages/goals.dart';
 
 import '../projectController/page_threeController.dart';
@@ -36,7 +37,11 @@ class MainScreenController extends GetxController
     BuildContext context,
   ) {
     currentIndex.value = index;
-    if (currentIndex.value == 2) {
+    if (currentIndex.value == 1){
+      Get.lazyPut<CalendarController>(() => CalendarController());
+    }
+
+   else if (currentIndex.value == 2) {
       Get.lazyPut<PageThreecontroller>(() => PageThreecontroller());
       showDialog(context);
     } else if (currentIndex.value == 3) {

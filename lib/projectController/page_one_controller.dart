@@ -26,7 +26,6 @@ class PageOneController extends GetxController {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final FirebaseAuth _auth = FirebaseAuth.instance;
   var goalsList = <Goals>[].obs;
-  
 
   User? get currentUser => _auth.currentUser;
 
@@ -55,7 +54,7 @@ class PageOneController extends GetxController {
   @override
   void onInit() {
     //   getAllGoals();
- 
+
     audioPlayer = AudioPlayer();
     reminderTextController = TextEditingController();
     originalFontColor.value = chips[0].fontColor!;
@@ -98,19 +97,19 @@ class PageOneController extends GetxController {
   }
 
   void increaseVolume() {
-    audioPlayer.setVolume(5);
+    audioPlayer.setVolume(10);
   }
 
   void startTimer() async {
     isRunning.value = true;
     seconds.value = isBreak.value ? breakDuration : workDuration;
     var audioUrl =
-        'https://www.bensound.com/bensound-music/bensound-slowmotion.mp3'; // YouTube video ID
+        'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-13.mp3'; // YouTube video ID
     audioPlayer.setUrl(audioUrl);
     //increase volume of audio
     increaseVolume();
 
-    //  audioPlayer.play();
+    audioPlayer.play();
     _timerTick();
   }
 
@@ -184,9 +183,7 @@ class PageOneController extends GetxController {
   }
 
   void scheduleNotifications(String body, int interval, bool repeat) {
-    AwesomeNotifications().cancelAll(
-      
-    ); // Clear all existing notifications
+    AwesomeNotifications().cancelAll(); // Clear all existing notifications
 
     for (String day in selectedDays) {
       int weekday = _dayToWeekday(day);
@@ -408,7 +405,4 @@ class PageOneController extends GetxController {
       print(e);
     }
   }
-
-
-
 }

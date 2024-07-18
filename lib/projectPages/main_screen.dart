@@ -38,8 +38,6 @@ class MainScreen extends GetWidget<MainScreenController> {
               color: Colors.black,
               shadowColor: Colors.black.withOpacity(0.2),
               borderRadius: BorderRadius.circular(30),
-           
-              
               child: Padding(
                 padding: const EdgeInsets.only(
                     bottom: 20, top: 20, left: 20, right: 20),
@@ -47,7 +45,9 @@ class MainScreen extends GetWidget<MainScreenController> {
                   height: 60,
                   decoration: BoxDecoration(
                     color: Colors.white,
-                    borderRadius: BorderRadius.circular(30),
+                    borderRadius: BorderRadius.all(
+                      Radius.circular(30),
+                    ),
                   ),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceAround,
