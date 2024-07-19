@@ -10,12 +10,14 @@ class EventModel {
   final String title;
   final String description;
   final DateTime date;
+  final Color color;
 
   EventModel({
     required this.id,
     required this.title,
     required this.description,
     required this.date,
+    required this.color,
   });
 
   factory EventModel.fromFirestore(DocumentSnapshot doc) {
@@ -25,9 +27,21 @@ class EventModel {
       title: data['title'] ?? '',
       description: data['description'] ?? '',
       date: (data['date'] as Timestamp).toDate(),
+      color: Color(data['color'] ?? Colors.blue.value),
     );
   }
+
+  Map<String, dynamic> toMap() {
+    return {
+      'title': title,
+      'description': description,
+      'date': Timestamp.fromDate(date),
+      'color': color.value,
+    };
+  }
 }
+
+
 class CalendarController extends GetxController {
   CalendarFormat calendarFormat = CalendarFormat.month;
   DateTime focusedDay = DateTime.now();
@@ -138,29 +152,30 @@ void fetchEvents(DateTime day) {
   }
 
   void showEventBottomSheet(BuildContext context, {EventModel? event}) {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (context) => Padding(
-        padding: EdgeInsets.only(
-          bottom: MediaQuery.of(context).viewInsets.bottom,
-        ),
-        child: EventBottomSheet(
-          event: event,
-          initialDate: selectedDay,
-          onSave: (title, description, date, startTime, endTime) {
-            if (event == null) {
-              addEvent(title, description, date, startTime, endTime);
-            } else {
-              updateEvent(event.id, title, description, date, startTime, endTime);
-            }
-          },
-        ),
+  showModalBottomSheet(
+    context: context,
+    isScrollControlled: true,
+    backgroundColor: Colors.transparent,
+    builder: (context) => Padding(
+      padding: EdgeInsets.only(
+        bottom: MediaQuery.of(context).viewInsets.bottom,
       ),
-    );
-  }
-void addEvent(String title, String description, DateTime date, TimeOfDay? startTime, TimeOfDay? endTime) async {
+      child: EventBottomSheet(
+        event: event,
+        initialDate: selectedDay,
+        onSave: (title, description, date, startTime, endTime, color) {
+          if (event == null) {
+            addEvent(title, description, date, startTime, endTime, color);
+          } else {
+            updateEvent(event.id, title, description, date, startTime, endTime, color);
+          }
+        },
+      ),
+    ),
+  );
+}
+
+void addEvent(String title, String description, DateTime date, TimeOfDay? startTime, TimeOfDay? endTime, Color color) async {
   try {
     await eventsCollection.add({
       'title': title,
@@ -168,7 +183,7 @@ void addEvent(String title, String description, DateTime date, TimeOfDay? startT
       'date': Timestamp.fromDate(date),
       'startTime': startTime != null ? Timestamp.fromDate(DateTime(date.year, date.month, date.day, startTime.hour, startTime.minute)) : null,
       'endTime': endTime != null ? Timestamp.fromDate(DateTime(date.year, date.month, date.day, endTime.hour, endTime.minute)) : null,
-      'createdAt': Timestamp.now(),  // Add this line
+      'color': color.value,
     });
     fetchEvents(date);
   } catch (e) {
@@ -176,18 +191,19 @@ void addEvent(String title, String description, DateTime date, TimeOfDay? startT
   }
 }
 
-  void updateEvent(String eventId, String newTitle, String newDescription, DateTime newDate, TimeOfDay? newStartTime, TimeOfDay? newEndTime) async {
-    try {
-      await eventsCollection.doc(eventId).update({
-        'title': newTitle,
-        'description': newDescription,
-        'date': Timestamp.fromDate(newDate),
-        'startTime': newStartTime != null ? Timestamp.fromDate(DateTime(newDate.year, newDate.month, newDate.day, newStartTime.hour, newStartTime.minute)) : null,
-        'endTime': newEndTime != null ? Timestamp.fromDate(DateTime(newDate.year, newDate.month, newDate.day, newEndTime.hour, newEndTime.minute)) : null,
-      });
-      fetchEvents(newDate);
-    } catch (e) {
-      print('Error updating event: $e');
-    }
+  void updateEvent(String eventId, String newTitle, String newDescription, DateTime newDate, TimeOfDay? newStartTime, TimeOfDay? newEndTime, Color newColor) async {
+  try {
+    await eventsCollection.doc(eventId).update({
+      'title': newTitle,
+      'description': newDescription,
+      'date': Timestamp.fromDate(newDate),
+      'startTime': newStartTime != null ? Timestamp.fromDate(DateTime(newDate.year, newDate.month, newDate.day, newStartTime.hour, newStartTime.minute)) : null,
+      'endTime': newEndTime != null ? Timestamp.fromDate(DateTime(newDate.year, newDate.month, newDate.day, newEndTime.hour, newEndTime.minute)) : null,
+      'color': newColor.value,
+    });
+    fetchEvents(newDate);
+  } catch (e) {
+    print('Error updating event: $e');
   }
+}
 }
