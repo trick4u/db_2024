@@ -248,18 +248,30 @@ class CalendarPage extends StatelessWidget {
                   SizedBox(height: 20),
                   Expanded(
                     child: Obx(
-                      () => ListView.builder(
-                        itemCount: controller.events.length,
-                        itemBuilder: (context, index) {
-                          return InkWell(
-                            child:   EventCard(event: controller.events[index]),
-                            onTap: () {
-                              controller.showEventBottomSheet(context,
-                                  event: controller.events[index]);
-                            },
-                          );
-                        },
-                      ),
+                      () => controller.events.isEmpty
+                          ? Center(
+                              child: Text(
+                                'No events for ${DateFormat('MMMM dd yyy').format(controller.selectedDay)} ',
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w500,
+                                  color: Colors.grey[600],
+                                ),
+                              ),
+                            )
+                          : ListView.builder(
+                              itemCount: controller.events.length,
+                              itemBuilder: (context, index) {
+                                return InkWell(
+                                  child: EventCard(
+                                      event: controller.events[index]),
+                                  onTap: () {
+                                    controller.showEventBottomSheet(context,
+                                        event: controller.events[index]);
+                                  },
+                                );
+                              },
+                            ),
                     ),
                   ),
                 ],
