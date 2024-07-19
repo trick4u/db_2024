@@ -1,10 +1,15 @@
 import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:get/get.dart';
 
+import '../app_routes.dart';
+
 class NotificationService  extends GetxController{
   static Future<void> onActionReceivedMethod(ReceivedAction receivedAction) async {
     // Handle notification action
     print('Notification action received: ${receivedAction.id}');
+    //navigate to a page
+      Get.toNamed(AppRoutes.MAIN);
+
 
   }
 

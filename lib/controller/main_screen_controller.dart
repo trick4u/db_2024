@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
+import 'package:tushar_db/constants/colors.dart';
+import 'package:tushar_db/projectController/calendar_controller.dart';
+import 'package:tushar_db/projectPages/goals.dart';
 
 import '../projectController/page_threeController.dart';
 import '../projectPages/awesome_noti.dart';
@@ -8,17 +11,25 @@ import '../projectPages/main_screen.dart';
 
 import 'package:popover/popover.dart';
 
+import '../projectPages/page_one.dart';
 import '../projectPages/page_three.dart';
 import '../projectPages/page_two_calendar.dart';
 
-class MainScreenController extends GetxController {
+class MainScreenController extends GetxController
+    with GetSingleTickerProviderStateMixin {
+  //variables
   final RxInt currentIndex = 0.obs;
+  var selectedIndex = 0.obs;
+
+  void changeIndex(int index) {
+    selectedIndex.value = index;
+  }
+
   final RxList<Widget> pages = [
-    Page1(),
+    PageOneScreen(),
     CalendarPage(),
-    Page3(),
+    GoalsScreen(),
     AwesomeNoti(),
-  
   ].obs;
 
   void changePage(
@@ -26,9 +37,35 @@ class MainScreenController extends GetxController {
     BuildContext context,
   ) {
     currentIndex.value = index;
-    if (currentIndex.value == 2) {
+    if (currentIndex.value == 1){
+      Get.lazyPut<CalendarController>(() => CalendarController());
+    }
+
+   else if (currentIndex.value == 2) {
       Get.lazyPut<PageThreecontroller>(() => PageThreecontroller());
       showDialog(context);
+    } else if (currentIndex.value == 3) {
+      //  Get.lazyPut<AwesomeNoti>(() => AwesomeNoti());
+    }
+  }
+
+  @override
+  void onInit() {
+    super.onInit();
+  }
+
+  Color scaffoldBackgroundColor() {
+    switch (selectedIndex.value) {
+      case 0:
+        return ColorsConstants().lightPurple;
+      case 1:
+        return ColorsConstants().lightPink;
+      case 2:
+        return ColorsConstants().lightOrange;
+      case 3:
+        return Colors.grey[200]!;
+      default:
+        return Colors.black;
     }
   }
 
@@ -58,26 +95,25 @@ class MainScreenController extends GetxController {
     PersistentBottomNavBarItem(
       icon: FontAwesomeIcons.calendarDay,
       title: "Calendar",
-      activeColor: Colors.purple,
+      activeColor: ColorsConstants().deepPurple,
       inactiveColor: Colors.grey,
     ),
     PersistentBottomNavBarItem(
       icon: FontAwesomeIcons.rectangleList,
       title: "Tasks",
-      activeColor: Colors.purple,
+      activeColor: ColorsConstants().deepPurple,
       inactiveColor: Colors.grey,
     ),
     PersistentBottomNavBarItem(
-      icon: FontAwesomeIcons.clock,
+      icon: FontAwesomeIcons.noteSticky,
       title: "Clock",
-      activeColor: Colors.purple,
+      activeColor: ColorsConstants().deepPurple,
       inactiveColor: Colors.grey,
     ),
     PersistentBottomNavBarItem(
       icon: FontAwesomeIcons.user,
-      
       title: "Profile",
-      activeColor: Colors.purple,
+      activeColor: ColorsConstants().deepPurple,
       inactiveColor: Colors.grey,
       onTap: () {
         showPopover(

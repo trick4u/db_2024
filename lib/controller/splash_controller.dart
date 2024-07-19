@@ -15,29 +15,19 @@ class SplashController extends GetxController
 
   @override
   void onReady() {
-    Future.delayed(Duration(seconds: 2), () {
-      Get.offNamedUntil(
-        AppRoutes.HOME,
-        (route) => false,
-      );
-    });
+    // Future.delayed(Duration(seconds: 2), () {
+    //   Get.offNamedUntil(
+    //     AppRoutes.MAIN,
+    //     (route) => false,
+    //   );
+    // });
     super.onReady();
   }
 
   //init
   @override
   void onInit() {
-    animationController = AnimationController(
-      vsync: this,
-      duration: Duration(seconds: 2),
-    );
-    offsetAnimation = Tween<Offset>(
-      begin: Offset(0, 10),
-      end: Offset(0, 0),
-    ).animate(CurvedAnimation(
-      parent: animationController,
-      curve: Curves.bounceOut,
-    ));
+
     super.onInit();
   }
 }

@@ -1,24 +1,19 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
+import 'package:get/get.dart';
+import 'package:get_storage/get_storage.dart';
 
-final ThemeData lightTheme = ThemeData(
-  brightness: Brightness.light,
-  primaryColor: Colors.white,
-  scaffoldBackgroundColor: Colors.white,
-  
-  
-);
+class ThemeService {
+  final _box = GetStorage();
+  final _key = 'isDarkMode';
 
-final ThemeData darkTheme = ThemeData(
-  brightness: Brightness.dark,
-  primaryColor: Colors.black,
-  scaffoldBackgroundColor: Colors.black,
-  textTheme: TextTheme(
-    titleSmall: TextStyle(
-      fontFamily: GoogleFonts.inder().fontFamily,
-              fontSize: 40,
-              fontWeight: FontWeight.bold,
-              color: Colors.black87,
-    ),
-  ),
-);
+  ThemeMode get theme => _loadThemeFromBox() ? ThemeMode.dark : ThemeMode.light;
+
+  bool _loadThemeFromBox() => _box.read(_key) ?? false;
+
+  void _saveThemeToBox(bool isDarkMode) => _box.write(_key, isDarkMode);
+
+  void switchTheme() {
+    Get.changeThemeMode(_loadThemeFromBox() ? ThemeMode.light : ThemeMode.dark);
+    _saveThemeToBox(!_loadThemeFromBox());
+  }
+}

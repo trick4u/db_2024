@@ -50,6 +50,8 @@ class HomeController extends GetxController
   @override
   void onInit() {
     tabController = TabController(length: 2, vsync: this);
+    userAuthChanges();
+    
     super.onInit();
   }
 
@@ -105,10 +107,24 @@ class HomeController extends GetxController
               email: emailController.text, password: passwordController.text)
           .then((value) {
         Get.snackbar('Success', 'Login successful');
+        Get.toNamed(AppRoutes.MAIN);
       }).catchError((e) {
         Get.snackbar('Error', e.toString());
       });
     }
+  }
+
+  void userAuthChanges(){
+    auth.authStateChanges().listen((User? user) {
+      if (user == null) {
+        print('User is currently signed out!');
+      } else {
+        print('User is signed in!');
+        Get.toNamed(AppRoutes.MAIN);
+      
+      }
+    });
+  
   }
 
   // register with email and password

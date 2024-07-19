@@ -1,21 +1,37 @@
 import 'package:get/get.dart';
 
-
 import 'bindings/email_binding.dart';
 import 'bindings/home_binding.dart';
 import 'bindings/main_screen_binding.dart';
+import 'bindings/network_binding.dart';
 import 'bindings/otp_binding.dart';
 import 'bindings/phone_binding.dart';
-import 'bindings/splash_binding.dart';
+import 'bindings/initial_binding.dart';
 import 'pages/email_verification.dart';
 import 'pages/home_page.dart';
+import 'pages/network_screen.dart';
+import 'projectBinding/add_everything_binding.dart';
+import 'projectBinding/add_taskBinding.dart';
+import 'projectBinding/eat_the_frog_binding.dart';
+import 'projectBinding/goals_binding.dart';
+import 'projectBinding/notes_binding.dart';
+import 'projectBinding/page_one_binding.dart';
+import 'projectBinding/three_tasks_binding.dart';
+import 'projectPages/add_everyting.dart';
+import 'projectPages/add_task.dart';
+import 'projectPages/eat_the_frog.dart';
+import 'projectPages/goals.dart';
 import 'projectPages/main_screen.dart';
 import 'pages/otp_screen.dart';
 import 'pages/phone_auth.dart';
 import 'pages/splash_screen.dart';
+import 'projectPages/notes_page.dart';
+import 'projectPages/page_one.dart';
+import 'projectPages/three_tasks_screen.dart';
+import 'widgets/three_day.dart';
 
 class AppRoutes {
-  static const String HOME = '/';
+  static const String HOME = '/home';
   static const String LOGIN = '/login';
   static const String REGISTER = '/register';
   static const String PROFILE = '/profile';
@@ -32,14 +48,55 @@ class AppRoutes {
   static const String MAIN = '/main';
   // email verification
   static const String EMAIL = '/emailVerification';
+  // add task
+  static const String ADDTASK = '/addTask';
 
-  
+  //network
+  static const String NETWORK = '/network';
+  // goals
+  static const String GOALS = '/goals';
+  //page one
+  static const String PAGEONE = '/pageOne';
+  //add everything
+  static const String ADDEVERYTHING = '/addEverything';
+  //eat the frog
+  static const String EATTHEFROG = '/eatTheFrog';
+  //three tasksscreen
+  static const String THREETASKSSCREEN = '/threeTasksScreen';
+  //notes
+  static const String NOTES = '/notes';
 
   static List<GetPage> routes = [
     GetPage(
+      name: NOTES,
+      page: () => NotesPage(),
+      binding: NotesBinding(),
+    ),
+    GetPage(
+      name: ADDEVERYTHING,
+      page: () => AddEveryting(),
+      binding: AddEverythingBinding(),
+    ),
+
+    GetPage(
+      name: PAGEONE,
+      page: () => PageOneScreen(),
+      binding: PageOneBinding(),
+    ),
+    GetPage(
+      name: GOALS,
+      page: () => GoalsScreen(),
+      binding: GoalsBinding(),
+    ),
+    GetPage(
+      name: NETWORK,
+      page: () => NetworkScreen(),
+      binding: NetworkBinding(),
+    ),
+    GetPage(
       name: SPLASH,
       page: () => SplashScreen(),
-      binding: SplashBinding(),
+      binding: InitialBinding(),
     ),
     GetPage(
       name: HOME,
@@ -56,9 +113,33 @@ class AppRoutes {
       page: () => OtpScreen(),
       binding: OtpBinding(),
     ),
-    GetPage(name: MAIN, page: () => MainScreen(), binding: MainScreenBinding(),),
-    GetPage(name: EMAIL, page: () => EmailVerificationScreen(), binding: EmailBinding(),),
-
-  
+    GetPage(
+      name: MAIN,
+      page: () => MainScreen(),
+      binding: MainScreenBinding(),
+    ),
+    GetPage(
+      name: EMAIL,
+      page: () => EmailVerificationScreen(),
+      binding: EmailBinding(),
+    ),
+    GetPage(
+      name: ADDTASK,
+      page: () => AddTaskScreen(),
+      binding: AddTaskbinding(),
+    ),
+    //eat the frog
+    GetPage(
+      name: EATTHEFROG,
+      page: () => EatTheFrog(),
+      binding: EatTheFrogBinding(),
+    ),
+    //three tasksscreen
+    GetPage(
+      name: THREETASKSSCREEN,
+      page: () => CommentScreen(),
+      binding: ThreeTasksBinding(),
+      transition: Transition.cupertinoDialog,
+    ),
   ];
 }
