@@ -91,34 +91,35 @@ class CalendarController extends GetxController {
     update();
   }
 
-  void fetchEvents(DateTime day) {
-    // Clear previous events before fetching new ones
-    events.clear();
-    eventsGrouped.clear();
+ void fetchEvents(DateTime day) {
+  // Clear previous events before fetching new ones
+  events.clear();
+  eventsGrouped.clear();
 
-    // Define the start and end of the month
-    DateTime startOfMonth = DateTime(day.year, day.month, 1);
-    DateTime endOfMonth = DateTime(day.year, day.month + 1, 0);
+  // Define the start and end of the month
+  DateTime startOfMonth = DateTime(day.year, day.month, 1);
+  DateTime endOfMonth = DateTime(day.year, day.month + 1, 0);
 
-    // Fetch events for the entire month
-    eventsCollection
-        .where('date', isGreaterThanOrEqualTo: startOfMonth)
-        .where('date', isLessThanOrEqualTo: endOfMonth)
-        .snapshots()
-        .listen((querySnapshot) {
-      for (var doc in querySnapshot.docs) {
-        EventModel event = EventModel.fromFirestore(doc);
-        DateTime eventDate =
-            DateTime(event.date.year, event.date.month, event.date.day);
+  // Fetch events for the entire month
+  eventsCollection
+      .where('date', isGreaterThanOrEqualTo: startOfMonth)
+      .where('date', isLessThanOrEqualTo: endOfMonth)
+      .snapshots()
+      .listen((querySnapshot) {
+    eventsGrouped.clear(); // Clear the grouped events before populating
+    for (var doc in querySnapshot.docs) {
+      EventModel event = EventModel.fromFirestore(doc);
+      DateTime eventDate =
+          DateTime(event.date.year, event.date.month, event.date.day);
 
-        if (!eventsGrouped.containsKey(eventDate)) {
-          eventsGrouped[eventDate] = [];
-        }
-        eventsGrouped[eventDate]!.add(event);
+      if (!eventsGrouped.containsKey(eventDate)) {
+        eventsGrouped[eventDate] = [];
       }
-      update(); // Notify GetX that the data has changed
-    });
-  }
+      eventsGrouped[eventDate]!.add(event);
+    }
+    update(); // Notify GetX that the data has changed
+  });
+}
 
   bool hasEventsForDay(DateTime day) {
     DateTime dateKey = DateTime(day.year, day.month, day.day);
@@ -276,6 +277,7 @@ class CalendarController extends GetxController {
         'description': description,
         'date': Timestamp.fromDate(date),
       });
+       fetchEvents(date); 
     } catch (e) {
       print('Error adding event: $e');
     }
