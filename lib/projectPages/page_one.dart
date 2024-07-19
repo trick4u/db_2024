@@ -479,9 +479,14 @@ class JustCheck extends StatelessWidget {
                                     child: Text('Login check')),
                                 ElevatedButton(
                                     onPressed: () {
+                                      Get.to(() => MainScreenOne());
+                                    },
+                                    child: Text("Pomodoro check")),
+                                ElevatedButton(
+                                    onPressed: () {
                                       Get.to(() => PomodoroView());
                                     },
-                                    child: Text("Pomodoro check"))
+                                    child: Text("Main Screen check")),
                               ],
                             ),
                           ),
@@ -792,59 +797,6 @@ class LoginPage extends StatelessWidget {
   }
 }
 
-// class PomodoroWidget extends StatelessWidget {
-//   @override
-//   Widget build(BuildContext context) {
-//     final PomodoroController controller = Get.put(PomodoroController());
-
-//     return Scaffold(
-//       appBar: AppBar(
-//         title: Text('Pomodoro Timer'),
-//       ),
-//       body: Center(
-//         child: Column(
-//           mainAxisAlignment: MainAxisAlignment.center,
-//           children: [
-//             Obx(() {
-//               final minutes = controller.timeLeft ~/ 60;
-//               final seconds = controller.timeLeft % 60;
-//               return Text(
-//                 '$minutes:${seconds.toString().padLeft(2, '0')}',
-//                 style: TextStyle(fontSize: 48.0),
-//               );
-//             }),
-//             SizedBox(height: 20.0),
-//             Obx(() => CustomPaint(
-//                   size: Size(200, 200),
-//                   painter: TimerPainter(
-//                     percentage: (controller.timeLeft /
-//                             (controller.isBreak.value ? 5 * 60 : 25 * 60)) *
-//                         100,
-//                     color: controller.isBreak.value ? Colors.green : Colors.red,
-//                   ),
-//                 )),
-//             // SizedBox(height: 20.0),
-//             Obx(() => controller.isRunning.value
-//                 ? ElevatedButton(
-//                     onPressed: controller.stopTimer,
-//                     child: Text('Stop'),
-//                   )
-//                 : ElevatedButton(
-//                     onPressed: controller.startTimer,
-//                     child: Text('Start'),
-//                   )),
-//             ElevatedButton(
-//               onPressed: controller.resetTimer,
-//               child: Text('Reset'),
-//             ),
-//           ],
-//         ),
-//       ),
-//     );
-//   }
-// }
-
-
 class PomodoroView extends StatelessWidget {
   final PomodoroController controller = Get.put(PomodoroController());
 
@@ -859,13 +811,17 @@ class PomodoroView extends StatelessWidget {
             children: [
               Obx(() => Text(
                     controller.currentMode.value,
-                    style: TextStyle(fontSize: 24, color: Get.isDarkMode ? Colors.white : Colors.black),
+                    style: TextStyle(
+                        fontSize: 24,
+                        color: Get.isDarkMode ? Colors.white : Colors.black),
                   )),
               SizedBox(height: 20),
               Obx(() => CustomPaint(
                     painter: CircleProgressPainter(
                       progress: 1 - (controller.timeLeft.value / (25 * 60)),
-                      color: controller.currentMode.value == 'FOCUS' ? Colors.red : Colors.blue,
+                      color: controller.currentMode.value == 'FOCUS'
+                          ? Colors.red
+                          : Colors.blue,
                     ),
                     child: Container(
                       width: 300,
@@ -873,7 +829,10 @@ class PomodoroView extends StatelessWidget {
                       child: Center(
                         child: Text(
                           '${(controller.timeLeft.value ~/ 60).toString().padLeft(2, '0')}:${(controller.timeLeft.value % 60).toString().padLeft(2, '0')}',
-                          style: TextStyle(fontSize: 48, color: Get.isDarkMode ? Colors.white : Colors.black),
+                          style: TextStyle(
+                              fontSize: 48,
+                              color:
+                                  Get.isDarkMode ? Colors.white : Colors.black),
                         ),
                       ),
                     ),
@@ -890,7 +849,9 @@ class PomodoroView extends StatelessWidget {
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
                           color: index < controller.currentRound.value
-                              ? (controller.currentMode.value == 'FOCUS' ? Colors.red : Colors.blue)
+                              ? (controller.currentMode.value == 'FOCUS'
+                                  ? Colors.red
+                                  : Colors.blue)
                               : Colors.grey,
                         ),
                       )),
@@ -898,10 +859,17 @@ class PomodoroView extends StatelessWidget {
               ),
               SizedBox(height: 20),
               Obx(() => ElevatedButton(
-                    onPressed: controller.isRunning.value ? controller.pauseTimer : controller.startTimer,
-                    child: Icon(controller.isRunning.value ? Icons.pause : Icons.play_arrow),
+                    onPressed: controller.isRunning.value
+                        ? controller.pauseTimer
+                        : controller.startTimer,
+                    child: Icon(controller.isRunning.value
+                        ? Icons.pause
+                        : Icons.play_arrow),
                     style: ElevatedButton.styleFrom(
-                      shape: CircleBorder(), backgroundColor: controller.currentMode.value == 'FOCUS' ? Colors.red : Colors.blue,
+                      shape: CircleBorder(),
+                      backgroundColor: controller.currentMode.value == 'FOCUS'
+                          ? Colors.red
+                          : Colors.blue,
                       padding: EdgeInsets.all(20),
                     ),
                   )),
@@ -913,3 +881,223 @@ class PomodoroView extends StatelessWidget {
   }
 }
 
+class MainScreenOneController extends GetxController {
+  var progressTodayTask = 0.65.obs;
+  var todayTasksCompleted = 4.obs;
+  var todayTasksTotal = 9.obs;
+  var inProgressTasksCompleted = 2.obs;
+  var inProgressTasksTotal = 5.obs;
+}
+
+class MainScreenOne extends StatelessWidget {
+  final MainScreenOneController controller = Get.put(MainScreenOneController());
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.black,
+      body: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Header
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Icon(Icons.search, color: Colors.white),
+                  CircleAvatar(
+                    backgroundImage:
+                        NetworkImage('https://via.placeholder.com/150'),
+                  ),
+                ],
+              ),
+              SizedBox(height: 20),
+              // Greeting
+              Text(
+                'Hi, Marie Taylor',
+                style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold),
+              ),
+              SizedBox(height: 20),
+              // Progress Today Task
+              Container(
+                padding: EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: Colors.purple,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text('Progress Today Task',
+                        style: TextStyle(color: Colors.white)),
+                    SizedBox(height: 10),
+                    // Obx(() => CircularPercentIndicator(
+                    //       radius: 60.0,
+                    //       lineWidth: 5.0,
+                    //       percent: controller.progressTodayTask.value,
+                    //       center: Text(
+                    //         '${(controller.progressTodayTask.value * 100).toInt()}%',
+                    //         style: TextStyle(color: Colors.white),
+                    //       ),
+                    //       progressColor: Colors.white,
+                    //       backgroundColor: Colors.grey,
+                    //     )),
+                    SizedBox(height: 10),
+                    Obx(() => Text(
+                          '${controller.todayTasksCompleted}/${controller.todayTasksTotal} Tasks Completed',
+                          style: TextStyle(color: Colors.white),
+                        )),
+                  ],
+                ),
+              ),
+              SizedBox(height: 20),
+              // Task Summary
+              Row(
+                children: [
+                  Expanded(
+                    child: Container(
+                      padding: EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: Colors.blue,
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text('Today\'s Task',
+                              style: TextStyle(color: Colors.white)),
+                          SizedBox(height: 10),
+                          Obx(() => Text(
+                                '${controller.todayTasksCompleted}/${controller.todayTasksTotal} Done',
+                                style: TextStyle(color: Colors.white),
+                              )),
+                        ],
+                      ),
+                    ),
+                  ),
+                  SizedBox(width: 10),
+                  Expanded(
+                    child: Container(
+                      padding: EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: Colors.orange,
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text('In Progress',
+                              style: TextStyle(color: Colors.white)),
+                          SizedBox(height: 10),
+                          Obx(() => Text(
+                                '${controller.inProgressTasksCompleted}/${controller.inProgressTasksTotal} Tasks',
+                                style: TextStyle(color: Colors.white),
+                              )),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              SizedBox(height: 20),
+              // My Task Section
+              Text(
+                'My Task',
+                style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold),
+              ),
+              SizedBox(height: 10),
+              // Task Cards
+              Expanded(
+                child: ListView(
+                  children: [
+                    TaskCard(
+                      title: 'Food App UX Research',
+                      time: 'Today 10:30am - 12:45pm',
+                      description:
+                          'Identify common use cases and scenarios for ordering food.',
+                      color: Colors.pink,
+                      completed: true,
+                    ),
+                    TaskCard(
+                      title: 'Food App Wireframing',
+                      time: 'Today 1:00pm - 3:00pm',
+                      description: 'Create wireframes for the food app.',
+                      color: Colors.green,
+                      completed: false,
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class TaskCard extends StatelessWidget {
+  final String title;
+  final String time;
+  final String description;
+  final Color color;
+  final bool completed;
+
+  TaskCard({
+    required this.title,
+    required this.time,
+    required this.description,
+    required this.color,
+    required this.completed,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: EdgeInsets.symmetric(vertical: 8),
+      padding: EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: color,
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(title,
+              style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold)),
+          SizedBox(height: 10),
+          Text(time, style: TextStyle(color: Colors.white)),
+          SizedBox(height: 10),
+          Text(description, style: TextStyle(color: Colors.white)),
+          SizedBox(height: 10),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              completed
+                  ? Row(
+                      children: [
+                        Icon(Icons.check_circle, color: Colors.white),
+                        SizedBox(width: 5),
+                        Text('Done', style: TextStyle(color: Colors.white)),
+                      ],
+                    )
+                  : Container(),
+              Icon(Icons.arrow_forward, color: Colors.white),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}

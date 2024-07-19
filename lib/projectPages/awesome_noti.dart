@@ -21,9 +21,9 @@ class AwesomeNoti extends StatefulWidget {
 }
 
 class _AwesomeNotiState extends State<AwesomeNoti> {
+  final NotificationController notificationController =
+      Get.put(NotificationController());
 
-  final NotificationController notificationController = Get.put(NotificationController());
-  
   OmniDateTimePicker omniDateTimePicker = OmniDateTimePicker(
     onDateTimeChanged: (DateTime dateTime) {
       print(dateTime);
@@ -58,12 +58,13 @@ class _AwesomeNotiState extends State<AwesomeNoti> {
     super.dispose();
   }
 
-Future<String> fetchUniqueRandomQuote() async {
+  Future<String> fetchUniqueRandomQuote() async {
     List<String> allQuotes = await QuoteService.fetchQuotes();
     List<String> displayedQuotes = await QuoteService.getDisplayedQuotes();
 
     // Filter out displayed quotes
-    List<String> newQuotes = allQuotes.where((quote) => !displayedQuotes.contains(quote)).toList();
+    List<String> newQuotes =
+        allQuotes.where((quote) => !displayedQuotes.contains(quote)).toList();
 
     if (newQuotes.isEmpty) {
       // If all quotes have been displayed, reset and use all quotes again
@@ -82,7 +83,8 @@ Future<String> fetchUniqueRandomQuote() async {
 
     return randomQuote;
   }
-    void scheduleQuoteNotifications() {
+
+  void scheduleQuoteNotifications() {
     // Schedule the background work using workmanager
     Workmanager().registerPeriodicTask(
       "1",
@@ -97,28 +99,28 @@ Future<String> fetchUniqueRandomQuote() async {
 
     // Fetch unique and random quote
     String quote = await fetchUniqueRandomQuote();
-
-   
+    print(quote);
 
     // Schedule the notification
-    AwesomeNotifications().createNotification(
-      content: NotificationContent(
-        id: 1,
-        channelKey: 'quote_channel',
-        title: 'Daily Motivation',
-        body: quote,
-        notificationLayout: NotificationLayout.Default,
-      ),
-      schedule: NotificationCalendar(
-        hour: 08, // Schedule for 6 AM
-        minute: 10,
-        second: 0,
-        millisecond: 0,
-        repeats: true,
-      ),
-    );
+    // AwesomeNotifications().createNotification(
+    //   content: NotificationContent(
+    //     id: 1,
+    //     channelKey: 'quote_channel',
+    //     title: 'Daily Motivation',
+    //     body: quote,
+    //     notificationLayout: NotificationLayout.Default,
+    //   ),
+    //   schedule: NotificationCalendar(
+    //     hour: 08, // Schedule for 6 AM
+    //     minute: 10,
+    //     second: 0,
+    //     millisecond: 0,
+    //     repeats: true,
+    //   ),
+    // );
   }
-    Future<void> fetchAndDisplayQuote() async {
+
+  Future<void> fetchAndDisplayQuote() async {
     String quote = await fetchUniqueRandomQuote();
     await AwesomeNotifications().createNotification(
       content: NotificationContent(
@@ -245,12 +247,12 @@ Future<String> fetchUniqueRandomQuote() async {
             child: Text('Periodic  quotes Notification'),
           ),
         ),
-         Container(
+        Container(
           alignment: Alignment.center,
           child: ElevatedButton(
             onPressed: () {
               // Awesome Notifications
-notificationController.scheduleQuoteNotifications();
+              notificationController.scheduleQuoteNotifications();
             },
             child: Text('Periodic  quotes Notification'),
           ),
@@ -464,7 +466,6 @@ class Goals {
   }
 }
 
-
 class NotificationController extends GetxController {
   void scheduleQuoteNotifications() {
     // Schedule the background work using workmanager
@@ -477,7 +478,6 @@ class NotificationController extends GetxController {
     //   fetchAndDisplayQuote();
     //   return Future.value(true);
     // });
-  
   }
 
   Future<void> fetchAndDisplayQuote() async {
@@ -498,7 +498,8 @@ class NotificationController extends GetxController {
     List<String> displayedQuotes = await QuoteService.getDisplayedQuotes();
 
     // Filter out displayed quotes
-    List<String> newQuotes = allQuotes.where((quote) => !displayedQuotes.contains(quote)).toList();
+    List<String> newQuotes =
+        allQuotes.where((quote) => !displayedQuotes.contains(quote)).toList();
 
     if (newQuotes.isEmpty) {
       // If all quotes have been displayed, reset and use all quotes again
@@ -518,4 +519,3 @@ class NotificationController extends GetxController {
     return randomQuote;
   }
 }
-

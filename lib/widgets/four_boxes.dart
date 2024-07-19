@@ -59,7 +59,7 @@ class FourBoxes extends GetWidget<PageOneController> {
                         child: Text(
                           'Tasks',
                           style: TextStyle(
-                            fontFamily: GoogleFonts.poppins().fontFamily,
+                            fontFamily: 'Euclid',
                             fontSize: 25,
                             fontWeight: FontWeight.w500,
                           ),
@@ -79,9 +79,9 @@ class FourBoxes extends GetWidget<PageOneController> {
                       color: Colors.white,
                       child: Center(
                         child: Text(
-                          'Upcoming',
+                          'Daily journal',
                           style: TextStyle(
-                            fontFamily: GoogleFonts.poppins().fontFamily,
+                            fontFamily: 'Euclid',
                             fontSize: 25,
                             fontWeight: FontWeight.w500,
                           ),
@@ -97,7 +97,7 @@ class FourBoxes extends GetWidget<PageOneController> {
                         child: Text(
                           'Reminders',
                           style: TextStyle(
-                            fontFamily: GoogleFonts.poppins().fontFamily,
+                            fontFamily: 'Euclid',
                             fontSize: 25,
                             fontWeight: FontWeight.w500,
                           ),
