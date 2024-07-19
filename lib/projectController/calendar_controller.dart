@@ -33,7 +33,7 @@ class CalendarController extends GetxController {
   CalendarFormat calendarFormat = CalendarFormat.month;
   DateTime focusedDay = DateTime.now();
   DateTime selectedDay = DateTime.now();
-  RxList<EventModel> events = <EventModel>[].obs; // Use RxList for reactivity
+  RxList<EventModel> events = <EventModel>[].obs;
 
   final CollectionReference eventsCollection =
       FirebaseFirestore.instance.collection('events');
@@ -44,7 +44,7 @@ class CalendarController extends GetxController {
   @override
   void onInit() {
     super.onInit();
-    fetchEvents(selectedDay); // Initial fetch
+    fetchEvents(selectedDay);
   }
 
   void setCalendarFormat(CalendarFormat format) {
@@ -62,8 +62,6 @@ class CalendarController extends GetxController {
     return eventsGrouped[dateKey]?.length ?? 0;
   }
 
-  //get events for day
-
   getEventsForDay(DateTime day) {
     events.clear();
     events.bindStream(
@@ -80,7 +78,6 @@ class CalendarController extends GetxController {
   void setSelectedDay(DateTime day) {
     selectedDay = day;
     fetchEvents(day);
-
     update();
   }
 
@@ -91,51 +88,36 @@ class CalendarController extends GetxController {
     update();
   }
 
- void fetchEvents(DateTime day) {
-  // Clear previous events before fetching new ones
-  events.clear();
-  eventsGrouped.clear();
+  void fetchEvents(DateTime day) {
+    events.clear();
+    eventsGrouped.clear();
 
-  // Define the start and end of the month
-  DateTime startOfMonth = DateTime(day.year, day.month, 1);
-  DateTime endOfMonth = DateTime(day.year, day.month + 1, 0);
+    DateTime startOfMonth = DateTime(day.year, day.month, 1);
+    DateTime endOfMonth = DateTime(day.year, day.month + 1, 0);
 
-  // Fetch events for the entire month
-  eventsCollection
-      .where('date', isGreaterThanOrEqualTo: startOfMonth)
-      .where('date', isLessThanOrEqualTo: endOfMonth)
-      .snapshots()
-      .listen((querySnapshot) {
-    eventsGrouped.clear(); // Clear the grouped events before populating
-    for (var doc in querySnapshot.docs) {
-      EventModel event = EventModel.fromFirestore(doc);
-      DateTime eventDate =
-          DateTime(event.date.year, event.date.month, event.date.day);
+    eventsCollection
+        .where('date', isGreaterThanOrEqualTo: startOfMonth)
+        .where('date', isLessThanOrEqualTo: endOfMonth)
+        .snapshots()
+        .listen((querySnapshot) {
+      eventsGrouped.clear();
+      for (var doc in querySnapshot.docs) {
+        EventModel event = EventModel.fromFirestore(doc);
+        DateTime eventDate =
+            DateTime(event.date.year, event.date.month, event.date.day);
 
-      if (!eventsGrouped.containsKey(eventDate)) {
-        eventsGrouped[eventDate] = [];
+        if (!eventsGrouped.containsKey(eventDate)) {
+          eventsGrouped[eventDate] = [];
+        }
+        eventsGrouped[eventDate]!.add(event);
       }
-      eventsGrouped[eventDate]!.add(event);
-    }
-    update(); // Notify GetX that the data has changed
-  });
-}
+      update();
+    });
+  }
 
   bool hasEventsForDay(DateTime day) {
     DateTime dateKey = DateTime(day.year, day.month, day.day);
     return eventsGrouped[dateKey]?.isNotEmpty ?? false;
-  }
-
-  void updateEvent(
-      String eventId, String newTitle, String newDescription) async {
-    try {
-      await eventsCollection.doc(eventId).update({
-        'title': newTitle,
-        'description': newDescription,
-      });
-    } catch (e) {
-      print('Error updating event: $e');
-    }
   }
 
   void deleteEvent(String eventId) async {
@@ -146,141 +128,57 @@ class CalendarController extends GetxController {
     }
   }
 
-  Future<void> showEditEventDialog(
-      BuildContext context, EventModel event) async {
-    String newTitle = event.title;
-    String newDescription = event.description;
-
-    await showDialog(
+  void showEventBottomSheet(BuildContext context, {EventModel? event}) {
+    showModalBottomSheet(
       context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text('Edit Event'),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              TextField(
-                onChanged: (value) {
-                  newTitle = value;
-                },
-                controller: TextEditingController(text: event.title),
-                decoration: InputDecoration(hintText: 'Enter event title'),
-              ),
-              SizedBox(height: 12),
-              TextField(
-                onChanged: (value) {
-                  newDescription = value;
-                },
-                controller: TextEditingController(text: event.description),
-                decoration:
-                    InputDecoration(hintText: 'Enter event description'),
-              ),
-            ],
-          ),
-          actions: <Widget>[
-            TextButton(
-              child: Text('Cancel'),
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-            ),
-            TextButton(
-              child: Text('Save'),
-              onPressed: () {
-                updateEvent(event.id, newTitle, newDescription);
-                Navigator.of(context).pop();
-              },
-            ),
-          ],
-        );
-      },
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => Padding(
+        padding: EdgeInsets.only(
+          bottom: MediaQuery.of(context).viewInsets.bottom,
+        ),
+        child: EventBottomSheet(
+          event: event,
+          initialDate: selectedDay,
+          onSave: (title, description, date, startTime, endTime) {
+            if (event == null) {
+              addEvent(title, description, date, startTime, endTime);
+            } else {
+              updateEvent(event.id, title, description, date, startTime, endTime);
+            }
+          },
+        ),
+      ),
     );
   }
 
-  // add event dialog
-  Future<void> showAddEventDialog(BuildContext context) async {
-    String title = '';
-    String description = '';
-    TimeOfDay? startTime;
-    TimeOfDay? endTime;
-    await showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text('Add Event'),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              TextField(
-                onChanged: (value) {
-                  title = value;
-                },
-                decoration: InputDecoration(hintText: 'Enter event title'),
-              ),
-              SizedBox(height: 12),
-              TextField(
-                onChanged: (value) {
-                  description = value;
-                },
-                decoration:
-                    InputDecoration(hintText: 'Enter event description'),
-              ),
-               SizedBox(height: 12),
-            TextButton(
-              onPressed: () async {
-                startTime = await showTimePicker(
-                  context: context,
-                  initialTime: TimeOfDay.now(),
-                );
-              },
-              child: Text('Select Start Time'),
-            ),
-            SizedBox(height: 12),
-            TextButton(
-              onPressed: () async {
-                endTime = await showTimePicker(
-                  context: context,
-                  initialTime: TimeOfDay.now(),
-                );
-              },
-              child: Text('Select End Time'),
-            ),
-            ],
-          ),
-          
-          actions: <Widget>[
-            TextButton(
-              child: Text('Cancel'),
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-            ),
-            TextButton(
-              child: Text('Add'),
-              onPressed: () {
-                if (title.isNotEmpty && description.isNotEmpty) {
-                  addEvent(title, description, selectedDay);
-                  Navigator.of(context).pop();
-                }
-              },
-            ),
-          ],
-        );
-      },
-    );
-  }
-
-  void addEvent(String title, String description, DateTime date) async {
+  void addEvent(String title, String description, DateTime date, TimeOfDay? startTime, TimeOfDay? endTime) async {
     try {
       await eventsCollection.add({
         'title': title,
         'description': description,
         'date': Timestamp.fromDate(date),
+        'startTime': startTime != null ? Timestamp.fromDate(DateTime(date.year, date.month, date.day, startTime.hour, startTime.minute)) : null,
+        'endTime': endTime != null ? Timestamp.fromDate(DateTime(date.year, date.month, date.day, endTime.hour, endTime.minute)) : null,
       });
-       fetchEvents(date); 
+      fetchEvents(date);
     } catch (e) {
       print('Error adding event: $e');
     }
   }
-  //
+
+  void updateEvent(String eventId, String newTitle, String newDescription, DateTime newDate, TimeOfDay? newStartTime, TimeOfDay? newEndTime) async {
+    try {
+      await eventsCollection.doc(eventId).update({
+        'title': newTitle,
+        'description': newDescription,
+        'date': Timestamp.fromDate(newDate),
+        'startTime': newStartTime != null ? Timestamp.fromDate(DateTime(newDate.year, newDate.month, newDate.day, newStartTime.hour, newStartTime.minute)) : null,
+        'endTime': newEndTime != null ? Timestamp.fromDate(DateTime(newDate.year, newDate.month, newDate.day, newEndTime.hour, newEndTime.minute)) : null,
+      });
+      fetchEvents(newDate);
+    } catch (e) {
+      print('Error updating event: $e');
+    }
+  }
 }

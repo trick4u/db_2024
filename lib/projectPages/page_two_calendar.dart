@@ -39,7 +39,7 @@ class CalendarPage extends StatelessWidget {
                   CustomCalendarHeader(controller: controller),
                   PressableDough(
                     onReleased: (d) {
-                      controller.showAddEventDialog(context);
+                      controller.showEventBottomSheet(context);
                     },
                     child: Card(
                       elevation: 4,
@@ -251,7 +251,13 @@ class CalendarPage extends StatelessWidget {
                       () => ListView.builder(
                         itemCount: controller.events.length,
                         itemBuilder: (context, index) {
-                          return EventCard(event: controller.events[index]);
+                          return InkWell(
+                            child: EventCard(event: controller.events[index]),
+                            onTap: () {
+                              controller.showEventBottomSheet(context,
+                                  event: controller.events[index]);
+                            },
+                          );
                         },
                       ),
                     ),
@@ -378,8 +384,156 @@ class CustomCalendarHeader extends StatelessWidget {
           IconButton(
             icon: Icon(Icons.add),
             onPressed: () {
-              controller.showAddEventDialog(context);
+              controller.showEventBottomSheet(context);
             },
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class EventBottomSheet extends StatefulWidget {
+  final EventModel? event;
+  final DateTime initialDate;
+  final Function(String, String, DateTime, TimeOfDay?, TimeOfDay?) onSave;
+
+  EventBottomSheet(
+      {this.event, required this.initialDate, required this.onSave});
+
+  @override
+  _EventBottomSheetState createState() => _EventBottomSheetState();
+}
+
+class _EventBottomSheetState extends State<EventBottomSheet> {
+  late TextEditingController _titleController;
+  late TextEditingController _descriptionController;
+  late DateTime _selectedDate;
+  TimeOfDay? _startTime;
+  TimeOfDay? _endTime;
+
+  @override
+  void initState() {
+    super.initState();
+    _titleController = TextEditingController(text: widget.event?.title ?? '');
+    _descriptionController =
+        TextEditingController(text: widget.event?.description ?? '');
+    _selectedDate = widget.event?.date ?? widget.initialDate;
+    if (widget.event != null) {
+      // Assume you have start and end time in your EventModel
+      // _startTime = TimeOfDay.fromDateTime(widget.event!.startTime);
+      // _endTime = TimeOfDay.fromDateTime(widget.event!.endTime);
+    }
+  }
+
+  @override
+  void dispose() {
+    _titleController.dispose();
+    _descriptionController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Text(
+            widget.event == null ? 'Add Event' : 'Edit Event',
+            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+          ),
+          SizedBox(height: 16),
+          TextField(
+            controller: _titleController,
+            decoration: InputDecoration(
+              labelText: 'Event Title',
+              border: OutlineInputBorder(),
+            ),
+          ),
+          SizedBox(height: 16),
+          TextField(
+            controller: _descriptionController,
+            decoration: InputDecoration(
+              labelText: 'Event Description',
+              border: OutlineInputBorder(),
+            ),
+            maxLines: 3,
+          ),
+          SizedBox(height: 16),
+          Row(
+            children: [
+              Expanded(
+                child: ElevatedButton(
+                  onPressed: () async {
+                    final DateTime? picked = await showDatePicker(
+                      context: context,
+                      initialDate: _selectedDate,
+                      firstDate: DateTime.now(),
+                      lastDate: DateTime(2101),
+                    );
+                    if (picked != null && picked != _selectedDate) {
+                      setState(() {
+                        _selectedDate = picked;
+                      });
+                    }
+                  },
+                  child: Text('Select Date'),
+                ),
+              ),
+              SizedBox(width: 16),
+              Expanded(
+                child: ElevatedButton(
+                  onPressed: () async {
+                    final TimeOfDay? picked = await showTimePicker(
+                      context: context,
+                      initialTime: _startTime ?? TimeOfDay.now(),
+                    );
+                    if (picked != null) {
+                      setState(() {
+                        _startTime = picked;
+                      });
+                    }
+                  },
+                  child: Text('Start Time'),
+                ),
+              ),
+            ],
+          ),
+          SizedBox(height: 16),
+          ElevatedButton(
+            onPressed: () async {
+              final TimeOfDay? picked = await showTimePicker(
+                context: context,
+                initialTime: _endTime ?? TimeOfDay.now(),
+              );
+              if (picked != null) {
+                setState(() {
+                  _endTime = picked;
+                });
+              }
+            },
+            child: Text('End Time'),
+          ),
+          SizedBox(height: 16),
+          ElevatedButton(
+            onPressed: () {
+              widget.onSave(
+                _titleController.text,
+                _descriptionController.text,
+                _selectedDate,
+                _startTime,
+                _endTime,
+              );
+              Navigator.pop(context);
+            },
+            child: Text('Save Event'),
           ),
         ],
       ),
