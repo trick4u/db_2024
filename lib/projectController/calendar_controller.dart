@@ -28,7 +28,6 @@ class EventModel {
     );
   }
 }
-
 class CalendarController extends GetxController {
   CalendarFormat calendarFormat = CalendarFormat.month;
   DateTime focusedDay = DateTime.now();
@@ -88,32 +87,42 @@ class CalendarController extends GetxController {
     update();
   }
 
-  void fetchEvents(DateTime day) {
-    events.clear();
+void fetchEvents(DateTime day) {
+  events.clear();
+  eventsGrouped.clear();
+
+  DateTime startOfMonth = DateTime(day.year, day.month, 1);
+  DateTime endOfMonth = DateTime(day.year, day.month + 1, 0);
+
+  eventsCollection
+      .where('date', isGreaterThanOrEqualTo: startOfMonth)
+      .where('date', isLessThanOrEqualTo: endOfMonth)
+      .snapshots()
+      .listen((querySnapshot) {
     eventsGrouped.clear();
-
-    DateTime startOfMonth = DateTime(day.year, day.month, 1);
-    DateTime endOfMonth = DateTime(day.year, day.month + 1, 0);
-
-    eventsCollection
-        .where('date', isGreaterThanOrEqualTo: startOfMonth)
-        .where('date', isLessThanOrEqualTo: endOfMonth)
-        .snapshots()
-        .listen((querySnapshot) {
-      eventsGrouped.clear();
-      for (var doc in querySnapshot.docs) {
-        EventModel event = EventModel.fromFirestore(doc);
-        DateTime eventDate =
-            DateTime(event.date.year, event.date.month, event.date.day);
-
-        if (!eventsGrouped.containsKey(eventDate)) {
-          eventsGrouped[eventDate] = [];
-        }
-        eventsGrouped[eventDate]!.add(event);
+    List<EventModel> allEvents = querySnapshot.docs
+        .map((doc) => EventModel.fromFirestore(doc))
+        .toList();
+    
+    // Sort events by date in descending order (newest first)
+    allEvents.sort((a, b) => b.date.compareTo(a.date));
+    
+    for (var event in allEvents) {
+      DateTime eventDate = DateTime(event.date.year, event.date.month, event.date.day);
+      if (!eventsGrouped.containsKey(eventDate)) {
+        eventsGrouped[eventDate] = [];
       }
-      update();
+      eventsGrouped[eventDate]!.add(event);
+    }
+    
+    // Sort events for each day
+    eventsGrouped.forEach((date, eventList) {
+      eventList.sort((a, b) => b.date.compareTo(a.date));
     });
-  }
+    
+    update();
+  });
+}
 
   bool hasEventsForDay(DateTime day) {
     DateTime dateKey = DateTime(day.year, day.month, day.day);
@@ -151,21 +160,21 @@ class CalendarController extends GetxController {
       ),
     );
   }
-
-  void addEvent(String title, String description, DateTime date, TimeOfDay? startTime, TimeOfDay? endTime) async {
-    try {
-      await eventsCollection.add({
-        'title': title,
-        'description': description,
-        'date': Timestamp.fromDate(date),
-        'startTime': startTime != null ? Timestamp.fromDate(DateTime(date.year, date.month, date.day, startTime.hour, startTime.minute)) : null,
-        'endTime': endTime != null ? Timestamp.fromDate(DateTime(date.year, date.month, date.day, endTime.hour, endTime.minute)) : null,
-      });
-      fetchEvents(date);
-    } catch (e) {
-      print('Error adding event: $e');
-    }
+void addEvent(String title, String description, DateTime date, TimeOfDay? startTime, TimeOfDay? endTime) async {
+  try {
+    await eventsCollection.add({
+      'title': title,
+      'description': description,
+      'date': Timestamp.fromDate(date),
+      'startTime': startTime != null ? Timestamp.fromDate(DateTime(date.year, date.month, date.day, startTime.hour, startTime.minute)) : null,
+      'endTime': endTime != null ? Timestamp.fromDate(DateTime(date.year, date.month, date.day, endTime.hour, endTime.minute)) : null,
+      'createdAt': Timestamp.now(),  // Add this line
+    });
+    fetchEvents(date);
+  } catch (e) {
+    print('Error adding event: $e');
   }
+}
 
   void updateEvent(String eventId, String newTitle, String newDescription, DateTime newDate, TimeOfDay? newStartTime, TimeOfDay? newEndTime) async {
     try {

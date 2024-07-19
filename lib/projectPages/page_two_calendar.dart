@@ -252,7 +252,7 @@ class CalendarPage extends StatelessWidget {
                         itemCount: controller.events.length,
                         itemBuilder: (context, index) {
                           return InkWell(
-                            child: EventCard(event: controller.events[index]),
+                            child:   EventCard(event: controller.events[index]),
                             onTap: () {
                               controller.showEventBottomSheet(context,
                                   event: controller.events[index]);
@@ -435,107 +435,110 @@ class _EventBottomSheetState extends State<EventBottomSheet> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Text(
-            widget.event == null ? 'Add Event' : 'Edit Event',
-            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-          ),
-          SizedBox(height: 16),
-          TextField(
-            controller: _titleController,
-            decoration: InputDecoration(
-              labelText: 'Event Title',
-              border: OutlineInputBorder(),
+    return Padding(
+      padding: const EdgeInsets.all(20.0),
+      child: Container(
+        padding: EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Text(
+              widget.event == null ? 'Add Event' : 'Edit Event',
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
             ),
-          ),
-          SizedBox(height: 16),
-          TextField(
-            controller: _descriptionController,
-            decoration: InputDecoration(
-              labelText: 'Event Description',
-              border: OutlineInputBorder(),
+            SizedBox(height: 16),
+            TextField(
+              controller: _titleController,
+              decoration: InputDecoration(
+                labelText: 'Event Title',
+                border: OutlineInputBorder(),
+              ),
             ),
-            maxLines: 3,
-          ),
-          SizedBox(height: 16),
-          Row(
-            children: [
-              Expanded(
-                child: ElevatedButton(
-                  onPressed: () async {
-                    final DateTime? picked = await showDatePicker(
-                      context: context,
-                      initialDate: _selectedDate,
-                      firstDate: DateTime.now(),
-                      lastDate: DateTime(2101),
-                    );
-                    if (picked != null && picked != _selectedDate) {
-                      setState(() {
-                        _selectedDate = picked;
-                      });
-                    }
-                  },
-                  child: Text('Select Date'),
-                ),
+            SizedBox(height: 16),
+            TextField(
+              controller: _descriptionController,
+              decoration: InputDecoration(
+                labelText: 'Event Description',
+                border: OutlineInputBorder(),
               ),
-              SizedBox(width: 16),
-              Expanded(
-                child: ElevatedButton(
-                  onPressed: () async {
-                    final TimeOfDay? picked = await showTimePicker(
-                      context: context,
-                      initialTime: _startTime ?? TimeOfDay.now(),
-                    );
-                    if (picked != null) {
-                      setState(() {
-                        _startTime = picked;
-                      });
-                    }
-                  },
-                  child: Text('Start Time'),
+              maxLines: 3,
+            ),
+            SizedBox(height: 16),
+            Row(
+              children: [
+                Expanded(
+                  child: ElevatedButton(
+                    onPressed: () async {
+                      final DateTime? picked = await showDatePicker(
+                        context: context,
+                        initialDate: _selectedDate,
+                        firstDate: DateTime.now(),
+                        lastDate: DateTime(2101),
+                      );
+                      if (picked != null && picked != _selectedDate) {
+                        setState(() {
+                          _selectedDate = picked;
+                        });
+                      }
+                    },
+                    child: Text('Select Date'),
+                  ),
                 ),
-              ),
-            ],
-          ),
-          SizedBox(height: 16),
-          ElevatedButton(
-            onPressed: () async {
-              final TimeOfDay? picked = await showTimePicker(
-                context: context,
-                initialTime: _endTime ?? TimeOfDay.now(),
-              );
-              if (picked != null) {
-                setState(() {
-                  _endTime = picked;
-                });
-              }
-            },
-            child: Text('End Time'),
-          ),
-          SizedBox(height: 16),
-          ElevatedButton(
-            onPressed: () {
-              widget.onSave(
-                _titleController.text,
-                _descriptionController.text,
-                _selectedDate,
-                _startTime,
-                _endTime,
-              );
-              Navigator.pop(context);
-            },
-            child: Text('Save Event'),
-          ),
-        ],
+                SizedBox(width: 16),
+                Expanded(
+                  child: ElevatedButton(
+                    onPressed: () async {
+                      final TimeOfDay? picked = await showTimePicker(
+                        context: context,
+                        initialTime: _startTime ?? TimeOfDay.now(),
+                      );
+                      if (picked != null) {
+                        setState(() {
+                          _startTime = picked;
+                        });
+                      }
+                    },
+                    child: Text('Start Time'),
+                  ),
+                ),
+              ],
+            ),
+            SizedBox(height: 16),
+            ElevatedButton(
+              onPressed: () async {
+                final TimeOfDay? picked = await showTimePicker(
+                  context: context,
+                  initialTime: _endTime ?? TimeOfDay.now(),
+                );
+                if (picked != null) {
+                  setState(() {
+                    _endTime = picked;
+                  });
+                }
+              },
+              child: Text('End Time'),
+            ),
+            SizedBox(height: 16),
+            ElevatedButton(
+              onPressed: () {
+                widget.onSave(
+                  _titleController.text,
+                  _descriptionController.text,
+                  _selectedDate,
+                  _startTime,
+                  _endTime,
+                );
+                Navigator.pop(context);
+              },
+              child: Text('Save Event'),
+            ),
+          ],
+        ),
       ),
     );
   }
