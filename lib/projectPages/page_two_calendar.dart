@@ -21,6 +21,7 @@ class CalendarPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
+          backgroundColor: Colors.white,
           title: Text(
             'Schedule tasks',
             style: TextStyle(
@@ -250,25 +251,32 @@ class CalendarPage extends StatelessWidget {
                     child: Obx(
                       () => controller.events.isEmpty
                           ? Center(
-                              child: Text(
-                                'No events for ${DateFormat('MMMM dd yyy').format(controller.selectedDay)} ',
-                                style: TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w500,
-                                  color: Colors.grey[600],
+                              child: InkWell(
+                                onTap: () {
+                                  controller.showEventBottomSheet(context);
+                                },
+                                child: Text(
+                                  'No events for ${DateFormat('MMMM dd yyy').format(controller.selectedDay)} ',
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w500,
+                                    color: Colors.grey[600],
+                                  ),
                                 ),
                               ),
                             )
                           : ListView.builder(
                               itemCount: controller.events.length,
                               itemBuilder: (context, index) {
-                                return InkWell(
-                                  child: EventCard(
-                                      event: controller.events[index]),
-                                  onTap: () {
+                                return EventCard(
+                                  onEdit: (event) {
                                     controller.showEventBottomSheet(context,
-                                        event: controller.events[index]);
+                                        event: event);
                                   },
+                                  onDelete: (event) {
+                                    controller.deleteEvent(event.id);
+                                  },
+                                  event: controller.events[index],
                                 );
                               },
                             ),
@@ -279,92 +287,6 @@ class CalendarPage extends StatelessWidget {
             ),
           ),
         ));
-  }
-}
-
-class EventCard extends StatelessWidget {
-  final EventModel event;
-
-  EventCard({
-    Key? key,
-    required this.event,
-  }) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      key: ValueKey(event.id),
-      margin: EdgeInsets.symmetric(vertical: 8),
-      child: Row(
-        children: [
-          Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Text(
-              //   DateFormat('h:mm a').format(event.start),
-
-              //   style: TextStyle(
-              //     fontWeight: FontWeight.bold,
-              //     fontSize: 12,
-              //   ),
-              // ),
-              SizedBox(height: 4),
-              // Text(
-              //   DateFormat('h:mm a').format(event.end),
-              //   style: TextStyle(
-              //     fontWeight: FontWeight.bold,
-              //     fontSize: 12,
-              //   ),
-              // ),
-            ],
-          ),
-          SizedBox(width: 8),
-          Expanded(
-            child: Card(
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(10),
-              ),
-              child: Padding(
-                padding: const EdgeInsets.all(10.0),
-                child: IntrinsicHeight(
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      Container(
-                        width: 4,
-                        decoration: BoxDecoration(
-                          color: event.color,
-                          
-                          borderRadius: BorderRadius.circular(2),
-                        ),
-                      ),
-                      SizedBox(width: 8),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              event.title,
-                              style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                fontSize: 16,
-                              ),
-                            ),
-                            SizedBox(height: 4),
-                            Text(event.description),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
   }
 }
 
@@ -386,8 +308,10 @@ class CustomCalendarHeader extends StatelessWidget {
           SizedBox(width: 4),
           IconButton(
             icon: Icon(
-              Icons.arrow_drop_down,
-              size: 30,
+              controller.calendarFormat == CalendarFormat.month
+                  ? FontAwesomeIcons.calendarWeek
+                  : FontAwesomeIcons.calendarAlt,
+              size: 20,
             ),
             onPressed: () {
               controller.toggleCalendarFormat();
@@ -409,9 +333,11 @@ class CustomCalendarHeader extends StatelessWidget {
 class EventBottomSheet extends StatefulWidget {
   final EventModel? event;
   final DateTime initialDate;
-  final Function(String, String, DateTime, TimeOfDay?, TimeOfDay?, Color) onSave;
+  final Function(String, String, DateTime, TimeOfDay?, TimeOfDay?, Color)
+      onSave;
 
-  EventBottomSheet({this.event, required this.initialDate, required this.onSave});
+  EventBottomSheet(
+      {this.event, required this.initialDate, required this.onSave});
 
   @override
   _EventBottomSheetState createState() => _EventBottomSheetState();
@@ -556,35 +482,36 @@ class _EventBottomSheetState extends State<EventBottomSheet> {
                 child: Text('End Time'),
               ),
               SizedBox(height: 16),
-            
               ElevatedButton(
-            onPressed: () {
-              showColorPickerDialog();
-            },
-            child: Text('Select Color'),
-            style: ElevatedButton.styleFrom(backgroundColor: _selectedColor),
-          ),
-          SizedBox(height: 16),
-          ElevatedButton(
-            onPressed: () {
-              widget.onSave(
-                _titleController.text,
-                _descriptionController.text,
-                _selectedDate,
-                _startTime,
-                _endTime,
-                _selectedColor,
-              );
-              Navigator.pop(context);
-            },
-            child: Text('Save Event'),
-          ),
+                onPressed: () {
+                  showColorPickerDialog();
+                },
+                child: Text('Select Color'),
+                style:
+                    ElevatedButton.styleFrom(backgroundColor: _selectedColor),
+              ),
+              SizedBox(height: 16),
+              ElevatedButton(
+                onPressed: () {
+                  widget.onSave(
+                    _titleController.text,
+                    _descriptionController.text,
+                    _selectedDate,
+                    _startTime,
+                    _endTime,
+                    _selectedColor,
+                  );
+                  Navigator.pop(context);
+                },
+                child: Text('Save Event'),
+              ),
             ],
           ),
         ),
       ),
     );
   }
+
   void showColorPickerDialog() {
     showDialog(
       context: context,

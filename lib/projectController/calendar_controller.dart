@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:table_calendar/table_calendar.dart';
@@ -11,6 +12,10 @@ class EventModel {
   final String description;
   final DateTime date;
   final Color color;
+  DateTime? startTime;
+  DateTime? endTime;
+
+  
 
   EventModel({
     required this.id,
@@ -18,6 +23,8 @@ class EventModel {
     required this.description,
     required this.date,
     required this.color,
+    this.startTime,
+    this.endTime
   });
 
   factory EventModel.fromFirestore(DocumentSnapshot doc) {
@@ -28,6 +35,9 @@ class EventModel {
       description: data['description'] ?? '',
       date: (data['date'] as Timestamp).toDate(),
       color: Color(data['color'] ?? Colors.blue.value),
+      startTime: data['startTime'] != null ? (data['startTime'] as Timestamp).toDate() : null,
+      endTime: data['endTime'] != null ? (data['endTime'] as Timestamp).toDate() : null,
+    
     );
   }
 
@@ -37,6 +47,9 @@ class EventModel {
       'description': description,
       'date': Timestamp.fromDate(date),
       'color': color.value,
+      'startTime': startTime != null ? Timestamp.fromDate(startTime!) : null,
+      'endTime': endTime != null ? Timestamp.fromDate(endTime!) : null,
+    
     };
   }
 }
@@ -48,11 +61,20 @@ class CalendarController extends GetxController {
   DateTime selectedDay = DateTime.now();
   RxList<EventModel> events = <EventModel>[].obs;
 
-  final CollectionReference eventsCollection =
-      FirebaseFirestore.instance.collection('events');
+
 
   RxMap<DateTime, List<EventModel>> eventsGrouped =
       <DateTime, List<EventModel>>{}.obs;
+
+      final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+User? currentUser = FirebaseAuth.instance.currentUser;
+
+CollectionReference get eventsCollection {
+  return _firestore
+      .collection('users')
+      .doc(currentUser?.uid)
+      .collection('events');
+}
 
   @override
   void onInit() {
@@ -102,6 +124,7 @@ class CalendarController extends GetxController {
   }
 
 void fetchEvents(DateTime day) {
+  if (currentUser == null) return;
   events.clear();
   eventsGrouped.clear();
 
@@ -144,6 +167,7 @@ void fetchEvents(DateTime day) {
   }
 
   void deleteEvent(String eventId) async {
+    if (currentUser == null) return;
     try {
       await eventsCollection.doc(eventId).delete();
     } catch (e) {
@@ -176,6 +200,7 @@ void fetchEvents(DateTime day) {
 }
 
 void addEvent(String title, String description, DateTime date, TimeOfDay? startTime, TimeOfDay? endTime, Color color) async {
+  if (currentUser == null) return;
   try {
     await eventsCollection.add({
       'title': title,
@@ -192,6 +217,7 @@ void addEvent(String title, String description, DateTime date, TimeOfDay? startT
 }
 
   void updateEvent(String eventId, String newTitle, String newDescription, DateTime newDate, TimeOfDay? newStartTime, TimeOfDay? newEndTime, Color newColor) async {
+  if (currentUser == null) return;
   try {
     await eventsCollection.doc(eventId).update({
       'title': newTitle,
