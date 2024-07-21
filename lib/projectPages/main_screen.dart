@@ -1,3 +1,4 @@
+import 'dart:math';
 import 'dart:ui';
 
 import 'package:dough/dough.dart';
@@ -31,6 +32,7 @@ class MainScreen extends GetWidget<MainScreenController> {
           //   child: FabButton(),
           // ),
           body: Obx(() => controller.pages[controller.selectedIndex.value]),
+          //   bottomNavigationBar: CurvedBottomNavBar(),
           bottomNavigationBar: Obx(() {
             return GlassContainer(
               blur: 10,
@@ -205,4 +207,154 @@ class FabButton extends StatelessWidget {
       ),
     );
   }
+}
+
+class CurvedBottomNavBar extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: 80,
+      decoration: BoxDecoration(
+        color: Colors.black,
+        borderRadius: BorderRadius.vertical(top: Radius.circular(30)),
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        children: [
+          IconButton(
+              icon: Icon(Icons.home, color: Colors.white), onPressed: () {}),
+          IconButton(
+              icon: Icon(Icons.favorite, color: Colors.white),
+              onPressed: () {}),
+          SizedBox(width: 60), // Space for the center curve
+          IconButton(
+              icon: Icon(Icons.refresh, color: Colors.white), onPressed: () {}),
+          CircleAvatar(
+            backgroundColor: Colors.blue,
+            radius: 20,
+            child: Icon(Icons.person, color: Colors.white),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class CurvedPainter extends CustomPainter {
+  @override
+  void paint(Canvas canvas, Size size) {
+    var paint = Paint()
+      ..color = Colors.black
+      ..style = PaintingStyle.fill;
+
+    var path = Path()
+      ..moveTo(0, 30)
+      ..quadraticBezierTo(size.width / 2, 0, size.width, 30)
+      ..lineTo(size.width, size.height)
+      ..lineTo(0, size.height)
+      ..close();
+
+    canvas.drawPath(path, paint);
+  }
+
+  @override
+  bool shouldRepaint(CustomPainter oldDelegate) => false;
+}
+
+class CustomPaintedContainer extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return CustomPaint(
+      size: Size(300, 300),
+      painter: TexturePainter(),
+      child: Center(
+        child: Text(
+          'Textured Container',
+          style: TextStyle(
+            color: Colors.white,
+            fontSize: 24,
+            fontWeight: FontWeight.bold,
+            backgroundColor: Colors.black45,
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class TexturePainter extends CustomPainter {
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = Colors.blue.shade300
+      ..style = PaintingStyle.fill;
+
+    canvas.drawRect(Rect.fromLTWH(0, 0, size.width, size.height), paint);
+
+    final texturePaint = Paint()
+      ..color = Colors.white.withOpacity(0.1)
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 1;
+
+    for (double y = 0; y < size.height; y += 10) {
+      for (double x = 0; x < size.width; x += 10) {
+        canvas.drawLine(Offset(x, y), Offset(x + 5, y + 5), texturePaint);
+        canvas.drawLine(Offset(x + 5, y), Offset(x, y + 5), texturePaint);
+      }
+    }
+  }
+
+  @override
+  bool shouldRepaint(CustomPainter oldDelegate) => false;
+}
+class GradientNoiseContainer extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 300,
+      height: 300,
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [Colors.blue.shade200, Colors.blue.shade800],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+      ),
+      child: CustomPaint(
+        painter: NoisePainter(),
+        child: Center(
+          child: Text(
+            'Textured Container',
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: 24,
+              fontWeight: FontWeight.bold,
+              backgroundColor: Colors.black45,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class NoisePainter extends CustomPainter {
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = Colors.white.withOpacity(0.05)
+      ..style = PaintingStyle.fill;
+
+    final random = Random();
+    for (double y = 0; y < size.height; y += 1) {
+      for (double x = 0; x < size.width; x += 1) {
+        if (random.nextDouble() > 0.9) {
+          canvas.drawRect(Rect.fromLTWH(x, y, 1, 1), paint);
+        }
+      }
+    }
+  }
+
+  @override
+  bool shouldRepaint(CustomPainter oldDelegate) => false;
 }

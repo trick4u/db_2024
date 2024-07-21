@@ -274,7 +274,33 @@ class CalendarPage extends StatelessWidget {
                                         event: event);
                                   },
                                   onDelete: (event) {
-                                    controller.deleteEvent(event.id);
+                                    // Show a confirmation dialog before deleting
+                                    showDialog(
+                                      context: context,
+                                      builder: (BuildContext context) {
+                                        return AlertDialog(
+                                          title: Text('Confirm Delete'),
+                                          content: Text(
+                                              'Are you sure you want to delete this event?'),
+                                          actions: <Widget>[
+                                            TextButton(
+                                              child: Text('Cancel'),
+                                              onPressed: () {
+                                                Navigator.of(context).pop();
+                                              },
+                                            ),
+                                            TextButton(
+                                              child: Text('Delete'),
+                                              onPressed: () {
+                                                controller
+                                                    .deleteEvent(event.id);
+                                                Navigator.of(context).pop();
+                                              },
+                                            ),
+                                          ],
+                                        );
+                                      },
+                                    );
                                   },
                                   event: controller.events[index],
                                 );

@@ -23,6 +23,7 @@ import 'package:flutter_carousel_slider/carousel_slider.dart';
 
 import '../widgets/three_day.dart';
 import '../widgets/three_shaped_box.dart';
+import 'main_screen.dart';
 
 class PageOneScreen extends GetWidget<PageOneController> {
   @override
@@ -487,6 +488,11 @@ class JustCheck extends StatelessWidget {
                                       Get.to(() => PomodoroView());
                                     },
                                     child: Text("Main Screen check")),
+                                ElevatedButton(
+                                    onPressed: () {
+                                      Get.to(() => CustomPaintedContainer());
+                                    },
+                                    child: Text("Noise check")),
                               ],
                             ),
                           ),
