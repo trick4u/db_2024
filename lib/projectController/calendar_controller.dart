@@ -4,67 +4,22 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:table_calendar/table_calendar.dart';
 
+import '../models/quick_event_mode.dart';
 import '../projectPages/page_two_calendar.dart';
+import '../widgets/event_bottomSheet.dart';
 
-class EventModel {
-  final String id;
-  final String title;
-  final String description;
-  final DateTime date;
-  final Color color;
-  DateTime? startTime;
-  DateTime? endTime;
-
-  
-
-  EventModel({
-    required this.id,
-    required this.title,
-    required this.description,
-    required this.date,
-    required this.color,
-    this.startTime,
-    this.endTime
-  });
-
-  factory EventModel.fromFirestore(DocumentSnapshot doc) {
-    Map data = doc.data() as Map<String, dynamic>;
-    return EventModel(
-      id: doc.id,
-      title: data['title'] ?? '',
-      description: data['description'] ?? '',
-      date: (data['date'] as Timestamp).toDate(),
-      color: Color(data['color'] ?? Colors.blue.value),
-      startTime: data['startTime'] != null ? (data['startTime'] as Timestamp).toDate() : null,
-      endTime: data['endTime'] != null ? (data['endTime'] as Timestamp).toDate() : null,
-    
-    );
-  }
-
-  Map<String, dynamic> toMap() {
-    return {
-      'title': title,
-      'description': description,
-      'date': Timestamp.fromDate(date),
-      'color': color.value,
-      'startTime': startTime != null ? Timestamp.fromDate(startTime!) : null,
-      'endTime': endTime != null ? Timestamp.fromDate(endTime!) : null,
-    
-    };
-  }
-}
 
 
 class CalendarController extends GetxController {
   CalendarFormat calendarFormat = CalendarFormat.month;
   DateTime focusedDay = DateTime.now();
   DateTime selectedDay = DateTime.now();
-  RxList<EventModel> events = <EventModel>[].obs;
+  RxList<QuickEventModel> events = <QuickEventModel>[].obs;
 
 
 
-  RxMap<DateTime, List<EventModel>> eventsGrouped =
-      <DateTime, List<EventModel>>{}.obs;
+  RxMap<DateTime, List<QuickEventModel>> eventsGrouped =
+      <DateTime, List<QuickEventModel>>{}.obs;
 
       final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 User? currentUser = FirebaseAuth.instance.currentUser;
@@ -106,7 +61,7 @@ CollectionReference get eventsCollection {
           .where('date', isLessThan: DateTime(day.year, day.month, day.day + 1))
           .snapshots()
           .map((query) =>
-              query.docs.map((doc) => EventModel.fromFirestore(doc)).toList()),
+              query.docs.map((doc) => QuickEventModel.fromFirestore(doc)).toList()),
     );
   }
 
@@ -137,8 +92,8 @@ void fetchEvents(DateTime day) {
       .snapshots()
       .listen((querySnapshot) {
     eventsGrouped.clear();
-    List<EventModel> allEvents = querySnapshot.docs
-        .map((doc) => EventModel.fromFirestore(doc))
+    List<QuickEventModel> allEvents = querySnapshot.docs
+        .map((doc) => QuickEventModel.fromFirestore(doc))
         .toList();
     
     // Sort events by date in descending order (newest first)
@@ -175,7 +130,7 @@ void fetchEvents(DateTime day) {
     }
   }
 
-  void showEventBottomSheet(BuildContext context, {EventModel? event}) {
+  void showEventBottomSheet(BuildContext context, {QuickEventModel? event}) {
   showModalBottomSheet(
     context: context,
     isScrollControlled: true,

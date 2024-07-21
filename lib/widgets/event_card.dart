@@ -3,12 +3,13 @@ import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:intl/intl.dart';
 import 'package:tushar_db/projectController/calendar_controller.dart';
 
+import '../models/quick_event_mode.dart';
 import '../projectPages/page_two_calendar.dart';
 
 class EventCard extends StatelessWidget {
-  final EventModel event;
-  final Function(EventModel) onDelete;
-  final Function(EventModel) onEdit;
+  final QuickEventModel event;
+  final Function(QuickEventModel) onDelete;
+  final Function(QuickEventModel) onEdit;
 
   EventCard({
     Key? key,
