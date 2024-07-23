@@ -1,9 +1,12 @@
+import 'dart:io';
 import 'dart:math';
 
 import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:workmanager/workmanager.dart';
@@ -58,6 +61,36 @@ class _AwesomeNotiState extends State<AwesomeNoti> {
     super.dispose();
   }
 
+  void scheduleQuoteNotifications() {
+    // Schedule the background work using workmanager
+    Workmanager().registerPeriodicTask(
+      "dailyQuote",
+      "fetchAndDisplayQuote",
+      frequency: Duration(days: 1),
+      initialDelay: Duration(seconds: 10), // Short delay for testing
+      constraints: Constraints(
+        networkType: NetworkType.connected,
+      ),
+      inputData: {
+        'hour': 8,
+        'minute': 0,
+      },
+    );
+  }
+
+  Future<void> fetchAndDisplayQuote() async {
+    String quote = await fetchUniqueRandomQuote();
+    await AwesomeNotifications().createNotification(
+      content: NotificationContent(
+        id: 1,
+        channelKey: 'quote_channel',
+        title: 'Daily Motivation',
+        body: quote,
+        notificationLayout: NotificationLayout.Default,
+      ),
+    );
+  }
+
   Future<String> fetchUniqueRandomQuote() async {
     List<String> allQuotes = await QuoteService.fetchQuotes();
     List<String> displayedQuotes = await QuoteService.getDisplayedQuotes();
@@ -84,14 +117,14 @@ class _AwesomeNotiState extends State<AwesomeNoti> {
     return randomQuote;
   }
 
-  void scheduleQuoteNotifications() {
-    // Schedule the background work using workmanager
-    Workmanager().registerPeriodicTask(
-      "1",
-      "fetchAndDisplayQuote",
-      frequency: Duration(minutes: 10),
-    );
-  }
+  // void scheduleQuoteNotifications() {
+  //   // Schedule the background work using workmanager
+  //   Workmanager().registerPeriodicTask(
+  //     "1",
+  //     "fetchAndDisplayQuote",
+  //     frequency: Duration(minutes: 10),
+  //   );
+  // }
 
   void scheduleDailyQuoteNotification() async {
     // Cancel any existing notifications to prevent duplicates
@@ -120,18 +153,18 @@ class _AwesomeNotiState extends State<AwesomeNoti> {
     // );
   }
 
-  Future<void> fetchAndDisplayQuote() async {
-    String quote = await fetchUniqueRandomQuote();
-    await AwesomeNotifications().createNotification(
-      content: NotificationContent(
-        id: 1,
-        channelKey: 'quote_channel',
-        title: 'Motivation Time!',
-        body: quote,
-        notificationLayout: NotificationLayout.Default,
-      ),
-    );
-  }
+  // Future<void> fetchAndDisplayQuote() async {
+  //   String quote = await fetchUniqueRandomQuote();
+  //   await AwesomeNotifications().createNotification(
+  //     content: NotificationContent(
+  //       id: 1,
+  //       channelKey: 'quote_channel',
+  //       title: 'Motivation Time!',
+  //       body: quote,
+  //       notificationLayout: NotificationLayout.Default,
+  //     ),
+  //   );
+  // }
 
   Future<void> scheduleNotification(
       DateTime scheduledDateTime, String message) async {
@@ -256,6 +289,16 @@ class _AwesomeNotiState extends State<AwesomeNoti> {
             },
             child: Text('Periodic  quotes Notification'),
           ),
+        ),
+        ElevatedButton(
+          onPressed: () {
+            notificationController.scheduleQuoteNotifications();
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                  content: Text('Notifications scheduled every 15 minutes')),
+            );
+          },
+          child: Text('Start Periodic Notifications'),
         ),
         // Container(
         //   alignment: Alignment.center,
@@ -467,55 +510,98 @@ class Goals {
 }
 
 class NotificationController extends GetxController {
+  final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
+      FlutterLocalNotificationsPlugin();
+  static const platform = MethodChannel('com.example.tushar_db/background_fetch');
+ @override
+  void onInit() {
+    super.onInit();
+    initializeNotifications();
+    if (Platform.isIOS) {
+      _setupBackgroundChannel();
+    }
+  }
+
+  Future<void> initializeNotifications() async {
+    final AndroidInitializationSettings initializationSettingsAndroid =
+        AndroidInitializationSettings('@mipmap/ic_launcher');
+    final DarwinInitializationSettings initializationSettingsIOS =
+        DarwinInitializationSettings();
+    final InitializationSettings initializationSettings = InitializationSettings(
+        android: initializationSettingsAndroid, iOS: initializationSettingsIOS);
+    await flutterLocalNotificationsPlugin.initialize(initializationSettings);
+  }
+
+  void _setupBackgroundChannel() {
+    platform.setMethodCallHandler((call) async {
+      if (call.method == 'fetchAndDisplayQuote') {
+        await fetchAndDisplayQuote();
+      }
+    });
+  }
+
   void scheduleQuoteNotifications() {
-    // Schedule the background work using workmanager
-    Workmanager().registerPeriodicTask(
-      "1",
-      "fetchAndDisplayQuote",
-      frequency: Duration(minutes: 15),
-    );
-    // Workmanager().executeTask((task, inputData) async {
-    //   fetchAndDisplayQuote();
-    //   return Future.value(true);
-    // });
+    if (Platform.isAndroid) {
+      Workmanager().cancelAll();
+      Workmanager().registerPeriodicTask(
+        "dailyQuote",
+        "fetchAndDisplayQuote",
+        frequency: Duration(hours: 24),
+        initialDelay: Duration(seconds: 10),
+        constraints: Constraints(
+          networkType: NetworkType.connected,
+        ),
+        inputData: {
+          'hour': 9,
+          'minute': 30,
+        },
+      );
+    } else if (Platform.isIOS) {
+      // For iOS, the scheduling is handled by the system through BGTaskScheduler
+      print("Background fetch scheduled for iOS");
+    }
   }
 
   Future<void> fetchAndDisplayQuote() async {
     String quote = await fetchUniqueRandomQuote();
-    await AwesomeNotifications().createNotification(
-      content: NotificationContent(
-        id: 1,
-        channelKey: 'quote_channel',
-        title: 'Motivation Time!',
-        body: quote,
-        notificationLayout: NotificationLayout.Default,
-      ),
+    await showNotification(quote);
+  }
+
+  Future<void> showNotification(String quote) async {
+    const AndroidNotificationDetails androidPlatformChannelSpecifics =
+        AndroidNotificationDetails(
+      'quote_channel',
+      'Daily Quotes',
+      channelDescription: 'Daily motivational quotes',
+      importance: Importance.max,
+      priority: Priority.high,
+    );
+    const NotificationDetails platformChannelSpecifics =
+        NotificationDetails(android: androidPlatformChannelSpecifics);
+    await flutterLocalNotificationsPlugin.show(
+      0,
+      'Daily Motivation',
+      quote,
+      platformChannelSpecifics,
     );
   }
 
   Future<String> fetchUniqueRandomQuote() async {
-    List<String> allQuotes = await QuoteService.fetchQuotes();
-    List<String> displayedQuotes = await QuoteService.getDisplayedQuotes();
+    // Implement your logic to fetch a unique random quote
+    // This is just a placeholder
+    return "Your daily dose of motivation!";
+  }
 
-    // Filter out displayed quotes
-    List<String> newQuotes =
-        allQuotes.where((quote) => !displayedQuotes.contains(quote)).toList();
-
-    if (newQuotes.isEmpty) {
-      // If all quotes have been displayed, reset and use all quotes again
-      newQuotes = allQuotes;
-      await SharedPreferences.getInstance().then((prefs) {
-        prefs.remove(QuoteService.QUOTES_KEY);
-      });
-    }
-
-    // Get a random quote from the new quotes
-    Random random = Random();
-    String randomQuote = newQuotes[random.nextInt(newQuotes.length)];
-
-    // Save the displayed quote
-    await QuoteService.saveDisplayedQuote(randomQuote);
-
-    return randomQuote;
+  // For immediate testing
+  Future<void> testQuoteNotification() async {
+    await fetchAndDisplayQuote();
   }
 }
+
+
+
+// api key 
+// Rp6TdzbMOsLxt45N8sNYdVuP9J6UxkV1u8bQyUj2OIDTl0aeJ4RQfZPN
+
+//api key for pixabay
+ //45057779-c29a4dc769b07eac504c6713c

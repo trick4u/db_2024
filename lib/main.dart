@@ -1,4 +1,5 @@
 import 'dart:developer';
+import 'dart:io';
 
 import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -25,6 +26,8 @@ import 'controller/home_controller.dart';
 import 'controller/work_manager_controller.dart';
 import 'loading_screen.dart';
 import 'pages/home_page.dart';
+import 'projectController/calendar_controller.dart';
+
 import 'projectPages/awesome_noti.dart';
 import 'projectPages/page_three.dart';
 import 'package:timezone/timezone.dart' as tz;
@@ -35,32 +38,21 @@ import 'services/notification_service.dart';
 FlutterLocalNotificationsPlugin notificationsPlugin =
     FlutterLocalNotificationsPlugin();
 
-// void callbackDispatcher() {
-//   print('Periodic notification callback fired!');
-
-//   Workmanager().executeTask((task, inputData) async {
-//     AwesomeNotifications().createNotification(
-//         content: NotificationContent(
-//           id: 10,
-//           channelKey: 'basic_channel',
-//           title: 'Periodic Reminder',
-//           body: 'This is your reminder notification! okay',
-//         ),
-//         schedule: NotificationInterval(
-//             interval: 5 * 60, // 15 minutes in seconds
-//             timeZone: await AwesomeNotifications().getLocalTimeZoneIdentifier(),
-//             repeats: true));
-//     return Future.value(true);
-//   });
-
-// }
 void callbackDispatcher() {
   Workmanager().executeTask((task, inputData) async {
-    NotificationController().fetchAndDisplayQuote();
+    if (task == 'fetchAndDisplayQuote') {
+      final now = DateTime.now();
+      final scheduledHour = inputData?['hour'] as int? ?? 9;
+      final scheduledMinute = inputData?['minute'] as int? ?? 30;
+
+      if (now.hour == scheduledHour && now.minute == scheduledMinute) {
+        final controller = Get.put(NotificationController());
+        await controller.fetchAndDisplayQuote();
+      }
+    }
     return Future.value(true);
   });
 }
-
 void main() async {
   await GetStorage.init();
 
@@ -68,7 +60,10 @@ void main() async {
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
   await initializeTimeZone();
-  Workmanager().initialize(callbackDispatcher, isInDebugMode: false);
+ if (Platform.isAndroid) {
+    await Workmanager().initialize(callbackDispatcher, isInDebugMode: true);
+  }
+  print('WorkManager initialized!');
   // Workmanager().registerPeriodicTask(
   //   "1",
   //   "simplePeriodicTask",
@@ -153,6 +148,8 @@ void main() async {
     }
   });
 
+
+
   runApp(const MyApp());
 }
 
@@ -178,7 +175,9 @@ class MyApp extends StatelessWidget {
           debugShowCheckedModeBanner: false,
           darkTheme: ThemeData.dark(),
           theme: ThemeData.light(),
-           themeMode: themeController.isDarkMode.value ? ThemeMode.dark : ThemeMode.light,
+          themeMode: themeController.isDarkMode.value
+              ? ThemeMode.dark
+              : ThemeMode.light,
           initialBinding: InitialBinding(),
           initialRoute: AppRoutes.HOME,
           getPages: AppRoutes.routes,

@@ -24,6 +24,7 @@ import 'package:flutter_carousel_slider/carousel_slider.dart';
 import '../widgets/three_day.dart';
 import '../widgets/three_shaped_box.dart';
 import 'main_screen.dart';
+import 'music_page.dart';
 
 class PageOneScreen extends GetWidget<PageOneController> {
   @override
@@ -67,9 +68,15 @@ class PageOneScreen extends GetWidget<PageOneController> {
             Obx(
               () {
                 if (controller.carouselPageIndex.value == 0) {
-                  return Text(
-                    'Morning Tasks',
-                    style: TextStyle(fontSize: 20),
+                  return InkWell(
+                    onTap: () {
+                      // bottom sheet
+                      Get.to(() => QuoteWidget());
+                    },
+                    child: Text(
+                      'Morning Tasks',
+                      style: TextStyle(fontSize: 20),
+                    ),
                   );
                 } else {
                   return Container();
