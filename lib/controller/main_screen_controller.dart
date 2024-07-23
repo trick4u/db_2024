@@ -14,6 +14,7 @@ import 'package:popover/popover.dart';
 import '../projectPages/page_one.dart';
 import '../projectPages/page_three.dart';
 import '../projectPages/page_two_calendar.dart';
+import '../projectPages/profile_screen.dart';
 
 class MainScreenController extends GetxController
     with GetSingleTickerProviderStateMixin {
@@ -29,7 +30,7 @@ class MainScreenController extends GetxController
     PageOneScreen(),
     CalendarPage(),
     GoalsScreen(),
-    AwesomeNoti(),
+    ProfileScreen(),
   ].obs;
 
   void changePage(

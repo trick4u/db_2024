@@ -16,6 +16,7 @@ import 'projectBinding/eat_the_frog_binding.dart';
 import 'projectBinding/goals_binding.dart';
 import 'projectBinding/notes_binding.dart';
 import 'projectBinding/page_one_binding.dart';
+import 'projectBinding/profile_bindings.dart';
 import 'projectBinding/three_tasks_binding.dart';
 import 'projectPages/add_everyting.dart';
 import 'projectPages/add_task.dart';
@@ -27,6 +28,7 @@ import 'pages/phone_auth.dart';
 import 'pages/splash_screen.dart';
 import 'projectPages/notes_page.dart';
 import 'projectPages/page_one.dart';
+import 'projectPages/profile_screen.dart';
 import 'projectPages/three_tasks_screen.dart';
 import 'widgets/three_day.dart';
 
@@ -140,6 +142,12 @@ class AppRoutes {
       page: () => CommentScreen(),
       binding: ThreeTasksBinding(),
       transition: Transition.cupertinoDialog,
+    ),
+    // profile
+    GetPage(
+      name: PROFILE,
+      page: () => ProfileScreen(),
+      binding: ProfileBindings(),
     ),
   ];
 }

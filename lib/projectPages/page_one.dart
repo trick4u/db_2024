@@ -16,6 +16,7 @@ import '../controller/theme_controller.dart';
 import '../models/goals_model.dart';
 import '../projectController/page_one_controller.dart';
 import '../projectController/pomodoro_controller.dart';
+import '../temp/music_view.dart';
 import '../widgets/four_boxes.dart';
 import '../widgets/goals_box.dart';
 import '../widgets/quick_reminder_chips.dart';
@@ -39,9 +40,14 @@ class PageOneScreen extends GetWidget<PageOneController> {
           children: [
             //text page 1
 
-            Obx(() => Text(
-                  '${controller.greeting}',
-                  style: AppTextStyles.heading1,
+            Obx(() => InkWell(
+                  onTap: () {
+                    Get.to(() => MusicView());
+                  },
+                  child: Text(
+                    '${controller.greeting}',
+                    style: AppTextStyles.heading1,
+                  ),
                 )),
             const SizedBox(height: 20),
             // rounded rect container
@@ -122,32 +128,70 @@ class PageOneScreen extends GetWidget<PageOneController> {
                   );
                 } else if (controller.carouselPageIndex.value == 3) {
                   return Obx(() => AnimatedContainer(
-                        height: 200,
+                        height: 250,
                         duration: Duration(seconds: 1),
                         color: controller.backgroundColor.value,
                         width: double.infinity,
-                        child: Column(
-                          children: [
-                            Obx(() => Text(
-                                  controller.isBreak.value
-                                      ? 'Break Time'
-                                      : 'Work Time',
-                                  style: TextStyle(fontSize: 24),
-                                )),
-                            Obx(() => Text(
-                                  '${(controller.seconds.value / 60).floor().toString().padLeft(2, '0')}:${(controller.seconds.value % 60).toString().padLeft(2, '0')}',
-                                  style: TextStyle(fontSize: 48),
-                                )),
-                            SizedBox(height: 20),
-                            Obx(() => ElevatedButton(
-                                  onPressed: controller.isRunning.value
-                                      ? controller.stopTimer
-                                      : controller.startTimer,
-                                  child: Text(controller.isRunning.value
-                                      ? 'Stop'
-                                      : 'Start'),
-                                )),
-                          ],
+                        child: SingleChildScrollView(
+                          child: Column(
+                            children: [
+                              //   Obx(() => Text(
+                              //         controller.isBreak.value
+                              //             ? 'Break Time'
+                              //             : 'Work Time',
+                              //         style: TextStyle(fontSize: 24),
+                              //       )),
+                              //   Obx(() => Text(
+                              //         '${(controller.seconds.value / 60).floor().toString().padLeft(2, '0')}:${(controller.seconds.value % 60).toString().padLeft(2, '0')}',
+                              //         style: TextStyle(fontSize: 48),
+                              //       )),
+                              //   SizedBox(height: 20),
+                              //   Obx(
+                              //     () => ElevatedButton(
+                              //       onPressed: controller.isRunning.value
+                              //           ? controller.stopTimer
+                              //           : controller.startTimer,
+                              //       child: Text(controller.isRunning.value
+                              //           ? 'Stop'
+                              //           : 'Start'),
+                              //     ),
+                              //   ),
+                              // SizedBox(height: 20),
+                              SingleChildScrollView(
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    // Your pomodoro timer widgets here
+                                    SizedBox(height: 20),
+                                    Obx(() => Text(
+                                          'Current Stream: ${controller.getCurrentStreamName()}',
+                                          style: TextStyle(fontSize: 18),
+                                        )),
+                                    SizedBox(height: 10),
+                                    Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      children: [
+                                        Obx(() => ElevatedButton(
+                                              onPressed:
+                                                  controller.togglePlayPause,
+                                              child: Text(
+                                                  controller.isPlaying.value
+                                                      ? 'Pause'
+                                                      : 'Play'),
+                                            )),
+                                        SizedBox(width: 20),
+                                        ElevatedButton(
+                                          onPressed: controller.nextStream,
+                                          child: Text('Next Stream'),
+                                        ),
+                                      ],
+                                    ),
+                                  ],
+                                ),
+                              )
+                            ],
+                          ),
                         ),
                       ));
                 } else {
@@ -420,6 +464,7 @@ class PageOneBottomPart extends GetWidget<PageOneController> {
 //                     //  subtitle: Text(),
 //                   );
 //                 },
+
 //               ),
 
 class JustCheck extends StatelessWidget {
@@ -1114,3 +1159,19 @@ class TaskCard extends StatelessWidget {
     );
   }
 }
+// class PomodoroView extends StatelessWidget {
+//   final AudioController audioController = Get.put(AudioController());
+
+// Center(
+//         child: Column(
+//           mainAxisAlignment: MainAxisAlignment.center,
+//           children: [
+//             // Your pomodoro timer widgets here
+//             SizedBox(height: 20),
+          
+//           ],
+//         ),
+//       ),
+//     );
+//   }
+// }

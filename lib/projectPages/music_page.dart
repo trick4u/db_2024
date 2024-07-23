@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:just_audio/just_audio.dart';
 
-import '../services/pixabay_service.dart';
+import '../services/pexels_service.dart';
 
 class QuoteController extends GetxController {
   final RxString currentQuote = ''.obs;

@@ -1,7 +1,9 @@
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:dio/dio.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -13,6 +15,7 @@ import '../models/goals_model.dart';
 import '../projectPages/awesome_noti.dart';
 import '../services/notification_service.dart';
 import 'add_task_controller.dart';
+import 'package:http/http.dart' as http;
 
 class PageOneController extends GetxController {
   //variables
@@ -50,12 +53,26 @@ class PageOneController extends GetxController {
   final Color endColor = Color(0xFFF44336);
   late Timer _colorTimer;
   var backgroundColor = Color(0xFF2196F3).obs;
+   final player = AudioPlayer();
+  var isPlaying = false.obs;
+  var currentStreamIndex = 0.obs;
+  
+  var isLoading = true.obs;
+  final Dio dio = Dio();
+
+   final List<String> streams = [
+    'https://play.streamafrica.net/lofiradio',
+    
+    'https://play.streamafrica.net/classicalradio',
+
+  ];
 
   @override
   void onInit() {
     //   getAllGoals();
 
     audioPlayer = AudioPlayer();
+    initializePlayer();
     reminderTextController = TextEditingController();
     originalFontColor.value = chips[0].fontColor!;
 
@@ -71,6 +88,7 @@ class PageOneController extends GetxController {
   @override
   void onReady() {
     //getAllGoals();
+
     fetchGoals();
     updateGreeting();
     _initializeColorAnimation();
@@ -83,6 +101,40 @@ class PageOneController extends GetxController {
     audioPlayer.dispose();
 
     super.dispose();
+  }
+
+  void initializePlayer() async {
+    await player.setUrl(streams[currentStreamIndex.value]);
+    player.playbackEventStream.listen((event) {
+      isPlaying.value = player.playing;
+    });
+  }
+
+  void togglePlayPause() {
+    if (player.playing) {
+      player.pause();
+    } else {
+      player.play();
+    }
+  }
+
+  void nextStream() async {
+    currentStreamIndex.value = (currentStreamIndex.value + 1) % streams.length;
+    await player.stop();
+    await player.setUrl(streams[currentStreamIndex.value]);
+    player.play();
+  }
+
+  String getCurrentStreamName() {
+    List<String> names = ['Lo-Fi',  'Classical', ];
+    return names[currentStreamIndex.value];
+  }
+
+
+  @override
+  void onClose() {
+    player.dispose();
+    super.onClose();
   }
 
   //increase volume
@@ -406,3 +458,5 @@ class PageOneController extends GetxController {
     }
   }
 }
+
+
