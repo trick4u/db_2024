@@ -7,7 +7,7 @@ import '../controller/main_screen_controller.dart';
 import '../controller/network_controller.dart';
 import '../controller/splash_controller.dart';
 import '../controller/work_manager_controller.dart';
-import '../services/size_config.dart';
+import '../services/scale_util.dart';
 
 class InitialBinding extends Bindings {
   @override

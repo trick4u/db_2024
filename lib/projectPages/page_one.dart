@@ -46,7 +46,7 @@ class PageOneScreen extends GetWidget<PageOneController> {
                   },
                   child: Text(
                     '${controller.greeting}',
-                    style: AppTextStyles.heading1,
+                    style: AppTextTheme.textTheme.displayLarge,
                   ),
                 )),
             const SizedBox(height: 20),

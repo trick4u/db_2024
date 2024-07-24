@@ -34,7 +34,7 @@ import 'package:timezone/timezone.dart' as tz;
 import 'package:workmanager/workmanager.dart';
 
 import 'services/notification_service.dart';
-import 'services/size_config.dart';
+import 'services/scale_util.dart';
 
 FlutterLocalNotificationsPlugin notificationsPlugin =
     FlutterLocalNotificationsPlugin();
@@ -177,8 +177,8 @@ class MyApp extends StatelessWidget {
           darkTheme: ThemeData.dark(),
           theme: ThemeData.light(),
           themeMode: themeController.isDarkMode.value
-              ? ThemeMode.dark
-              : ThemeMode.light,
+              ? ThemeMode.light
+              : ThemeMode.dark,
           initialBinding: InitialBinding(),
           initialRoute: AppRoutes.HOME,
           getPages: AppRoutes.routes,

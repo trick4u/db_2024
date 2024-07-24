@@ -7,10 +7,12 @@ import 'package:get/get.dart';
 import 'package:get/get_connect/http/src/utils/utils.dart';
 import 'package:get/get_state_manager/get_state_manager.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:tushar_db/services/app_text_style.dart';
 
 import '../app_routes.dart';
 import '../controller/home_controller.dart';
-import '../services/size_config.dart';
+import '../controller/theme_controller.dart';
+import '../services/scale_util.dart';
 import '../widgets/registration_form.dart';
 
 class MyHomePage extends StatelessWidget {
@@ -107,89 +109,95 @@ class MyHomePage extends StatelessWidget {
   }
 
   Widget _buildGetStartedWidget(BuildContext context) {
-    return Container(
-      height: ScaleUtil.height(300),
-      margin: EdgeInsets.all(16),
-      padding: ScaleUtil.all(20),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.1),
-            blurRadius: 10,
-            offset: Offset(0, -5),
-          ),
-        ],
-      ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          SizedBox(height: 20),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                'Get Started',
-                style: TextStyle(
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
-                    fontFamily: "Euclid"),
-              ),
-              IconButton(
-                icon: Icon(Icons.close),
-                onPressed: () {
-                  // Implement close functionality if needed
-                },
-              ),
-            ],
-          ),
-          Text(
-            'Register for events, subscribe to calendars and manage events you\'re going to.',
-            style: TextStyle(color: Colors.grey),
-          ),
-          SizedBox(height: 20),
-          ElevatedButton(
-            child: Text('Continue with Phone'),
-            onPressed: () {},
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.black,
-              minimumSize: Size(double.infinity, 50),
+    final theme = Theme.of(context);
+    final ThemeController themeController = Get.find();
+
+    return PressableDough(
+      onReleased: (s) {
+        themeController.toggleTheme();
+      },
+      child: Container(
+        height: ScaleUtil.height(310),
+        margin: ScaleUtil.all(20),
+        padding: ScaleUtil.all(20),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(20),
+          color: theme.cardColor, //
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.2),
+              blurRadius: 10,
+              spreadRadius: 5,
             ),
-          ),
-          SizedBox(height: 10),
-          OutlinedButton(
-            child: Text('Continue with Email'),
-            onPressed: () {},
-            style: OutlinedButton.styleFrom(
-              minimumSize: Size(double.infinity, 50),
+          ],
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            SizedBox(
+              height: ScaleUtil.height(10),
             ),
-          ),
-          SizedBox(height: 10),
-          Row(
-            children: [
-              Expanded(
-                child: OutlinedButton(
-                  child: Icon(Icons.apple),
-                  onPressed: () {},
-                  style: OutlinedButton.styleFrom(
-                    minimumSize: Size(0, 50),
+            Text(
+              'Get Started',
+              style: AppTextTheme.textTheme.titleLarge,
+            ),
+            Text(
+              'Register for events, subscribe to calendars and manage events you\'re going to.',
+              style: TextStyle(color: Colors.grey),
+            ),
+            SizedBox(
+              height: ScaleUtil.height(20),
+            ),
+            ElevatedButton(
+              child: Text('Continue with Phone',
+                  style: TextStyle(fontSize: ScaleUtil.fontSize(14))),
+              onPressed: () {},
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.black,
+                minimumSize: Size(double.infinity, 50),
+              ),
+            ),
+            SizedBox(
+              height: ScaleUtil.height(16),
+            ),
+            OutlinedButton(
+              child: Text('Continue with Email'),
+              onPressed: () {},
+              style: OutlinedButton.styleFrom(
+                minimumSize: Size(double.infinity, 50),
+              ),
+            ),
+            SizedBox(
+              height: ScaleUtil.height(16),
+            ),
+            Row(
+              children: [
+                Expanded(
+                  child: OutlinedButton(
+                    child: Icon(Icons.apple),
+                    onPressed: () {},
+                    style: OutlinedButton.styleFrom(
+                      minimumSize: Size(0, 50),
+                    ),
                   ),
                 ),
-              ),
-              SizedBox(width: 10),
-              Expanded(
-                child: OutlinedButton(
-                  child: Text('G'),
-                  onPressed: () {},
-                  style: OutlinedButton.styleFrom(
-                    minimumSize: Size(0, 50),
+                SizedBox(
+                  width: ScaleUtil.width(10),
+                ),
+                Expanded(
+                  child: OutlinedButton(
+                    child: Text('G'),
+                    onPressed: () {},
+                    style: OutlinedButton.styleFrom(
+                      minimumSize: Size(0, 50),
+                    ),
                   ),
                 ),
-              ),
-            ],
-          ),
-        ],
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -220,7 +228,7 @@ class MyHomePage extends StatelessWidget {
 //                       'doBoard',
 //                       style: TextStyle(
 //                         fontFamily: GoogleFonts.inder().fontFamily,
-//                         fontSize: 40,
+//                         fontSize: ScaleUtil.fontSize ScaleUtil.fontSize ScaleUtil.fontSize ScaleUtil.fontSize ScaleUtil.fontSize 40,
 //                         fontWeight: FontWeight.bold,
 //                         color: controller.isDarkMode.value
 //                             ? Colors.white
@@ -246,7 +254,7 @@ class MyHomePage extends StatelessWidget {
 //                     'Welcome to doBoard!',
 //                     style: TextStyle(
 //                       fontFamily: GoogleFonts.ubuntu().fontFamily,
-//                       fontSize: 20,
+//                       fontSize: ScaleUtil.fontSize ScaleUtil.fontSize ScaleUtil.fontSize ScaleUtil.fontSize ScaleUtil.fontSize 20,
 //                     ),
 //                   ),
 //                 ),
@@ -310,7 +318,6 @@ class MyHomePage extends StatelessWidget {
 //         ));
 //   }
 // }
-
 
 // class LoginForm extends StatelessWidget {
 //   const LoginForm({
