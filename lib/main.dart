@@ -34,6 +34,7 @@ import 'package:timezone/timezone.dart' as tz;
 import 'package:workmanager/workmanager.dart';
 
 import 'services/notification_service.dart';
+import 'services/size_config.dart';
 
 FlutterLocalNotificationsPlugin notificationsPlugin =
     FlutterLocalNotificationsPlugin();
@@ -170,7 +171,7 @@ class MyApp extends StatelessWidget {
     final HomeController homeController = Get.put(HomeController());
     final ThemeController themeController = Get.put(ThemeController());
 
-    return Obx(() => GetMaterialApp(
+ return Obx(() => GetMaterialApp(
           title: 'DoBoard Demo',
           debugShowCheckedModeBanner: false,
           darkTheme: ThemeData.dark(),
@@ -181,7 +182,15 @@ class MyApp extends StatelessWidget {
           initialBinding: InitialBinding(),
           initialRoute: AppRoutes.HOME,
           getPages: AppRoutes.routes,
-          // home: MyHomePage(),
+          builder: (context, child) {
+            ScaleUtil();
+            
+           
+            return MediaQuery(
+              data: MediaQuery.of(context).copyWith(textScaler: TextScaler.linear(1.0)),
+              child: child!,
+            );
+          },
         ));
   }
 }

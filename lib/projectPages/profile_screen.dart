@@ -30,8 +30,29 @@ class ProfileScreen extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            SizedBox(height: 20),
-          //conta
+            SizedBox(height: 30),
+            //container
+            Container(
+              height: 200,
+              width: 200,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(20),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.5),
+                    blurRadius: 10,
+                    spreadRadius: 1,
+                    offset: Offset(0, 5),
+                  ),
+                ],
+                color: Colors.blue,
+                shape: BoxShape.rectangle,
+                image: DecorationImage(
+                  image: AssetImage('assets/images/profile.jpg'),
+                  fit: BoxFit.cover,
+                ),
+              ),
+            ),
             SizedBox(height: 16),
             Text(
               'Blake Gordon',
@@ -54,8 +75,18 @@ class ProfileScreen extends StatelessWidget {
             _buildOptionTile('Show me as away', isSwitch: true),
             _buildOptionTile('My Projects'),
             _buildOptionTile('Join A Team'),
-            _buildOptionTile('Share Profile'),
-            _buildOptionTile('All My Task'),
+            InkWell(
+              onTap: () {
+                controller.deleteAccount();
+              },
+              child: _buildOptionTile(
+                'delete account',
+              ),
+            ),
+
+            InkWell(
+                child: _buildOptionTile('logout'), onTap: controller.logout),
+
             SizedBox(height: 20),
           ],
         ),
