@@ -12,6 +12,7 @@ import 'package:just_audio/just_audio.dart';
 import 'package:youtube_explode_dart/youtube_explode_dart.dart';
 
 import '../models/goals_model.dart';
+import '../models/quick_event_mode.dart';
 import '../projectPages/awesome_noti.dart';
 import '../services/notification_service.dart';
 import 'add_task_controller.dart';
@@ -26,11 +27,11 @@ class PageOneController extends GetxController {
   var fireStoreInstance = FirebaseFirestore.instance;
   var repeat = false.obs;
   var text = "".obs;
-  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  
   final FirebaseAuth _auth = FirebaseAuth.instance;
   var goalsList = <Goals>[].obs;
 
-  User? get currentUser => _auth.currentUser;
+ 
 
   RxInt carouselPageIndex = 0.obs;
   // Rx<GoalsModel> allGoals = GoalsModel().obs;
@@ -41,6 +42,17 @@ class PageOneController extends GetxController {
   Rx<RxStatus> goalsStatus = RxStatus.loading().obs;
 
   var greeting = ''.obs;
+    RxList<QuickEventModel> upcomingEvents = <QuickEventModel>[].obs;
+  User? currentUser = FirebaseAuth.instance.currentUser;
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+
+  CollectionReference get eventsCollection {
+    return _firestore
+        .collection('users')
+        .doc(currentUser?.uid)
+        .collection('events');
+  }
+
 
   //pomodor timer
   var isRunning = false.obs;
@@ -70,7 +82,8 @@ class PageOneController extends GetxController {
   @override
   void onInit() {
     //   getAllGoals();
-
+    fetchUpcomingEvents();
+    
     audioPlayer = AudioPlayer();
     initializePlayer();
     reminderTextController = TextEditingController();
@@ -101,6 +114,29 @@ class PageOneController extends GetxController {
     audioPlayer.dispose();
 
     super.dispose();
+  }
+
+   void fetchUpcomingEvents() {
+    if (currentUser == null) return;
+
+    DateTime now = DateTime.now();
+    DateTime endDate =
+        now.add(Duration(days: 30)); // Fetch events for the next 30 days
+
+    eventsCollection
+        .where('date', isGreaterThanOrEqualTo: now)
+        .where('date', isLessThanOrEqualTo: endDate)
+        .orderBy('date')
+        .limit(10) // Limit to 10 upcoming events
+        .snapshots()
+        .listen((querySnapshot) {
+      upcomingEvents.value = querySnapshot.docs
+          .map((doc) => QuickEventModel.fromFirestore(doc))
+          .toList();
+
+      print('upcomingEvents: ${upcomingEvents.length}');
+      update();
+    });
   }
 
   void initializePlayer() async {

@@ -1,12 +1,10 @@
-
-
-
 import 'package:flex_color_picker/flex_color_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../models/quick_event_mode.dart';
 import '../projectController/calendar_controller.dart';
+import '../services/app_text_style.dart';
 
 class EventBottomSheet extends StatefulWidget {
   final QuickEventModel? event;
@@ -53,6 +51,7 @@ class _EventBottomSheetState extends State<EventBottomSheet> {
 
   @override
   Widget build(BuildContext context) {
+    final appTheme = Get.find<AppTheme>();
     return Padding(
       padding: const EdgeInsets.all(20.0),
       child: Card(
@@ -90,14 +89,19 @@ class _EventBottomSheetState extends State<EventBottomSheet> {
               SizedBox(height: 16),
               TextField(
                 controller: _titleController,
+                style: appTheme.bodyMedium,
                 decoration: InputDecoration(
                   labelText: 'Event Title',
                   border: OutlineInputBorder(),
+                  labelStyle: AppTextTheme.textTheme.bodySmall!.copyWith(
+                    color: Get.isDarkMode ? Colors.white70 : Colors.black54,
+                  ),
                 ),
               ),
               SizedBox(height: 16),
               TextField(
                 controller: _descriptionController,
+                style: appTheme.bodyMedium,
                 decoration: InputDecoration(
                   labelText: 'Event Description',
                   border: OutlineInputBorder(),

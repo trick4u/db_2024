@@ -14,6 +14,7 @@ import 'package:tushar_db/services/app_text_style.dart';
 
 import '../controller/theme_controller.dart';
 import '../models/goals_model.dart';
+import '../models/quick_event_mode.dart';
 import '../projectController/page_one_controller.dart';
 import '../projectController/pomodoro_controller.dart';
 import '../temp/music_view.dart';
@@ -128,7 +129,7 @@ class PageOneScreen extends GetWidget<PageOneController> {
                   );
                 } else if (controller.carouselPageIndex.value == 3) {
                   return Obx(() => AnimatedContainer(
-                        height: 250,
+                        height: 230,
                         duration: Duration(seconds: 1),
                         color: controller.backgroundColor.value,
                         width: double.infinity,
@@ -157,39 +158,63 @@ class PageOneScreen extends GetWidget<PageOneController> {
                               //     ),
                               //   ),
                               // SizedBox(height: 20),
-                              SingleChildScrollView(
-                                child: Column(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    // Your pomodoro timer widgets here
-                                    SizedBox(height: 20),
-                                    Obx(() => Text(
-                                          'Current Stream: ${controller.getCurrentStreamName()}',
-                                          style: TextStyle(fontSize: 18),
-                                        )),
-                                    SizedBox(height: 10),
-                                    Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.center,
-                                      children: [
-                                        Obx(() => ElevatedButton(
-                                              onPressed:
-                                                  controller.togglePlayPause,
-                                              child: Text(
-                                                  controller.isPlaying.value
-                                                      ? 'Pause'
-                                                      : 'Play'),
-                                            )),
-                                        SizedBox(width: 20),
-                                        ElevatedButton(
-                                          onPressed: controller.nextStream,
-                                          child: Text('Next Stream'),
-                                        ),
-                                      ],
+                              // SingleChildScrollView(
+                              //   child: Column(
+                              //     mainAxisAlignment: MainAxisAlignment.center,
+                              //     children: [
+                              //       // Your pomodoro timer widgets here
+                              //       SizedBox(height: 20),
+                              //       Obx(() => Text(
+                              //             'Current Stream: ${controller.getCurrentStreamName()}',
+                              //             style: TextStyle(fontSize: 18),
+                              //           )),
+                              //       SizedBox(height: 10),
+                              //       Row(
+                              //         mainAxisAlignment:
+                              //             MainAxisAlignment.center,
+                              //         children: [
+                              //           Obx(() => ElevatedButton(
+                              //                 onPressed:
+                              //                     controller.togglePlayPause,
+                              //                 child: Text(
+                              //                     controller.isPlaying.value
+                              //                         ? 'Pause'
+                              //                         : 'Play'),
+                              //               )),
+                              //           SizedBox(width: 20),
+                              //           ElevatedButton(
+                              //             onPressed: controller.nextStream,
+                              //             child: Text('Next Stream'),
+                              //           ),
+                              //         ],
+                              //       ),
+                              //     ],
+                              //   ),
+                              // ),
+                              ListView.builder(
+                                shrinkWrap: true,
+                                itemCount: controller.upcomingEvents.length,
+                                itemBuilder: (context, index) {
+                                  QuickEventModel event =
+                                      controller.upcomingEvents[index];
+                                  return ListTile(
+                                    title: Text(event.title),
+                                    subtitle: Text('${event.description} '),
+                                    leading: Container(
+                                      width: 12,
+                                      height: 12,
+                                      decoration: BoxDecoration(
+                                        shape: BoxShape.circle,
+                                        color: Colors.red,
+                                      ),
                                     ),
-                                  ],
-                                ),
-                              )
+                                    onTap: () {
+                                      // Handle event tap
+                                      //   controller.showEventBottomSheet(context, event: event);
+                                    },
+                                  );
+                                },
+                              ),
                             ],
                           ),
                         ),
@@ -525,7 +550,6 @@ class JustCheck extends StatelessWidget {
                                   },
                                   child: Text('Registry check'),
                                 ),
-                              
                                 ElevatedButton(
                                     onPressed: () {
                                       Get.to(() => MainScreenOne());
@@ -755,8 +779,6 @@ class GlowingButton extends StatelessWidget {
     );
   }
 }
-
-
 
 class PomodoroView extends StatelessWidget {
   final PomodoroController controller = Get.put(PomodoroController());

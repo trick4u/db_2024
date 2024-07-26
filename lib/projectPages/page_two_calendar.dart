@@ -24,11 +24,12 @@ class CalendarPage extends StatelessWidget {
         appBar: AppBar(
           backgroundColor: Colors.white,
           title: Text(
-            'Schedule tasks',
+            'schedule tasks .',
             style: TextStyle(
               fontFamily: "Euclid",
               fontSize: 20,
-              fontWeight: FontWeight.w500,
+              letterSpacing: 1.5,
+              fontWeight: FontWeight.bold,
             ),
           ),
         ),
@@ -316,7 +317,3 @@ class CalendarPage extends StatelessWidget {
         ));
   }
 }
-
-
-
-

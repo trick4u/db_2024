@@ -1,3 +1,5 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
@@ -5,6 +7,7 @@ import 'package:tushar_db/constants/colors.dart';
 import 'package:tushar_db/projectController/calendar_controller.dart';
 import 'package:tushar_db/projectPages/goals.dart';
 
+import '../models/quick_event_mode.dart';
 import '../projectController/page_threeController.dart';
 import '../projectPages/awesome_noti.dart';
 import '../projectPages/main_screen.dart';
@@ -38,11 +41,9 @@ class MainScreenController extends GetxController
     BuildContext context,
   ) {
     currentIndex.value = index;
-    if (currentIndex.value == 1){
+    if (currentIndex.value == 1) {
       Get.lazyPut<CalendarController>(() => CalendarController());
-    }
-
-   else if (currentIndex.value == 2) {
+    } else if (currentIndex.value == 2) {
       Get.lazyPut<PageThreecontroller>(() => PageThreecontroller());
       showDialog(context);
     } else if (currentIndex.value == 3) {
@@ -52,8 +53,12 @@ class MainScreenController extends GetxController
 
   @override
   void onInit() {
+  
+
     super.onInit();
   }
+
+ 
 
   Color scaffoldBackgroundColor() {
     switch (selectedIndex.value) {
