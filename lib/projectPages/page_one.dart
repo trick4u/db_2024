@@ -18,6 +18,7 @@ import '../models/quick_event_mode.dart';
 import '../projectController/page_one_controller.dart';
 import '../projectController/pomodoro_controller.dart';
 import '../temp/music_view.dart';
+import '../widgets/event_bottomSheet.dart';
 import '../widgets/four_boxes.dart';
 import '../widgets/goals_box.dart';
 import '../widgets/quick_reminder_chips.dart';
@@ -133,65 +134,65 @@ class PageOneScreen extends GetWidget<PageOneController> {
                         duration: Duration(seconds: 1),
                         color: controller.backgroundColor.value,
                         width: double.infinity,
-                        child: SingleChildScrollView(
-                          child: Column(
-                            children: [
-                              //   Obx(() => Text(
-                              //         controller.isBreak.value
-                              //             ? 'Break Time'
-                              //             : 'Work Time',
-                              //         style: TextStyle(fontSize: 24),
-                              //       )),
-                              //   Obx(() => Text(
-                              //         '${(controller.seconds.value / 60).floor().toString().padLeft(2, '0')}:${(controller.seconds.value % 60).toString().padLeft(2, '0')}',
-                              //         style: TextStyle(fontSize: 48),
-                              //       )),
-                              //   SizedBox(height: 20),
-                              //   Obx(
-                              //     () => ElevatedButton(
-                              //       onPressed: controller.isRunning.value
-                              //           ? controller.stopTimer
-                              //           : controller.startTimer,
-                              //       child: Text(controller.isRunning.value
-                              //           ? 'Stop'
-                              //           : 'Start'),
-                              //     ),
-                              //   ),
-                              // SizedBox(height: 20),
-                              // SingleChildScrollView(
-                              //   child: Column(
-                              //     mainAxisAlignment: MainAxisAlignment.center,
-                              //     children: [
-                              //       // Your pomodoro timer widgets here
-                              //       SizedBox(height: 20),
-                              //       Obx(() => Text(
-                              //             'Current Stream: ${controller.getCurrentStreamName()}',
-                              //             style: TextStyle(fontSize: 18),
-                              //           )),
-                              //       SizedBox(height: 10),
-                              //       Row(
-                              //         mainAxisAlignment:
-                              //             MainAxisAlignment.center,
-                              //         children: [
-                              //           Obx(() => ElevatedButton(
-                              //                 onPressed:
-                              //                     controller.togglePlayPause,
-                              //                 child: Text(
-                              //                     controller.isPlaying.value
-                              //                         ? 'Pause'
-                              //                         : 'Play'),
-                              //               )),
-                              //           SizedBox(width: 20),
-                              //           ElevatedButton(
-                              //             onPressed: controller.nextStream,
-                              //             child: Text('Next Stream'),
-                              //           ),
-                              //         ],
-                              //       ),
-                              //     ],
-                              //   ),
-                              // ),
-                              ListView.builder(
+                        child: Column(
+                          children: [
+                            //   Obx(() => Text(
+                            //         controller.isBreak.value
+                            //             ? 'Break Time'
+                            //             : 'Work Time',
+                            //         style: TextStyle(fontSize: 24),
+                            //       )),
+                            //   Obx(() => Text(
+                            //         '${(controller.seconds.value / 60).floor().toString().padLeft(2, '0')}:${(controller.seconds.value % 60).toString().padLeft(2, '0')}',
+                            //         style: TextStyle(fontSize: 48),
+                            //       )),
+                            //   SizedBox(height: 20),
+                            //   Obx(
+                            //     () => ElevatedButton(
+                            //       onPressed: controller.isRunning.value
+                            //           ? controller.stopTimer
+                            //           : controller.startTimer,
+                            //       child: Text(controller.isRunning.value
+                            //           ? 'Stop'
+                            //           : 'Start'),
+                            //     ),
+                            //   ),
+                            // SizedBox(height: 20),
+                            // SingleChildScrollView(
+                            //   child: Column(
+                            //     mainAxisAlignment: MainAxisAlignment.center,
+                            //     children: [
+                            //       // Your pomodoro timer widgets here
+                            //       SizedBox(height: 20),
+                            //       Obx(() => Text(
+                            //             'Current Stream: ${controller.getCurrentStreamName()}',
+                            //             style: TextStyle(fontSize: 18),
+                            //           )),
+                            //       SizedBox(height: 10),
+                            //       Row(
+                            //         mainAxisAlignment:
+                            //             MainAxisAlignment.center,
+                            //         children: [
+                            //           Obx(() => ElevatedButton(
+                            //                 onPressed:
+                            //                     controller.togglePlayPause,
+                            //                 child: Text(
+                            //                     controller.isPlaying.value
+                            //                         ? 'Pause'
+                            //                         : 'Play'),
+                            //               )),
+                            //           SizedBox(width: 20),
+                            //           ElevatedButton(
+                            //             onPressed: controller.nextStream,
+                            //             child: Text('Next Stream'),
+                            //           ),
+                            //         ],
+                            //       ),
+                            //     ],
+                            //   ),
+                            // ),
+                            Expanded(
+                              child: ListView.builder(
                                 shrinkWrap: true,
                                 itemCount: controller.upcomingEvents.length,
                                 itemBuilder: (context, index) {
@@ -209,14 +210,13 @@ class PageOneScreen extends GetWidget<PageOneController> {
                                       ),
                                     ),
                                     onTap: () {
-                                      // Handle event tap
-                                      //   controller.showEventBottomSheet(context, event: event);
+                                      showEventBottomSheet(context, event);
                                     },
                                   );
                                 },
                               ),
-                            ],
-                          ),
+                            ),
+                          ],
                         ),
                       ));
                 } else {
@@ -237,6 +237,34 @@ class PageOneScreen extends GetWidget<PageOneController> {
 
             // text quick task
           ],
+        ),
+      ),
+    );
+  }
+
+  void showEventBottomSheet(BuildContext context, QuickEventModel event) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => Padding(
+        padding: EdgeInsets.only(
+          bottom: MediaQuery.of(context).viewInsets.bottom,
+        ),
+        child: EventBottomSheet(
+          event: event,
+          initialDate: event.date,
+          onSave: (title, description, date, startTime, endTime, color) {
+            controller.updateUpcomingEvent(
+              event.id,
+              title,
+              description,
+              date,
+              startTime,
+              endTime,
+              color,
+            );
+          },
         ),
       ),
     );

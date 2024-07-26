@@ -138,6 +138,34 @@ class PageOneController extends GetxController {
       update();
     });
   }
+  
+  void updateUpcomingEvent(String eventId, String newTitle, String newDescription, DateTime newDate, TimeOfDay? newStartTime, TimeOfDay? newEndTime, Color newColor) async {
+  if (currentUser == null) return;
+  try {
+    await eventsCollection.doc(eventId).update({
+      'title': newTitle,
+      'description': newDescription,
+      'date': Timestamp.fromDate(newDate),
+      'startTime': newStartTime != null ? Timestamp.fromDate(DateTime(newDate.year, newDate.month, newDate.day, newStartTime.hour, newStartTime.minute)) : null,
+      'endTime': newEndTime != null ? Timestamp.fromDate(DateTime(newDate.year, newDate.month, newDate.day, newEndTime.hour, newEndTime.minute)) : null,
+      'color': newColor.value,
+    });
+    fetchUpcomingEvents(); // Refresh the upcoming events list
+  } catch (e) {
+    print('Error updating upcoming event: $e');
+  }
+}
+
+void deleteUpcomingEvent(String eventId) async {
+  if (currentUser == null) return;
+  try {
+    await eventsCollection.doc(eventId).delete();
+    fetchUpcomingEvents(); // Refresh the upcoming events list
+  } catch (e) {
+    print('Error deleting upcoming event: $e');
+  }
+}
+
 
   void initializePlayer() async {
     await player.setUrl(streams[currentStreamIndex.value]);
