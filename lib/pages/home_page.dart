@@ -109,97 +109,70 @@ class MyHomePage extends StatelessWidget {
   }
 
   Widget _buildGetStartedWidget(BuildContext context) {
-    final theme = Theme.of(context);
-    final ThemeController themeController = Get.find();
+    final appTheme = Get.find<AppTheme>();
 
-    return PressableDough(
-      onReleased: (s) {
-        themeController.toggleTheme();
-      },
-      child: Container(
-        height: ScaleUtil.height(310),
-        margin: ScaleUtil.all(20),
-        padding: ScaleUtil.all(20),
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(20),
-          color: theme.cardColor, //
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.2),
-              blurRadius: 10,
-              spreadRadius: 5,
+    return Obx(() => PressableDough(
+          onReleased: (s) {
+            appTheme.toggleTheme();
+          },
+          child: Container(
+            height: ScaleUtil.height(310),
+            margin: ScaleUtil.all(20),
+            padding: ScaleUtil.all(20),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(20),
+              color: appTheme.cardColor,
             ),
-          ],
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            SizedBox(
-              height: ScaleUtil.height(10),
-            ),
-            Text(
-              'Get Started',
-              style: AppTextTheme.textTheme.titleLarge,
-            ),
-            Text(
-              'Register for events, subscribe to calendars and manage events you\'re going to.',
-              style: TextStyle(color: Colors.grey),
-            ),
-            SizedBox(
-              height: ScaleUtil.height(20),
-            ),
-            ElevatedButton(
-              child: Text('Continue with Phone',
-                  style: TextStyle(fontSize: ScaleUtil.fontSize(14))),
-              onPressed: () {},
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.black,
-                minimumSize: Size(double.infinity, 50),
-              ),
-            ),
-            SizedBox(
-              height: ScaleUtil.height(16),
-            ),
-            OutlinedButton(
-              child: Text('Continue with Email'),
-              onPressed: () {},
-              style: OutlinedButton.styleFrom(
-                minimumSize: Size(double.infinity, 50),
-              ),
-            ),
-            SizedBox(
-              height: ScaleUtil.height(16),
-            ),
-            Row(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Expanded(
-                  child: OutlinedButton(
-                    child: Icon(Icons.apple),
-                    onPressed: () {},
-                    style: OutlinedButton.styleFrom(
-                      minimumSize: Size(0, 50),
-                    ),
-                  ),
+                SizedBox(height: ScaleUtil.height(10)),
+                Text('Get Started', style: appTheme.titleLarge),
+                Text(
+                  'Register for events, subscribe to calendars and manage events you\'re going to.',
+                  style: appTheme.bodyMedium,
                 ),
-                SizedBox(
-                  width: ScaleUtil.width(10),
-                ),
-                Expanded(
-                  child: OutlinedButton(
-                    child: Text('G'),
-                    onPressed: () {},
-                    style: OutlinedButton.styleFrom(
-                      minimumSize: Size(0, 50),
-                    ),
+                SizedBox(height: ScaleUtil.height(20)),
+                ElevatedButton(
+                  child: Text(
+                    'Continue with Phone',
                   ),
+                  onPressed: () {},
+                  style: appTheme.primaryButtonStyle,
+                ),
+                SizedBox(height: ScaleUtil.height(16)),
+                ElevatedButton(
+                  child: Text('Continue with Email'),
+                  onPressed: () {
+                    Get.toNamed(AppRoutes.LOGIN);
+                  },
+                  style: appTheme.primaryButtonStyle,
+                ),
+                SizedBox(height: ScaleUtil.height(16)),
+                Row(
+                  children: [
+                    Expanded(
+                      child: ElevatedButton(
+                        child: Icon(Icons.apple),
+                        onPressed: () {},
+                        style: appTheme.primaryButtonStyle,
+                      ),
+                    ),
+                    SizedBox(width: ScaleUtil.width(10)),
+                    Expanded(
+                      child: ElevatedButton(
+                        child: Text('G'),
+                        onPressed: () {},
+                        style: appTheme.primaryButtonStyle,
+                      ),
+                    ),
+                  ],
                 ),
               ],
             ),
-          ],
-        ),
-      ),
-    );
+          ),
+        ));
   }
 }
 

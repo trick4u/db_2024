@@ -33,6 +33,7 @@ import 'projectPages/page_three.dart';
 import 'package:timezone/timezone.dart' as tz;
 import 'package:workmanager/workmanager.dart';
 
+import 'services/app_text_style.dart';
 import 'services/notification_service.dart';
 import 'services/scale_util.dart';
 
@@ -170,15 +171,27 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     final HomeController homeController = Get.put(HomeController());
     final ThemeController themeController = Get.put(ThemeController());
+    final appTheme =
+   Get.put(AppTheme());
 
  return Obx(() => GetMaterialApp(
           title: 'DoBoard Demo',
           debugShowCheckedModeBanner: false,
-          darkTheme: ThemeData.dark(),
-          theme: ThemeData.light(),
-          themeMode: themeController.isDarkMode.value
-              ? ThemeMode.light
-              : ThemeMode.dark,
+          theme: ThemeData.light().copyWith(
+        colorScheme: AppTheme.lightColorScheme,
+        textTheme: TextTheme(
+          titleLarge: appTheme.titleLarge,
+          bodyMedium: appTheme.bodyMedium,
+        ),
+      ),
+      darkTheme: ThemeData.dark().copyWith(
+        colorScheme: AppTheme.darkColorScheme,
+        textTheme: TextTheme(
+          titleLarge: appTheme.titleLarge,
+          bodyMedium: appTheme.bodyMedium,
+        ),
+      ),
+           themeMode: appTheme.isDarkMode ? ThemeMode.dark : ThemeMode.light,
           initialBinding: InitialBinding(),
           initialRoute: AppRoutes.HOME,
           getPages: AppRoutes.routes,

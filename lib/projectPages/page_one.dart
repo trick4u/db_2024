@@ -525,11 +525,7 @@ class JustCheck extends StatelessWidget {
                                   },
                                   child: Text('Registry check'),
                                 ),
-                                ElevatedButton(
-                                    onPressed: () {
-                                      Get.to(() => LoginPage());
-                                    },
-                                    child: Text('Login check')),
+                              
                                 ElevatedButton(
                                     onPressed: () {
                                       Get.to(() => MainScreenOne());
@@ -760,100 +756,7 @@ class GlowingButton extends StatelessWidget {
   }
 }
 
-class LoginPage extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    final ThemeController themeController = Get.put(ThemeController());
 
-    return Scaffold(
-      body: Center(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 24.0),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Text(
-                'Hello Again!',
-              ),
-              SizedBox(height: 8.0),
-              Text(
-                'Welcome back you\'ve been missed!',
-                //
-              ),
-              SizedBox(height: 16.0),
-              TextField(
-                decoration: InputDecoration(
-                  hintText: 'Enter username',
-                ),
-              ),
-              SizedBox(height: 16.0),
-              TextField(
-                decoration: InputDecoration(
-                  hintText: 'Password',
-                  suffixIcon: Icon(Icons.visibility, color: Colors.white70),
-                ),
-                obscureText: true,
-              ),
-              SizedBox(height: 16.0),
-              TextButton(
-                onPressed: () {},
-                child: Text(
-                  'Recovery Password',
-                  style: TextStyle(color: Colors.white70),
-                ),
-              ),
-              SizedBox(height: 16.0),
-              ElevatedButton(
-                onPressed: () {},
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.redAccent,
-                  padding: EdgeInsets.symmetric(horizontal: 50, vertical: 15),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12.0),
-                  ),
-                ),
-                child: Text('Sign In'),
-              ),
-              SizedBox(height: 16.0),
-              Text('Or continue with',
-                  style: Theme.of(context).textTheme.bodyLarge),
-              SizedBox(height: 16.0),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  IconButton(
-                    icon: Icon(Icons.account_circle, color: Colors.white70),
-                    onPressed: () {},
-                  ),
-                  IconButton(
-                    icon: Icon(Icons.account_circle, color: Colors.white70),
-                    onPressed: () {},
-                  ),
-                  IconButton(
-                    icon: Icon(Icons.account_circle, color: Colors.white70),
-                    onPressed: () {},
-                  ),
-                ],
-              ),
-              SizedBox(height: 16.0),
-              TextButton(
-                onPressed: () {},
-                child: Text(
-                  'Register now',
-                  style: TextStyle(color: Colors.blueAccent),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: themeController.toggleTheme,
-        child: Icon(Icons.brightness_6),
-      ),
-    );
-  }
-}
 
 class PomodoroView extends StatelessWidget {
   final PomodoroController controller = Get.put(PomodoroController());

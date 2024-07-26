@@ -2,6 +2,7 @@ import 'package:get/get.dart';
 
 import 'bindings/email_binding.dart';
 import 'bindings/home_binding.dart';
+import 'bindings/login_binding.dart';
 import 'bindings/main_screen_binding.dart';
 import 'bindings/network_binding.dart';
 import 'bindings/otp_binding.dart';
@@ -9,6 +10,7 @@ import 'bindings/phone_binding.dart';
 import 'bindings/initial_binding.dart';
 import 'pages/email_verification.dart';
 import 'pages/home_page.dart';
+import 'pages/login_page.dart';
 import 'pages/network_screen.dart';
 import 'projectBinding/add_everything_binding.dart';
 import 'projectBinding/add_taskBinding.dart';
@@ -69,6 +71,12 @@ class AppRoutes {
   static const String NOTES = '/notes';
 
   static List<GetPage> routes = [
+    GetPage(
+      name: LOGIN,
+      page: () => LoginPage(),
+      binding: LoginBinding(),
+    
+    ),
     GetPage(
       name: NOTES,
       page: () => NotesPage(),
