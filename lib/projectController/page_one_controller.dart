@@ -27,11 +27,9 @@ class PageOneController extends GetxController {
   var fireStoreInstance = FirebaseFirestore.instance;
   var repeat = false.obs;
   var text = "".obs;
-  
+
   final FirebaseAuth _auth = FirebaseAuth.instance;
   var goalsList = <Goals>[].obs;
-
- 
 
   RxInt carouselPageIndex = 0.obs;
   // Rx<GoalsModel> allGoals = GoalsModel().obs;
@@ -42,7 +40,8 @@ class PageOneController extends GetxController {
   Rx<RxStatus> goalsStatus = RxStatus.loading().obs;
 
   var greeting = ''.obs;
-    RxList<QuickEventModel> upcomingEvents = <QuickEventModel>[].obs;
+  RxList<QuickEventModel> upcomingEvents = <QuickEventModel>[].obs;
+  RxList<QuickEventModel> pendingEvents = <QuickEventModel>[].obs;
   User? currentUser = FirebaseAuth.instance.currentUser;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
@@ -52,7 +51,6 @@ class PageOneController extends GetxController {
         .doc(currentUser?.uid)
         .collection('events');
   }
-
 
   //pomodor timer
   var isRunning = false.obs;
@@ -65,25 +63,24 @@ class PageOneController extends GetxController {
   final Color endColor = Color(0xFFF44336);
   late Timer _colorTimer;
   var backgroundColor = Color(0xFF2196F3).obs;
-   final player = AudioPlayer();
+  final player = AudioPlayer();
   var isPlaying = false.obs;
   var currentStreamIndex = 0.obs;
-  
+
   var isLoading = true.obs;
   final Dio dio = Dio();
 
-   final List<String> streams = [
+  final List<String> streams = [
     'https://play.streamafrica.net/lofiradio',
-    
     'https://play.streamafrica.net/classicalradio',
-
   ];
 
   @override
   void onInit() {
     //   getAllGoals();
     fetchUpcomingEvents();
-    
+    fetchPendingEvents();
+
     audioPlayer = AudioPlayer();
     initializePlayer();
     reminderTextController = TextEditingController();
@@ -116,7 +113,28 @@ class PageOneController extends GetxController {
     super.dispose();
   }
 
-   void fetchUpcomingEvents() {
+  void fetchPendingEvents() {
+    if (currentUser == null) return;
+
+    DateTime now = DateTime.now();
+    DateTime startDate =
+        now.subtract(Duration(days: 30)); // Fetch events from the last 30 days
+
+    eventsCollection
+        .where('date', isGreaterThanOrEqualTo: startDate)
+        .where('date', isLessThan: now)
+        .orderBy('date', descending: true)
+        .limit(10) // Limit to 10 pending events
+        .snapshots()
+        .listen((querySnapshot) {
+      pendingEvents.value = querySnapshot.docs
+          .map((doc) => QuickEventModel.fromFirestore(doc))
+          .toList();
+      update();
+    });
+  }
+
+  void fetchUpcomingEvents() {
     if (currentUser == null) return;
 
     DateTime now = DateTime.now();
@@ -138,34 +156,46 @@ class PageOneController extends GetxController {
       update();
     });
   }
-  
-  void updateUpcomingEvent(String eventId, String newTitle, String newDescription, DateTime newDate, TimeOfDay? newStartTime, TimeOfDay? newEndTime, Color newColor) async {
-  if (currentUser == null) return;
-  try {
-    await eventsCollection.doc(eventId).update({
-      'title': newTitle,
-      'description': newDescription,
-      'date': Timestamp.fromDate(newDate),
-      'startTime': newStartTime != null ? Timestamp.fromDate(DateTime(newDate.year, newDate.month, newDate.day, newStartTime.hour, newStartTime.minute)) : null,
-      'endTime': newEndTime != null ? Timestamp.fromDate(DateTime(newDate.year, newDate.month, newDate.day, newEndTime.hour, newEndTime.minute)) : null,
-      'color': newColor.value,
-    });
-    fetchUpcomingEvents(); // Refresh the upcoming events list
-  } catch (e) {
-    print('Error updating upcoming event: $e');
-  }
-}
 
-void deleteUpcomingEvent(String eventId) async {
-  if (currentUser == null) return;
-  try {
-    await eventsCollection.doc(eventId).delete();
-    fetchUpcomingEvents(); // Refresh the upcoming events list
-  } catch (e) {
-    print('Error deleting upcoming event: $e');
+  void updateUpcomingEvent(
+      String eventId,
+      String newTitle,
+      String newDescription,
+      DateTime newDate,
+      TimeOfDay? newStartTime,
+      TimeOfDay? newEndTime,
+      Color newColor) async {
+    if (currentUser == null) return;
+    try {
+      await eventsCollection.doc(eventId).update({
+        'title': newTitle,
+        'description': newDescription,
+        'date': Timestamp.fromDate(newDate),
+        'startTime': newStartTime != null
+            ? Timestamp.fromDate(DateTime(newDate.year, newDate.month,
+                newDate.day, newStartTime.hour, newStartTime.minute))
+            : null,
+        'endTime': newEndTime != null
+            ? Timestamp.fromDate(DateTime(newDate.year, newDate.month,
+                newDate.day, newEndTime.hour, newEndTime.minute))
+            : null,
+        'color': newColor.value,
+      });
+      fetchUpcomingEvents(); // Refresh the upcoming events list
+    } catch (e) {
+      print('Error updating upcoming event: $e');
+    }
   }
-}
 
+  void deleteUpcomingEvent(String eventId) async {
+    if (currentUser == null) return;
+    try {
+      await eventsCollection.doc(eventId).delete();
+      fetchUpcomingEvents(); // Refresh the upcoming events list
+    } catch (e) {
+      print('Error deleting upcoming event: $e');
+    }
+  }
 
   void initializePlayer() async {
     await player.setUrl(streams[currentStreamIndex.value]);
@@ -190,10 +220,12 @@ void deleteUpcomingEvent(String eventId) async {
   }
 
   String getCurrentStreamName() {
-    List<String> names = ['Lo-Fi',  'Classical', ];
+    List<String> names = [
+      'Lo-Fi',
+      'Classical',
+    ];
     return names[currentStreamIndex.value];
   }
-
 
   @override
   void onClose() {
@@ -260,7 +292,7 @@ void deleteUpcomingEvent(String eventId) async {
     } else if (now.hour >= 12 && now.hour < 17) {
       greeting.value = 'Good Afternoon';
     } else {
-      greeting.value = 'Good Evening';
+      greeting.value = 'good evening.';
     }
   }
 
@@ -522,5 +554,3 @@ void deleteUpcomingEvent(String eventId) async {
     }
   }
 }
-
-

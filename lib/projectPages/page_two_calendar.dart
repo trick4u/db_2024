@@ -275,6 +275,9 @@ class CalendarPage extends StatelessWidget {
                                     controller.showEventBottomSheet(context,
                                         event: event);
                                   },
+                                  onArchive: (event) {
+                                    controller.addToArchive(event.id);
+                                  },
                                   onDelete: (event) {
                                     // Show a confirmation dialog before deleting
                                     showDialog(

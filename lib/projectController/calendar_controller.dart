@@ -162,8 +162,10 @@ class CalendarController extends GetxController {
         'description': description,
         'date': Timestamp.fromDate(date),
         'startTime': startTime != null
-            ? Timestamp.fromDate(DateTime(date.year, date.month, date.day,
-                startTime.hour, startTime.minute))
+            ? Timestamp.fromDate(
+                DateTime(date.year, date.month, date.day, startTime.hour,
+                    startTime.minute),
+              )
             : null,
         'endTime': endTime != null
             ? Timestamp.fromDate(DateTime(
@@ -204,6 +206,34 @@ class CalendarController extends GetxController {
       fetchEvents(newDate);
     } catch (e) {
       print('Error updating event: $e');
+    }
+  }
+
+   void addToArchive(String eventId) async {
+    if (currentUser == null) return;
+    try {
+      // Get the event document
+      DocumentSnapshot eventDoc = await eventsCollection.doc(eventId).get();
+      
+      // If the document exists
+      if (eventDoc.exists) {
+        // Create a new document in the archive collection
+        await _firestore
+            .collection('users')
+            .doc(currentUser?.uid)
+            .collection('archivedEvents')
+            .doc(eventId)
+            .set(eventDoc.data() as Map<String, dynamic>);
+        
+        // Delete the event from the active events collection
+        await eventsCollection.doc(eventId).delete();
+        
+        // Refresh the events
+        fetchEvents(selectedDay);
+      
+      }
+    } catch (e) {
+      print('Error archiving event: $e');
     }
   }
 }

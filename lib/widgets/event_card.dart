@@ -10,12 +10,14 @@ class EventCard extends StatelessWidget {
   final QuickEventModel event;
   final Function(QuickEventModel) onDelete;
   final Function(QuickEventModel) onEdit;
+   final Function(QuickEventModel) onArchive;
 
   EventCard({
     Key? key,
     required this.event,
     required this.onDelete,
     required this.onEdit,
+    required this.onArchive,
   }) : super(key: key);
 
   @override
@@ -31,7 +33,8 @@ class EventCard extends StatelessWidget {
             label: 'Archive',
             color: Colors.green,
             onTap: () {
-              // Implement archive functionality
+              onArchive(event);
+              
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(content: Text('Archive action')),
               );

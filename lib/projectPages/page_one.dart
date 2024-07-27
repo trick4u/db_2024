@@ -19,6 +19,7 @@ import '../projectController/page_one_controller.dart';
 import '../projectController/pomodoro_controller.dart';
 import '../temp/music_view.dart';
 import '../widgets/event_bottomSheet.dart';
+import '../widgets/event_card.dart';
 import '../widgets/four_boxes.dart';
 import '../widgets/goals_box.dart';
 import '../widgets/quick_reminder_chips.dart';
@@ -192,28 +193,59 @@ class PageOneScreen extends GetWidget<PageOneController> {
                             //   ),
                             // ),
                             Expanded(
-                              child: ListView.builder(
-                                shrinkWrap: true,
-                                itemCount: controller.upcomingEvents.length,
-                                itemBuilder: (context, index) {
-                                  QuickEventModel event =
-                                      controller.upcomingEvents[index];
-                                  return ListTile(
-                                    title: Text(event.title),
-                                    subtitle: Text('${event.description} '),
-                                    leading: Container(
-                                      width: 12,
-                                      height: 12,
-                                      decoration: BoxDecoration(
-                                        shape: BoxShape.circle,
-                                        color: Colors.red,
-                                      ),
-                                    ),
-                                    onTap: () {
-                                      showEventBottomSheet(context, event);
+                              child: Column(
+                                children: [
+                                  ListView.builder(
+                                    shrinkWrap: true,
+                                    itemCount: controller.upcomingEvents.length,
+                                    itemBuilder: (context, index) {
+                                      QuickEventModel event =
+                                          controller.upcomingEvents[index];
+                                      return ListTile(
+                                        title: Text(event.title),
+                                        subtitle: Text('${event.description} '),
+                                        leading: Container(
+                                          width: 12,
+                                          height: 12,
+                                          decoration: BoxDecoration(
+                                            shape: BoxShape.circle,
+                                            color: Colors.red,
+                                          ),
+                                        ),
+                                        onTap: () {
+                                          showEventBottomSheet(context, event);
+                                        },
+                                      );
                                     },
-                                  );
-                                },
+                                  ),
+                                  // pending events
+                                  // Obx(() => ListView.builder(
+                                  //       shrinkWrap: true,
+                                  //       itemCount:
+                                  //           controller.pendingEvents.length,
+                                  //       itemBuilder: (context, index) {
+                                  //         QuickEventModel event =
+                                  //             controller.pendingEvents[index];
+                                  //         return ListTile(
+                                  //           title: Text(event.title),
+                                  //           subtitle:
+                                  //               Text('${event.description} '),
+                                  //           leading: Container(
+                                  //             width: 12,
+                                  //             height: 12,
+                                  //             decoration: BoxDecoration(
+                                  //               shape: BoxShape.circle,
+                                  //               color: Colors.red,
+                                  //             ),
+                                  //           ),
+                                  //           onTap: () {
+                                  //             showEventBottomSheet(
+                                  //                 context, event);
+                                  //           },
+                                  //         );
+                                  //       },
+                                  //     ),),
+                                ],
                               ),
                             ),
                           ],
@@ -505,20 +537,6 @@ class PageOneBottomPart extends GetWidget<PageOneController> {
     );
   }
 }
-
-// ListView.builder(
-//                 itemCount: controller.allGoals.length,
-//                 itemBuilder: (context, index) {
-//                   return ListTile(
-//                     title: Text(
-//                       controller.allGoals.elementAt(index).goal ?? "",
-//                       style: TextStyle(color: Colors.white),
-//                     ),
-//                     //  subtitle: Text(),
-//                   );
-//                 },
-
-//               ),
 
 class JustCheck extends StatelessWidget {
   @override
