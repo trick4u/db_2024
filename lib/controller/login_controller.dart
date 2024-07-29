@@ -69,7 +69,7 @@ class LoginController extends GetxController {
     // For example, query Firestore to get the email associated with the username
     QuerySnapshot query = await FirebaseFirestore.instance
         .collection('users')
-        .where('userName', isEqualTo: username)
+        .where('username', isEqualTo: username)
         .limit(1)
         .get();
 

@@ -1,4 +1,7 @@
 import 'package:get/get.dart';
+import 'package:tushar_db/bindings/register_binding.dart';
+import 'package:tushar_db/pages/register_page.dart';
+import 'package:tushar_db/projectPages/vision_board_page.dart';
 
 import 'bindings/email_binding.dart';
 import 'bindings/home_binding.dart';
@@ -20,6 +23,7 @@ import 'projectBinding/notes_binding.dart';
 import 'projectBinding/page_one_binding.dart';
 import 'projectBinding/profile_bindings.dart';
 import 'projectBinding/three_tasks_binding.dart';
+import 'projectBinding/vision_board_binding.dart';
 import 'projectPages/add_everyting.dart';
 import 'projectPages/add_task.dart';
 import 'projectPages/eat_the_frog.dart';
@@ -69,13 +73,23 @@ class AppRoutes {
   static const String THREETASKSSCREEN = '/threeTasksScreen';
   //notes
   static const String NOTES = '/notes';
+  static const String VISIONBOARD = '/visionBoard';
 
   static List<GetPage> routes = [
+    GetPage(
+      name: REGISTER,
+      page: () => RegisterPage(),
+      binding: RegisterBinding(),
+    ),
+    GetPage(
+      name: VISIONBOARD,
+      page: () => VisionBoardPage(),
+      binding: VisionBoardBinding(),
+    ),
     GetPage(
       name: LOGIN,
       page: () => LoginPage(),
       binding: LoginBinding(),
-    
     ),
     GetPage(
       name: NOTES,

@@ -10,9 +10,12 @@ class ProfileController extends GetxController {
   var firebaseFireStore = FirebaseFirestore.instance;
 
   //log out
-  void logout() {
-    FirebaseAuth.instance.signOut();
-    Get.offAllNamed(AppRoutes.HOME);
+  void logout() async {
+    FirebaseAuth.instance.currentUser?.reload();
+    await FirebaseAuth.instance.signOut();
+
+    await Get.offAllNamed(AppRoutes.HOME);
+    print('Logged out');
   }
 
   //delete account

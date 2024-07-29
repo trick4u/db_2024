@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:tushar_db/app_routes.dart';
 import 'package:tushar_db/services/scale_util.dart';
 
 import '../controller/login_controller.dart';
@@ -134,10 +135,10 @@ class LoginPage extends GetWidget<LoginController> {
                           : Text('Login'),
                     )),
                 SizedBox(height: ScaleUtil.height(10.0)),
-                SizedBox(height: ScaleUtil.height(10.0)),
-                SizedBox(height: ScaleUtil.height(10.0)),
                 TextButton(
-                  onPressed: () {},
+                  onPressed: () {
+                    Get.toNamed(AppRoutes.REGISTER);
+                  },
                   child: Text(
                     'Register now',
                     style: TextStyle(color: Colors.blueAccent),

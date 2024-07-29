@@ -9,6 +9,7 @@ import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:table_calendar/table_calendar.dart';
+import 'package:tushar_db/services/scale_util.dart';
 
 import '../projectController/calendar_controller.dart';
 import '../widgets/calendar_header.dart';
@@ -42,7 +43,11 @@ class CalendarPage extends StatelessWidget {
                   CustomCalendarHeader(controller: controller),
                   PressableDough(
                     onReleased: (d) {
-                      controller.showEventBottomSheet(context);
+                      if (controller.canAddEvent(controller.selectedDay)) {
+                        controller.showEventBottomSheet(context);
+                      } else {
+                        return;
+                      }
                     },
                     child: Card(
                       elevation: 4,
@@ -53,6 +58,7 @@ class CalendarPage extends StatelessWidget {
                             firstDay: DateTime.utc(2023, 01, 01),
                             lastDay: DateTime.utc(2030, 12, 31),
                             focusedDay: controller.focusedDay,
+                            daysOfWeekHeight: 40,
                             eventLoader: controller
                                 .getEventsForDay(controller.selectedDay),
                             selectedDayPredicate: (day) {
@@ -69,6 +75,9 @@ class CalendarPage extends StatelessWidget {
                             onPageChanged: (focusedDay) {
                               controller.setFocusedDay(focusedDay);
                             },
+                            calendarStyle: CalendarStyle(
+                                outsideDaysVisible: false,
+                                cellMargin: ScaleUtil.all(4)),
                             headerVisible: false,
                             headerStyle: HeaderStyle(
                               formatButtonVisible: false,
@@ -255,7 +264,10 @@ class CalendarPage extends StatelessWidget {
                           ? Center(
                               child: InkWell(
                                 onTap: () {
-                                  controller.showEventBottomSheet(context);
+                                  if (controller
+                                      .canAddEvent(controller.selectedDay)) {
+                                    controller.showEventBottomSheet(context);
+                                  }
                                 },
                                 child: Text(
                                   'No events for ${DateFormat('MMMM dd yyy').format(controller.selectedDay)} ',

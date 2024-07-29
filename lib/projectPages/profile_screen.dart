@@ -1,13 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:tushar_db/app_routes.dart';
 
 import '../projectController/profile_controller.dart';
 
 class ProfileScreen extends StatelessWidget {
-  final ProfileController controller = Get.put(ProfileController());
+  var controller = Get.put(ProfileController());
 
   @override
   Widget build(BuildContext context) {
+    Get.put(ProfileController());
     return Scaffold(
       backgroundColor: Color(0xFF181923),
       appBar: AppBar(
@@ -47,10 +49,6 @@ class ProfileScreen extends StatelessWidget {
                 ],
                 color: Colors.blue,
                 shape: BoxShape.rectangle,
-                image: DecorationImage(
-                  image: AssetImage('assets/images/profile.jpg'),
-                  fit: BoxFit.cover,
-                ),
               ),
             ),
             SizedBox(height: 16),
@@ -73,8 +71,18 @@ class ProfileScreen extends StatelessWidget {
             ),
             Spacer(),
             _buildOptionTile('Show me as away', isSwitch: true),
-            _buildOptionTile('My Projects'),
-            _buildOptionTile('Join A Team'),
+            _buildOptionTile('Theme'),
+            _buildOptionTile('Vision board', onTap: () {
+              // Handle vision board action
+              Get.toNamed(AppRoutes.VISIONBOARD);
+            }),
+            _buildOptionTile(
+                  'logout',
+                  onTap: () {
+                    controller.logout();
+                    print('Logged out');
+                  },
+                ),
             InkWell(
               onTap: () {
                 controller.deleteAccount();
@@ -84,8 +92,7 @@ class ProfileScreen extends StatelessWidget {
               ),
             ),
 
-            InkWell(
-                child: _buildOptionTile('logout'), onTap: controller.logout),
+        
 
             SizedBox(height: 20),
           ],
@@ -94,29 +101,40 @@ class ProfileScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildOptionTile(String title, {bool isSwitch = false}) {
-    return Container(
-      padding: EdgeInsets.symmetric(vertical: 12, horizontal: 16),
-      margin: EdgeInsets.only(bottom: 8),
-      decoration: BoxDecoration(
-        color: Colors.grey[900],
-        borderRadius: BorderRadius.circular(8),
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(title, style: TextStyle(color: Colors.white)),
-          if (isSwitch)
-            Switch(
-              value: false,
-              onChanged: (value) {
-                // Handle switch change
-              },
-              activeColor: Colors.blue,
-            )
-          else
-            Icon(Icons.arrow_forward_ios, color: Colors.grey, size: 16),
-        ],
+  Widget _buildOptionTile(
+    String title, {
+    bool isSwitch = false,
+    VoidCallback? onTap,
+  }) {
+    return InkWell(
+      onTap: () {
+        if (onTap != null) {
+          onTap();
+        }
+      },
+      child: Container(
+        padding: EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+        margin: EdgeInsets.only(bottom: 8),
+        decoration: BoxDecoration(
+          color: Colors.grey[900],
+          borderRadius: BorderRadius.circular(8),
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(title, style: TextStyle(color: Colors.white)),
+            if (isSwitch)
+              Switch(
+                value: false,
+                onChanged: (value) {
+                  // Handle switch change
+                },
+                activeColor: Colors.blue,
+              )
+            else
+              Icon(Icons.arrow_forward_ios, color: Colors.grey, size: 16),
+          ],
+        ),
       ),
     );
   }

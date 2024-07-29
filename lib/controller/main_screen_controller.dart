@@ -5,6 +5,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
 import 'package:tushar_db/constants/colors.dart';
 import 'package:tushar_db/projectController/calendar_controller.dart';
+import 'package:tushar_db/projectController/profile_controller.dart';
 import 'package:tushar_db/projectPages/goals.dart';
 
 import '../models/quick_event_mode.dart';
@@ -47,8 +48,9 @@ class MainScreenController extends GetxController
       Get.lazyPut<PageThreecontroller>(() => PageThreecontroller());
       showDialog(context);
     } else if (currentIndex.value == 3) {
-      //  Get.lazyPut<AwesomeNoti>(() => AwesomeNoti());
+      Get.lazyPut<ProfileController>(() => ProfileController());
     }
+    
   }
 
   @override

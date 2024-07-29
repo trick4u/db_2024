@@ -33,6 +33,8 @@ class CalendarController extends GetxController {
     fetchEvents(selectedDay);
   }
 
+  
+
   void setCalendarFormat(CalendarFormat format) {
     calendarFormat = format;
     update();
@@ -62,12 +64,27 @@ class CalendarController extends GetxController {
     );
   }
 
-  void setSelectedDay(DateTime day) {
-    selectedDay = day;
-    fetchEvents(day);
-    update();
+ bool canSelectDay(DateTime day) {
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    return day.isAfter(today.subtract(Duration(days: 1))) || isSameDay(day, today);
   }
 
+  void setSelectedDay(DateTime day) {
+    if (canSelectDay(day)) {
+      selectedDay = day;
+      setFocusedDay(day);
+      fetchEvents(day);
+      update();
+    }
+  }
+
+  bool canAddEvent(DateTime day) {
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    return day.isAfter(today.subtract(Duration(days: 1)));
+  }
+  
   void toggleCalendarFormat() {
     calendarFormat = calendarFormat == CalendarFormat.month
         ? CalendarFormat.week
