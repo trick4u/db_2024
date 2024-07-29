@@ -12,6 +12,7 @@ import 'package:tushar_db/services/app_text_style.dart';
 import '../app_routes.dart';
 import '../controller/home_controller.dart';
 import '../controller/theme_controller.dart';
+import '../services/app_theme.dart';
 import '../services/scale_util.dart';
 import '../widgets/registration_form.dart';
 

@@ -18,6 +18,7 @@ import 'package:tushar_db/controller/theme_controller.dart';
 import 'package:tushar_db/firebase_options.dart';
 import 'package:tushar_db/pages/splash_screen.dart';
 import 'package:tushar_db/projectPages/main_screen.dart';
+import 'package:tushar_db/services/auth_wrapper.dart';
 import 'package:tushar_db/theme.dart';
 
 import 'app_routes.dart';
@@ -34,6 +35,8 @@ import 'package:timezone/timezone.dart' as tz;
 import 'package:workmanager/workmanager.dart';
 
 import 'services/app_text_style.dart';
+import 'services/app_theme.dart';
+import 'services/auth_service.dart';
 import 'services/notification_service.dart';
 import 'services/scale_util.dart';
 
@@ -55,14 +58,15 @@ void callbackDispatcher() {
     return Future.value(true);
   });
 }
+
 void main() async {
   await GetStorage.init();
 
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
-
+  Get.put(AuthService());
   await initializeTimeZone();
- if (Platform.isAndroid) {
+  if (Platform.isAndroid) {
     await Workmanager().initialize(callbackDispatcher, isInDebugMode: true);
   }
   print('WorkManager initialized!');
@@ -150,8 +154,6 @@ void main() async {
     }
   });
 
-
-
   runApp(const MyApp());
 }
 
@@ -169,38 +171,37 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final HomeController homeController = Get.put(HomeController());
-    final ThemeController themeController = Get.put(ThemeController());
-    final appTheme =
-   Get.put(AppTheme());
+    final appTheme = Get.put(AppTheme());
 
- return Obx(() => GetMaterialApp(
+    return Obx(() => GetMaterialApp(
           title: 'DoBoard Demo',
           debugShowCheckedModeBanner: false,
           theme: ThemeData.light().copyWith(
-        colorScheme: AppTheme.lightColorScheme,
-        textTheme: TextTheme(
-          titleLarge: appTheme.titleLarge,
-          bodyMedium: appTheme.bodyMedium,
-        ),
-      ),
-      darkTheme: ThemeData.dark().copyWith(
-        colorScheme: AppTheme.darkColorScheme,
-        textTheme: TextTheme(
-          titleLarge: appTheme.titleLarge,
-          bodyMedium: appTheme.bodyMedium,
-        ),
-      ),
-           themeMode: appTheme.isDarkMode ? ThemeMode.dark : ThemeMode.light,
+          
+            colorScheme: AppTheme.lightColorScheme,
+            textTheme: TextTheme(
+              titleLarge: appTheme.titleLarge,
+              bodyMedium: appTheme.bodyMedium,
+            ),
+          ),
+          darkTheme: ThemeData.dark().copyWith(
+            colorScheme: AppTheme.darkColorScheme,
+            textTheme: TextTheme(
+              titleLarge: appTheme.titleLarge,
+              bodyMedium: appTheme.bodyMedium,
+            ),
+          ),
+          themeMode: appTheme.isDarkMode ? ThemeMode.dark : ThemeMode.light,
+         // home: AuthWrapper(),
           initialBinding: InitialBinding(),
           initialRoute: AppRoutes.HOME,
           getPages: AppRoutes.routes,
           builder: (context, child) {
             ScaleUtil();
-            
-           
+
             return MediaQuery(
-              data: MediaQuery.of(context).copyWith(textScaler: TextScaler.linear(1.0)),
+              data: MediaQuery.of(context)
+                  .copyWith(textScaler: TextScaler.linear(1.0)),
               child: child!,
             );
           },

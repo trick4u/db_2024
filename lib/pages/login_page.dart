@@ -6,6 +6,7 @@ import 'package:tushar_db/services/scale_util.dart';
 import '../controller/login_controller.dart';
 import '../controller/theme_controller.dart';
 import '../services/app_text_style.dart';
+import '../services/app_theme.dart';
 
 class LoginPage extends GetWidget<LoginController> {
   final appTheme = Get.find<AppTheme>();

@@ -5,6 +5,7 @@ import 'package:get/get.dart';
 import '../models/quick_event_mode.dart';
 import '../projectController/calendar_controller.dart';
 import '../services/app_text_style.dart';
+import '../services/app_theme.dart';
 
 class EventBottomSheet extends StatefulWidget {
   final QuickEventModel? event;
