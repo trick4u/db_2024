@@ -31,8 +31,12 @@ import 'main_screen.dart';
 import 'music_page.dart';
 
 class PageOneScreen extends GetWidget<PageOneController> {
+
+  
+ 
   @override
   Widget build(BuildContext context) {
+   
     return SafeArea(
       child: Container(
         height: MediaQuery.of(context).size.height,

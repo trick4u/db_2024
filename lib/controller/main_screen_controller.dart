@@ -9,6 +9,7 @@ import 'package:tushar_db/projectController/profile_controller.dart';
 import 'package:tushar_db/projectPages/goals.dart';
 
 import '../models/quick_event_mode.dart';
+import '../projectController/page_one_controller.dart';
 import '../projectController/page_threeController.dart';
 import '../projectPages/awesome_noti.dart';
 import '../projectPages/main_screen.dart';
@@ -42,6 +43,9 @@ class MainScreenController extends GetxController
     BuildContext context,
   ) {
     currentIndex.value = index;
+    if (currentIndex.value == 0) {
+      Get.put(PageOneController());
+    } else 
     if (currentIndex.value == 1) {
       Get.lazyPut<CalendarController>(() => CalendarController());
     } else if (currentIndex.value == 2) {

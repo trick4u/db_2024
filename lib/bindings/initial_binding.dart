@@ -7,6 +7,7 @@ import '../controller/main_screen_controller.dart';
 import '../controller/network_controller.dart';
 import '../controller/splash_controller.dart';
 import '../controller/work_manager_controller.dart';
+import '../projectController/page_one_controller.dart';
 import '../services/scale_util.dart';
 
 class InitialBinding extends Bindings {
@@ -15,6 +16,9 @@ class InitialBinding extends Bindings {
     Get.lazyPut<SplashController>(() => SplashController());
 
     Get.lazyPut<MainScreenController>(() => MainScreenController(),
+        fenix: true);
+        
+    Get.lazyPut<PageOneController>(() => PageOneController(),
         fenix: true);
     Get.put(NetworkController(), permanent: true);
   

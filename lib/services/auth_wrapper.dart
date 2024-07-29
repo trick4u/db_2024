@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:tushar_db/pages/home_page.dart';
 
 import '../pages/login_page.dart';
 import '../projectPages/main_screen.dart';
@@ -13,7 +14,7 @@ class AuthWrapper extends StatelessWidget {
     return Obx(() {
       if (authService.user.value == null) {
         // User is not authenticated
-        return LoginPage();
+        return MyHomePage();
       } else {
         // User is authenticated, now check if they're in the database
         return FutureBuilder<bool>(
@@ -22,7 +23,11 @@ class AuthWrapper extends StatelessWidget {
             if (snapshot.connectionState == ConnectionState.waiting) {
               return Scaffold(body: Center(child: CircularProgressIndicator()));
             } else if (snapshot.hasError) {
-              return Scaffold(body: Center(child: Text('An error occurred')));
+              return Scaffold(
+                body: Center(
+                  child: Text('An error occurred'),
+                ),
+              );
             } else if (snapshot.data == true) {
               // User is in the database, navigate to MainScreen
               return MainScreen();

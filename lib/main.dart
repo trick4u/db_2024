@@ -192,9 +192,9 @@ class MyApp extends StatelessWidget {
             ),
           ),
           themeMode: appTheme.isDarkMode ? ThemeMode.dark : ThemeMode.light,
-         // home: AuthWrapper(),
+    
           initialBinding: InitialBinding(),
-          initialRoute: AppRoutes.HOME,
+          initialRoute: AppRoutes.AUTHWRAPPER,
           getPages: AppRoutes.routes,
           builder: (context, child) {
             ScaleUtil();

@@ -2,6 +2,8 @@ import 'package:get/get.dart';
 import 'package:tushar_db/bindings/register_binding.dart';
 import 'package:tushar_db/pages/register_page.dart';
 import 'package:tushar_db/projectPages/vision_board_page.dart';
+import 'package:tushar_db/services/auth_service.dart';
+import 'package:tushar_db/services/auth_wrapper.dart';
 
 import 'bindings/email_binding.dart';
 import 'bindings/home_binding.dart';
@@ -74,8 +76,14 @@ class AppRoutes {
   //notes
   static const String NOTES = '/notes';
   static const String VISIONBOARD = '/visionBoard';
+   static const String AUTHWRAPPER = '/authWrapper';
 
   static List<GetPage> routes = [
+      GetPage(
+      name: AUTHWRAPPER,
+      page: () => AuthWrapper(),
+   
+    ),
     GetPage(
       name: REGISTER,
       page: () => RegisterPage(),
