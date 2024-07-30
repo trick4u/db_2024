@@ -10,7 +10,7 @@ class EventCard extends StatelessWidget {
   final QuickEventModel event;
   final Function(QuickEventModel) onDelete;
   final Function(QuickEventModel) onEdit;
-   final Function(QuickEventModel) onArchive;
+  final Function(QuickEventModel) onArchive;
 
   EventCard({
     Key? key,
@@ -34,7 +34,7 @@ class EventCard extends StatelessWidget {
             color: Colors.green,
             onTap: () {
               onArchive(event);
-              
+
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(content: Text('Archive action')),
               );
@@ -168,11 +168,11 @@ class EventCard extends StatelessWidget {
               width: 20,
               decoration: BoxDecoration(
                 color: event.color,
-                gradient: LinearGradient(
-                  colors: [event.color, Colors.white],
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                ),
+                // gradient: LinearGradient(
+                //   colors: [event.color, Colors.white],
+                //   begin: Alignment.topCenter,
+                //   end: Alignment.bottomCenter,
+                // ),
                 borderRadius: BorderRadius.only(
                   topLeft: Radius.circular(10),
                   bottomLeft: Radius.circular(10),
