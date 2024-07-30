@@ -11,6 +11,7 @@ import 'package:intl/intl.dart';
 import 'package:table_calendar/table_calendar.dart';
 import 'package:tushar_db/services/scale_util.dart';
 
+import '../models/quick_event_mode.dart';
 import '../projectController/calendar_controller.dart';
 import '../widgets/calendar_header.dart';
 import '../widgets/event_card.dart';
@@ -58,8 +59,11 @@ class CalendarPage extends StatelessWidget {
                             lastDay: DateTime.utc(2030, 12, 31),
                             focusedDay: controller.focusedDay,
                             daysOfWeekHeight: 40,
-                            eventLoader: controller
-                                .getEventsForDay(controller.selectedDay),
+                            eventLoader: (day) {
+                              return controller.eventsGrouped[
+                                      DateTime(day.year, day.month, day.day)] ??
+                                  [];
+                            },
                             selectedDayPredicate: (day) {
                               return isSameDay(day, controller.selectedDay);
                             },
@@ -73,6 +77,7 @@ class CalendarPage extends StatelessWidget {
                             },
                             onPageChanged: (focusedDay) {
                               controller.setFocusedDay(focusedDay);
+                              controller.fetchEvents(focusedDay);
                             },
                             calendarStyle: CalendarStyle(
                                 outsideDaysVisible: false,
@@ -100,6 +105,8 @@ class CalendarPage extends StatelessWidget {
                             },
                             calendarBuilders: CalendarBuilders(
                               defaultBuilder: (context, day, focusedDay) {
+                                bool hasEvents =
+                                    controller.hasEventsForDay(day);
                                 int eventCount =
                                     controller.getEventCountForDay(day);
                                 return Container(
@@ -107,6 +114,10 @@ class CalendarPage extends StatelessWidget {
                                   decoration: BoxDecoration(
                                     color: Colors.transparent,
                                     borderRadius: BorderRadius.circular(8.0),
+                                    border: hasEvents
+                                        ? Border.all(
+                                            color: Colors.blue, width: 1)
+                                        : null,
                                   ),
                                   child: Stack(
                                     children: [
@@ -116,6 +127,8 @@ class CalendarPage extends StatelessWidget {
                                           style: TextStyle(
                                             fontWeight: FontWeight.bold,
                                             fontFamily: 'Euclid',
+                                            color:
+                                                hasEvents ? Colors.blue : null,
                                           ),
                                         ),
                                       ),
@@ -126,7 +139,7 @@ class CalendarPage extends StatelessWidget {
                                           child: Container(
                                             padding: EdgeInsets.all(2),
                                             decoration: BoxDecoration(
-                                              color: Colors.red,
+                                              color: Colors.blue,
                                               borderRadius:
                                                   BorderRadius.circular(10),
                                             ),
@@ -151,6 +164,8 @@ class CalendarPage extends StatelessWidget {
                                 );
                               },
                               selectedBuilder: (context, date, _) {
+                                bool hasEvents =
+                                    controller.hasEventsForDay(date);
                                 int eventCount =
                                     controller.getEventCountForDay(date);
                                 return Container(
@@ -158,6 +173,10 @@ class CalendarPage extends StatelessWidget {
                                   decoration: BoxDecoration(
                                     color: Theme.of(context).primaryColor,
                                     borderRadius: BorderRadius.circular(8.0),
+                                    border: hasEvents
+                                        ? Border.all(
+                                            color: Colors.white, width: 1)
+                                        : null,
                                   ),
                                   child: Stack(
                                     children: [
@@ -203,6 +222,8 @@ class CalendarPage extends StatelessWidget {
                                 );
                               },
                               todayBuilder: (context, date, _) {
+                                bool hasEvents =
+                                    controller.hasEventsForDay(date);
                                 int eventCount =
                                     controller.getEventCountForDay(date);
                                 return Container(
@@ -210,6 +231,10 @@ class CalendarPage extends StatelessWidget {
                                   decoration: BoxDecoration(
                                     color: Colors.blue.withOpacity(0.3),
                                     borderRadius: BorderRadius.circular(8.0),
+                                    border: hasEvents
+                                        ? Border.all(
+                                            color: Colors.blue, width: 1)
+                                        : null,
                                   ),
                                   child: Stack(
                                     children: [
@@ -259,69 +284,73 @@ class CalendarPage extends StatelessWidget {
                   SizedBox(height: 20),
                   Expanded(
                     child: Obx(
-                      () => controller.events.isEmpty
-                          ? Center(
-                              child: InkWell(
-                                onTap: () {
-                                  if (controller
-                                      .canAddEvent(controller.selectedDay)) {
-                                    controller.showEventBottomSheet(context);
-                                  }
-                                },
-                                child: Text(
-                                  'No events for ${DateFormat('MMMM dd yyy').format(controller.selectedDay)} ',
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.w500,
-                                    color: Colors.grey[600],
+                      () {
+                        List<QuickEventModel> selectedDayEvents =
+                            controller.getEventsForDay(controller.selectedDay);
+                        return selectedDayEvents.isEmpty
+                            ? Center(
+                                child: InkWell(
+                                  onTap: () {
+                                    if (controller
+                                        .canAddEvent(controller.selectedDay)) {
+                                      controller.showEventBottomSheet(context);
+                                    }
+                                  },
+                                  child: Text(
+                                    'No events for ${DateFormat('MMMM dd yyyy').format(controller.selectedDay)} ',
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w500,
+                                      color: Colors.grey[600],
+                                    ),
                                   ),
                                 ),
-                              ),
-                            )
-                          : ListView.builder(
-                              itemCount: controller.events.length,
-                              itemBuilder: (context, index) {
-                                return EventCard(
-                                  onEdit: (event) {
-                                    controller.showEventBottomSheet(context,
-                                        event: event);
-                                  },
-                                  onArchive: (event) {
-                                    controller.addToArchive(event.id);
-                                  },
-                                  onDelete: (event) {
-                                    // Show a confirmation dialog before deleting
-                                    showDialog(
-                                      context: context,
-                                      builder: (BuildContext context) {
-                                        return AlertDialog(
-                                          title: Text('Confirm Delete'),
-                                          content: Text(
-                                              'Are you sure you want to delete this event?'),
-                                          actions: <Widget>[
-                                            TextButton(
-                                              child: Text('Cancel'),
-                                              onPressed: () {
-                                                Navigator.of(context).pop();
-                                              },
-                                            ),
-                                            TextButton(
-                                              child: Text('Delete'),
-                                              onPressed: () {
-                                                controller
-                                                    .deleteEvent(event.id);
-                                                Navigator.of(context).pop();
-                                              },
-                                            ),
-                                          ],
-                                        );
-                                      },
-                                    );
-                                  },
-                                  event: controller.events[index],
-                                );
-                              },
-                            ),
+                              )
+                            : ListView.builder(
+                                itemCount: selectedDayEvents.length,
+                                itemBuilder: (context, index) {
+                                  return EventCard(
+                                    onEdit: (event) {
+                                      controller.showEventBottomSheet(context,
+                                          event: event);
+                                    },
+                                    onArchive: (event) {
+                                      controller.addToArchive(event.id);
+                                    },
+                                    onDelete: (event) {
+                                      // Show a confirmation dialog before deleting
+                                      showDialog(
+                                        context: context,
+                                        builder: (BuildContext context) {
+                                          return AlertDialog(
+                                            title: Text('Confirm Delete'),
+                                            content: Text(
+                                                'Are you sure you want to delete this event?'),
+                                            actions: <Widget>[
+                                              TextButton(
+                                                child: Text('Cancel'),
+                                                onPressed: () {
+                                                  Navigator.of(context).pop();
+                                                },
+                                              ),
+                                              TextButton(
+                                                child: Text('Delete'),
+                                                onPressed: () {
+                                                  controller
+                                                      .deleteEvent(event.id);
+                                                  Navigator.of(context).pop();
+                                                },
+                                              ),
+                                            ],
+                                          );
+                                        },
+                                      );
+                                    },
+                                    event: selectedDayEvents[index],
+                                  );
+                                },
+                              );
+                      },
                     ),
                   ),
                 ],

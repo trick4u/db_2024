@@ -76,13 +76,12 @@ class AppRoutes {
   //notes
   static const String NOTES = '/notes';
   static const String VISIONBOARD = '/visionBoard';
-   static const String AUTHWRAPPER = '/authWrapper';
+  static const String AUTHWRAPPER = '/authWrapper';
 
   static List<GetPage> routes = [
-      GetPage(
+    GetPage(
       name: AUTHWRAPPER,
       page: () => AuthWrapper(),
-   
     ),
     GetPage(
       name: REGISTER,

@@ -33,8 +33,6 @@ class CalendarController extends GetxController {
     fetchEvents(selectedDay);
   }
 
-  
-
   void setCalendarFormat(CalendarFormat format) {
     calendarFormat = format;
     update();
@@ -49,25 +47,18 @@ class CalendarController extends GetxController {
     DateTime dateKey = DateTime(day.year, day.month, day.day);
     return eventsGrouped[dateKey]?.length ?? 0;
   }
+List<QuickEventModel> getEventsForDay(DateTime day) {
+  DateTime dateKey = DateTime(day.year, day.month, day.day);
+  List<QuickEventModel> dayEvents = eventsGrouped[dateKey] ?? [];
+  print('Events for $dateKey: ${dayEvents.length}');
+  return dayEvents;
+}
 
-  getEventsForDay(DateTime day) {
-    events.clear();
-    events.bindStream(
-      eventsCollection
-          .where('date',
-              isGreaterThanOrEqualTo: DateTime(day.year, day.month, day.day))
-          .where('date', isLessThan: DateTime(day.year, day.month, day.day + 1))
-          .snapshots()
-          .map((query) => query.docs
-              .map((doc) => QuickEventModel.fromFirestore(doc))
-              .toList()),
-    );
-  }
-
- bool canSelectDay(DateTime day) {
+  bool canSelectDay(DateTime day) {
     final now = DateTime.now();
     final today = DateTime(now.year, now.month, now.day);
-    return day.isAfter(today.subtract(Duration(days: 1))) || isSameDay(day, today);
+    return day.isAfter(today.subtract(Duration(days: 1))) ||
+        isSameDay(day, today);
   }
 
   void setSelectedDay(DateTime day) {
@@ -84,7 +75,7 @@ class CalendarController extends GetxController {
     final today = DateTime(now.year, now.month, now.day);
     return day.isAfter(today.subtract(Duration(days: 1)));
   }
-  
+
   void toggleCalendarFormat() {
     calendarFormat = calendarFormat == CalendarFormat.month
         ? CalendarFormat.week
@@ -106,14 +97,8 @@ class CalendarController extends GetxController {
         .snapshots()
         .listen((querySnapshot) {
       eventsGrouped.clear();
-      List<QuickEventModel> allEvents = querySnapshot.docs
-          .map((doc) => QuickEventModel.fromFirestore(doc))
-          .toList();
-
-      // Sort events by date in descending order (newest first)
-      allEvents.sort((a, b) => b.date.compareTo(a.date));
-
-      for (var event in allEvents) {
+      for (var doc in querySnapshot.docs) {
+        QuickEventModel event = QuickEventModel.fromFirestore(doc);
         DateTime eventDate =
             DateTime(event.date.year, event.date.month, event.date.day);
         if (!eventsGrouped.containsKey(eventDate)) {
@@ -121,12 +106,6 @@ class CalendarController extends GetxController {
         }
         eventsGrouped[eventDate]!.add(event);
       }
-
-      // Sort events for each day
-      eventsGrouped.forEach((date, eventList) {
-        eventList.sort((a, b) => b.date.compareTo(a.date));
-      });
-
       update();
     });
   }
@@ -190,7 +169,15 @@ class CalendarController extends GetxController {
             : null,
         'color': color.value,
       });
+
+      // Refresh events for the entire month
       fetchEvents(date);
+
+      // Update the UI
+      update();
+
+      // Print debug information
+      print('Event added for date: $date');
     } catch (e) {
       print('Error adding event: $e');
     }
@@ -226,12 +213,12 @@ class CalendarController extends GetxController {
     }
   }
 
-   void addToArchive(String eventId) async {
+  void addToArchive(String eventId) async {
     if (currentUser == null) return;
     try {
       // Get the event document
       DocumentSnapshot eventDoc = await eventsCollection.doc(eventId).get();
-      
+
       // If the document exists
       if (eventDoc.exists) {
         // Create a new document in the archive collection
@@ -241,13 +228,12 @@ class CalendarController extends GetxController {
             .collection('archivedEvents')
             .doc(eventId)
             .set(eventDoc.data() as Map<String, dynamic>);
-        
+
         // Delete the event from the active events collection
         await eventsCollection.doc(eventId).delete();
-        
+
         // Refresh the events
         fetchEvents(selectedDay);
-      
       }
     } catch (e) {
       print('Error archiving event: $e');

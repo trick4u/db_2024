@@ -177,7 +177,6 @@ class MyApp extends StatelessWidget {
           title: 'DoBoard Demo',
           debugShowCheckedModeBanner: false,
           theme: ThemeData.light().copyWith(
-          
             colorScheme: AppTheme.lightColorScheme,
             textTheme: TextTheme(
               titleLarge: appTheme.titleLarge,
@@ -192,9 +191,10 @@ class MyApp extends StatelessWidget {
             ),
           ),
           themeMode: appTheme.isDarkMode ? ThemeMode.dark : ThemeMode.light,
-    
+
           initialBinding: InitialBinding(),
-          initialRoute: AppRoutes.AUTHWRAPPER,
+           initialRoute: AppRoutes.AUTHWRAPPER,
+          home: MyHomePage(),
           getPages: AppRoutes.routes,
           builder: (context, child) {
             ScaleUtil();

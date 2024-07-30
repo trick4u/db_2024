@@ -152,7 +152,7 @@ class PageOneController extends GetxController {
           .map((doc) => QuickEventModel.fromFirestore(doc))
           .toList();
 
-      print('upcomingEvents: ${upcomingEvents.length}');
+    
       update();
     });
   }
