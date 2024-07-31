@@ -125,35 +125,42 @@ class EventCard extends StatelessWidget {
     );
   }
 
-  Widget _buildTimeColumn() {
-    return Container(
-      width: 60,
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
+Widget _buildTimeColumn() {
+  return Container(
+    width: 60,
+    child: Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        if (event.startTime != null)
           Text(
-            event.startTime != null
-                ? DateFormat('h:mm a').format(event.startTime!)
-                : DateFormat('h:mm a').format(event.date),
+            DateFormat('h:mm a').format(event.startTime!),
             style: TextStyle(
               fontWeight: FontWeight.bold,
               fontSize: 12,
             ),
           ),
+        if (event.startTime != null && event.endTime != null)
           SizedBox(height: 4),
+        if (event.endTime != null)
           Text(
-            event.endTime != null
-                ? DateFormat('h:mm a').format(event.endTime!)
-                : DateFormat('h:mm a').format(event.date),
+            DateFormat('h:mm a').format(event.endTime!),
             style: TextStyle(
               fontWeight: FontWeight.bold,
               fontSize: 12,
             ),
           ),
-        ],
-      ),
-    );
-  }
+        if (event.startTime == null && event.endTime == null)
+          Text(
+            DateFormat('h:mm a').format(event.date),
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              fontSize: 12,
+            ),
+          ),
+      ],
+    ),
+  );
+}
 
   Widget _buildCardContent() {
     return Card(

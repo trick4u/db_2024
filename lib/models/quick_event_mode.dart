@@ -6,20 +6,18 @@ class QuickEventModel {
   final String title;
   final String description;
   final DateTime date;
+  final DateTime? startTime;
+  final DateTime? endTime;
   final Color color;
-  DateTime? startTime;
-  DateTime? endTime;
-
-  
 
   QuickEventModel({
     required this.id,
     required this.title,
     required this.description,
     required this.date,
-    required this.color,
     this.startTime,
-    this.endTime
+    this.endTime,
+    required this.color,
   });
 
   factory QuickEventModel.fromFirestore(DocumentSnapshot doc) {
@@ -29,22 +27,9 @@ class QuickEventModel {
       title: data['title'] ?? '',
       description: data['description'] ?? '',
       date: (data['date'] as Timestamp).toDate(),
-      color: Color(data['color'] ?? Colors.blue.value),
       startTime: data['startTime'] != null ? (data['startTime'] as Timestamp).toDate() : null,
       endTime: data['endTime'] != null ? (data['endTime'] as Timestamp).toDate() : null,
-    
+      color: Color(data['color'] ?? 0xFF000000),
     );
-  }
-
-  Map<String, dynamic> toMap() {
-    return {
-      'title': title,
-      'description': description,
-      'date': Timestamp.fromDate(date),
-      'color': color.value,
-      'startTime': startTime != null ? Timestamp.fromDate(startTime!) : null,
-      'endTime': endTime != null ? Timestamp.fromDate(endTime!) : null,
-    
-    };
   }
 }

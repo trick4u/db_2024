@@ -290,7 +290,23 @@ class CalendarPage extends StatelessWidget {
                                   onTap: () {
                                     if (controller
                                         .canAddEvent(controller.selectedDay)) {
-                                      controller.showEventBottomSheet(context);
+                                      if (controller.canAddMoreEvents(
+                                          controller.selectedDay)) {
+                                        controller
+                                            .showEventBottomSheet(context);
+                                      } else {
+                                        Get.snackbar(
+                                          'Event Limit Reached',
+                                          'You can only add up to 10 events per day.',
+                                          snackPosition: SnackPosition.BOTTOM,
+                                        );
+                                      }
+                                    } else {
+                                      Get.snackbar(
+                                        'Cannot Add Event',
+                                        'Events cannot be added to past dates.',
+                                        snackPosition: SnackPosition.BOTTOM,
+                                      );
                                     }
                                   },
                                   child: Text(

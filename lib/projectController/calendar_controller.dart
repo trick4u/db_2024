@@ -32,6 +32,13 @@ class CalendarController extends GetxController {
     super.onInit();
     fetchEvents(selectedDay);
   }
+  bool isDateInPast(DateTime date) {
+  final now = DateTime.now();
+  return date.isBefore(DateTime(now.year, now.month, now.day));
+}
+bool canAddEvent(DateTime day) {
+  return !isDateInPast(day);
+}
 
   void setCalendarFormat(CalendarFormat format) {
     calendarFormat = format;
@@ -43,10 +50,14 @@ class CalendarController extends GetxController {
     update();
   }
 
-  int getEventCountForDay(DateTime day) {
-    DateTime dateKey = DateTime(day.year, day.month, day.day);
-    return eventsGrouped[dateKey]?.length ?? 0;
-  }
+ int getEventCountForDay(DateTime day) {
+  DateTime dateKey = DateTime(day.year, day.month, day.day);
+  return eventsGrouped[dateKey]?.length ?? 0;
+}
+
+bool canAddMoreEvents(DateTime day) {
+  return getEventCountForDay(day) < 10;
+}
 
   List<QuickEventModel> getEventsForDay(DateTime day) {
     DateTime dateKey = DateTime(day.year, day.month, day.day);
@@ -71,11 +82,7 @@ class CalendarController extends GetxController {
     }
   }
 
-  bool canAddEvent(DateTime day) {
-    final now = DateTime.now();
-    final today = DateTime(now.year, now.month, now.day);
-    return day.isAfter(today.subtract(Duration(days: 1)));
-  }
+
 
   void toggleCalendarFormat() {
     calendarFormat = calendarFormat == CalendarFormat.month
@@ -84,34 +91,34 @@ class CalendarController extends GetxController {
     update();
   }
 
-  void fetchEvents(DateTime day) {
-    if (currentUser == null) return;
-    events.clear();
+void fetchEvents(DateTime day) {
+  if (currentUser == null) return;
+  events.clear();
+  eventsGrouped.clear();
+
+  DateTime startOfMonth = DateTime(day.year, day.month, 1);
+  DateTime endOfMonth = DateTime(day.year, day.month + 1, 0, 23, 59, 59);
+
+  eventsCollection
+      .where('date', isGreaterThanOrEqualTo: Timestamp.fromDate(startOfMonth))
+      .where('date', isLessThanOrEqualTo: Timestamp.fromDate(endOfMonth))
+      .snapshots()
+      .listen((querySnapshot) {
     eventsGrouped.clear();
-
-    DateTime startOfMonth = DateTime(day.year, day.month, 1);
-    DateTime endOfMonth = DateTime(day.year, day.month + 1, 0, 23, 59, 59);
-
-    eventsCollection
-        .where('date', isGreaterThanOrEqualTo: Timestamp.fromDate(startOfMonth))
-        .where('date', isLessThanOrEqualTo: Timestamp.fromDate(endOfMonth))
-        .snapshots()
-        .listen((querySnapshot) {
-      eventsGrouped.clear();
-      for (var doc in querySnapshot.docs) {
-        QuickEventModel event = QuickEventModel.fromFirestore(doc);
-        DateTime eventDate =
-            DateTime(event.date.year, event.date.month, event.date.day);
-        if (!eventsGrouped.containsKey(eventDate)) {
-          eventsGrouped[eventDate] = [];
-        }
-        eventsGrouped[eventDate]!.add(event);
-        print('Added event: ${event.title} for date: $eventDate');
+    events.clear(); // Clear the events list
+    for (var doc in querySnapshot.docs) {
+      QuickEventModel event = QuickEventModel.fromFirestore(doc);
+      DateTime eventDate = DateTime(event.date.year, event.date.month, event.date.day);
+      if (!eventsGrouped.containsKey(eventDate)) {
+        eventsGrouped[eventDate] = [];
       }
-      print('Fetched events: ${eventsGrouped.length} days with events');
-      update();
-    });
-  }
+      eventsGrouped[eventDate]!.add(event);
+      events.add(event); // Add the event to the events list
+    }
+    print('Fetched events: ${eventsGrouped.length} days with events');
+    update();
+  });
+}
 
   bool hasEventsForDay(DateTime day) {
     DateTime dateKey = DateTime(day.year, day.month, day.day);
@@ -127,94 +134,139 @@ class CalendarController extends GetxController {
     }
   }
 
-  void showEventBottomSheet(BuildContext context, {QuickEventModel? event}) {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (context) => Padding(
-        padding: EdgeInsets.only(
-          bottom: MediaQuery.of(context).viewInsets.bottom,
-        ),
-        child: EventBottomSheet(
-          event: event,
-          initialDate: selectedDay,
-          onSave: (title, description, date, startTime, endTime, color) {
-            if (event == null) {
+void showEventBottomSheet(BuildContext context, {QuickEventModel? event}) {
+if (event == null) {
+    if (!canAddEvent(selectedDay)) {
+      Get.snackbar(
+        'Cannot Add Event',
+        'Events cannot be added to past dates.',
+        snackPosition: SnackPosition.BOTTOM,
+      );
+      return;
+    }
+    if (!canAddMoreEvents(selectedDay)) {
+      Get.snackbar(
+        'Event Limit Reached',
+        'You can only add up to 10 events per day.',
+        snackPosition: SnackPosition.BOTTOM,
+      );
+      return;
+    }
+  }
+
+  showModalBottomSheet(
+    context: context,
+    isScrollControlled: true,
+    backgroundColor: Colors.transparent,
+    builder: (context) => Padding(
+      padding: EdgeInsets.only(
+        bottom: MediaQuery.of(context).viewInsets.bottom,
+      ),
+      child: EventBottomSheet(
+        event: event,
+        initialDate: selectedDay,
+        onSave: (title, description, date, startTime, endTime, color) {
+          if (event == null) {
+            if (canAddEvent(date)) {
               addEvent(title, description, date, startTime, endTime, color);
             } else {
-              updateEvent(event.id, title, description, date, startTime,
-                  endTime, color);
+              Get.snackbar(
+                'Cannot Add Event',
+                'Events cannot be added to past dates.',
+                snackPosition: SnackPosition.BOTTOM,
+              );
             }
-          },
-        ),
+          } else {
+            updateEvent(event.id, title, description, date, startTime, endTime, color);
+          }
+        },
       ),
+    ),
+  );
+}
+
+void addEvent(String title, String description, DateTime date,
+    TimeOfDay? startTime, TimeOfDay? endTime, Color color) async {
+  if (currentUser == null) return;
+  
+  if (!canAddMoreEvents(date)) {
+    Get.snackbar(
+      'Event Limit Reached',
+      'You can only add up to 10 events per day.',
+      snackPosition: SnackPosition.BOTTOM,
     );
+    return;
   }
 
-  void addEvent(String title, String description, DateTime date,
-      TimeOfDay? startTime, TimeOfDay? endTime, Color color) async {
-    if (currentUser == null) return;
-    try {
-      await eventsCollection.add({
-        'title': title,
-        'description': description,
-        'date': Timestamp.fromDate(date),
-        'startTime': startTime != null
-            ? Timestamp.fromDate(
-                DateTime(date.year, date.month, date.day, startTime.hour,
-                    startTime.minute),
-              )
-            : null,
-        'endTime': endTime != null
-            ? Timestamp.fromDate(DateTime(
-                date.year, date.month, date.day, endTime.hour, endTime.minute))
-            : null,
-        'color': color.value,
-      });
+  try {
+    DateTime now = DateTime.now();
+    DateTime eventDate = DateTime(date.year, date.month, date.day, now.hour, now.minute);
+    
+    await eventsCollection.add({
+      'title': title,
+      'description': description,
+      'date': Timestamp.fromDate(eventDate),
+      'startTime': startTime != null
+          ? Timestamp.fromDate(
+              DateTime(date.year, date.month, date.day, startTime.hour, startTime.minute),
+            )
+          : null,
+      'endTime': endTime != null
+          ? Timestamp.fromDate(
+              DateTime(date.year, date.month, date.day, endTime.hour, endTime.minute))
+          : null,
+      'color': color.value,
+    });
+    
+    print('Event added for date: $eventDate');
+    fetchEvents(date);
+    update();
+  } catch (e) {
+    print('Error adding event: $e');
+  }
+}
+void updateEvent(
+    String eventId,
+    String newTitle,
+    String newDescription,
+    DateTime newDate,
+    TimeOfDay? newStartTime,
+    TimeOfDay? newEndTime,
+    Color newColor) async {
+  if (currentUser == null) return;
+  try {
+    Map<String, dynamic> updateData = {
+      'title': newTitle,
+      'description': newDescription,
+      'date': Timestamp.fromDate(newDate),
+      'color': newColor.value,
+    };
 
-      // Refresh events for the entire month
-      fetchEvents(date);
-
-      // Update the UI
-      update();
-
-      // Print debug information
-      print('Event added for date: $date');
-    } catch (e) {
-      print('Error adding event: $e');
+    if (newStartTime != null) {
+      updateData['startTime'] = Timestamp.fromDate(
+        DateTime(newDate.year, newDate.month, newDate.day, newStartTime.hour, newStartTime.minute)
+      );
+    } else {
+      updateData['startTime'] = null;
     }
-  }
 
-  void updateEvent(
-      String eventId,
-      String newTitle,
-      String newDescription,
-      DateTime newDate,
-      TimeOfDay? newStartTime,
-      TimeOfDay? newEndTime,
-      Color newColor) async {
-    if (currentUser == null) return;
-    try {
-      await eventsCollection.doc(eventId).update({
-        'title': newTitle,
-        'description': newDescription,
-        'date': Timestamp.fromDate(newDate),
-        'startTime': newStartTime != null
-            ? Timestamp.fromDate(DateTime(newDate.year, newDate.month,
-                newDate.day, newStartTime.hour, newStartTime.minute))
-            : null,
-        'endTime': newEndTime != null
-            ? Timestamp.fromDate(DateTime(newDate.year, newDate.month,
-                newDate.day, newEndTime.hour, newEndTime.minute))
-            : null,
-        'color': newColor.value,
-      });
-      fetchEvents(newDate);
-    } catch (e) {
-      print('Error updating event: $e');
+    if (newEndTime != null) {
+      updateData['endTime'] = Timestamp.fromDate(
+        DateTime(newDate.year, newDate.month, newDate.day, newEndTime.hour, newEndTime.minute)
+      );
+    } else {
+      updateData['endTime'] = null;
     }
+
+    await eventsCollection.doc(eventId).update(updateData);
+    
+    print('Event updated: $eventId');
+    fetchEvents(newDate);
+    update();
+  } catch (e) {
+    print('Error updating event: $e');
   }
+}
 
   void addToArchive(String eventId) async {
     if (currentUser == null) return;
