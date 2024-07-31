@@ -59,11 +59,7 @@ class CalendarPage extends StatelessWidget {
                             lastDay: DateTime.utc(2030, 12, 31),
                             focusedDay: controller.focusedDay,
                             daysOfWeekHeight: 40,
-                            eventLoader: (day) {
-                              return controller.eventsGrouped[
-                                      DateTime(day.year, day.month, day.day)] ??
-                                  [];
-                            },
+                            eventLoader: (day) => [],
                             selectedDayPredicate: (day) {
                               return isSameDay(day, controller.selectedDay);
                             },
@@ -80,8 +76,9 @@ class CalendarPage extends StatelessWidget {
                               controller.fetchEvents(focusedDay);
                             },
                             calendarStyle: CalendarStyle(
-                                outsideDaysVisible: false,
-                                cellMargin: ScaleUtil.all(4)),
+                              outsideDaysVisible: false,
+                              cellMargin: ScaleUtil.all(4),
+                            ),
                             headerVisible: false,
                             headerStyle: HeaderStyle(
                               formatButtonVisible: false,

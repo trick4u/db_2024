@@ -47,12 +47,13 @@ class CalendarController extends GetxController {
     DateTime dateKey = DateTime(day.year, day.month, day.day);
     return eventsGrouped[dateKey]?.length ?? 0;
   }
-List<QuickEventModel> getEventsForDay(DateTime day) {
-  DateTime dateKey = DateTime(day.year, day.month, day.day);
-  List<QuickEventModel> dayEvents = eventsGrouped[dateKey] ?? [];
-  print('Events for $dateKey: ${dayEvents.length}');
-  return dayEvents;
-}
+
+  List<QuickEventModel> getEventsForDay(DateTime day) {
+    DateTime dateKey = DateTime(day.year, day.month, day.day);
+    List<QuickEventModel> dayEvents = eventsGrouped[dateKey] ?? [];
+    print('Events for $dateKey: ${dayEvents.length}');
+    return dayEvents;
+  }
 
   bool canSelectDay(DateTime day) {
     final now = DateTime.now();
@@ -89,11 +90,11 @@ List<QuickEventModel> getEventsForDay(DateTime day) {
     eventsGrouped.clear();
 
     DateTime startOfMonth = DateTime(day.year, day.month, 1);
-    DateTime endOfMonth = DateTime(day.year, day.month + 1, 0);
+    DateTime endOfMonth = DateTime(day.year, day.month + 1, 0, 23, 59, 59);
 
     eventsCollection
-        .where('date', isGreaterThanOrEqualTo: startOfMonth)
-        .where('date', isLessThanOrEqualTo: endOfMonth)
+        .where('date', isGreaterThanOrEqualTo: Timestamp.fromDate(startOfMonth))
+        .where('date', isLessThanOrEqualTo: Timestamp.fromDate(endOfMonth))
         .snapshots()
         .listen((querySnapshot) {
       eventsGrouped.clear();
@@ -105,7 +106,9 @@ List<QuickEventModel> getEventsForDay(DateTime day) {
           eventsGrouped[eventDate] = [];
         }
         eventsGrouped[eventDate]!.add(event);
+        print('Added event: ${event.title} for date: $eventDate');
       }
+      print('Fetched events: ${eventsGrouped.length} days with events');
       update();
     });
   }
