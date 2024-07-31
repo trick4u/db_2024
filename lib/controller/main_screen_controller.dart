@@ -29,42 +29,49 @@ class MainScreenController extends GetxController
 
   void changeIndex(int index) {
     selectedIndex.value = index;
+    if (selectedIndex.value == 0) {
+      Get.put(PageOneController());
+    } else if (selectedIndex.value == 1) {
+      Get.lazyPut<CalendarController>(() => CalendarController());
+    } else if (selectedIndex.value == 2) {
+      Get.lazyPut<PageThreecontroller>(() => PageThreecontroller());
+    } else if (selectedIndex.value == 3) {
+      Get.lazyPut(() => ProfileController());
+    }
+  
+
   }
 
-  final RxList<Widget> pages = [
+  final List<Widget> pages = [
     PageOneScreen(),
     CalendarPage(),
     GoalsScreen(),
     ProfileScreen(),
-  ].obs;
+  ];
 
-  void changePage(
-    int index,
-    BuildContext context,
-  ) {
-    currentIndex.value = index;
-    if (currentIndex.value == 0) {
-      Get.put(PageOneController());
-    } else 
-    if (currentIndex.value == 1) {
-      Get.lazyPut<CalendarController>(() => CalendarController());
-    } else if (currentIndex.value == 2) {
-      Get.lazyPut<PageThreecontroller>(() => PageThreecontroller());
-      showDialog(context);
-    } else if (currentIndex.value == 3) {
-      Get.lazyPut<ProfileController>(() => ProfileController());
-    }
+  // void changePage(
+  //   int index,
+  //   BuildContext context,
+  // ) {
+  //   currentIndex.value = index;
+  //   if (currentIndex.value == 0) {
+  
+  //   //  Get.put(PageOneController());
+  //   } else if (currentIndex.value == 1) {
+  //     Get.lazyPut<CalendarController>(() => CalendarController());
+  //   } else if (currentIndex.value == 2) {
+  //     Get.lazyPut<PageThreecontroller>(() => PageThreecontroller());
+  //     showDialog(context);
+  //   } else if (currentIndex.value == 3) {
+  //      Get.lazyPut<ProfileController>(() => ProfileController());
     
-  }
+  //   }
+  // }
 
   @override
   void onInit() {
-  
-
     super.onInit();
   }
-
- 
 
   Color scaffoldBackgroundColor() {
     switch (selectedIndex.value) {
@@ -121,12 +128,14 @@ class MainScreenController extends GetxController
       title: "Clock",
       activeColor: ColorsConstants().deepPurple,
       inactiveColor: Colors.grey,
+
     ),
     PersistentBottomNavBarItem(
       icon: FontAwesomeIcons.user,
       title: "Profile",
       activeColor: ColorsConstants().deepPurple,
       inactiveColor: Colors.grey,
+      
       onTap: () {
         showPopover(
           context: Get.context!,

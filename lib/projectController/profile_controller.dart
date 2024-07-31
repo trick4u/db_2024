@@ -9,6 +9,12 @@ class ProfileController extends GetxController {
   var email = '   '.obs;
   var firebaseFireStore = FirebaseFirestore.instance;
 
+  @override
+  void onInit() {
+    super.onInit();
+    getUserDetails();
+  }
+
   //log out
   void logout() async {
     FirebaseAuth.instance.currentUser?.reload();
@@ -28,5 +34,26 @@ class ProfileController extends GetxController {
         .delete();
 
     Get.offAllNamed(AppRoutes.HOME);
+  }
+
+  //get the user details
+  void getUserDetails() async {
+    var user = FirebaseAuth.instance.currentUser;
+    if (user != null) {
+      var userDoc = await firebaseFireStore
+          .collection('users')
+          .doc(user.uid)
+          .get()
+          .then((value) {
+        name.value = value['username'];
+
+        email.value = value['email'];
+
+        print('User details fetched');
+
+        print("Email: ${email.value}");
+        print("Name: ${name.value}");
+      });
+    }
   }
 }

@@ -3,24 +3,26 @@ import 'package:get/get.dart';
 import 'package:tushar_db/app_routes.dart';
 
 import '../projectController/profile_controller.dart';
+import '../services/app_theme.dart';
 
-class ProfileScreen extends StatelessWidget {
-  var controller = Get.put(ProfileController());
+class ProfileScreen extends GetWidget<ProfileController> {
+  final appTheme = Get.find<AppTheme>();
 
   @override
   Widget build(BuildContext context) {
-    Get.put(ProfileController());
+  // var controller = Get.put(ProfileController());
+
     return Scaffold(
-      backgroundColor: Color(0xFF181923),
       appBar: AppBar(
-        backgroundColor: Colors.black,
         leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: Colors.white),
+          icon: Icon(
+            Icons.arrow_back,
+          ),
           onPressed: () => Get.back(),
         ),
         actions: [
           TextButton(
-            child: Text('Edit', style: TextStyle(color: Colors.blue)),
+            child: Text('Edit', style: TextStyle()),
             onPressed: () {
               // Handle edit action
             },
@@ -54,15 +56,11 @@ class ProfileScreen extends StatelessWidget {
             SizedBox(height: 16),
             Text(
               'Blake Gordon',
-              style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold),
+              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
             ),
-            Text(
-              'blake@email.com',
-              style: TextStyle(color: Colors.grey),
-            ),
+            Obx(() => Text(
+                  controller.email.value ?? '',
+                )),
             TextButton(
               child: Text('Edit', style: TextStyle(color: Colors.blue)),
               onPressed: () {
@@ -71,28 +69,29 @@ class ProfileScreen extends StatelessWidget {
             ),
             Spacer(),
             _buildOptionTile('Show me as away', isSwitch: true),
-            _buildOptionTile('Theme'),
+            _buildOptionTile('Theme', onTap: () {
+              // Handle vision board action
+              appTheme.toggleTheme();
+            }),
             _buildOptionTile('Vision board', onTap: () {
               // Handle vision board action
               Get.toNamed(AppRoutes.VISIONBOARD);
             }),
             _buildOptionTile(
-                  'logout',
-                  onTap: () {
-                    controller.logout();
-                    print('Logged out');
-                  },
-                ),
-            InkWell(
+              'logout',
+              onTap: () {
+                controller.logout();
+                print('Logged out');
+              },
+            ),
+            _buildOptionTile(
+              'delete account',
               onTap: () {
                 controller.deleteAccount();
-              },
-              child: _buildOptionTile(
-                'delete account',
-              ),
-            ),
 
-        
+                print('Logged out and account deleted');
+              },
+            ),
 
             SizedBox(height: 20),
           ],
@@ -116,13 +115,14 @@ class ProfileScreen extends StatelessWidget {
         padding: EdgeInsets.symmetric(vertical: 12, horizontal: 16),
         margin: EdgeInsets.only(bottom: 8),
         decoration: BoxDecoration(
-          color: Colors.grey[900],
           borderRadius: BorderRadius.circular(8),
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text(title, style: TextStyle(color: Colors.white)),
+            Text(
+              title,
+            ),
             if (isSwitch)
               Switch(
                 value: false,
@@ -132,7 +132,7 @@ class ProfileScreen extends StatelessWidget {
                 activeColor: Colors.blue,
               )
             else
-              Icon(Icons.arrow_forward_ios, color: Colors.grey, size: 16),
+              Icon(Icons.arrow_forward_ios, size: 16),
           ],
         ),
       ),

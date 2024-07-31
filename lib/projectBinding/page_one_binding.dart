@@ -6,6 +6,6 @@ class PageOneBinding extends Bindings {
   @override
   void dependencies() {
     Get.put<PageOneController>(PageOneController());
-    // Get.lazyPut<PageOneController>(() => PageOneController());
+    
   }
 }

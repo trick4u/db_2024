@@ -33,7 +33,7 @@ class AuthWrapper extends StatelessWidget {
               return MainScreen();
             } else {
               // User is not in the database, they need to complete profile
-              return SizedBox.shrink();
+              return   MyHomePage();
             }
           },
         );

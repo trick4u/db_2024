@@ -39,7 +39,10 @@ class MainScreen extends GetWidget<MainScreenController> {
               height: 100,
               color: Colors.black,
               shadowColor: Colors.black.withOpacity(0.2),
-              borderRadius: BorderRadius.circular(30),
+              borderRadius: BorderRadius.only(
+                topLeft: Radius.circular(30),
+                topRight: Radius.circular(30),
+              ),
               child: Padding(
                 padding: const EdgeInsets.only(
                     bottom: 20, top: 20, left: 20, right: 20),
@@ -121,19 +124,14 @@ class BottomBar extends StatelessWidget {
                       .map((item) => Padding(
                             padding:
                                 const EdgeInsets.symmetric(horizontal: 8.0),
-                            child: IconButton(
-                              onPressed: () => controller.changePage(
-                                controller.navBarItems.indexOf(item),
-                                context,
-                              ),
-                              icon: Icon(
+                            child: Icon(
                                 item.icon,
                                 color: controller.currentIndex.value ==
                                         controller.navBarItems.indexOf(item)
                                     ? item.activeColor
                                     : null,
                               ),
-                            ),
+                            
                           ))
                       .toList(),
 
@@ -145,18 +143,12 @@ class BottomBar extends StatelessWidget {
                       .map((item) => Padding(
                             padding:
                                 const EdgeInsets.symmetric(horizontal: 8.0),
-                            child: IconButton(
-                              onPressed: () => controller.changePage(
-                                controller.navBarItems.indexOf(item),
-                                context,
-                              ),
-                              icon: Icon(
-                                item.icon,
-                                color: controller.currentIndex.value ==
-                                        controller.navBarItems.indexOf(item)
-                                    ? item.activeColor
-                                    : null,
-                              ),
+                            child: Icon(
+                              item.icon,
+                              color: controller.currentIndex.value ==
+                                      controller.navBarItems.indexOf(item)
+                                  ? item.activeColor
+                                  : null,
                             ),
                           ))
                       .toList(),
@@ -307,6 +299,7 @@ class TexturePainter extends CustomPainter {
   @override
   bool shouldRepaint(CustomPainter oldDelegate) => false;
 }
+
 class GradientNoiseContainer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
