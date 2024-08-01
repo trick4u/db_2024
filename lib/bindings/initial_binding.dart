@@ -17,10 +17,8 @@ class InitialBinding extends Bindings {
 
     Get.lazyPut<MainScreenController>(() => MainScreenController(),
         fenix: true);
-        
-    Get.lazyPut<PageOneController>(() => PageOneController(),
-        fenix: true);
+
+    Get.lazyPut<PageOneController>(() => PageOneController(), fenix: true);
     Get.put(NetworkController(), permanent: true);
-  
   }
 }

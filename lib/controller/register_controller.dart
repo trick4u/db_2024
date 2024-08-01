@@ -10,6 +10,7 @@ import '../models/user_model.dart';
 
 class RegisterController extends GetxController {
   final TextEditingController usernameController = TextEditingController();
+  final TextEditingController nameController = TextEditingController();
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
   final TextEditingController confirmPasswordController = TextEditingController();
@@ -73,6 +74,8 @@ class RegisterController extends GetxController {
       uid: userCredential.user!.uid,
       username: usernameController.text.trim(),
       email: emailController.text.trim(),
+      name: nameController.text.trim(),
+    
     );
 
     // Add user to Firestore

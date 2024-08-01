@@ -24,17 +24,31 @@ class ProfileController extends GetxController {
     print('Logged out');
   }
 
-  //delete account
-  void deleteAccount() {
-    FirebaseAuth.instance.currentUser!.delete();
-    // delete all data from the database
-    firebaseFireStore
+Future<void> deleteAccount() async {
+  try {
+    // Get the current user
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) {
+      print('No user is currently signed in.');
+      return;
+    }
+
+    // Delete user data from Firestore
+    await FirebaseFirestore.instance
         .collection('users')
-        .doc(FirebaseAuth.instance.currentUser!.uid)
+        .doc(user.uid)
         .delete();
 
+    // Delete the user account from Firebase Authentication
+    await user.delete();
+
+    // Navigate to the home screen
     Get.offAllNamed(AppRoutes.HOME);
+  } catch (error) {
+    print('Error deleting account: $error');
+    // Handle the error (e.g., show an error message to the user)
   }
+}
 
   //get the user details
   void getUserDetails() async {

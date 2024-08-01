@@ -10,7 +10,7 @@ class ProfileScreen extends GetWidget<ProfileController> {
 
   @override
   Widget build(BuildContext context) {
-  // var controller = Get.put(ProfileController());
+    // var controller = Get.put(ProfileController());
 
     return Scaffold(
       appBar: AppBar(
@@ -29,72 +29,105 @@ class ProfileScreen extends GetWidget<ProfileController> {
           ),
         ],
       ),
-      body: Padding(
-        padding: EdgeInsets.symmetric(horizontal: 16.0),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            SizedBox(height: 30),
-            //container
-            Container(
-              height: 200,
-              width: 200,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(20),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.5),
-                    blurRadius: 10,
-                    spreadRadius: 1,
-                    offset: Offset(0, 5),
-                  ),
-                ],
-                color: Colors.blue,
-                shape: BoxShape.rectangle,
+      body: SafeArea(
+        child: Padding(
+          padding: EdgeInsets.symmetric(horizontal: 16.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              SizedBox(height: 30),
+              //container
+              Container(
+                height: 200,
+                width: 200,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(20),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.5),
+                      blurRadius: 10,
+                      spreadRadius: 1,
+                      offset: Offset(0, 5),
+                    ),
+                  ],
+                  color: Colors.blue,
+                  shape: BoxShape.rectangle,
+                ),
               ),
-            ),
-            SizedBox(height: 16),
-            Text(
-              'Blake Gordon',
-              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-            ),
-            Obx(() => Text(
-                  controller.email.value ?? '',
-                )),
-            TextButton(
-              child: Text('Edit', style: TextStyle(color: Colors.blue)),
-              onPressed: () {
-                // Handle edit action
-              },
-            ),
-            Spacer(),
-            _buildOptionTile('Show me as away', isSwitch: true),
-            _buildOptionTile('Theme', onTap: () {
-              // Handle vision board action
-              appTheme.toggleTheme();
-            }),
-            _buildOptionTile('Vision board', onTap: () {
-              // Handle vision board action
-              Get.toNamed(AppRoutes.VISIONBOARD);
-            }),
-            _buildOptionTile(
-              'logout',
-              onTap: () {
-                controller.logout();
-                print('Logged out');
-              },
-            ),
-            _buildOptionTile(
-              'delete account',
-              onTap: () {
-                controller.deleteAccount();
+              SizedBox(height: 16),
+              Text(
+                'Blake Gordon',
+                style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+              ),
+              Obx(() => Text(
+                    controller.email.value ?? '',
+                  )),
+              TextButton(
+                child: Text('Edit', style: TextStyle(color: Colors.blue)),
+                onPressed: () {
+                  // Handle edit action
+                },
+              ),
+              Spacer(),
 
-                print('Logged out and account deleted');
-              },
-            ),
+              InkWell(
+                splashColor: Colors.transparent,
+                onTap: () {
+                  // Handle theme action
+                  appTheme.toggleTheme();
+                },
+                child: Obx(() => Container(
+                      padding:
+                          EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+                      margin: EdgeInsets.only(bottom: 8),
+                      decoration: BoxDecoration(
+                        color:
+                            appTheme.isDarkMode ? Colors.white : Colors.black,
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            'theme',
+                            style: TextStyle(
+                              color: appTheme.isDarkMode
+                                  ? Colors.black
+                                  : Colors.white,
+                            ),
+                          ),
+                          Icon(
+                            Icons.arrow_forward_ios,
+                            size: 16,
+                            color: appTheme.isDarkMode
+                                ? Colors.black
+                                : Colors.white,
+                          ),
+                        ],
+                      ),
+                    )),
+              ),
 
-            SizedBox(height: 20),
-          ],
+              _buildOptionTile('vision board', onTap: () {
+                // Handle vision board action
+                Get.toNamed(AppRoutes.VISIONBOARD);
+              }),
+              _buildOptionTile(
+                'logout',
+                onTap: () {
+                  controller.logout();
+                },
+              ),
+              _buildOptionTile(
+                'delete account',
+                onTap: () {
+                  controller.deleteAccount();
+                },
+              ),
+
+              SizedBox(height: 20),
+            ],
+          ),
         ),
       ),
     );

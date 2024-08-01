@@ -17,8 +17,8 @@ import '../widgets/calendar_header.dart';
 import '../widgets/event_card.dart';
 import 'package:intl/intl.dart';
 
-class CalendarPage extends StatelessWidget {
-  final CalendarController controller = Get.put(CalendarController());
+class CalendarPage extends GetWidget<CalendarController> {
+  
 
   @override
   Widget build(BuildContext context) {

@@ -22,52 +22,48 @@ class MainScreen extends GetWidget<MainScreenController> {
 
   @override
   Widget build(BuildContext context) {
-    return Obx(() => Scaffold(
-          resizeToAvoidBottomInset: false,
-          backgroundColor: controller.scaffoldBackgroundColor(),
-          floatingActionButtonLocation:
-              FloatingActionButtonLocation.centerDocked,
-          // floatingActionButton: Padding(
-          //   padding: const EdgeInsets.all(10.0),
-          //   child: FabButton(),
-          // ),
-          body: Obx(() => controller.pages[controller.selectedIndex.value]),
-          //   bottomNavigationBar: CurvedBottomNavBar(),
-          bottomNavigationBar: Obx(() {
-            return GlassContainer(
-              blur: 10,
-              height: 100,
-              color: Colors.black,
-              shadowColor: Colors.black.withOpacity(0.2),
-              borderRadius: BorderRadius.only(
-                topLeft: Radius.circular(30),
-                topRight: Radius.circular(30),
-              ),
-              child: Padding(
-                padding: const EdgeInsets.only(
-                    bottom: 20, top: 20, left: 20, right: 20),
-                child: Container(
-                  height: 60,
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.all(
-                      Radius.circular(30),
-                    ),
-                  ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceAround,
-                    children: [
-                      _buildNavItem(Icons.home, 0),
-                      _buildNavItem(Icons.article, 1),
-                      _buildNavItem(Icons.search, 2),
-                      _buildNavItem(Icons.add_box, 3),
-                    ],
-                  ),
+    return Scaffold(
+      resizeToAvoidBottomInset: false,
+
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
+
+      body: Obx(() => controller.pages[controller.selectedIndex.value]),
+      //   bottomNavigationBar: CurvedBottomNavBar(),
+      bottomNavigationBar: Obx(() {
+        return GlassContainer(
+          blur: 10,
+          height: 100,
+          color: Colors.black,
+          shadowColor: Colors.black.withOpacity(0.2),
+          borderRadius: BorderRadius.only(
+            topLeft: Radius.circular(30),
+            topRight: Radius.circular(30),
+          ),
+          child: Padding(
+            padding:
+                const EdgeInsets.only(bottom: 20, top: 20, left: 20, right: 20),
+            child: Container(
+              height: 60,
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.all(
+                  Radius.circular(30),
                 ),
               ),
-            );
-          }),
-        ));
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: [
+                  _buildNavItem(Icons.home, 0),
+                  _buildNavItem(Icons.article, 1),
+                  _buildNavItem(Icons.search, 2),
+                  _buildNavItem(Icons.add_box, 3),
+                ],
+              ),
+            ),
+          ),
+        );
+      }),
+    );
   }
 
   Widget _buildNavItem(IconData icon, int index) {
@@ -125,13 +121,12 @@ class BottomBar extends StatelessWidget {
                             padding:
                                 const EdgeInsets.symmetric(horizontal: 8.0),
                             child: Icon(
-                                item.icon,
-                                color: controller.currentIndex.value ==
-                                        controller.navBarItems.indexOf(item)
-                                    ? item.activeColor
-                                    : null,
-                              ),
-                            
+                              item.icon,
+                              color: controller.currentIndex.value ==
+                                      controller.navBarItems.indexOf(item)
+                                  ? item.activeColor
+                                  : null,
+                            ),
                           ))
                       .toList(),
 

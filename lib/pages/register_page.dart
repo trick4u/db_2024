@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
 import 'package:tushar_db/controller/register_controller.dart';
 
@@ -19,50 +20,63 @@ class RegisterPage extends GetView<RegisterController> {
               prefixIcon: Icons.person,
             ),
             SizedBox(height: 16),
-            Obx(() => _buildTextField(
-              controller: controller.emailController,
-              hintText: 'Enter email',
-              prefixIcon: Icons.email,
-              keyboardType: TextInputType.emailAddress,
-              errorText: controller.isEmailValid.value ? null : 'Invalid email',
-            )),
+            _buildTextField(
+              controller: controller.nameController,
+              hintText: 'Enter name',
+              prefixIcon: FontAwesomeIcons.user,
+            ),
+            SizedBox(height: 16),
+            Obx(
+              () => _buildTextField(
+                controller: controller.emailController,
+                hintText: 'Enter email',
+                prefixIcon: Icons.email,
+                keyboardType: TextInputType.emailAddress,
+                errorText:
+                    controller.isEmailValid.value ? null : 'Invalid email',
+              ),
+            ),
             SizedBox(height: 16),
             Obx(() => _buildTextField(
-              controller: controller.passwordController,
-              hintText: 'Enter password',
-              prefixIcon: Icons.lock,
-              obscureText: !controller.isPasswordVisible.value,
-              suffixIcon: IconButton(
-                icon: Icon(
-                  controller.isPasswordVisible.value
-                      ? Icons.visibility
-                      : Icons.visibility_off,
-                ),
-                onPressed: controller.togglePasswordVisibility,
-              ),
-            )),
+                  controller: controller.passwordController,
+                  hintText: 'Enter password',
+                  prefixIcon: Icons.lock,
+                  obscureText: !controller.isPasswordVisible.value,
+                  suffixIcon: IconButton(
+                    icon: Icon(
+                      controller.isPasswordVisible.value
+                          ? Icons.visibility
+                          : Icons.visibility_off,
+                    ),
+                    onPressed: controller.togglePasswordVisibility,
+                  ),
+                )),
             SizedBox(height: 16),
             Obx(() => _buildTextField(
-              controller: controller.confirmPasswordController,
-              hintText: 'Confirm password',
-              prefixIcon: Icons.lock,
-              obscureText: !controller.isConfirmPasswordVisible.value,
-              suffixIcon: IconButton(
-                icon: Icon(
-                  controller.isConfirmPasswordVisible.value
-                      ? Icons.visibility
-                      : Icons.visibility_off,
-                ),
-                onPressed: controller.toggleConfirmPasswordVisibility,
-              ),
-            )),
+                  controller: controller.confirmPasswordController,
+                  hintText: 'Confirm password',
+                  prefixIcon: Icons.lock,
+                  obscureText: !controller.isConfirmPasswordVisible.value,
+                  suffixIcon: IconButton(
+                    icon: Icon(
+                      controller.isConfirmPasswordVisible.value
+                          ? Icons.visibility
+                          : Icons.visibility_off,
+                    ),
+                    onPressed: controller.toggleConfirmPasswordVisibility,
+                  ),
+                )),
             SizedBox(height: 24),
-            Obx(() => ElevatedButton(
-              onPressed: controller.isLoading.value ? null : controller.register,
-              child: controller.isLoading.value
-                  ? CircularProgressIndicator()
-                  : Text('Register'),
-            )),
+            Obx(
+              () => ElevatedButton(
+                
+                onPressed:
+                    controller.isLoading.value ? null : controller.register,
+                child: controller.isLoading.value
+                    ? CircularProgressIndicator()
+                    : Text('Register'),
+              ),
+            ),
             SizedBox(height: 16),
             TextButton(
               onPressed: () => Get.offNamed('/login'),

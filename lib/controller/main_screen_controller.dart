@@ -30,7 +30,8 @@ class MainScreenController extends GetxController
   void changeIndex(int index) {
     selectedIndex.value = index;
     if (selectedIndex.value == 0) {
-      Get.put(PageOneController());
+
+          Get.lazyPut(() => ProfileController());
     } else if (selectedIndex.value == 1) {
       Get.lazyPut<CalendarController>(() => CalendarController());
     } else if (selectedIndex.value == 2) {
