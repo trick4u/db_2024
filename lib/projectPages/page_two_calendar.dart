@@ -6,7 +6,6 @@ import 'package:flex_color_picker/flex_color_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:table_calendar/table_calendar.dart';
 import 'package:tushar_db/services/scale_util.dart';
@@ -15,24 +14,23 @@ import '../models/quick_event_mode.dart';
 import '../projectController/calendar_controller.dart';
 import '../widgets/calendar_header.dart';
 import '../widgets/event_card.dart';
-import 'package:intl/intl.dart';
+import '../services/app_theme.dart';
 
 class CalendarPage extends GetWidget<CalendarController> {
-  
-
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    final appTheme = Get.find<AppTheme>();
+
+    return Obx(() => Scaffold(
         appBar: AppBar(
           title: Text(
             'schedule tasks .',
-            style: TextStyle(
-              fontFamily: "Euclid",
-              fontSize: 20,
+            style: appTheme.titleLarge.copyWith(
               letterSpacing: 1.5,
-              fontWeight: FontWeight.bold,
             ),
           ),
+          backgroundColor: appTheme.colorScheme.surface,
+          foregroundColor: appTheme.colorScheme.onSurface,
         ),
         body: SafeArea(
           child: GetBuilder<CalendarController>(
@@ -51,6 +49,7 @@ class CalendarPage extends GetWidget<CalendarController> {
                     },
                     child: Card(
                       elevation: 4,
+                      color: appTheme.cardColor,
                       child: Column(
                         children: [
                           SizedBox(height: 20),
@@ -78,16 +77,19 @@ class CalendarPage extends GetWidget<CalendarController> {
                             calendarStyle: CalendarStyle(
                               outsideDaysVisible: false,
                               cellMargin: ScaleUtil.all(4),
+                              defaultTextStyle: TextStyle(color: appTheme.textColor),
+                              weekendTextStyle: TextStyle(color: appTheme.textColor),
+                              holidayTextStyle: TextStyle(color: appTheme.textColor),
                             ),
                             headerVisible: false,
                             headerStyle: HeaderStyle(
                               formatButtonVisible: false,
                               titleCentered: false,
-                              rightChevronIcon: Icon(Icons.chevron_right),
+                              rightChevronIcon: Icon(Icons.chevron_right, color: appTheme.textColor),
                               rightChevronPadding:
                                   EdgeInsets.symmetric(horizontal: 100),
                               titleTextStyle:
-                                  TextStyle(fontSize: 20, fontFamily: 'Euclid'),
+                                  appTheme.titleLarge,
                               leftChevronVisible: false,
                               rightChevronVisible: true,
                               headerPadding: EdgeInsets.symmetric(
@@ -113,7 +115,7 @@ class CalendarPage extends GetWidget<CalendarController> {
                                     borderRadius: BorderRadius.circular(8.0),
                                     border: hasEvents
                                         ? Border.all(
-                                            color: Colors.blue, width: 1)
+                                            color: appTheme.colorScheme.primary, width: 1)
                                         : null,
                                   ),
                                   child: Stack(
@@ -125,7 +127,7 @@ class CalendarPage extends GetWidget<CalendarController> {
                                             fontWeight: FontWeight.bold,
                                             fontFamily: 'Euclid',
                                             color:
-                                                hasEvents ? Colors.blue : null,
+                                                hasEvents ? appTheme.colorScheme.primary : appTheme.textColor,
                                           ),
                                         ),
                                       ),
@@ -136,7 +138,7 @@ class CalendarPage extends GetWidget<CalendarController> {
                                           child: Container(
                                             padding: EdgeInsets.all(2),
                                             decoration: BoxDecoration(
-                                              color: Colors.blue,
+                                              color: appTheme.colorScheme.primary,
                                               borderRadius:
                                                   BorderRadius.circular(10),
                                             ),
@@ -148,7 +150,7 @@ class CalendarPage extends GetWidget<CalendarController> {
                                               child: Text(
                                                 eventCount.toString(),
                                                 style: TextStyle(
-                                                  color: Colors.white,
+                                                  color: appTheme.colorScheme.onPrimary,
                                                   fontSize: 9,
                                                   fontFamily: 'Euclid',
                                                 ),
@@ -168,11 +170,11 @@ class CalendarPage extends GetWidget<CalendarController> {
                                 return Container(
                                   margin: const EdgeInsets.all(4.0),
                                   decoration: BoxDecoration(
-                                    color: Theme.of(context).primaryColor,
+                                    color: appTheme.colorScheme.primary,
                                     borderRadius: BorderRadius.circular(8.0),
                                     border: hasEvents
                                         ? Border.all(
-                                            color: Colors.white, width: 1)
+                                            color: appTheme.colorScheme.onPrimary, width: 1)
                                         : null,
                                   ),
                                   child: Stack(
@@ -181,7 +183,7 @@ class CalendarPage extends GetWidget<CalendarController> {
                                         child: Text(
                                           date.day.toString(),
                                           style: TextStyle(
-                                            color: Colors.white,
+                                            color: appTheme.colorScheme.onPrimary,
                                             fontFamily: 'Euclid',
                                           ),
                                         ),
@@ -193,7 +195,7 @@ class CalendarPage extends GetWidget<CalendarController> {
                                           child: Container(
                                             padding: EdgeInsets.all(2),
                                             decoration: BoxDecoration(
-                                              color: Colors.white,
+                                              color: appTheme.colorScheme.onPrimary,
                                               borderRadius:
                                                   BorderRadius.circular(10),
                                             ),
@@ -205,8 +207,7 @@ class CalendarPage extends GetWidget<CalendarController> {
                                               child: Text(
                                                 eventCount.toString(),
                                                 style: TextStyle(
-                                                  color: Theme.of(context)
-                                                      .primaryColor,
+                                                  color: appTheme.colorScheme.primary,
                                                   fontFamily: 'Euclid',
                                                   fontSize: 9,
                                                 ),
@@ -226,11 +227,11 @@ class CalendarPage extends GetWidget<CalendarController> {
                                 return Container(
                                   margin: const EdgeInsets.all(4.0),
                                   decoration: BoxDecoration(
-                                    color: Colors.blue.withOpacity(0.3),
+                                    color: appTheme.colorScheme.primary.withOpacity(0.3),
                                     borderRadius: BorderRadius.circular(8.0),
                                     border: hasEvents
                                         ? Border.all(
-                                            color: Colors.blue, width: 1)
+                                            color: appTheme.colorScheme.primary, width: 1)
                                         : null,
                                   ),
                                   child: Stack(
@@ -238,7 +239,7 @@ class CalendarPage extends GetWidget<CalendarController> {
                                       Center(
                                         child: Text(
                                           date.day.toString(),
-                                          style: TextStyle(color: Colors.blue),
+                                          style: TextStyle(color: appTheme.colorScheme.primary),
                                         ),
                                       ),
                                       if (eventCount > 0)
@@ -248,7 +249,7 @@ class CalendarPage extends GetWidget<CalendarController> {
                                           child: Container(
                                             padding: EdgeInsets.all(2),
                                             decoration: BoxDecoration(
-                                              color: Colors.blue,
+                                              color: appTheme.colorScheme.primary,
                                               borderRadius:
                                                   BorderRadius.circular(10),
                                             ),
@@ -260,7 +261,7 @@ class CalendarPage extends GetWidget<CalendarController> {
                                               child: Text(
                                                 eventCount.toString(),
                                                 style: TextStyle(
-                                                  color: Colors.white,
+                                                  color: appTheme.colorScheme.onPrimary,
                                                   fontSize: 9,
                                                 ),
                                               ),
@@ -299,6 +300,8 @@ class CalendarPage extends GetWidget<CalendarController> {
                                           'Event Limit Reached',
                                           'You can only add up to 10 events per day.',
                                           snackPosition: SnackPosition.BOTTOM,
+                                          backgroundColor: appTheme.colorScheme.surface,
+                                          colorText: appTheme.colorScheme.onSurface,
                                         );
                                       }
                                     } else {
@@ -306,16 +309,14 @@ class CalendarPage extends GetWidget<CalendarController> {
                                         'Cannot Add Event',
                                         'Events cannot be added to past dates.',
                                         snackPosition: SnackPosition.BOTTOM,
+                                        backgroundColor: appTheme.colorScheme.surface,
+                                        colorText: appTheme.colorScheme.onSurface,
                                       );
                                     }
                                   },
                                   child: Text(
                                     'No events for ${DateFormat('MMMM dd yyyy').format(controller.selectedDay)} ',
-                                    style: TextStyle(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.w500,
-                                      color: Colors.grey[600],
-                                    ),
+                                    style: appTheme.bodyMedium,
                                   ),
                                 ),
                               )
@@ -331,23 +332,24 @@ class CalendarPage extends GetWidget<CalendarController> {
                                       controller.addToArchive(event.id);
                                     },
                                     onDelete: (event) {
-                                      // Show a confirmation dialog before deleting
                                       showDialog(
                                         context: context,
                                         builder: (BuildContext context) {
                                           return AlertDialog(
-                                            title: Text('Confirm Delete'),
+                                            backgroundColor: appTheme.colorScheme.surface,
+                                            title: Text('Confirm Delete', style: TextStyle(color: appTheme.textColor)),
                                             content: Text(
-                                                'Are you sure you want to delete this event?'),
+                                                'Are you sure you want to delete this event?',
+                                                style: TextStyle(color: appTheme.textColor)),
                                             actions: <Widget>[
                                               TextButton(
-                                                child: Text('Cancel'),
+                                                child: Text('Cancel', style: TextStyle(color: appTheme.colorScheme.primary)),
                                                 onPressed: () {
                                                   Navigator.of(context).pop();
                                                 },
                                               ),
                                               TextButton(
-                                                child: Text('Delete'),
+                                                child: Text('Delete', style: TextStyle(color: appTheme.colorScheme.error)),
                                                 onPressed: () {
                                                   controller
                                                       .deleteEvent(event.id);
@@ -370,6 +372,7 @@ class CalendarPage extends GetWidget<CalendarController> {
               ),
             ),
           ),
-        ));
+        ),
+      ));
   }
 }

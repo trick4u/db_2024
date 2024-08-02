@@ -1,5 +1,3 @@
-
-
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
@@ -39,24 +37,24 @@ class CustomCalendarHeader extends StatelessWidget {
           IconButton(
             icon: Icon(Icons.add),
             onPressed: () {
-    if (controller.canAddEvent(controller.selectedDay)) {
-      if (controller.canAddMoreEvents(controller.selectedDay)) {
-        controller.showEventBottomSheet(context);
-      } else {
-        Get.snackbar(
-          'Event Limit Reached',
-          'You can only add up to 10 events per day.',
-          snackPosition: SnackPosition.BOTTOM,
-        );
-      }
-    } else {
-      Get.snackbar(
-        'Cannot Add Event',
-        'Events cannot be added to past dates.',
-        snackPosition: SnackPosition.BOTTOM,
-      );
-    }
-  },
+              if (controller.canAddEvent(controller.selectedDay)) {
+                if (controller.canAddMoreEvents(controller.selectedDay)) {
+                  controller.showEventBottomSheet(context);
+                } else {
+                  Get.snackbar(
+                    'Event Limit Reached',
+                    'You can only add up to 10 events per day.',
+                    snackPosition: SnackPosition.BOTTOM,
+                  );
+                }
+              } else {
+                Get.snackbar(
+                  'Cannot Add Event',
+                  'Events cannot be added to past dates.',
+                  snackPosition: SnackPosition.BOTTOM,
+                );
+              }
+            },
           ),
         ],
       ),

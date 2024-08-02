@@ -35,7 +35,7 @@ class _EventBottomSheetState extends State<EventBottomSheet> {
     _descriptionController =
         TextEditingController(text: widget.event?.description ?? '');
     _selectedDate = widget.event?.date ?? widget.initialDate;
-    _selectedColor = widget.event?.color ?? Colors.blue;
+    _selectedColor = widget.event?.color ?? Get.theme.primaryColor;
     if (widget.event != null) {
       // Assume you have start and end time in your EventModel
       // _startTime = TimeOfDay.fromDateTime(widget.event!.startTime);
@@ -53,21 +53,16 @@ class _EventBottomSheetState extends State<EventBottomSheet> {
   @override
   Widget build(BuildContext context) {
     final appTheme = Get.find<AppTheme>();
-    return Padding(
+    return Obx(() => Padding(
       padding: const EdgeInsets.all(20.0),
       child: Card(
         elevation: 8,
+        color: appTheme.cardColor,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20),
+        ),
         child: Container(
           padding: EdgeInsets.symmetric(horizontal: 20, vertical: 20),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            //boxShadow: kElevationToShadow[8],
-
-            borderRadius: BorderRadius.vertical(
-              top: Radius.circular(20),
-              bottom: Radius.circular(20),
-            ),
-          ),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -76,11 +71,11 @@ class _EventBottomSheetState extends State<EventBottomSheet> {
                 children: [
                   Text(
                     widget.event == null ? 'Add Event' : 'Edit Event',
-                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                    style: appTheme.titleLarge,
                   ),
                   Spacer(),
                   IconButton(
-                    icon: Icon(Icons.close),
+                    icon: Icon(Icons.close, color: appTheme.textColor),
                     onPressed: () {
                       Get.back();
                     },
@@ -94,8 +89,14 @@ class _EventBottomSheetState extends State<EventBottomSheet> {
                 decoration: InputDecoration(
                   labelText: 'Event Title',
                   border: OutlineInputBorder(),
-                  labelStyle: AppTextTheme.textTheme.bodySmall!.copyWith(
-                    color: Get.isDarkMode ? Colors.white70 : Colors.black54,
+                  labelStyle: appTheme.bodyMedium.copyWith(
+                    color: appTheme.secondaryTextColor,
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderSide: BorderSide(color: appTheme.secondaryTextColor),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderSide: BorderSide(color: appTheme.colorScheme.primary),
                   ),
                 ),
               ),
@@ -106,6 +107,15 @@ class _EventBottomSheetState extends State<EventBottomSheet> {
                 decoration: InputDecoration(
                   labelText: 'Event Description',
                   border: OutlineInputBorder(),
+                  labelStyle: appTheme.bodyMedium.copyWith(
+                    color: appTheme.secondaryTextColor,
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderSide: BorderSide(color: appTheme.secondaryTextColor),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderSide: BorderSide(color: appTheme.colorScheme.primary),
+                  ),
                 ),
                 maxLines: 3,
               ),
@@ -120,6 +130,19 @@ class _EventBottomSheetState extends State<EventBottomSheet> {
                           initialDate: _selectedDate,
                           firstDate: DateTime.now(),
                           lastDate: DateTime(2101),
+                          builder: (BuildContext context, Widget? child) {
+                            return Theme(
+                              data: ThemeData.light().copyWith(
+                                colorScheme: ColorScheme.light(
+                                  primary: appTheme.colorScheme.primary,
+                                  onPrimary: appTheme.colorScheme.onPrimary,
+                                  surface: appTheme.colorScheme.surface,
+                                  onSurface: appTheme.colorScheme.onSurface,
+                                ),
+                              ),
+                              child: child!,
+                            );
+                          },
                         );
                         if (picked != null && picked != _selectedDate) {
                           setState(() {
@@ -127,6 +150,7 @@ class _EventBottomSheetState extends State<EventBottomSheet> {
                           });
                         }
                       },
+                      style: appTheme.primaryButtonStyle,
                       child: Text('Select Date'),
                     ),
                   ),
@@ -137,6 +161,19 @@ class _EventBottomSheetState extends State<EventBottomSheet> {
                         final TimeOfDay? picked = await showTimePicker(
                           context: context,
                           initialTime: _startTime ?? TimeOfDay.now(),
+                          builder: (BuildContext context, Widget? child) {
+                            return Theme(
+                              data: ThemeData.light().copyWith(
+                                colorScheme: ColorScheme.light(
+                                  primary: appTheme.colorScheme.primary,
+                                  onPrimary: appTheme.colorScheme.onPrimary,
+                                  surface: appTheme.colorScheme.surface,
+                                  onSurface: appTheme.colorScheme.onSurface,
+                                ),
+                              ),
+                              child: child!,
+                            );
+                          },
                         );
                         if (picked != null) {
                           setState(() {
@@ -144,6 +181,7 @@ class _EventBottomSheetState extends State<EventBottomSheet> {
                           });
                         }
                       },
+                      style: appTheme.primaryButtonStyle,
                       child: Text('Start Time'),
                     ),
                   ),
@@ -155,6 +193,19 @@ class _EventBottomSheetState extends State<EventBottomSheet> {
                   final TimeOfDay? picked = await showTimePicker(
                     context: context,
                     initialTime: _endTime ?? TimeOfDay.now(),
+                    builder: (BuildContext context, Widget? child) {
+                      return Theme(
+                        data: ThemeData.light().copyWith(
+                          colorScheme: ColorScheme.light(
+                            primary: appTheme.colorScheme.primary,
+                            onPrimary: appTheme.colorScheme.onPrimary,
+                            surface: appTheme.colorScheme.surface,
+                            onSurface: appTheme.colorScheme.onSurface,
+                          ),
+                        ),
+                        child: child!,
+                      );
+                    },
                   );
                   if (picked != null) {
                     setState(() {
@@ -162,6 +213,7 @@ class _EventBottomSheetState extends State<EventBottomSheet> {
                     });
                   }
                 },
+                style: appTheme.primaryButtonStyle,
                 child: Text('End Time'),
               ),
               SizedBox(height: 16),
@@ -170,8 +222,10 @@ class _EventBottomSheetState extends State<EventBottomSheet> {
                   showColorPickerDialog();
                 },
                 child: Text('Select Color'),
-                style:
-                    ElevatedButton.styleFrom(backgroundColor: _selectedColor),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: _selectedColor,
+                  foregroundColor: _selectedColor.computeLuminance() > 0.5 ? Colors.black : Colors.white,
+                ),
               ),
               SizedBox(height: 16),
               ElevatedButton(
@@ -186,30 +240,33 @@ class _EventBottomSheetState extends State<EventBottomSheet> {
                   );
                   Navigator.pop(context);
                 },
+                style: appTheme.primaryButtonStyle,
                 child: Text('Save Event'),
               ),
             ],
           ),
         ),
       ),
-    );
+    ));
   }
 
   void showColorPickerDialog() {
+    final appTheme = Get.find<AppTheme>();
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: const Text('Pick a color'),
+          title: Text('Pick a color', style: TextStyle(color: appTheme.textColor)),
+          backgroundColor: appTheme.cardColor,
           content: SingleChildScrollView(
             child: ColorPicker(
               color: _selectedColor,
               onColorChanged: (Color color) {
                 setState(() => _selectedColor = color);
               },
-              heading: Text('Select color'),
-              subheading: Text('Select color shade'),
-              wheelSubheading: Text('Selected color and its shades'),
+              heading: Text('Select color', style: TextStyle(color: appTheme.textColor)),
+              subheading: Text('Select color shade', style: TextStyle(color: appTheme.textColor)),
+              wheelSubheading: Text('Selected color and its shades', style: TextStyle(color: appTheme.textColor)),
               pickersEnabled: const <ColorPickerType, bool>{
                 ColorPickerType.both: false,
                 ColorPickerType.primary: true,
@@ -222,7 +279,7 @@ class _EventBottomSheetState extends State<EventBottomSheet> {
           ),
           actions: <Widget>[
             TextButton(
-              child: const Text('OK'),
+              child: Text('OK', style: TextStyle(color: appTheme.colorScheme.primary)),
               onPressed: () {
                 Navigator.of(context).pop();
               },
