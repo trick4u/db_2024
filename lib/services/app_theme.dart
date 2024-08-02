@@ -1,8 +1,4 @@
-
-import 'package:flutter/material.dart';
-import 'package:get/get.dart';
-
-import 'scale_util.dart';
+// app_theme.dart
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -10,7 +6,7 @@ import 'package:get_storage/get_storage.dart';
 
 import 'scale_util.dart';
 
-class AppTheme {
+class AppTheme extends GetxController {
   static final AppTheme _instance = AppTheme._internal();
   factory AppTheme() => _instance;
   AppTheme._internal() {
@@ -32,31 +28,30 @@ class AppTheme {
     Get.changeThemeMode(_isDarkMode.value ? ThemeMode.dark : ThemeMode.light);
   }
 
-  // Define your color schemes
-  static final ColorScheme lightColorScheme = ColorScheme.light(
+  static const ColorScheme lightColorScheme = ColorScheme.light(
     primary: Colors.blue,
     secondary: Colors.blueAccent,
     surface: Colors.white,
     onSurface: Colors.black,
+    onPrimaryContainer: Colors.black,
   );
 
-  static final ColorScheme darkColorScheme = ColorScheme.dark(
+  static const ColorScheme darkColorScheme = ColorScheme.dark(
     primary: Colors.blueAccent,
     secondary: Colors.lightBlueAccent,
-    surface: Colors.grey[800]!,
+    surface: Color(0xFF303030),
     onSurface: Colors.white,
+    onPrimaryContainer: Colors.white,
   );
 
   ColorScheme get colorScheme =>
       _isDarkMode.value ? darkColorScheme : lightColorScheme;
 
-  // Custom colors
-  Color get cardColor => _isDarkMode.value ? Colors.grey[900]! : Colors.white;
-  Color get textColor => _isDarkMode.value ? Colors.white : Colors.black;
-  Color get secondaryTextColor =>
-      _isDarkMode.value ? Colors.white70 : Colors.black54;
+  Color get cardColor => colorScheme.surface;
+  Color get textColor => colorScheme.onSurface;
+  Color get secondaryTextColor => colorScheme.onSurface.withOpacity(0.7);
+  Color get backgroundColor => colorScheme.background;
 
-  // Text Styles
   TextStyle get titleLarge => TextStyle(
         fontSize: ScaleUtil.fontSize(20),
         fontWeight: FontWeight.bold,
@@ -70,10 +65,9 @@ class AppTheme {
         fontFamily: "Euclid",
       );
 
-  // Button Styles
   ButtonStyle get primaryButtonStyle => ElevatedButton.styleFrom(
-        backgroundColor: _isDarkMode.value ? Colors.white : Colors.black,
-        foregroundColor: _isDarkMode.value ? Colors.black : Colors.white,
+        backgroundColor: colorScheme.primary,
+        foregroundColor: colorScheme.onPrimary,
         minimumSize: Size(double.infinity, 50),
       );
 

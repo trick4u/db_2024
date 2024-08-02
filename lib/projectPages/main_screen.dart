@@ -33,8 +33,8 @@ class MainScreen extends GetWidget<MainScreenController> {
         return GlassContainer(
           blur: 10,
           height: 100,
-          color: Colors.black,
-          shadowColor: Colors.black.withOpacity(0.2),
+          // color: Colors.black,
+          // shadowColor: Colors.black.withOpacity(0.2),
           borderRadius: BorderRadius.only(
             topLeft: Radius.circular(30),
             topRight: Radius.circular(30),
@@ -45,7 +45,7 @@ class MainScreen extends GetWidget<MainScreenController> {
             child: Container(
               height: 60,
               decoration: BoxDecoration(
-                color: Colors.white,
+                //  color: Colors.white,
                 borderRadius: BorderRadius.all(
                   Radius.circular(30),
                 ),
@@ -74,11 +74,11 @@ class MainScreen extends GetWidget<MainScreenController> {
         curve: Curves.easeOutCubic,
         padding: EdgeInsets.all(8),
         decoration: BoxDecoration(
-          color: controller.selectedIndex.value == index
-              ? Colors.black
-              : Colors.white,
-          borderRadius: BorderRadius.circular(30),
-        ),
+            color: controller.selectedIndex.value == index
+                ? Colors.black
+                : Colors.white,
+            borderRadius: BorderRadius.circular(10),
+            shape: BoxShape.rectangle),
         child: Icon(
           icon,
           color: controller.selectedIndex.value == index
@@ -107,7 +107,7 @@ class BottomBar extends StatelessWidget {
             topRight: Radius.circular(20),
           ),
           child: BottomAppBar(
-            color: Colors.white,
+            //  color: Colors.white,
             //  shadowColor: Colors.grey.withOpacity(0.7),
             shape: const CircularNotchedRectangle(),
             notchMargin: 6,

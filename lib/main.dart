@@ -19,7 +19,6 @@ import 'package:tushar_db/firebase_options.dart';
 import 'package:tushar_db/pages/splash_screen.dart';
 import 'package:tushar_db/projectPages/main_screen.dart';
 import 'package:tushar_db/services/auth_wrapper.dart';
-import 'package:tushar_db/theme.dart';
 
 import 'app_routes.dart';
 import 'bindings/initial_binding.dart';
@@ -176,14 +175,14 @@ class MyApp extends StatelessWidget {
     return Obx(() => GetMaterialApp(
           title: 'DoBoard Demo',
           debugShowCheckedModeBanner: false,
-          theme: ThemeData.light().copyWith(
+          theme: ThemeData(
             colorScheme: AppTheme.lightColorScheme,
             textTheme: TextTheme(
               titleLarge: appTheme.titleLarge,
               bodyMedium: appTheme.bodyMedium,
             ),
           ),
-          darkTheme: ThemeData.dark().copyWith(
+          darkTheme: ThemeData(
             colorScheme: AppTheme.darkColorScheme,
             textTheme: TextTheme(
               titleLarge: appTheme.titleLarge,
@@ -191,9 +190,8 @@ class MyApp extends StatelessWidget {
             ),
           ),
           themeMode: appTheme.isDarkMode ? ThemeMode.dark : ThemeMode.light,
-
           initialBinding: InitialBinding(),
-           initialRoute: AppRoutes.AUTHWRAPPER,
+          initialRoute: AppRoutes.AUTHWRAPPER,
           home: MyHomePage(),
           getPages: AppRoutes.routes,
           builder: (context, child) {

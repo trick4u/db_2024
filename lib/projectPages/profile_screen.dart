@@ -13,10 +13,7 @@ class ProfileScreen extends GetWidget<ProfileController> {
     return Scaffold(
       appBar: AppBar(
         title: Obx(() => Text(controller.username.value)),
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back),
-          onPressed: () => Get.back(),
-        ),
+        automaticallyImplyLeading: false,
         actions: [
           TextButton(
             child: Text('Edit', style: TextStyle()),
@@ -38,7 +35,6 @@ class ProfileScreen extends GetWidget<ProfileController> {
                   borderRadius: BorderRadius.circular(20),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withOpacity(0.5),
                       blurRadius: 10,
                       spreadRadius: 1,
                       offset: Offset(0, 5),

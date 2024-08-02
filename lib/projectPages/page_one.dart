@@ -17,6 +17,7 @@ import '../models/goals_model.dart';
 import '../models/quick_event_mode.dart';
 import '../projectController/page_one_controller.dart';
 import '../projectController/pomodoro_controller.dart';
+import '../services/app_theme.dart';
 import '../temp/music_view.dart';
 import '../widgets/event_bottomSheet.dart';
 import '../widgets/event_card.dart';
@@ -31,7 +32,7 @@ import 'main_screen.dart';
 import 'music_page.dart';
 
 class PageOneScreen extends GetWidget<PageOneController> {
-
+ final appTheme = Get.find<AppTheme>();
   
  
   @override
