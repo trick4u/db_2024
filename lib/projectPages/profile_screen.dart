@@ -10,22 +10,17 @@ class ProfileScreen extends GetWidget<ProfileController> {
 
   @override
   Widget build(BuildContext context) {
-    // var controller = Get.put(ProfileController());
-
     return Scaffold(
       appBar: AppBar(
+        title: Obx(() => Text(controller.username.value)),
         leading: IconButton(
-          icon: Icon(
-            Icons.arrow_back,
-          ),
+          icon: Icon(Icons.arrow_back),
           onPressed: () => Get.back(),
         ),
         actions: [
           TextButton(
             child: Text('Edit', style: TextStyle()),
-            onPressed: () {
-              // Handle edit action
-            },
+            onPressed: () => _showEditDialog(context),
           ),
         ],
       ),
@@ -36,7 +31,6 @@ class ProfileScreen extends GetWidget<ProfileController> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               SizedBox(height: 30),
-              //container
               Container(
                 height: 200,
                 width: 200,
@@ -55,27 +49,21 @@ class ProfileScreen extends GetWidget<ProfileController> {
                 ),
               ),
               SizedBox(height: 16),
-              Text(
-                'Blake Gordon',
-                style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+              Obx(
+                () => Text(
+                  controller.name.value,
+                  style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                ),
               ),
-              Obx(() => Text(
-                    controller.email.value ?? '',
-                  )),
+              Obx(() => Text(controller.email.value ?? '')),
               TextButton(
                 child: Text('Edit', style: TextStyle(color: Colors.blue)),
-                onPressed: () {
-                  // Handle edit action
-                },
+                onPressed: () => _showEditDialog(context),
               ),
               Spacer(),
-
               InkWell(
                 splashColor: Colors.transparent,
-                onTap: () {
-                  // Handle theme action
-                  appTheme.toggleTheme();
-                },
+                onTap: () => appTheme.toggleTheme(),
                 child: Obx(() => Container(
                       padding:
                           EdgeInsets.symmetric(vertical: 12, horizontal: 16),
@@ -107,24 +95,11 @@ class ProfileScreen extends GetWidget<ProfileController> {
                       ),
                     )),
               ),
-
-              _buildOptionTile('vision board', onTap: () {
-                // Handle vision board action
-                Get.toNamed(AppRoutes.VISIONBOARD);
-              }),
-              _buildOptionTile(
-                'logout',
-                onTap: () {
-                  controller.logout();
-                },
-              ),
-              _buildOptionTile(
-                'delete account',
-                onTap: () {
-                  controller.deleteAccount();
-                },
-              ),
-
+              _buildOptionTile('vision board',
+                  onTap: () => Get.toNamed(AppRoutes.VISIONBOARD)),
+              _buildOptionTile('logout', onTap: () => controller.logout()),
+              _buildOptionTile('delete account',
+                  onTap: () => controller.deleteAccount()),
               SizedBox(height: 20),
             ],
           ),
@@ -133,17 +108,10 @@ class ProfileScreen extends GetWidget<ProfileController> {
     );
   }
 
-  Widget _buildOptionTile(
-    String title, {
-    bool isSwitch = false,
-    VoidCallback? onTap,
-  }) {
+  Widget _buildOptionTile(String title,
+      {bool isSwitch = false, VoidCallback? onTap}) {
     return InkWell(
-      onTap: () {
-        if (onTap != null) {
-          onTap();
-        }
-      },
+      onTap: onTap,
       child: Container(
         padding: EdgeInsets.symmetric(vertical: 12, horizontal: 16),
         margin: EdgeInsets.only(bottom: 8),
@@ -153,9 +121,7 @@ class ProfileScreen extends GetWidget<ProfileController> {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text(
-              title,
-            ),
+            Text(title),
             if (isSwitch)
               Switch(
                 value: false,
@@ -169,6 +135,97 @@ class ProfileScreen extends GetWidget<ProfileController> {
           ],
         ),
       ),
+    );
+  }
+
+  void _showEditDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        String newName = controller.name.value;
+        String newEmail = controller.email.value;
+        String newUsername = controller.username.value;
+
+        return AlertDialog(
+          title: Text('Edit Profile',
+              style: Theme.of(context).textTheme.titleLarge),
+          content: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                TextField(
+                  decoration: InputDecoration(
+                    labelText: 'Name',
+                    labelStyle: Theme.of(context).textTheme.bodyMedium,
+                    border: OutlineInputBorder(),
+                  ),
+                  style: Theme.of(context).textTheme.bodyMedium,
+                  onChanged: (value) => newName = value,
+                  controller: TextEditingController(text: newName),
+                ),
+                SizedBox(height: 16),
+                TextField(
+                  decoration: InputDecoration(
+                    labelText: 'Email',
+                    labelStyle: Theme.of(context).textTheme.bodyMedium,
+                    border: OutlineInputBorder(),
+                  ),
+                  style: Theme.of(context).textTheme.bodyMedium,
+                  onChanged: (value) => newEmail = value,
+                  controller: TextEditingController(text: newEmail),
+                ),
+                SizedBox(height: 16),
+                TextField(
+                  decoration: InputDecoration(
+                    labelText: 'Username',
+                    labelStyle: Theme.of(context).textTheme.bodyMedium,
+                    border: OutlineInputBorder(),
+                  ),
+                  style: Theme.of(context).textTheme.bodyMedium,
+                  onChanged: (value) => newUsername = value,
+                  controller: TextEditingController(text: newUsername),
+                ),
+              ],
+            ),
+          ),
+          actions: [
+            TextButton(
+                child: Text('Cancel',
+                    style: Theme.of(context).textTheme.bodyMedium),
+                onPressed: () => Get.back()),
+            TextButton(
+              child: Text('Save',
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                        color: Theme.of(context).colorScheme.primary,
+                      )),
+              onPressed: () async {
+                Navigator.of(context).pop();
+                bool anyChanges = false;
+
+                if (newName != controller.name.value) {
+                  await controller.updateName(newName);
+
+                  anyChanges = true;
+                }
+
+                if (newEmail != controller.email.value) {
+                  await controller.updateEmail(newEmail);
+
+                  anyChanges = true;
+                }
+
+                if (newUsername != controller.username.value) {
+                  await controller.updateUsername(newUsername);
+
+                  anyChanges = true;
+                }
+
+                if (!anyChanges) {}
+              },
+            ),
+          ],
+        );
+      },
     );
   }
 }

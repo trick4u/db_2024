@@ -14,11 +14,23 @@ class RegisterPage extends GetView<RegisterController> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             SizedBox(height: 20),
-            _buildTextField(
-              controller: controller.usernameController,
-              hintText: 'Enter username',
-              prefixIcon: Icons.person,
-            ),
+            Obx(() => _buildTextField(
+                  controller: controller.usernameController,
+                  hintText: 'Enter username (5-15 characters)',
+                  prefixIcon: Icons.person,
+                  suffixIcon: controller.isUsernameEmpty.value
+                      ? null
+                      : IconButton(
+                          icon: controller.isCheckingUsername.value
+                              ? CircularProgressIndicator()
+                              : Icon(Icons.check),
+                          onPressed: controller.checkUsernameAvailability,
+                        ),
+                  errorText: controller.hasCheckedUsername.value &&
+                          !controller.isUsernameAvailable.value
+                      ? 'Username unavailable'
+                      : null,
+                )),
             SizedBox(height: 16),
             _buildTextField(
               controller: controller.nameController,
@@ -69,7 +81,6 @@ class RegisterPage extends GetView<RegisterController> {
             SizedBox(height: 24),
             Obx(
               () => ElevatedButton(
-                
                 onPressed:
                     controller.isLoading.value ? null : controller.register,
                 child: controller.isLoading.value

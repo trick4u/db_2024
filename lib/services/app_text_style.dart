@@ -4,6 +4,20 @@ import 'package:get/get.dart';
 import 'scale_util.dart';
 
 class AppTextTheme {
+  static TextTheme get lightTextTheme {
+    return textTheme.apply(
+      bodyColor: Colors.black87,
+      displayColor: Colors.black87,
+    );
+  }
+
+  static TextTheme get darkTextTheme {
+    return textTheme.apply(
+      bodyColor: Colors.white,
+      displayColor: Colors.white,
+    );
+  }
+
   static TextTheme get textTheme {
     return TextTheme(
       displayLarge: TextStyle(
@@ -97,14 +111,54 @@ class ThemeService extends GetxService {
   }
 
   ThemeData get lightTheme => ThemeData.light().copyWith(
-        textTheme: AppTextTheme.textTheme,
-        // Add other light theme properties here
+        textTheme: AppTextTheme.lightTextTheme,
+        primaryColor: Colors.blue,
+        colorScheme: ColorScheme.light(
+          primary: Colors.blue,
+          secondary: Colors.blueAccent,
+          surface: Colors.white,
+          background: Colors.white,
+          onPrimary: Colors.white,
+          onSecondary: Colors.white,
+          onSurface: Colors.black87,
+          onBackground: Colors.black87,
+        ),
+        scaffoldBackgroundColor: Colors.white,
+        appBarTheme: AppBarTheme(
+          color: Colors.blue,
+          iconTheme: IconThemeData(color: Colors.white),
+        ),
+        iconTheme: IconThemeData(color: Colors.black87),
+        buttonTheme: ButtonThemeData(
+          buttonColor: Colors.blue,
+          textTheme: ButtonTextTheme.primary,
+        ),
+        // Add other light theme properties here as needed
       );
 
   ThemeData get darkTheme => ThemeData.dark().copyWith(
-        textTheme: AppTextTheme.textTheme,
-        // Add other dark theme properties here
+        textTheme: AppTextTheme.darkTextTheme,
+        primaryColor: Colors.blue,
+        colorScheme: ColorScheme.dark(
+          primary: Colors.blue,
+          secondary: Colors.blueAccent,
+          surface: Colors.grey[850]!,
+          background: Colors.grey[900]!,
+          onPrimary: Colors.white,
+          onSecondary: Colors.white,
+          onSurface: Colors.white,
+          onBackground: Colors.white,
+        ),
+        scaffoldBackgroundColor: Colors.grey[900],
+        appBarTheme: AppBarTheme(
+          color: Colors.grey[850],
+          iconTheme: IconThemeData(color: Colors.white),
+        ),
+        iconTheme: IconThemeData(color: Colors.white),
+        buttonTheme: ButtonThemeData(
+          buttonColor: Colors.blue,
+          textTheme: ButtonTextTheme.primary,
+        ),
+        // Add other dark theme properties here as needed
       );
 }
-
-
