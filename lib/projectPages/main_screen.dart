@@ -10,6 +10,7 @@ import 'package:get/get.dart';
 import 'package:glassmorphism_ui/glassmorphism_ui.dart';
 import 'package:tushar_db/app_routes.dart';
 import 'package:tushar_db/pages/network_screen.dart';
+import 'package:tushar_db/services/scale_util.dart';
 
 import '../constants/colors.dart';
 import '../controller/main_screen_controller.dart';
@@ -32,7 +33,7 @@ class MainScreen extends GetWidget<MainScreenController> {
       bottomNavigationBar: Obx(() {
         return GlassContainer(
           blur: 10,
-          height: 100,
+          height: ScaleUtil.height(70),
           // color: Colors.black,
           // shadowColor: Colors.black.withOpacity(0.2),
           borderRadius: BorderRadius.only(
@@ -40,10 +41,9 @@ class MainScreen extends GetWidget<MainScreenController> {
             topRight: Radius.circular(30),
           ),
           child: Padding(
-            padding:
-                const EdgeInsets.only(bottom: 20, top: 20, left: 20, right: 20),
+            padding: ScaleUtil.symmetric(horizontal: 10, vertical: 10),
             child: Container(
-              height: 60,
+              height: ScaleUtil.height(60),
               decoration: BoxDecoration(
                 //  color: Colors.white,
                 borderRadius: BorderRadius.all(
@@ -79,13 +79,11 @@ class MainScreen extends GetWidget<MainScreenController> {
                 : Colors.white,
             borderRadius: BorderRadius.circular(10),
             shape: BoxShape.rectangle),
-        child: Icon(
-          icon,
-          color: controller.selectedIndex.value == index
-              ? Colors.white
-              : Colors.black,
-          size: 30,
-        ),
+        child: Icon(icon,
+            color: controller.selectedIndex.value == index
+                ? Colors.white
+                : Colors.black,
+            size: ScaleUtil.height(30)),
       ),
     );
   }

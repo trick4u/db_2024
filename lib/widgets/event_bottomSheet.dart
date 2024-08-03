@@ -99,30 +99,34 @@ class _EventBottomSheetState extends State<EventBottomSheet> {
                     ],
                   ),
                   SizedBox(height: 16),
-                  TextField(
-                    controller: _titleController,
-                    style: appTheme.bodyMedium,
-                    decoration: InputDecoration(
-                      labelText: 'Event Title',
-                      filled: true,
-                      fillColor: appTheme.textFieldFillColor,
-                      labelStyle: appTheme.bodyMedium.copyWith(
-                        color: appTheme.secondaryTextColor,
+                  ClipRRect(
+                    borderRadius: BorderRadius.all(
+                      Radius.circular(10),
+                    ),
+                    child: TextField(
+                      controller: _titleController,
+                      style: appTheme.bodyMedium,
+                      decoration: InputDecoration(
+                        labelText: 'Event Title',
+                        filled: true,
+                        fillColor: appTheme.textFieldFillColor,
+                        labelStyle: appTheme.bodyMedium.copyWith(
+                          color: appTheme.secondaryTextColor,
+                        ),
+                        border: InputBorder.none,
+                        enabledBorder: InputBorder.none,
+                        focusedBorder: InputBorder.none,
+                        errorBorder: InputBorder.none,
+                        disabledBorder: InputBorder.none,
+                        contentPadding:
+                            EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                       ),
-                      border: InputBorder.none,
-                      enabledBorder: InputBorder.none,
-                      focusedBorder: InputBorder.none,
-                      errorBorder: InputBorder.none,
-                      disabledBorder: InputBorder.none,
-                      contentPadding:
-                          EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                     ),
                   ),
                   SizedBox(height: 16),
-                  Container(
-                    decoration: BoxDecoration(
-                      //   color: appTheme.cardColor,
-                      borderRadius: BorderRadius.circular(8),
+                  ClipRRect(
+                    borderRadius: BorderRadius.all(
+                      Radius.circular(10),
                     ),
                     child: TextField(
                       controller: _descriptionController,

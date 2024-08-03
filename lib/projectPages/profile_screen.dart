@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:tushar_db/app_routes.dart';
+import 'package:tushar_db/services/scale_util.dart';
 
 import '../projectController/profile_controller.dart';
 import '../services/app_theme.dart';
@@ -11,6 +12,7 @@ class ProfileScreen extends GetWidget<ProfileController> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       appBar: AppBar(
         title: Obx(() => Text(controller.username.value)),
         automaticallyImplyLeading: false,
@@ -22,15 +24,14 @@ class ProfileScreen extends GetWidget<ProfileController> {
         ],
       ),
       body: SafeArea(
-        child: Padding(
-          padding: EdgeInsets.symmetric(horizontal: 16.0),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              SizedBox(height: 30),
-              Container(
-                height: 200,
-                width: 200,
+        child: Column(
+          children: [
+            // Static blue container
+            Padding(
+              padding: EdgeInsets.symmetric(vertical: 30, horizontal: 16),
+              child: Container(
+                height: ScaleUtil.height(200),
+                width: ScaleUtil.width(200),
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(20),
                   boxShadow: [
@@ -45,61 +46,73 @@ class ProfileScreen extends GetWidget<ProfileController> {
                   shape: BoxShape.rectangle,
                 ),
               ),
-              SizedBox(height: 16),
-              Obx(
-                () => Text(
-                  controller.name.value,
-                  style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-                ),
-              ),
-              Obx(() => Text(controller.email.value ?? '')),
-              TextButton(
-                child: Text('Edit', style: TextStyle(color: Colors.blue)),
-                onPressed: () => _showEditDialog(context),
-              ),
-              Spacer(),
-              InkWell(
-                splashColor: Colors.transparent,
-                onTap: () => appTheme.toggleTheme(),
-                child: Obx(() => Container(
-                      padding:
-                          EdgeInsets.symmetric(vertical: 12, horizontal: 16),
-                      margin: EdgeInsets.only(bottom: 8),
-                      decoration: BoxDecoration(
-                        color:
-                            appTheme.isDarkMode ? Colors.white : Colors.black,
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            'theme',
-                            style: TextStyle(
-                              color: appTheme.isDarkMode
-                                  ? Colors.black
-                                  : Colors.white,
-                            ),
-                          ),
-                          Icon(
-                            Icons.arrow_forward_ios,
-                            size: 16,
+            ),
+            // Remaining items in ListView
+            Expanded(
+              child: ListView(
+                padding: EdgeInsets.symmetric(horizontal: 16),
+                children: [
+                  SizedBox(height: 16),
+                  Obx(
+                    () => Text(
+                      controller.name.value,
+                      style:
+                          TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
+                  Obx(() => Text(controller.email.value ?? '',
+                      textAlign: TextAlign.center)),
+                  TextButton(
+                    child: Text('Edit', style: TextStyle(color: Colors.blue)),
+                    onPressed: () => _showEditDialog(context),
+                  ),
+                  SizedBox(height: 20),
+                  InkWell(
+                    splashColor: Colors.transparent,
+                    onTap: () => appTheme.toggleTheme(),
+                    child: Obx(() => Container(
+                          padding: EdgeInsets.symmetric(
+                              vertical: 12, horizontal: 16),
+                          margin: EdgeInsets.only(bottom: 8),
+                          decoration: BoxDecoration(
                             color: appTheme.isDarkMode
-                                ? Colors.black
-                                : Colors.white,
+                                ? Colors.white
+                                : Colors.black,
+                            borderRadius: BorderRadius.circular(8),
                           ),
-                        ],
-                      ),
-                    )),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                'theme',
+                                style: TextStyle(
+                                  color: appTheme.isDarkMode
+                                      ? Colors.black
+                                      : Colors.white,
+                                ),
+                              ),
+                              Icon(
+                                Icons.arrow_forward_ios,
+                                size: 16,
+                                color: appTheme.isDarkMode
+                                    ? Colors.black
+                                    : Colors.white,
+                              ),
+                            ],
+                          ),
+                        )),
+                  ),
+                  _buildOptionTile('vision board',
+                      onTap: () => Get.toNamed(AppRoutes.VISIONBOARD)),
+                  _buildOptionTile('logout', onTap: () => controller.logout()),
+                  _buildOptionTile('delete account',
+                      onTap: () => controller.deleteAccount()),
+                  SizedBox(height: 20),
+                ],
               ),
-              _buildOptionTile('vision board',
-                  onTap: () => Get.toNamed(AppRoutes.VISIONBOARD)),
-              _buildOptionTile('logout', onTap: () => controller.logout()),
-              _buildOptionTile('delete account',
-                  onTap: () => controller.deleteAccount()),
-              SizedBox(height: 20),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
