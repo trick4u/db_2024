@@ -125,42 +125,42 @@ class EventCard extends StatelessWidget {
     );
   }
 
-Widget _buildTimeColumn() {
-  return Container(
-    width: 60,
-    child: Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        if (event.startTime != null)
-          Text(
-            DateFormat('h:mm a').format(event.startTime!),
-            style: TextStyle(
-              fontWeight: FontWeight.bold,
-              fontSize: 12,
+  Widget _buildTimeColumn() {
+    return Container(
+      width: 60,
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          if (event.startTime != null)
+            Text(
+              DateFormat('h:mm a').format(event.startTime!),
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 12,
+              ),
             ),
-          ),
-        if (event.startTime != null && event.endTime != null)
-          SizedBox(height: 4),
-        if (event.endTime != null)
-          Text(
-            DateFormat('h:mm a').format(event.endTime!),
-            style: TextStyle(
-              fontWeight: FontWeight.bold,
-              fontSize: 12,
+          if (event.startTime != null && event.endTime != null)
+            SizedBox(height: 4),
+          if (event.endTime != null)
+            Text(
+              DateFormat('h:mm a').format(event.endTime!),
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 12,
+              ),
             ),
-          ),
-        if (event.startTime == null && event.endTime == null)
-          Text(
-            DateFormat('h:mm a').format(event.date),
-            style: TextStyle(
-              fontWeight: FontWeight.bold,
-              fontSize: 12,
+          if (event.startTime == null && event.endTime == null)
+            Text(
+              DateFormat('h:mm a').format(event.date),
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 12,
+              ),
             ),
-          ),
-      ],
-    ),
-  );
-}
+        ],
+      ),
+    );
+  }
 
   Widget _buildCardContent() {
     return Card(
@@ -188,7 +188,7 @@ Widget _buildTimeColumn() {
             ),
             Expanded(
               child: Padding(
-                padding: const EdgeInsets.all(12.0),
+                padding: const EdgeInsets.all(10.0),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [

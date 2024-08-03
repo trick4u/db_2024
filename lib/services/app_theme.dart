@@ -28,10 +28,11 @@ class AppTheme extends GetxController {
     Get.changeThemeMode(_isDarkMode.value ? ThemeMode.dark : ThemeMode.light);
   }
 
-  static const ColorScheme lightColorScheme = ColorScheme.light(
+static const ColorScheme lightColorScheme = ColorScheme.light(
     primary: Colors.blue,
     secondary: Colors.blueAccent,
-    surface: Colors.white,
+    surface: Color(0xFFF5F5F5), 
+ // Light grey background
     onSurface: Colors.black,
     onPrimaryContainer: Colors.black,
   );
@@ -40,6 +41,7 @@ class AppTheme extends GetxController {
     primary: Colors.blueAccent,
     secondary: Colors.lightBlueAccent,
     surface: Color(0xFF303030),
+    // Dark grey background
     onSurface: Colors.white,
     onPrimaryContainer: Colors.white,
   );
@@ -50,8 +52,11 @@ class AppTheme extends GetxController {
   Color get cardColor => colorScheme.surface;
   Color get textColor => colorScheme.onSurface;
   Color get secondaryTextColor => colorScheme.onSurface.withOpacity(0.7);
-  Color get backgroundColor => colorScheme.background;
+  Color get backgroundColor => colorScheme.surface;
 
+  Color get textFieldFillColor => _isDarkMode.value 
+      ? Color(0xFF424242)  // Slightly lighter than dark background
+      : Color(0xFFE0E0E0);
   TextStyle get titleLarge => TextStyle(
         fontSize: ScaleUtil.fontSize(20),
         fontWeight: FontWeight.bold,
