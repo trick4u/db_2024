@@ -31,19 +31,16 @@ class MainScreen extends GetWidget<MainScreenController> {
       body: Obx(() => controller.pages[controller.selectedIndex.value]),
       //   bottomNavigationBar: CurvedBottomNavBar(),
       bottomNavigationBar: Obx(() {
-        return GlassContainer(
-          blur: 10,
+        return Container(
+          color: Colors.black,
           height: ScaleUtil.height(70),
           // color: Colors.black,
           // shadowColor: Colors.black.withOpacity(0.2),
-          borderRadius: BorderRadius.only(
-            topLeft: Radius.circular(30),
-            topRight: Radius.circular(30),
-          ),
+
           child: Padding(
             padding: ScaleUtil.symmetric(horizontal: 10, vertical: 10),
             child: Container(
-              height: ScaleUtil.height(60),
+              height: ScaleUtil.height(40),
               decoration: BoxDecoration(
                 //  color: Colors.white,
                 borderRadius: BorderRadius.all(
@@ -72,17 +69,13 @@ class MainScreen extends GetWidget<MainScreenController> {
       child: AnimatedContainer(
         duration: Duration(milliseconds: 300),
         curve: Curves.easeOutCubic,
-        padding: EdgeInsets.all(8),
+        padding: ScaleUtil.all(8),
         decoration: BoxDecoration(
-            color: controller.selectedIndex.value == index
-                ? Colors.black
-                : Colors.white,
-            borderRadius: BorderRadius.circular(10),
-            shape: BoxShape.rectangle),
+            borderRadius: BorderRadius.circular(10), shape: BoxShape.rectangle),
         child: Icon(icon,
             color: controller.selectedIndex.value == index
                 ? Colors.white
-                : Colors.black,
+                : Colors.grey,
             size: ScaleUtil.height(30)),
       ),
     );
@@ -101,8 +94,8 @@ class BottomBar extends StatelessWidget {
   Widget build(BuildContext context) {
     return Obx(() => ClipRRect(
           borderRadius: BorderRadius.only(
-            topLeft: Radius.circular(20),
-            topRight: Radius.circular(20),
+            topLeft: Radius.circular(10),
+            topRight: Radius.circular(10),
           ),
           child: BottomAppBar(
             //  color: Colors.white,

@@ -27,46 +27,49 @@ class ProfileScreen extends GetWidget<ProfileController> {
         child: Column(
           children: [
             // Static blue container
-            Padding(
-              padding: EdgeInsets.symmetric(vertical: 30, horizontal: 16),
-              child: Container(
-                height: ScaleUtil.height(200),
-                width: ScaleUtil.width(200),
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(20),
-                  boxShadow: [
-                    BoxShadow(
-                      color: appTheme.colorScheme.primary.withOpacity(0.3),
-                      blurRadius: 10,
-                      spreadRadius: 1,
-                      offset: Offset(0, 5),
+            Column(
+              children: [
+                Padding(
+                  padding: ScaleUtil.symmetric(vertical: 15),
+                  child: Container(
+                    height: ScaleUtil.height(200),
+                    width: ScaleUtil.width(200),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(20),
+                      boxShadow: [
+                        BoxShadow(
+                          color: appTheme.colorScheme.primary.withOpacity(0.3),
+                          blurRadius: 10,
+                          spreadRadius: 1,
+                          offset: Offset(0, 5),
+                        ),
+                      ],
+                      color: Colors.blue,
+                      shape: BoxShape.rectangle,
                     ),
-                  ],
-                  color: Colors.blue,
-                  shape: BoxShape.rectangle,
+                  ),
                 ),
-              ),
+                SizedBox(height: 16),
+                Obx(
+                  () => Text(
+                    controller.name.value,
+                    style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                    textAlign: TextAlign.center,
+                  ),
+                ),
+                Obx(() => Text(controller.email.value ?? '',
+                    textAlign: TextAlign.center)),
+                TextButton(
+                  child: Text('Edit', style: TextStyle(color: Colors.blue)),
+                  onPressed: () => _showEditDialog(context),
+                ),
+              ],
             ),
             // Remaining items in ListView
             Expanded(
               child: ListView(
                 padding: EdgeInsets.symmetric(horizontal: 16),
                 children: [
-                  SizedBox(height: 16),
-                  Obx(
-                    () => Text(
-                      controller.name.value,
-                      style:
-                          TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-                      textAlign: TextAlign.center,
-                    ),
-                  ),
-                  Obx(() => Text(controller.email.value ?? '',
-                      textAlign: TextAlign.center)),
-                  TextButton(
-                    child: Text('Edit', style: TextStyle(color: Colors.blue)),
-                    onPressed: () => _showEditDialog(context),
-                  ),
                   SizedBox(height: 20),
                   InkWell(
                     splashColor: Colors.transparent,

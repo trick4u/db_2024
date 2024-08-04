@@ -30,6 +30,7 @@ class _EventBottomSheetState extends State<EventBottomSheet> {
   DateTime? _startTime;
   DateTime? _endTime;
   late Color _selectedColor;
+  bool _isReminderSet = false;
 
   @override
   void initState() {
@@ -229,6 +230,31 @@ class _EventBottomSheetState extends State<EventBottomSheet> {
                     ],
                   ),
                   SizedBox(height: 16),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: ElevatedButton.icon(
+                          icon: Icon(_isReminderSet
+                              ? Icons.alarm_on
+                              : Icons.alarm_add),
+                          label: Text(
+                              _isReminderSet ? 'Reminder Set' : 'Set Reminder'),
+                          onPressed: () {
+                            setState(() {
+                              _isReminderSet = !_isReminderSet;
+                            });
+                            // TODO: Implement reminder functionality
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: _isReminderSet
+                                ? Colors.green
+                                : appTheme.colorScheme.secondary,
+                            foregroundColor: appTheme.colorScheme.onSecondary,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
                   Row(
                     children: [
                       SizedBox(width: 16),
