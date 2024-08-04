@@ -114,6 +114,16 @@ void main() async {
           importance: NotificationImportance.Low,
           channelShowBadge: true,
         ),
+          NotificationChannel(
+          channelKey: 'event_reminders',
+          channelName: 'Reminder Notifications',
+          channelDescription:
+              'Notification channel for daily motivational quotes',
+          defaultColor: Color(0xFF9D50DD),
+          ledColor: Colors.white,
+          importance: NotificationImportance.High,
+          channelShowBadge: true,
+        ),
       ],
       debug: true);
 

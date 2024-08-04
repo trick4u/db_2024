@@ -14,7 +14,7 @@ import 'package:tushar_db/services/app_text_style.dart';
 
 import '../controller/theme_controller.dart';
 import '../models/goals_model.dart';
-import '../models/quick_event_mode.dart';
+import '../models/quick_event_model.dart';
 import '../projectController/page_one_controller.dart';
 import '../projectController/pomodoro_controller.dart';
 import '../services/app_theme.dart';
@@ -279,33 +279,37 @@ class PageOneScreen extends GetWidget<PageOneController> {
     );
   }
 
-  void showEventBottomSheet(BuildContext context, QuickEventModel event) {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (context) => Padding(
-        padding: EdgeInsets.only(
-          bottom: MediaQuery.of(context).viewInsets.bottom,
-        ),
-        child: EventBottomSheet(
-          event: event,
-          initialDate: event.date,
-          onSave: (title, description, date, startTime, endTime, color) {
-            controller.updateUpcomingEvent(
-              event.id,
-              title,
-              description,
-              date,
-              startTime,
-              endTime,
-              color,
-            );
-          },
-        ),
+void showEventBottomSheet(BuildContext context, QuickEventModel event) {
+  showModalBottomSheet(
+    context: context,
+    isScrollControlled: true,
+    backgroundColor: Colors.transparent,
+    builder: (context) => Padding(
+      padding: EdgeInsets.only(
+        bottom: MediaQuery.of(context).viewInsets.bottom,
       ),
-    );
-  }
+      child: EventBottomSheet(
+        event: event,
+        initialDate: event.date,
+        onSave: (title, description, date, startTime, endTime, color, hasReminder, reminderTime) {
+          // Convert TimeOfDay to DateTime
+         
+          controller.updateUpcomingEvent(
+            event.id,
+            title,
+            description,
+            date,
+            startTime,
+            endTime,
+            color,
+            hasReminder,
+            reminderTime ,
+          );
+        },
+      ),
+    ),
+  );
+}
 
   void showBottomSheet() {
     Get.bottomSheet(

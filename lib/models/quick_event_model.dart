@@ -9,6 +9,8 @@ class QuickEventModel {
   final DateTime? startTime;
   final DateTime? endTime;
   final Color color;
+  final bool hasReminder;
+   DateTime? reminderTime;
 
   QuickEventModel({
     required this.id,
@@ -18,6 +20,8 @@ class QuickEventModel {
     this.startTime,
     this.endTime,
     required this.color,
+    required this.hasReminder,
+    this.reminderTime,
   });
 
   factory QuickEventModel.fromFirestore(DocumentSnapshot doc) {
@@ -30,6 +34,8 @@ class QuickEventModel {
       startTime: data['startTime'] != null ? (data['startTime'] as Timestamp).toDate() : null,
       endTime: data['endTime'] != null ? (data['endTime'] as Timestamp).toDate() : null,
       color: Color(data['color'] ?? 0xFF000000),
+      hasReminder: data['hasReminder'] ?? false,
+      reminderTime: data['reminderTime'] != null ? (data['reminderTime'] as Timestamp).toDate() : null,
     );
   }
 }

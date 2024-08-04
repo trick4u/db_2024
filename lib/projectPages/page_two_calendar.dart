@@ -10,7 +10,7 @@ import 'package:intl/intl.dart';
 import 'package:table_calendar/table_calendar.dart';
 import 'package:tushar_db/services/scale_util.dart';
 
-import '../models/quick_event_mode.dart';
+import '../models/quick_event_model.dart';
 import '../projectController/calendar_controller.dart';
 import '../widgets/calendar_header.dart';
 import '../widgets/event_card.dart';

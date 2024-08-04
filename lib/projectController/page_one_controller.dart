@@ -12,7 +12,7 @@ import 'package:just_audio/just_audio.dart';
 import 'package:youtube_explode_dart/youtube_explode_dart.dart';
 
 import '../models/goals_model.dart';
-import '../models/quick_event_mode.dart';
+import '../models/quick_event_model.dart';
 import '../projectPages/awesome_noti.dart';
 import '../services/notification_service.dart';
 import 'add_task_controller.dart';
@@ -164,7 +164,7 @@ class PageOneController extends GetxController {
       DateTime newDate,
       TimeOfDay? newStartTime,
       TimeOfDay? newEndTime,
-      Color newColor) async {
+      Color newColor, bool hasReminder, DateTime? reminderTime) async {
     if (currentUser == null) return;
     try {
       await eventsCollection.doc(eventId).update({

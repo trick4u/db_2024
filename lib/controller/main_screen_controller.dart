@@ -8,7 +8,7 @@ import 'package:tushar_db/projectController/calendar_controller.dart';
 import 'package:tushar_db/projectController/profile_controller.dart';
 import 'package:tushar_db/projectPages/goals.dart';
 
-import '../models/quick_event_mode.dart';
+import '../models/quick_event_model.dart';
 import '../projectController/page_one_controller.dart';
 import '../projectController/page_threeController.dart';
 import '../projectPages/awesome_noti.dart';

@@ -5,7 +5,7 @@ import 'package:get/get.dart';
 import 'package:time_picker_spinner_pop_up/time_picker_spinner_pop_up.dart';
 import 'package:tushar_db/services/scale_util.dart';
 
-import '../models/quick_event_mode.dart';
+import '../models/quick_event_model.dart';
 import '../projectController/calendar_controller.dart';
 import '../services/app_text_style.dart';
 import '../services/app_theme.dart';
@@ -13,8 +13,8 @@ import '../services/app_theme.dart';
 class EventBottomSheet extends StatefulWidget {
   final QuickEventModel? event;
   final DateTime initialDate;
-  final Function(String, String, DateTime, TimeOfDay?, TimeOfDay?, Color)
-      onSave;
+  final Function(String, String, DateTime, TimeOfDay?, TimeOfDay?, Color, bool,
+      DateTime?) onSave;
 
   EventBottomSheet(
       {this.event, required this.initialDate, required this.onSave});
@@ -32,14 +32,20 @@ class _EventBottomSheetState extends State<EventBottomSheet> {
   late Color _selectedColor;
   bool _isReminderSet = false;
 
+  late TimePickerSpinnerController _reminderController;
+  DateTime? _reminderTime;
+
   @override
   void initState() {
     super.initState();
+    _reminderController = TimePickerSpinnerController();
     _titleController = TextEditingController(text: widget.event?.title ?? '');
     _descriptionController =
         TextEditingController(text: widget.event?.description ?? '');
     _selectedDate = widget.event?.date ?? widget.initialDate;
     _selectedColor = widget.event?.color ?? Get.theme.primaryColor;
+    _isReminderSet = widget.event?.reminderTime != null;
+    _reminderTime = widget.event?.reminderTime;
     if (widget.event != null) {
       // Assume you have start and end time in your EventModel
       // _startTime = TimeOfDay.fromDateTime(widget.event!.startTime);
@@ -51,6 +57,7 @@ class _EventBottomSheetState extends State<EventBottomSheet> {
   void dispose() {
     _titleController.dispose();
     _descriptionController.dispose();
+    _reminderController.dispose();
     super.dispose();
   }
 
@@ -233,46 +240,61 @@ class _EventBottomSheetState extends State<EventBottomSheet> {
                   Row(
                     children: [
                       Expanded(
-                        child: ElevatedButton.icon(
-                          icon: Icon(_isReminderSet
-                              ? Icons.alarm_on
-                              : Icons.alarm_add),
-                          label: Text(
-                              _isReminderSet ? 'Reminder Set' : 'Set Reminder'),
-                          onPressed: () {
-                            setState(() {
-                              _isReminderSet = !_isReminderSet;
-                            });
-                            // TODO: Implement reminder functionality
+                        child: TimePickerSpinnerPopUp(
+                          mode: CupertinoDatePickerMode.time,
+                          initTime: _reminderTime ?? DateTime.now(),
+                          onChange: (dateTime) {
+                            if (_isReminderSet) {
+                              setState(() {
+                                _reminderTime = dateTime;
+                              });
+                            }
                           },
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: _isReminderSet
-                                ? Colors.green
-                                : appTheme.colorScheme.secondary,
-                            foregroundColor: appTheme.colorScheme.onSecondary,
-                          ),
+                          barrierColor: Colors.black26,
+                          minuteInterval: 1,
+                          padding: const EdgeInsets.fromLTRB(12, 10, 12, 10),
+                          cancelText: 'Cancel',
+                          confirmText: 'OK',
+                          pressType: PressType.singlePress,
+                          timeFormat: 'HH:mm',
                         ),
                       ),
                     ],
                   ),
+                  SizedBox(height: 8),
+                  ReminderButton(
+                    isReminderSet: _isReminderSet,
+                    reminderTime: _reminderTime,
+                    onPressed: () {
+                      setState(() {
+                        _isReminderSet = !_isReminderSet;
+                        if (_isReminderSet) {
+                          _reminderTime = _reminderTime ?? DateTime.now();
+                        } else {
+                          _reminderTime = null;
+                        }
+                      });
+                    },
+                  ),
+                  SizedBox(height: 8),
                   Row(
                     children: [
-                      SizedBox(width: 16),
                       Expanded(
                         child: ElevatedButton(
                           onPressed: () {
                             widget.onSave(
-                              _titleController.text,
-                              _descriptionController.text,
-                              _selectedDate,
-                              _startTime != null
-                                  ? TimeOfDay.fromDateTime(_startTime!)
-                                  : null,
-                              _endTime != null
-                                  ? TimeOfDay.fromDateTime(_endTime!)
-                                  : null,
-                              _selectedColor,
-                            );
+                                _titleController.text,
+                                _descriptionController.text,
+                                _selectedDate,
+                                _startTime != null
+                                    ? TimeOfDay.fromDateTime(_startTime!)
+                                    : null,
+                                _endTime != null
+                                    ? TimeOfDay.fromDateTime(_endTime!)
+                                    : null,
+                                _selectedColor,
+                                _isReminderSet,
+                                _isReminderSet ? _reminderTime : null);
                             Navigator.pop(context);
                           },
                           style: appTheme.primaryButtonStyle,
@@ -331,5 +353,86 @@ class _EventBottomSheetState extends State<EventBottomSheet> {
         );
       },
     );
+  }
+
+  void _showReminderTimePicker(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          content: Container(
+            height: 100,
+            child: TimePickerSpinnerPopUp(
+              mode: CupertinoDatePickerMode.time,
+              initTime: _reminderTime ?? DateTime.now(),
+              onChange: (dateTime) {
+                setState(() {
+                  _reminderTime = dateTime;
+                });
+              },
+              barrierColor: Colors.black26,
+              minuteInterval: 1,
+              padding: const EdgeInsets.fromLTRB(12, 10, 12, 10),
+              cancelText: 'Cancel',
+              confirmText: 'OK',
+              pressType: PressType.singlePress,
+              timeFormat: 'HH:mm',
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  String _formatTime(DateTime dateTime) {
+    return "${dateTime.hour.toString().padLeft(2, '0')}:${dateTime.minute.toString().padLeft(2, '0')}";
+  }
+}
+
+class ReminderButton extends StatelessWidget {
+  final DateTime? reminderTime;
+  final VoidCallback onPressed;
+  final bool isReminderSet;
+
+  const ReminderButton({
+    Key? key,
+    required this.reminderTime,
+    required this.onPressed,
+    required this.isReminderSet,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    final appTheme = Get.find<AppTheme>();
+    return InkWell(
+      onTap: onPressed,
+      child: Container(
+        padding: EdgeInsets.symmetric(vertical: 10, horizontal: 15),
+        decoration: BoxDecoration(
+          color: isReminderSet ? Colors.green : appTheme.colorScheme.secondary,
+          borderRadius: BorderRadius.circular(8),
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              isReminderSet ? Icons.alarm_on : Icons.alarm_add,
+              color: appTheme.colorScheme.onSecondary,
+            ),
+            SizedBox(width: 8),
+            Text(
+              isReminderSet && reminderTime != null
+                  ? 'Reminder: ${_formatTime(reminderTime!)}'
+                  : 'Set Reminder',
+              style: TextStyle(color: appTheme.colorScheme.onSecondary),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  String _formatTime(DateTime dateTime) {
+    return "${dateTime.hour.toString().padLeft(2, '0')}:${dateTime.minute.toString().padLeft(2, '0')}";
   }
 }

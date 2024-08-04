@@ -1,3 +1,4 @@
+import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -5,7 +6,7 @@ import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
 import 'package:table_calendar/table_calendar.dart';
 
-import '../models/quick_event_mode.dart';
+import '../models/quick_event_model.dart';
 import '../projectPages/page_two_calendar.dart';
 import '../widgets/event_bottomSheet.dart';
 
@@ -167,10 +168,22 @@ class CalendarController extends GetxController {
         child: EventBottomSheet(
           event: event,
           initialDate: selectedDay,
-          onSave: (title, description, date, startTime, endTime, color) {
+          onSave: (title, description, date, TimeOfDay? startTime,
+              TimeOfDay? endTime, color, hasReminder, reminderTime) {
+            // Convert TimeOfDay to DateTime
+            DateTime? startDateTime = startTime != null
+                ? DateTime(date.year, date.month, date.day, startTime.hour,
+                    startTime.minute)
+                : null;
+            DateTime? endDateTime = endTime != null
+                ? DateTime(date.year, date.month, date.day, endTime.hour,
+                    endTime.minute)
+                : null;
+
             if (event == null) {
               if (canAddEvent(date)) {
-                addEvent(title, description, date, startTime, endTime, color);
+                addEvent(title, description, date, startDateTime, endDateTime,
+                    color, hasReminder, reminderTime);
               } else {
                 Get.snackbar(
                   'Cannot Add Event',
@@ -179,8 +192,8 @@ class CalendarController extends GetxController {
                 );
               }
             } else {
-              updateEvent(event.id, title, description, date, startTime,
-                  endTime, color);
+              updateEvent(event.id, title, description, date, startDateTime,
+                  endDateTime, color, hasReminder, reminderTime);
             }
           },
         ),
@@ -188,8 +201,15 @@ class CalendarController extends GetxController {
     );
   }
 
-  void addEvent(String title, String description, DateTime date,
-      TimeOfDay? startTime, TimeOfDay? endTime, Color color) async {
+  void addEvent(
+      String title,
+      String description,
+      DateTime date,
+      DateTime? startTime,
+      DateTime? endTime,
+      Color color,
+      bool hasReminder,
+      DateTime? reminderTime) async {
     if (currentUser == null) return;
 
     if (!canAddMoreEvents(date)) {
@@ -202,28 +222,35 @@ class CalendarController extends GetxController {
     }
 
     try {
-      DateTime now = DateTime.now();
-      DateTime eventDate =
-          DateTime(date.year, date.month, date.day, now.hour, now.minute);
-
-      await eventsCollection.add({
+      DocumentReference docRef = await eventsCollection.add({
         'title': title,
         'description': description,
-        'date': Timestamp.fromDate(eventDate),
-        'startTime': startTime != null
-            ? Timestamp.fromDate(
-                DateTime(date.year, date.month, date.day, startTime.hour,
-                    startTime.minute),
-              )
-            : null,
-        'endTime': endTime != null
-            ? Timestamp.fromDate(DateTime(
-                date.year, date.month, date.day, endTime.hour, endTime.minute))
-            : null,
+        'date': Timestamp.fromDate(date),
+        'startTime': startTime != null ? Timestamp.fromDate(startTime) : null,
+        'endTime': endTime != null ? Timestamp.fromDate(endTime) : null,
         'color': color.value,
+        'hasReminder': hasReminder,
+        'reminderTime':
+            reminderTime != null ? Timestamp.fromDate(reminderTime) : null,
       });
 
-      print('Event added for date: $eventDate');
+      QuickEventModel newEvent = QuickEventModel(
+        id: docRef.id,
+        title: title,
+        description: description,
+        date: date,
+        startTime: startTime,
+        endTime: endTime,
+        color: color,
+        hasReminder: hasReminder,
+        reminderTime: reminderTime,
+      );
+
+      if (hasReminder && reminderTime != null) {
+        await scheduleNotification(newEvent);
+      }
+
+      print('Event added for date: $date');
       fetchEvents(date);
       update();
     } catch (e) {
@@ -236,37 +263,56 @@ class CalendarController extends GetxController {
       String newTitle,
       String newDescription,
       DateTime newDate,
-      TimeOfDay? newStartTime,
-      TimeOfDay? newEndTime,
-      Color newColor) async {
+      DateTime? newStartTime,
+      DateTime? newEndTime,
+      Color newColor,
+      bool newHasReminder,
+      DateTime? newReminderTime) async {
+    DateTime? startDateTime = newStartTime != null
+        ? DateTime(newDate.year, newDate.month, newDate.day, newStartTime.hour,
+            newStartTime.minute)
+        : null;
+    DateTime? endDateTime = newEndTime != null
+        ? DateTime(newDate.year, newDate.month, newDate.day, newEndTime.hour,
+            newEndTime.minute)
+        : null;
+    bool hasReminder = newReminderTime != null;
+
     if (currentUser == null) return;
     try {
       Map<String, dynamic> updateData = {
         'title': newTitle,
         'description': newDescription,
         'date': Timestamp.fromDate(newDate),
+        'startTime':
+            newStartTime != null ? Timestamp.fromDate(newStartTime) : null,
+        'endTime': newEndTime != null ? Timestamp.fromDate(newEndTime) : null,
         'color': newColor.value,
+        'hasReminder': newHasReminder,
+        'reminderTime': newReminderTime != null
+            ? Timestamp.fromDate(newReminderTime)
+            : null,
       };
 
-      if (newStartTime != null) {
-        updateData['startTime'] = Timestamp.fromDate(DateTime(
-            newDate.year,
-            newDate.month,
-            newDate.day,
-            newStartTime.hour,
-            newStartTime.minute));
-      } else {
-        updateData['startTime'] = null;
-      }
-
-      if (newEndTime != null) {
-        updateData['endTime'] = Timestamp.fromDate(DateTime(newDate.year,
-            newDate.month, newDate.day, newEndTime.hour, newEndTime.minute));
-      } else {
-        updateData['endTime'] = null;
-      }
-
       await eventsCollection.doc(eventId).update(updateData);
+
+      QuickEventModel updatedEvent = QuickEventModel(
+        id: eventId,
+        title: newTitle,
+        description: newDescription,
+        date: newDate,
+        startTime: newStartTime,
+        endTime: newEndTime,
+        color: newColor,
+        hasReminder: newHasReminder,
+        reminderTime: newReminderTime,
+      );
+
+      if (newHasReminder && newReminderTime != null) {
+        await updateNotification(updatedEvent);
+      } else {
+        await cancelNotification(updatedEvent);
+      }
 
       print('Event updated: $eventId');
       fetchEvents(newDate);
@@ -301,5 +347,37 @@ class CalendarController extends GetxController {
     } catch (e) {
       print('Error archiving event: $e');
     }
+  }
+
+  //notifications
+  Future<void> scheduleNotification(QuickEventModel event) async {
+    if (event.reminderTime == null) return;
+
+    int notificationId =
+        event.id.hashCode; // Use the event's ID hash as the notification ID
+
+    await AwesomeNotifications().createNotification(
+      content: NotificationContent(
+        id: notificationId,
+        channelKey: 'event_reminders',
+        title: event.title,
+        body: event.description,
+        notificationLayout: NotificationLayout.Default,
+      ),
+      schedule: NotificationCalendar.fromDate(date: event.reminderTime!),
+    );
+  }
+
+  Future<void> updateNotification(QuickEventModel event) async {
+    // First, cancel the existing notification
+    await cancelNotification(event);
+
+    // Then, schedule a new notification
+    await scheduleNotification(event);
+  }
+
+  Future<void> cancelNotification(QuickEventModel event) async {
+    int notificationId = event.id.hashCode;
+    await AwesomeNotifications().cancel(notificationId);
   }
 }
