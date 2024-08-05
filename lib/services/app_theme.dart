@@ -28,11 +28,11 @@ class AppTheme extends GetxController {
     Get.changeThemeMode(_isDarkMode.value ? ThemeMode.dark : ThemeMode.light);
   }
 
-static const ColorScheme lightColorScheme = ColorScheme.light(
+  static const ColorScheme lightColorScheme = ColorScheme.light(
     primary: Colors.blue,
     secondary: Colors.blueAccent,
-    surface: Color(0xFFF5F5F5), 
- // Light grey background
+    surface: Color(0xFFF5F5F5),
+    // Light grey background
     onSurface: Colors.black,
     onPrimaryContainer: Colors.black,
   );
@@ -54,8 +54,8 @@ static const ColorScheme lightColorScheme = ColorScheme.light(
   Color get secondaryTextColor => colorScheme.onSurface.withOpacity(0.7);
   Color get backgroundColor => colorScheme.surface;
 
-  Color get textFieldFillColor => _isDarkMode.value 
-      ? Color(0xFF424242)  // Slightly lighter than dark background
+  Color get textFieldFillColor => _isDarkMode.value
+      ? Color(0xFF424242) // Slightly lighter than dark background
       : Color(0xFFE0E0E0);
   TextStyle get titleLarge => TextStyle(
         fontSize: ScaleUtil.fontSize(20),
@@ -66,7 +66,7 @@ static const ColorScheme lightColorScheme = ColorScheme.light(
 
   TextStyle get bodyMedium => TextStyle(
         fontSize: ScaleUtil.fontSize(14),
-        color: secondaryTextColor,
+        color: textColor,
         fontFamily: "Euclid",
       );
 

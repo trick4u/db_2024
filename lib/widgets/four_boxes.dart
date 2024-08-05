@@ -6,6 +6,7 @@ import 'package:tushar_db/app_routes.dart';
 import '../projectController/page_one_controller.dart';
 import '../services/app_text_style.dart';
 import '../services/app_theme.dart';
+
 class FourBoxes extends GetWidget<PageOneController> {
   const FourBoxes({super.key});
 
@@ -32,10 +33,10 @@ class FourBoxes extends GetWidget<PageOneController> {
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                             children: [
-                              Text('all notes',
-                                  style: appTheme.titleLarge),
+                              Text('all notes', style: appTheme.titleLarge),
                               IconButton(
-                                icon: Icon(Icons.add, color: appTheme.textColor),
+                                icon:
+                                    Icon(Icons.add, color: appTheme.textColor),
                                 onPressed: () {
                                   Get.toNamed(AppRoutes.NOTES);
                                 },
@@ -44,13 +45,13 @@ class FourBoxes extends GetWidget<PageOneController> {
                           ),
                         ),
                       ),
-                      VerticalDivider(color: appTheme.secondaryTextColor, width: 0.5),
+                      VerticalDivider(
+                          color: appTheme.secondaryTextColor, width: 0.5),
                       Expanded(
                         child: Container(
                           color: appTheme.cardColor,
                           child: Center(
-                            child: Text('Tasks',
-                                style: appTheme.bodyMedium),
+                            child: Text('Tasks', style: appTheme.bodyMedium),
                           ),
                         ),
                       ),
@@ -65,14 +66,20 @@ class FourBoxes extends GetWidget<PageOneController> {
                         child: Container(
                           color: appTheme.cardColor,
                           child: Center(
-                            child: Text(
-                              'Daily journal',
-                              style: appTheme.titleLarge,
+                            child: InkWell(
+                              onTap: () {
+                                Get.toNamed(AppRoutes.JOURNAL);
+                              },
+                              child: Text(
+                                'Daily journal',
+                                style: appTheme.titleLarge,
+                              ),
                             ),
                           ),
                         ),
                       ),
-                      VerticalDivider(color: appTheme.secondaryTextColor, width: 0.5),
+                      VerticalDivider(
+                          color: appTheme.secondaryTextColor, width: 0.5),
                       Expanded(
                         child: Container(
                           color: appTheme.cardColor,

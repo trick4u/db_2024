@@ -350,23 +350,50 @@ class CalendarController extends GetxController {
   }
 
   //notifications
-  Future<void> scheduleNotification(QuickEventModel event) async {
-    if (event.reminderTime == null) return;
+Future<void> scheduleNotification(QuickEventModel event) async {
+  if (!event.hasReminder || event.reminderTime == null) return;
 
-    int notificationId =
-        event.id.hashCode; // Use the event's ID hash as the notification ID
+  int notificationId = event.id.hashCode;
 
-    await AwesomeNotifications().createNotification(
-      content: NotificationContent(
-        id: notificationId,
-        channelKey: 'event_reminders',
-        title: event.title,
-        body: event.description,
-        notificationLayout: NotificationLayout.Default,
-      ),
-      schedule: NotificationCalendar.fromDate(date: event.reminderTime!),
-    );
+  // Create a DateTime that combines the event date and reminder time
+  DateTime scheduledDate = DateTime(
+    event.date.year,
+    event.date.month,
+    event.date.day,
+    event.reminderTime!.hour,
+    event.reminderTime!.minute,
+  );
+
+  // If the scheduled time is in the past, don't schedule the notification
+  if (scheduledDate.isBefore(DateTime.now())) {
+    print('Reminder time is in the past. Notification not scheduled.');
+    return;
   }
+
+  await AwesomeNotifications().createNotification(
+    content: NotificationContent(
+      id: notificationId,
+      channelKey: 'event_reminders',
+      title: event.title,
+      body: event.description,
+      notificationLayout: NotificationLayout.Default,
+      wakeUpScreen: true,
+    ),
+    schedule: NotificationCalendar(
+      year: scheduledDate.year,
+      month: scheduledDate.month,
+      day: scheduledDate.day,
+      hour: scheduledDate.hour,
+      minute: scheduledDate.minute,
+      second: 0,
+      millisecond: 0,
+      repeats: false,
+      allowWhileIdle: true,
+    ),
+  );
+
+  print('Notification scheduled for: ${scheduledDate.toString()}');
+}
 
   Future<void> updateNotification(QuickEventModel event) async {
     // First, cancel the existing notification

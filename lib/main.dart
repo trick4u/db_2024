@@ -123,6 +123,7 @@ void main() async {
           ledColor: Colors.white,
           importance: NotificationImportance.High,
           channelShowBadge: true,
+          playSound: true
         ),
       ],
       debug: true);

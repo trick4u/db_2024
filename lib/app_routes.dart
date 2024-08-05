@@ -21,6 +21,7 @@ import 'projectBinding/add_everything_binding.dart';
 import 'projectBinding/add_taskBinding.dart';
 import 'projectBinding/eat_the_frog_binding.dart';
 import 'projectBinding/goals_binding.dart';
+import 'projectBinding/journal_binding.dart';
 import 'projectBinding/notes_binding.dart';
 import 'projectBinding/page_one_binding.dart';
 import 'projectBinding/profile_bindings.dart';
@@ -30,6 +31,7 @@ import 'projectPages/add_everyting.dart';
 import 'projectPages/add_task.dart';
 import 'projectPages/eat_the_frog.dart';
 import 'projectPages/goals.dart';
+import 'projectPages/journal_page.dart';
 import 'projectPages/main_screen.dart';
 import 'pages/otp_screen.dart';
 import 'pages/phone_auth.dart';
@@ -77,8 +79,14 @@ class AppRoutes {
   static const String NOTES = '/notes';
   static const String VISIONBOARD = '/visionBoard';
   static const String AUTHWRAPPER = '/authWrapper';
+    static const String JOURNAL = '/journal';
 
   static List<GetPage> routes = [
+     GetPage(
+      name: JOURNAL,
+      page: () => JournalPage(),
+      binding: JournalBinding(),
+    ),
     GetPage(
       name: AUTHWRAPPER,
       page: () => AuthWrapper(),
