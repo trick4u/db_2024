@@ -207,58 +207,58 @@ class PageOneScreen extends GetWidget<PageOneController> {
                             Expanded(
                               child: Column(
                                 children: [
-                                  // ListView.builder(
-                                  //   shrinkWrap: true,
-                                  //   itemCount: controller.upcomingEvents.length,
-                                  //   itemBuilder: (context, index) {
-                                  //     QuickEventModel event =
-                                  //         controller.upcomingEvents[index];
-                                  //     return ListTile(
-                                  //       title: Text(event.title),
-                                  //       subtitle: Text('${event.description} '),
-                                  //       leading: Container(
-                                  //         width: 12,
-                                  //         height: 12,
-                                  //         decoration: BoxDecoration(
-                                  //           shape: BoxShape.circle,
-                                  //           color: Colors.red,
-                                  //         ),
-                                  //       ),
-                                  //       onTap: () {
-                                  //         showEventBottomSheet(context, event);
-                                  //       },
-                                  //     );
-                                  //   },
-                                  // ),
-                                  // pending events
-                                  Obx(
-                                    () => ListView.builder(
-                                      shrinkWrap: true,
-                                      itemCount:
-                                          controller.pendingEvents.length,
-                                      itemBuilder: (context, index) {
-                                        QuickEventModel event =
-                                            controller.pendingEvents[index];
-                                        return ListTile(
-                                          title: Text(event.title),
-                                          subtitle:
-                                              Text('${event.description} '),
-                                          leading: Container(
-                                            width: 12,
-                                            height: 12,
-                                            decoration: BoxDecoration(
-                                              shape: BoxShape.circle,
-                                              color: Colors.red,
-                                            ),
+                                  ListView.builder(
+                                    shrinkWrap: true,
+                                    itemCount: controller.upcomingEvents.length,
+                                    itemBuilder: (context, index) {
+                                      QuickEventModel event =
+                                          controller.upcomingEvents[index];
+                                      return ListTile(
+                                        title: Text(event.title),
+                                        subtitle: Text('${event.description} '),
+                                        leading: Container(
+                                          width: 12,
+                                          height: 12,
+                                          decoration: BoxDecoration(
+                                            shape: BoxShape.circle,
+                                            color: Colors.red,
                                           ),
-                                          onTap: () {
-                                            showEventBottomSheet(
-                                                context, event);
-                                          },
-                                        );
-                                      },
-                                    ),
+                                        ),
+                                        onTap: () {
+                                          showEventBottomSheet(context, event);
+                                        },
+                                      );
+                                    },
                                   ),
+                                  // pending events
+                                  // Obx(
+                                  //   () => ListView.builder(
+                                  //     shrinkWrap: true,
+                                  //     itemCount:
+                                  //         controller.pendingEvents.length,
+                                  //     itemBuilder: (context, index) {
+                                  //       QuickEventModel event =
+                                  //           controller.pendingEvents[index];
+                                  //       return ListTile(
+                                  //         title: Text(event.title),
+                                  //         subtitle:
+                                  //             Text('${event.description} '),
+                                  //         leading: Container(
+                                  //           width: 12,
+                                  //           height: 12,
+                                  //           decoration: BoxDecoration(
+                                  //             shape: BoxShape.circle,
+                                  //             color: Colors.red,
+                                  //           ),
+                                  //         ),
+                                  //         onTap: () {
+                                  //           showEventBottomSheet(
+                                  //               context, event);
+                                  //         },
+                                  //       );
+                                  //     },
+                                  //   ),
+                                  // ),
                                 ],
                               ),
                             ),

@@ -122,7 +122,7 @@ class EventCard extends StatelessWidget {
           _buildTimeColumn(),
           SizedBox(width: 8),
           Expanded(child: _buildCardContent()),
-           _buildCompleteButton(),
+          _buildCompleteButton(),
         ],
       ),
     );
@@ -164,10 +164,13 @@ class EventCard extends StatelessWidget {
       ),
     );
   }
+
   Widget _buildCompleteButton() {
     return IconButton(
       icon: Icon(
-        event.isCompleted == true ? Icons.check_circle : Icons.check_circle_outline,
+        event.isCompleted == true
+            ? Icons.check_circle
+            : Icons.check_circle_outline,
         color: event.isCompleted == true ? Colors.green : Colors.grey,
       ),
       onPressed: () => onComplete(event),
@@ -227,6 +230,17 @@ class EventCard extends StatelessWidget {
                 ),
               ),
             ),
+            if (event.isCompleted == true)
+              Container(
+                width: 20,
+                decoration: BoxDecoration(
+                  color: Colors.green,
+                  borderRadius: BorderRadius.only(
+                    topRight: Radius.circular(10),
+                    bottomRight: Radius.circular(10),
+                  ),
+                ),
+              ),
           ],
         ),
       ),
