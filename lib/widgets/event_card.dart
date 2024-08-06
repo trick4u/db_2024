@@ -11,6 +11,7 @@ class EventCard extends StatelessWidget {
   final Function(QuickEventModel) onDelete;
   final Function(QuickEventModel) onEdit;
   final Function(QuickEventModel) onArchive;
+  final Function(QuickEventModel) onComplete;
 
   EventCard({
     Key? key,
@@ -18,6 +19,7 @@ class EventCard extends StatelessWidget {
     required this.onDelete,
     required this.onEdit,
     required this.onArchive,
+    required this.onComplete,
   }) : super(key: key);
 
   @override
@@ -120,6 +122,7 @@ class EventCard extends StatelessWidget {
           _buildTimeColumn(),
           SizedBox(width: 8),
           Expanded(child: _buildCardContent()),
+           _buildCompleteButton(),
         ],
       ),
     );
@@ -161,6 +164,15 @@ class EventCard extends StatelessWidget {
       ),
     );
   }
+  Widget _buildCompleteButton() {
+    return IconButton(
+      icon: Icon(
+        event.isCompleted == true ? Icons.check_circle : Icons.check_circle_outline,
+        color: event.isCompleted == true ? Colors.green : Colors.grey,
+      ),
+      onPressed: () => onComplete(event),
+    );
+  }
 
   Widget _buildCardContent() {
     return Card(
@@ -197,10 +209,20 @@ class EventCard extends StatelessWidget {
                       style: TextStyle(
                         fontWeight: FontWeight.bold,
                         fontSize: 16,
+                        decoration: event.isCompleted == true
+                            ? TextDecoration.lineThrough
+                            : TextDecoration.none,
                       ),
                     ),
                     SizedBox(height: 4),
-                    Text(event.description),
+                    Text(
+                      event.description,
+                      style: TextStyle(
+                        decoration: event.isCompleted == true
+                            ? TextDecoration.lineThrough
+                            : TextDecoration.none,
+                      ),
+                    ),
                   ],
                 ),
               ),

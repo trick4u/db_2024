@@ -55,8 +55,6 @@ class CalendarController extends GetxController {
     update();
   }
 
-  
-
   int getEventCountForDay(DateTime day) {
     DateTime dateKey = DateTime(day.year, day.month, day.day);
     return eventsGrouped[dateKey]?.length ?? 0;
@@ -184,7 +182,7 @@ class CalendarController extends GetxController {
             if (event == null) {
               if (canAddEvent(date)) {
                 addEvent(title, description, date, startDateTime, endDateTime,
-                    color, hasReminder, reminderTime);
+                    color, hasReminder, reminderTime, false);
               } else {
                 Get.snackbar(
                   'Cannot Add Event',
@@ -194,7 +192,7 @@ class CalendarController extends GetxController {
               }
             } else {
               updateEvent(event.id, title, description, date, startDateTime,
-                  endDateTime, color, hasReminder, reminderTime);
+                  endDateTime, color, hasReminder, reminderTime, false);
             }
           },
         ),
@@ -210,7 +208,8 @@ class CalendarController extends GetxController {
       DateTime? endTime,
       Color color,
       bool hasReminder,
-      DateTime? reminderTime) async {
+      DateTime? reminderTime,
+      bool isCompleted) async {
     if (currentUser == null) return;
 
     if (!canAddMoreEvents(date)) {
@@ -227,12 +226,14 @@ class CalendarController extends GetxController {
         'title': title,
         'description': description,
         'date': Timestamp.fromDate(date),
-        'startTime': startTime != null ? Timestamp.fromDate(startTime) : null,
+        'startTime':
+            startTime != null ? Timestamp.fromDate(startTime) : DateTime.now(),
         'endTime': endTime != null ? Timestamp.fromDate(endTime) : null,
         'color': color.value,
         'hasReminder': hasReminder,
         'reminderTime':
             reminderTime != null ? Timestamp.fromDate(reminderTime) : null,
+        'isCompleted': isCompleted,
       });
 
       QuickEventModel newEvent = QuickEventModel(
@@ -245,6 +246,7 @@ class CalendarController extends GetxController {
         color: color,
         hasReminder: hasReminder,
         reminderTime: reminderTime,
+        isCompleted: isCompleted,
       );
 
       if (hasReminder && reminderTime != null) {
@@ -268,7 +270,8 @@ class CalendarController extends GetxController {
       DateTime? newEndTime,
       Color newColor,
       bool newHasReminder,
-      DateTime? newReminderTime) async {
+      DateTime? newReminderTime,
+      bool isCompleted) async {
     DateTime? startDateTime = newStartTime != null
         ? DateTime(newDate.year, newDate.month, newDate.day, newStartTime.hour,
             newStartTime.minute)
@@ -293,6 +296,7 @@ class CalendarController extends GetxController {
         'reminderTime': newReminderTime != null
             ? Timestamp.fromDate(newReminderTime)
             : null,
+        'isCompleted': isCompleted,
       };
 
       await eventsCollection.doc(eventId).update(updateData);
@@ -430,5 +434,21 @@ class CalendarController extends GetxController {
       'eventCountByMonth': eventCountByMonth,
       'totalEvents': totalEvents,
     };
+  }
+
+  void toggleEventCompletion(String eventId) async {
+    if (currentUser == null) return;
+    try {
+      DocumentSnapshot eventDoc = await eventsCollection.doc(eventId).get();
+      if (eventDoc.exists) {
+        bool currentStatus = eventDoc.get('isCompleted') ?? false;
+        await eventsCollection
+            .doc(eventId)
+            .update({'isCompleted': !currentStatus});
+        fetchEvents(selectedDay);
+      }
+    } catch (e) {
+      print('Error toggling event completion: $e');
+    }
   }
 }

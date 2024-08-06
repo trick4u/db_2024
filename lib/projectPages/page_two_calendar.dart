@@ -369,6 +369,9 @@ class CalendarPage extends GetWidget<CalendarController> {
                                     physics: AlwaysScrollableScrollPhysics(),
                                     itemBuilder: (context, index) {
                                       return EventCard(
+                                      onComplete: (event){
+                                        controller.toggleEventCompletion(event.id);
+                                      },
                                         onEdit: (event) {
                                           controller.showEventBottomSheet(
                                               context,

@@ -10,7 +10,8 @@ class QuickEventModel {
   final DateTime? endTime;
   final Color color;
   final bool hasReminder;
-   DateTime? reminderTime;
+  DateTime? reminderTime;
+  final bool? isCompleted; // New field
 
   QuickEventModel({
     required this.id,
@@ -22,6 +23,7 @@ class QuickEventModel {
     required this.color,
     required this.hasReminder,
     this.reminderTime,
+     this.isCompleted, // Add this to the constructor
   });
 
   factory QuickEventModel.fromFirestore(DocumentSnapshot doc) {
@@ -31,11 +33,18 @@ class QuickEventModel {
       title: data['title'] ?? '',
       description: data['description'] ?? '',
       date: (data['date'] as Timestamp).toDate(),
-      startTime: data['startTime'] != null ? (data['startTime'] as Timestamp).toDate() : null,
-      endTime: data['endTime'] != null ? (data['endTime'] as Timestamp).toDate() : null,
+      startTime: data['startTime'] != null
+          ? (data['startTime'] as Timestamp).toDate()
+          : null,
+      endTime: data['endTime'] != null
+          ? (data['endTime'] as Timestamp).toDate()
+          : null,
       color: Color(data['color'] ?? 0xFF000000),
       hasReminder: data['hasReminder'] ?? false,
-      reminderTime: data['reminderTime'] != null ? (data['reminderTime'] as Timestamp).toDate() : null,
+      reminderTime: data['reminderTime'] != null
+          ? (data['reminderTime'] as Timestamp).toDate()
+          : null,
+      isCompleted: data['isCompleted'] ?? false, // Add this to parse from Firestore
     );
   }
 }
