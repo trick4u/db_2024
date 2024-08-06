@@ -37,6 +37,12 @@ class JournalPage extends GetWidget<JournalController> {
                 return Card(
                   child: ListTile(
                     title: Text(entry.title),
+                    trailing: IconButton(
+                      onPressed: () {
+                        controller.removeEntry(entry.id);
+                      },
+                      icon: Icon(FontAwesomeIcons.deleteLeft),
+                    ),
                     subtitle: Text(
                       DateFormat('MMMM d, yyyy').format(entry.date),
                     ),
@@ -79,8 +85,10 @@ class JournalEntryView extends GetWidget<JournalController> {
                     color: Theme.of(context).primaryColor,
                     borderRadius: BorderRadius.circular(10),
                   ),
-                  child: Text(DateFormat('MMMM d, yyyy').format(currentDate),
-                      style: appTheme.bodyMedium),
+                  child: Text(
+                    DateFormat('MMMM d, yyyy').format(currentDate),
+                    style: appTheme.bodyMedium.copyWith(color: Colors.white),
+                  ),
                 ),
               ),
               SizedBox(
@@ -96,7 +104,7 @@ class JournalEntryView extends GetWidget<JournalController> {
                   controller: titleController,
                   style: appTheme.bodyMedium,
                   decoration: InputDecoration(
-                    hintText: "Please write on..",
+                    hintText: "What should be its title..",
                     filled: true,
                     fillColor: Colors
                         .transparent, // Make this transparent as the Container handles the background

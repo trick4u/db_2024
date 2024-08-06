@@ -50,10 +50,10 @@ class MainScreen extends GetWidget<MainScreenController> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
-                  _buildNavItem(Icons.home, 0),
-                  _buildNavItem(Icons.article, 1),
-                  _buildNavItem(Icons.search, 2),
-                  _buildNavItem(Icons.add_box, 3),
+                  _buildNavItem(FontAwesomeIcons.house, 0),
+                  _buildNavItem(FontAwesomeIcons.calendarCheck, 1),
+                  _buildNavItem(FontAwesomeIcons.chartSimple, 2),
+                  _buildNavItem(FontAwesomeIcons.user, 3),
                 ],
               ),
             ),
@@ -76,7 +76,7 @@ class MainScreen extends GetWidget<MainScreenController> {
             color: controller.selectedIndex.value == index
                 ? Colors.white
                 : Colors.grey,
-            size: ScaleUtil.height(30)),
+            size: ScaleUtil.height(20)),
       ),
     );
   }
@@ -200,7 +200,8 @@ class CurvedBottomNavBar extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
           IconButton(
-              icon: Icon(Icons.home, color: Colors.white), onPressed: () {}),
+              icon: Icon(FontAwesomeIcons.house, color: Colors.white),
+              onPressed: () {}),
           IconButton(
               icon: Icon(Icons.favorite, color: Colors.white),
               onPressed: () {}),

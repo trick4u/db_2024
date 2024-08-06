@@ -11,6 +11,7 @@ import 'package:shape_of_view_null_safe/shape_of_view_null_safe.dart';
 import 'package:tushar_db/app_routes.dart';
 import 'package:tushar_db/constants/colors.dart';
 import 'package:tushar_db/services/app_text_style.dart';
+import 'package:tushar_db/services/scale_util.dart';
 
 import '../controller/theme_controller.dart';
 import '../models/goals_model.dart';
@@ -30,14 +31,13 @@ import '../widgets/three_day.dart';
 import '../widgets/three_shaped_box.dart';
 import 'main_screen.dart';
 import 'music_page.dart';
+import 'statistics_page.dart';
 
 class PageOneScreen extends GetWidget<PageOneController> {
- final appTheme = Get.find<AppTheme>();
-  
- 
+  final appTheme = Get.find<AppTheme>();
+
   @override
   Widget build(BuildContext context) {
-   
     return SafeArea(
       child: Container(
         height: MediaQuery.of(context).size.height,
@@ -53,7 +53,7 @@ class PageOneScreen extends GetWidget<PageOneController> {
                     Get.to(() => MusicView());
                   },
                   child: Text(
-                    '${controller.greeting}',
+                    controller.greeting.toLowerCase() + ".",
                     style: AppTextTheme.textTheme.displayLarge,
                   ),
                 )),
@@ -71,7 +71,7 @@ class PageOneScreen extends GetWidget<PageOneController> {
                   controller.carouselPageIndex.value = index;
                 },
                 children: [
-                  ThreeShapedBox(),
+                  AllSixCards(),
                   FourBoxes(),
                   ThreeDayTasks(),
                   GoalsContainer(),
@@ -116,6 +116,12 @@ class PageOneScreen extends GetWidget<PageOneController> {
                           child: Column(
                             children: [
                               Text("Just Check"),
+                              InkWell(
+                                onTap: () {
+                                  Get.to(() => StatisticsPage());
+                                },
+                                child: Text("statistics"),
+                              ),
                             ],
                           ),
                         ),
@@ -279,37 +285,38 @@ class PageOneScreen extends GetWidget<PageOneController> {
     );
   }
 
-void showEventBottomSheet(BuildContext context, QuickEventModel event) {
-  showModalBottomSheet(
-    context: context,
-    isScrollControlled: true,
-    backgroundColor: Colors.transparent,
-    builder: (context) => Padding(
-      padding: EdgeInsets.only(
-        bottom: MediaQuery.of(context).viewInsets.bottom,
+  void showEventBottomSheet(BuildContext context, QuickEventModel event) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => Padding(
+        padding: EdgeInsets.only(
+          bottom: MediaQuery.of(context).viewInsets.bottom,
+        ),
+        child: EventBottomSheet(
+          event: event,
+          initialDate: event.date,
+          onSave: (title, description, date, startTime, endTime, color,
+              hasReminder, reminderTime) {
+            // Convert TimeOfDay to DateTime
+
+            controller.updateUpcomingEvent(
+              event.id,
+              title,
+              description,
+              date,
+              startTime,
+              endTime,
+              color,
+              hasReminder,
+              reminderTime,
+            );
+          },
+        ),
       ),
-      child: EventBottomSheet(
-        event: event,
-        initialDate: event.date,
-        onSave: (title, description, date, startTime, endTime, color, hasReminder, reminderTime) {
-          // Convert TimeOfDay to DateTime
-         
-          controller.updateUpcomingEvent(
-            event.id,
-            title,
-            description,
-            date,
-            startTime,
-            endTime,
-            color,
-            hasReminder,
-            reminderTime ,
-          );
-        },
-      ),
-    ),
-  );
-}
+    );
+  }
 
   void showBottomSheet() {
     Get.bottomSheet(
@@ -420,6 +427,115 @@ void showEventBottomSheet(BuildContext context, QuickEventModel event) {
             ),
           ),
         ),
+      ),
+    );
+  }
+}
+
+class AllSixCards extends StatelessWidget {
+  const AllSixCards({
+    super.key,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: ScaleUtil.symmetric(vertical: 8),
+      child: Column(
+        children: [
+          Container(
+            margin: EdgeInsets.only(bottom: 16.0),
+            padding: EdgeInsets.all(8.0),
+            child: Row(
+              children: [
+                Expanded(
+                  child: Container(
+                    height: ScaleUtil.height(40),
+                    padding: EdgeInsets.all(8.0),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(10),
+                      color: Colors.blue,
+                    ),
+                    child: Text('Daily journal'),
+                  ),
+                ),
+                SizedBox(width: 8.0),
+                Expanded(
+                  child: Container(
+                    height: ScaleUtil.height(40),
+                    padding: EdgeInsets.all(8.0),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(10),
+                      color: Colors.green,
+                    ),
+                    child: Text('Take notes'),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Container(
+            margin: EdgeInsets.only(bottom: 16.0),
+            padding: ScaleUtil.symmetric(vertical: 5),
+            child: Row(
+              children: [
+                Expanded(
+                  child: Container(
+                    height: ScaleUtil.height(40),
+                    padding: EdgeInsets.all(8.0),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(10),
+                      color: Colors.red,
+                    ),
+                    child: Text('All reminders'),
+                  ),
+                ),
+                SizedBox(width: 8.0),
+                Expanded(
+                  child: Container(
+                    height: ScaleUtil.height(40),
+                    padding: EdgeInsets.all(8.0),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(10),
+                      color: Colors.blue,
+                    ),
+                    child: Text('Completed tasks'),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Container(
+            padding: ScaleUtil.symmetric(vertical: 5),
+            child: Row(
+              children: [
+                Expanded(
+                  child: Container(
+                    height: ScaleUtil.height(40),
+                    padding: EdgeInsets.all(8.0),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(10),
+                      color: Colors.green,
+                    ),
+                    child: Text('Upcoming'),
+                  ),
+                ),
+                SizedBox(width: 8.0),
+                Expanded(
+                  child: Container(
+                    height: ScaleUtil.height(40),
+                    padding: EdgeInsets.all(8.0),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(10),
+                      color: Colors.red,
+                    ),
+                    child: Text('Vision'),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }

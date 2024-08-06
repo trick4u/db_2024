@@ -63,6 +63,7 @@ void main() async {
 
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+   FirebaseFirestore.instance.settings = Settings(persistenceEnabled: true);
   Get.put(AuthService());
   await initializeTimeZone();
   if (Platform.isAndroid) {

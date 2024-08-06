@@ -4,6 +4,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
+import 'package:intl/intl.dart';
 import 'package:table_calendar/table_calendar.dart';
 
 import '../models/quick_event_model.dart';
@@ -407,4 +408,26 @@ Future<void> scheduleNotification(QuickEventModel event) async {
     int notificationId = event.id.hashCode;
     await AwesomeNotifications().cancel(notificationId);
   }
+
+  //
+  Map<String, dynamic> getEventStatistics() {
+  Map<String, int> eventCountByDay = {};
+  Map<String, int> eventCountByMonth = {};
+  int totalEvents = 0;
+
+  eventsGrouped.forEach((date, events) {
+    String dayKey = DateFormat('EEEE').format(date); // e.g., "Monday"
+    String monthKey = DateFormat('MMMM').format(date); // e.g., "January"
+    
+    eventCountByDay[dayKey] = (eventCountByDay[dayKey] ?? 0) + events.length;
+    eventCountByMonth[monthKey] = (eventCountByMonth[monthKey] ?? 0) + events.length;
+    totalEvents += events.length;
+  });
+
+  return {
+    'eventCountByDay': eventCountByDay,
+    'eventCountByMonth': eventCountByMonth,
+    'totalEvents': totalEvents,
+  };
+}
 }
