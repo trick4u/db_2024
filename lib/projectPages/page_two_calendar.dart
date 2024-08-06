@@ -105,6 +105,18 @@ class CalendarPage extends GetWidget<CalendarController> {
                                 controller.toggleCalendarFormat();
                                 controller.setFocusedDay(focusedDay);
                               },
+                              daysOfWeekStyle: DaysOfWeekStyle(
+                                weekdayStyle: TextStyle(
+                                  color: appTheme.colorScheme.primary,
+                                  fontWeight: FontWeight.w500,
+                                  fontSize: 16,
+                                ),
+                                weekendStyle: TextStyle(
+                                  color: appTheme.colorScheme.secondary,
+                                  fontWeight: FontWeight.w500,
+                                  fontSize: 16,
+                                ),
+                              ),
                               calendarBuilders: CalendarBuilders(
                                 defaultBuilder: (context, day, focusedDay) {
                                   bool hasEvents =

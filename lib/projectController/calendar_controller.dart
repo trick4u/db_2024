@@ -55,6 +55,8 @@ class CalendarController extends GetxController {
     update();
   }
 
+  
+
   int getEventCountForDay(DateTime day) {
     DateTime dateKey = DateTime(day.year, day.month, day.day);
     return eventsGrouped[dateKey]?.length ?? 0;
@@ -78,12 +80,12 @@ class CalendarController extends GetxController {
         isSameDay(day, today);
   }
 
-void setSelectedDay(DateTime day) {
-  selectedDay = day;
-  setFocusedDay(day);
-  fetchEvents(day);
-  update();
-}
+  void setSelectedDay(DateTime day) {
+    selectedDay = day;
+    setFocusedDay(day);
+    fetchEvents(day);
+    update();
+  }
 
   void toggleCalendarFormat() {
     calendarFormat = calendarFormat == CalendarFormat.month
@@ -349,50 +351,50 @@ void setSelectedDay(DateTime day) {
   }
 
   //notifications
-Future<void> scheduleNotification(QuickEventModel event) async {
-  if (!event.hasReminder || event.reminderTime == null) return;
+  Future<void> scheduleNotification(QuickEventModel event) async {
+    if (!event.hasReminder || event.reminderTime == null) return;
 
-  int notificationId = event.id.hashCode;
+    int notificationId = event.id.hashCode;
 
-  // Create a DateTime that combines the event date and reminder time
-  DateTime scheduledDate = DateTime(
-    event.date.year,
-    event.date.month,
-    event.date.day,
-    event.reminderTime!.hour,
-    event.reminderTime!.minute,
-  );
+    // Create a DateTime that combines the event date and reminder time
+    DateTime scheduledDate = DateTime(
+      event.date.year,
+      event.date.month,
+      event.date.day,
+      event.reminderTime!.hour,
+      event.reminderTime!.minute,
+    );
 
-  // If the scheduled time is in the past, don't schedule the notification
-  if (scheduledDate.isBefore(DateTime.now())) {
-    print('Reminder time is in the past. Notification not scheduled.');
-    return;
+    // If the scheduled time is in the past, don't schedule the notification
+    if (scheduledDate.isBefore(DateTime.now())) {
+      print('Reminder time is in the past. Notification not scheduled.');
+      return;
+    }
+
+    await AwesomeNotifications().createNotification(
+      content: NotificationContent(
+        id: notificationId,
+        channelKey: 'event_reminders',
+        title: event.title,
+        body: event.description,
+        notificationLayout: NotificationLayout.Default,
+        wakeUpScreen: true,
+      ),
+      schedule: NotificationCalendar(
+        year: scheduledDate.year,
+        month: scheduledDate.month,
+        day: scheduledDate.day,
+        hour: scheduledDate.hour,
+        minute: scheduledDate.minute,
+        second: 0,
+        millisecond: 0,
+        repeats: false,
+        allowWhileIdle: true,
+      ),
+    );
+
+    print('Notification scheduled for: ${scheduledDate.toString()}');
   }
-
-  await AwesomeNotifications().createNotification(
-    content: NotificationContent(
-      id: notificationId,
-      channelKey: 'event_reminders',
-      title: event.title,
-      body: event.description,
-      notificationLayout: NotificationLayout.Default,
-      wakeUpScreen: true,
-    ),
-    schedule: NotificationCalendar(
-      year: scheduledDate.year,
-      month: scheduledDate.month,
-      day: scheduledDate.day,
-      hour: scheduledDate.hour,
-      minute: scheduledDate.minute,
-      second: 0,
-      millisecond: 0,
-      repeats: false,
-      allowWhileIdle: true,
-    ),
-  );
-
-  print('Notification scheduled for: ${scheduledDate.toString()}');
-}
 
   Future<void> updateNotification(QuickEventModel event) async {
     // First, cancel the existing notification
@@ -409,23 +411,24 @@ Future<void> scheduleNotification(QuickEventModel event) async {
 
   //
   Map<String, dynamic> getEventStatistics() {
-  Map<String, int> eventCountByDay = {};
-  Map<String, int> eventCountByMonth = {};
-  int totalEvents = 0;
+    Map<String, int> eventCountByDay = {};
+    Map<String, int> eventCountByMonth = {};
+    int totalEvents = 0;
 
-  eventsGrouped.forEach((date, events) {
-    String dayKey = DateFormat('EEEE').format(date); // e.g., "Monday"
-    String monthKey = DateFormat('MMMM').format(date); // e.g., "January"
-    
-    eventCountByDay[dayKey] = (eventCountByDay[dayKey] ?? 0) + events.length;
-    eventCountByMonth[monthKey] = (eventCountByMonth[monthKey] ?? 0) + events.length;
-    totalEvents += events.length;
-  });
+    eventsGrouped.forEach((date, events) {
+      String dayKey = DateFormat('EEEE').format(date); // e.g., "Monday"
+      String monthKey = DateFormat('MMMM').format(date); // e.g., "January"
 
-  return {
-    'eventCountByDay': eventCountByDay,
-    'eventCountByMonth': eventCountByMonth,
-    'totalEvents': totalEvents,
-  };
-}
+      eventCountByDay[dayKey] = (eventCountByDay[dayKey] ?? 0) + events.length;
+      eventCountByMonth[monthKey] =
+          (eventCountByMonth[monthKey] ?? 0) + events.length;
+      totalEvents += events.length;
+    });
+
+    return {
+      'eventCountByDay': eventCountByDay,
+      'eventCountByMonth': eventCountByMonth,
+      'totalEvents': totalEvents,
+    };
+  }
 }
