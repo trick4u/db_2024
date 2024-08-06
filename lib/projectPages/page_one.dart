@@ -20,6 +20,7 @@ import '../projectController/page_one_controller.dart';
 import '../projectController/pomodoro_controller.dart';
 import '../services/app_theme.dart';
 import '../temp/music_view.dart';
+import '../widgets/AllSixWidgets.dart';
 import '../widgets/event_bottomSheet.dart';
 import '../widgets/event_card.dart';
 import '../widgets/four_boxes.dart';
@@ -206,56 +207,58 @@ class PageOneScreen extends GetWidget<PageOneController> {
                             Expanded(
                               child: Column(
                                 children: [
-                                  ListView.builder(
-                                    shrinkWrap: true,
-                                    itemCount: controller.upcomingEvents.length,
-                                    itemBuilder: (context, index) {
-                                      QuickEventModel event =
-                                          controller.upcomingEvents[index];
-                                      return ListTile(
-                                        title: Text(event.title),
-                                        subtitle: Text('${event.description} '),
-                                        leading: Container(
-                                          width: 12,
-                                          height: 12,
-                                          decoration: BoxDecoration(
-                                            shape: BoxShape.circle,
-                                            color: Colors.red,
-                                          ),
-                                        ),
-                                        onTap: () {
-                                          showEventBottomSheet(context, event);
-                                        },
-                                      );
-                                    },
-                                  ),
-                                  // pending events
-                                  // Obx(() => ListView.builder(
-                                  //       shrinkWrap: true,
-                                  //       itemCount:
-                                  //           controller.pendingEvents.length,
-                                  //       itemBuilder: (context, index) {
-                                  //         QuickEventModel event =
-                                  //             controller.pendingEvents[index];
-                                  //         return ListTile(
-                                  //           title: Text(event.title),
-                                  //           subtitle:
-                                  //               Text('${event.description} '),
-                                  //           leading: Container(
-                                  //             width: 12,
-                                  //             height: 12,
-                                  //             decoration: BoxDecoration(
-                                  //               shape: BoxShape.circle,
-                                  //               color: Colors.red,
-                                  //             ),
-                                  //           ),
-                                  //           onTap: () {
-                                  //             showEventBottomSheet(
-                                  //                 context, event);
-                                  //           },
-                                  //         );
+                                  // ListView.builder(
+                                  //   shrinkWrap: true,
+                                  //   itemCount: controller.upcomingEvents.length,
+                                  //   itemBuilder: (context, index) {
+                                  //     QuickEventModel event =
+                                  //         controller.upcomingEvents[index];
+                                  //     return ListTile(
+                                  //       title: Text(event.title),
+                                  //       subtitle: Text('${event.description} '),
+                                  //       leading: Container(
+                                  //         width: 12,
+                                  //         height: 12,
+                                  //         decoration: BoxDecoration(
+                                  //           shape: BoxShape.circle,
+                                  //           color: Colors.red,
+                                  //         ),
+                                  //       ),
+                                  //       onTap: () {
+                                  //         showEventBottomSheet(context, event);
                                   //       },
-                                  //     ),),
+                                  //     );
+                                  //   },
+                                  // ),
+                                  // pending events
+                                  Obx(
+                                    () => ListView.builder(
+                                      shrinkWrap: true,
+                                      itemCount:
+                                          controller.pendingEvents.length,
+                                      itemBuilder: (context, index) {
+                                        QuickEventModel event =
+                                            controller.pendingEvents[index];
+                                        return ListTile(
+                                          title: Text(event.title),
+                                          subtitle:
+                                              Text('${event.description} '),
+                                          leading: Container(
+                                            width: 12,
+                                            height: 12,
+                                            decoration: BoxDecoration(
+                                              shape: BoxShape.circle,
+                                              color: Colors.red,
+                                            ),
+                                          ),
+                                          onTap: () {
+                                            showEventBottomSheet(
+                                                context, event);
+                                          },
+                                        );
+                                      },
+                                    ),
+                                  ),
                                 ],
                               ),
                             ),
@@ -427,115 +430,6 @@ class PageOneScreen extends GetWidget<PageOneController> {
             ),
           ),
         ),
-      ),
-    );
-  }
-}
-
-class AllSixCards extends StatelessWidget {
-  const AllSixCards({
-    super.key,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: ScaleUtil.symmetric(vertical: 8),
-      child: Column(
-        children: [
-          Container(
-            margin: EdgeInsets.only(bottom: 16.0),
-            padding: EdgeInsets.all(8.0),
-            child: Row(
-              children: [
-                Expanded(
-                  child: Container(
-                    height: ScaleUtil.height(40),
-                    padding: EdgeInsets.all(8.0),
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(10),
-                      color: Colors.blue,
-                    ),
-                    child: Text('Daily journal'),
-                  ),
-                ),
-                SizedBox(width: 8.0),
-                Expanded(
-                  child: Container(
-                    height: ScaleUtil.height(40),
-                    padding: EdgeInsets.all(8.0),
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(10),
-                      color: Colors.green,
-                    ),
-                    child: Text('Take notes'),
-                  ),
-                ),
-              ],
-            ),
-          ),
-          Container(
-            margin: EdgeInsets.only(bottom: 16.0),
-            padding: ScaleUtil.symmetric(vertical: 5),
-            child: Row(
-              children: [
-                Expanded(
-                  child: Container(
-                    height: ScaleUtil.height(40),
-                    padding: EdgeInsets.all(8.0),
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(10),
-                      color: Colors.red,
-                    ),
-                    child: Text('All reminders'),
-                  ),
-                ),
-                SizedBox(width: 8.0),
-                Expanded(
-                  child: Container(
-                    height: ScaleUtil.height(40),
-                    padding: EdgeInsets.all(8.0),
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(10),
-                      color: Colors.blue,
-                    ),
-                    child: Text('Completed tasks'),
-                  ),
-                ),
-              ],
-            ),
-          ),
-          Container(
-            padding: ScaleUtil.symmetric(vertical: 5),
-            child: Row(
-              children: [
-                Expanded(
-                  child: Container(
-                    height: ScaleUtil.height(40),
-                    padding: EdgeInsets.all(8.0),
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(10),
-                      color: Colors.green,
-                    ),
-                    child: Text('Upcoming'),
-                  ),
-                ),
-                SizedBox(width: 8.0),
-                Expanded(
-                  child: Container(
-                    height: ScaleUtil.height(40),
-                    padding: EdgeInsets.all(8.0),
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(10),
-                      color: Colors.red,
-                    ),
-                    child: Text('Vision'),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
       ),
     );
   }

@@ -78,14 +78,12 @@ class CalendarController extends GetxController {
         isSameDay(day, today);
   }
 
-  void setSelectedDay(DateTime day) {
-    if (canSelectDay(day)) {
-      selectedDay = day;
-      setFocusedDay(day);
-      fetchEvents(day);
-      update();
-    }
-  }
+void setSelectedDay(DateTime day) {
+  selectedDay = day;
+  setFocusedDay(day);
+  fetchEvents(day);
+  update();
+}
 
   void toggleCalendarFormat() {
     calendarFormat = calendarFormat == CalendarFormat.month
