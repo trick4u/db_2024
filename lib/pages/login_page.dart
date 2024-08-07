@@ -127,10 +127,13 @@ class LoginPage extends GetWidget<LoginController> {
                     ),
                   ),
                   SizedBox(height: ScaleUtil.height(10.0)),
-                  TextButton(
-                    onPressed: () {},
-                    child: Text(
-                      'Recovery Password',
+                  Align(
+                    alignment: Alignment.centerLeft,
+                    child: TextButton(
+                      onPressed: () => _showForgotPasswordDialog(context),
+                      child: Text(
+                        'Forgot Password',
+                      ),
                     ),
                   ),
                   SizedBox(height: ScaleUtil.height(10.0)),
@@ -157,6 +160,44 @@ class LoginPage extends GetWidget<LoginController> {
             ),
           ),
         ),
+      ),
+    );
+  }
+
+  void _showForgotPasswordDialog(BuildContext context) {
+    final TextEditingController emailController = TextEditingController();
+
+    Get.dialog(
+      AlertDialog(
+        title: Text('Forgot Password'),
+        content: TextField(
+          controller: emailController,
+          decoration: InputDecoration(
+            hintText: 'Enter your email',
+          ),
+          keyboardType: TextInputType.emailAddress,
+        ),
+        actions: [
+          TextButton(
+            child: Text('Cancel'),
+            onPressed: () => Get.back(),
+          ),
+          TextButton(
+            child: Text('Reset Password'),
+            onPressed: () {
+              if (emailController.text.isNotEmpty) {
+                controller.forgotPassword(emailController.text.trim());
+                Get.back();
+              } else {
+                Get.snackbar(
+                  'Error',
+                  'Please enter your email',
+                  snackPosition: SnackPosition.BOTTOM,
+                );
+              }
+            },
+          ),
+        ],
       ),
     );
   }

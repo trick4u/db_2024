@@ -80,4 +80,25 @@ class LoginController extends GetxController {
     String email = query.docs.first['email'];
     await loginWithEmail(email, password);
   }
+
+   Future<void> forgotPassword(String email) async {
+    isLoading.value = true;
+    try {
+      await FirebaseAuth.instance.sendPasswordResetEmail(email: email);
+      Get.snackbar(
+        'Password Reset',
+        'A password reset link has been sent to your email.',
+        snackPosition: SnackPosition.BOTTOM,
+      );
+    } catch (e) {
+      Get.snackbar(
+        'Error',
+        'Failed to send password reset email: ${e.toString()}',
+        snackPosition: SnackPosition.BOTTOM,
+      );
+    } finally {
+      isLoading.value = false;
+    }
+  }
+
 }
