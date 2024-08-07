@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -21,20 +23,21 @@ class RegisterController extends GetxController {
 
   RxBool isUsernameAvailable = false.obs;
   RxBool isCheckingUsername = false.obs;
-   RxBool hasCheckedUsername = false.obs;
-     RxBool isUsernameEmpty = true.obs;
+  RxBool hasCheckedUsername = false.obs;
+  RxBool isUsernameEmpty = true.obs;
 
+  Timer? _debounce;
 
- @override
+  @override
   void onInit() {
     super.onInit();
     emailController.addListener(_validateEmail);
     usernameController.addListener(_checkUsernameEmpty);
   }
 
-
   @override
   void onClose() {
+    _debounce?.cancel();
     emailController.removeListener(_validateEmail);
     usernameController.removeListener(_checkUsernameEmpty);
     emailController.dispose();
@@ -44,7 +47,30 @@ class RegisterController extends GetxController {
     super.onClose();
   }
 
-   void _checkUsernameEmpty() {
+ void onUsernameEditingComplete() {
+    final username = usernameController.text.trim();
+    if (isValidUsername(username)) {
+      checkUsernameAvailability();
+    } else {
+      isUsernameAvailable.value = false;
+      hasCheckedUsername.value = false;
+      Get.snackbar('Error', 'Username must be between 5 and 15 characters');
+    }
+  }
+
+  void onUsernameChanged(String value) {
+    if (_debounce?.isActive ?? false) _debounce!.cancel();
+    _debounce = Timer(const Duration(milliseconds: 500), () {
+      if (isValidUsername(value)) {
+        checkUsernameAvailability();
+      } else {
+        isUsernameAvailable.value = false;
+        hasCheckedUsername.value = false;
+      }
+    });
+  }
+
+  void _checkUsernameEmpty() {
     isUsernameEmpty.value = usernameController.text.trim().isEmpty;
     if (isUsernameEmpty.value) {
       hasCheckedUsername.value = false;
@@ -52,19 +78,20 @@ class RegisterController extends GetxController {
     }
   }
 
-    bool isValidUsername(String username) {
+  bool isValidUsername(String username) {
     return username.length >= 5 && username.length <= 15;
   }
 
-  Future<void> checkUsernameAvailability() async {
+   Future<void> checkUsernameAvailability() async {
     final username = usernameController.text.trim();
     if (!isValidUsername(username)) {
+      isUsernameAvailable.value = false;
+      hasCheckedUsername.value = false;
       Get.snackbar('Error', 'Username must be between 5 and 15 characters');
       return;
     }
 
     isCheckingUsername.value = true;
-    hasCheckedUsername.value = false;
     try {
       final querySnapshot = await FirebaseFirestore.instance
           .collection('users')
@@ -81,11 +108,12 @@ class RegisterController extends GetxController {
       }
     } catch (e) {
       Get.snackbar('Error', 'Failed to check username availability');
+      isUsernameAvailable.value = false;
+      hasCheckedUsername.value = false;
     } finally {
       isCheckingUsername.value = false;
     }
   }
-
 
   bool isValidEmail(String email) {
     // This regex pattern checks for a basic email format
@@ -104,7 +132,7 @@ class RegisterController extends GetxController {
     isConfirmPasswordVisible.value = !isConfirmPasswordVisible.value;
   }
 
- Future<void> register() async {
+Future<void> register() async {
     if (!isValidEmail(emailController.text.trim())) {
       Get.snackbar('Error', 'Please enter a valid email address');
       return;
@@ -115,9 +143,15 @@ class RegisterController extends GetxController {
       return;
     }
 
-    if (!isValidUsername(usernameController.text.trim())) {
+    final username = usernameController.text.trim();
+    if (!isValidUsername(username)) {
       Get.snackbar('Error', 'Username must be between 5 and 15 characters');
       return;
+    }
+
+    // If username hasn't been checked, check it now
+    if (!hasCheckedUsername.value) {
+      await checkUsernameAvailability();
     }
 
     if (!isUsernameAvailable.value) {
@@ -133,10 +167,13 @@ class RegisterController extends GetxController {
         password: passwordController.text,
       );
 
+      // Send email verification
+      await userCredential.user!.sendEmailVerification();
+
       // Create UserModel
       UserModel newUser = UserModel(
         uid: userCredential.user!.uid,
-        username: usernameController.text.trim(),
+        username: username,
         email: emailController.text.trim(),
         name: nameController.text.trim(),
       );
@@ -147,13 +184,15 @@ class RegisterController extends GetxController {
           .doc(newUser.uid)
           .set(newUser.toMap());
 
-      // Navigate to home page
-      Get.offAllNamed(AppRoutes.MAIN);
+      // Show success message
+      Get.snackbar('Registration Successful', 'Please check your email to verify your account');
+
+      // Navigate to email verification page
+      Get.offAllNamed(AppRoutes.EMAILVERIFICATION);
     } catch (e) {
       Get.snackbar('Registration Error', e.toString());
     } finally {
       isLoading.value = false;
     }
   }
-
 }

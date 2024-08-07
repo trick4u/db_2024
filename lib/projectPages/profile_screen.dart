@@ -106,8 +106,7 @@ class ProfileScreen extends GetWidget<ProfileController> {
                           ),
                         )),
                   ),
-                  _buildOptionTile('vision board',
-                      onTap: () => Get.toNamed(AppRoutes.VISIONBOARD)),
+                  _buildOptionTile('change password', onTap: () => _showChangePasswordDialog(context)),
                   _buildOptionTile('logout', onTap: () => controller.logout()),
                   _buildOptionTile('delete account',
                       onTap: () => controller.deleteAccount()),
@@ -241,4 +240,80 @@ class ProfileScreen extends GetWidget<ProfileController> {
       },
     );
   }
+
+
+void _showChangePasswordDialog(BuildContext context) {
+  String currentPassword = '';
+  String newPassword = '';
+  String confirmNewPassword = '';
+
+  showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return AlertDialog(
+        title: Text('Change Password', style: Theme.of(context).textTheme.titleLarge),
+        content: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextField(
+                decoration: InputDecoration(
+                  labelText: 'Current Password',
+                  labelStyle: Theme.of(context).textTheme.bodyMedium,
+                  border: OutlineInputBorder(),
+                ),
+                style: Theme.of(context).textTheme.bodyMedium,
+                obscureText: true,
+                onChanged: (value) => currentPassword = value,
+              ),
+              SizedBox(height: 16),
+              TextField(
+                decoration: InputDecoration(
+                  labelText: 'New Password',
+                  labelStyle: Theme.of(context).textTheme.bodyMedium,
+                  border: OutlineInputBorder(),
+                ),
+                style: Theme.of(context).textTheme.bodyMedium,
+                obscureText: true,
+                onChanged: (value) => newPassword = value,
+              ),
+              SizedBox(height: 16),
+              TextField(
+                decoration: InputDecoration(
+                  labelText: 'Confirm New Password',
+                  labelStyle: Theme.of(context).textTheme.bodyMedium,
+                  border: OutlineInputBorder(),
+                ),
+                style: Theme.of(context).textTheme.bodyMedium,
+                obscureText: true,
+                onChanged: (value) => confirmNewPassword = value,
+              ),
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(
+            child: Text('Cancel', style: Theme.of(context).textTheme.bodyMedium),
+            onPressed: () => Get.back(),
+          ),
+          TextButton(
+            child: Text('Change', 
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                color: Theme.of(context).colorScheme.primary,
+              )
+            ),
+            onPressed: () {
+              if (newPassword != confirmNewPassword) {
+                Get.snackbar('Error', 'New passwords do not match');
+                return;
+              }
+              controller.changePassword(currentPassword, newPassword);
+              Get.back();
+            },
+          ),
+        ],
+      );
+    },
+  );
+}
 }

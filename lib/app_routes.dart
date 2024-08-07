@@ -80,8 +80,14 @@ class AppRoutes {
   static const String VISIONBOARD = '/visionBoard';
   static const String AUTHWRAPPER = '/authWrapper';
     static const String JOURNAL = '/journal';
+      static const EMAILVERIFICATION = '/email-verification';
 
   static List<GetPage> routes = [
+     GetPage(
+      name: EMAILVERIFICATION,
+      page: () => EmailVerificationPage(),
+     
+    ),
      GetPage(
       name: JOURNAL,
       page: () => JournalPage(),
@@ -157,11 +163,7 @@ class AppRoutes {
       page: () => MainScreen(),
       binding: MainScreenBinding(),
     ),
-    GetPage(
-      name: EMAIL,
-      page: () => EmailVerificationScreen(),
-      binding: EmailBinding(),
-    ),
+    
     GetPage(
       name: ADDTASK,
       page: () => AddTaskScreen(),

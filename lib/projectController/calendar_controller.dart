@@ -10,6 +10,7 @@ import 'package:table_calendar/table_calendar.dart';
 import '../models/quick_event_model.dart';
 import '../projectPages/page_two_calendar.dart';
 import '../widgets/event_bottomSheet.dart';
+import 'package:flutter/services.dart';
 
 class CalendarController extends GetxController {
   CalendarFormat calendarFormat = CalendarFormat.week;
@@ -442,9 +443,13 @@ class CalendarController extends GetxController {
       DocumentSnapshot eventDoc = await eventsCollection.doc(eventId).get();
       if (eventDoc.exists) {
         bool currentStatus = eventDoc.get('isCompleted') ?? false;
+         bool newStatus = !currentStatus;
         await eventsCollection
             .doc(eventId)
             .update({'isCompleted': !currentStatus});
+             if (newStatus) {
+        HapticFeedback.mediumImpact();
+      }
         fetchEvents(selectedDay);
       }
     } catch (e) {

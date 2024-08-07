@@ -43,31 +43,90 @@ class ProfileController extends GetxController {
     print('Logged out');
   }
 
-  Future<void> deleteAccount() async {
-    try {
-      // Get the current user
-      final user = FirebaseAuth.instance.currentUser;
-      if (user == null) {
-        print('No user is currently signed in.');
-        return;
-      }
+Future<void> deleteAccount() async {
+  final TextEditingController passwordController = TextEditingController();
 
-      // Delete user data from Firestore
-      await FirebaseFirestore.instance
-          .collection('users')
-          .doc(user.uid)
-          .delete();
-
-      // Delete the user account from Firebase Authentication
-      await user.delete();
-
-      // Navigate to the home screen
-      Get.offAllNamed(AppRoutes.HOME);
-    } catch (error) {
-      print('Error deleting account: $error');
-      // Handle the error (e.g., show an error message to the user)
+  try {
+    // Get the current user
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) {
+      print('No user is currently signed in.');
+      return;
     }
+
+    // Show re-authentication dialog
+    bool? shouldProceed = await Get.dialog<bool>(
+      AlertDialog(
+        title: Text('Confirm Account Deletion'),
+        content: Text('Please re-enter your password to delete your account. This action cannot be undone.'),
+        actions: [
+          TextButton(
+            child: Text('Cancel'),
+            onPressed: () => Get.back(result: false),
+          ),
+          TextButton(
+            child: Text('Proceed'),
+            onPressed: () => Get.back(result: true),
+          ),
+        ],
+      ),
+    );
+
+    if (shouldProceed != true) {
+      return;
+    }
+
+    // Get the user's password
+    String? password = await Get.dialog<String>(
+      AlertDialog(
+        title: Text('Enter Password'),
+        content: TextField(
+          controller: passwordController,
+          obscureText: true,
+          decoration: InputDecoration(hintText: "Password"),
+        ),
+        actions: [
+          TextButton(
+            child: Text('Submit'),
+            onPressed: () => Get.back(result: passwordController.text),
+          ),
+        ],
+      ),
+    );
+
+    if (password == null || password.isEmpty) {
+      Get.snackbar('Error', 'Password is required to delete account');
+      return;
+    }
+
+    // Re-authenticate
+    AuthCredential credential = EmailAuthProvider.credential(
+      email: user.email!,
+      password: password,
+    );
+    await user.reauthenticateWithCredential(credential);
+
+    // Delete user data from Firestore
+    await FirebaseFirestore.instance
+        .collection('users')
+        .doc(user.uid)
+        .delete();
+
+    // Delete the user account from Firebase Authentication
+    await user.delete();
+
+    // Navigate to the home screen
+    await Get.offAllNamed(AppRoutes.HOME);
+    Get.snackbar('Success', 'Your account has been deleted');
+
+  } catch (error) {
+    print('Error deleting account: $error');
+    Get.snackbar('Error', 'Failed to delete account: $error');
+  } finally {
+    // Ensure the controller is always disposed
+    passwordController.dispose();
   }
+}
 
   //get the user details
   void getUserDetails() async {
@@ -134,7 +193,7 @@ class ProfileController extends GetxController {
     try {
       User? user = _auth.currentUser;
       if (user != null) {
-        await user.updateEmail(newEmail);
+        await user.verifyBeforeUpdateEmail(newEmail);
         await _firestore.collection('users').doc(user.uid).update({
           'email': newEmail,
         });
@@ -169,5 +228,27 @@ bool isValidUsername(String username) {
   // - Only alphanumeric characters and underscores
   final RegExp usernameRegex = RegExp(r'^[a-z0-9_]{3,20}$');
   return usernameRegex.hasMatch(username);
+}
+
+Future<void> changePassword(String currentPassword, String newPassword) async {
+  try {
+    User? user = _auth.currentUser;
+    if (user != null) {
+      // Re-authenticate the user
+      AuthCredential credential = EmailAuthProvider.credential(
+        email: user.email!,
+        password: currentPassword,
+      );
+      await user.reauthenticateWithCredential(credential);
+      
+      // Change the password
+      await user.updatePassword(newPassword);
+       logout();
+      
+      Get.snackbar('Success', 'Password changed successfully');
+    }
+  } catch (error) {
+    Get.snackbar('Error', 'Failed to change password: $error');
+  }
 }
 }
