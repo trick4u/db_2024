@@ -49,15 +49,28 @@ class PageOneScreen extends GetWidget<PageOneController> {
           children: [
             //text page 1
 
-            Obx(() => InkWell(
-                  onTap: () {
-                    Get.to(() => MusicView());
-                  },
-                  child: Text(
-                    controller.greeting.toLowerCase() + ".",
-                    style: AppTextTheme.textTheme.displayLarge,
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: [
+                Obx(
+                  () => InkWell(
+                    onTap: () {
+                      Get.to(() => MusicView());
+                    },
+                    child: Text(
+                      controller.greeting.toLowerCase() + ".",
+                      style: AppTextTheme.textTheme.displayMedium,
+                    ),
                   ),
-                )),
+                ),
+                InkWell(
+                  onTap: (){
+                    Get.toNamed(AppRoutes.NOTIFICAION);
+                  },
+                  child: Icon(FontAwesomeIcons.solidNoteSticky),
+                ),
+              ],
+            ),
             const SizedBox(height: 20),
             // rounded rect container
             SizedBox(
@@ -447,7 +460,7 @@ class PageOneScreen extends GetWidget<PageOneController> {
                           }
                           reminderController
                               .saveReminder(reminderController.repeat.value);
-                     Get.back();
+                          Get.back();
                         },
                         style: appTheme.primaryButtonStyle,
                         child: Text('Save',

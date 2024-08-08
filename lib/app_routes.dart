@@ -23,6 +23,7 @@ import 'projectBinding/eat_the_frog_binding.dart';
 import 'projectBinding/goals_binding.dart';
 import 'projectBinding/journal_binding.dart';
 import 'projectBinding/notes_binding.dart';
+import 'projectBinding/notification_binding.dart';
 import 'projectBinding/page_one_binding.dart';
 import 'projectBinding/profile_bindings.dart';
 import 'projectBinding/three_tasks_binding.dart';
@@ -37,6 +38,7 @@ import 'pages/otp_screen.dart';
 import 'pages/phone_auth.dart';
 import 'pages/splash_screen.dart';
 import 'projectPages/notes_page.dart';
+import 'projectPages/notification_screen.dart';
 import 'projectPages/page_one.dart';
 import 'projectPages/profile_screen.dart';
 import 'projectPages/three_tasks_screen.dart';
@@ -79,16 +81,21 @@ class AppRoutes {
   static const String NOTES = '/notes';
   static const String VISIONBOARD = '/visionBoard';
   static const String AUTHWRAPPER = '/authWrapper';
-    static const String JOURNAL = '/journal';
-      static const EMAILVERIFICATION = '/email-verification';
+  static const String JOURNAL = '/journal';
+  static const EMAILVERIFICATION = '/email-verification';
+    static const NOTIFICAION = '/notification';
 
   static List<GetPage> routes = [
      GetPage(
+      name: NOTIFICAION,
+      page: () => DisplayedNotificationsScreen(),
+      binding: DisplayedNotificationsBinding()
+    ),
+    GetPage(
       name: EMAILVERIFICATION,
       page: () => EmailVerificationPage(),
-     
     ),
-     GetPage(
+    GetPage(
       name: JOURNAL,
       page: () => JournalPage(),
       binding: JournalBinding(),
@@ -163,7 +170,7 @@ class AppRoutes {
       page: () => MainScreen(),
       binding: MainScreenBinding(),
     ),
-    
+
     GetPage(
       name: ADDTASK,
       page: () => AddTaskScreen(),

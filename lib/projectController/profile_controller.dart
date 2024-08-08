@@ -1,3 +1,4 @@
+import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -7,12 +8,11 @@ import '../app_routes.dart';
 import '../models/user_model.dart';
 
 class ProfileController extends GetxController {
- 
   var age = 0.obs;
 
   var firebaseFireStore = FirebaseFirestore.instance;
   // textediting controller
-  
+
   var newName = ' '.obs;
 
   var newEmail = '   '.obs;
@@ -28,10 +28,21 @@ class ProfileController extends GetxController {
   final Rx<String> email = ''.obs;
   final Rx<String> username = ''.obs;
 
+  RxList<NotificationModel> notifications = <NotificationModel>[].obs;
+  RxBool isLoading = true.obs;
+
   @override
   void onInit() {
     super.onInit();
     getUserDetails();
+  }
+
+  @override
+  void onReady() {
+    // TODO: implement onReady
+    ever(notifications, (_) => isLoading.value = false);
+    fetchNotifications();
+    super.onReady();
   }
 
   //log out
@@ -43,90 +54,90 @@ class ProfileController extends GetxController {
     print('Logged out');
   }
 
-Future<void> deleteAccount() async {
-  final TextEditingController passwordController = TextEditingController();
+  Future<void> deleteAccount() async {
+    final TextEditingController passwordController = TextEditingController();
 
-  try {
-    // Get the current user
-    final user = FirebaseAuth.instance.currentUser;
-    if (user == null) {
-      print('No user is currently signed in.');
-      return;
-    }
+    try {
+      // Get the current user
+      final user = FirebaseAuth.instance.currentUser;
+      if (user == null) {
+        print('No user is currently signed in.');
+        return;
+      }
 
-    // Show re-authentication dialog
-    bool? shouldProceed = await Get.dialog<bool>(
-      AlertDialog(
-        title: Text('Confirm Account Deletion'),
-        content: Text('Please re-enter your password to delete your account. This action cannot be undone.'),
-        actions: [
-          TextButton(
-            child: Text('Cancel'),
-            onPressed: () => Get.back(result: false),
-          ),
-          TextButton(
-            child: Text('Proceed'),
-            onPressed: () => Get.back(result: true),
-          ),
-        ],
-      ),
-    );
-
-    if (shouldProceed != true) {
-      return;
-    }
-
-    // Get the user's password
-    String? password = await Get.dialog<String>(
-      AlertDialog(
-        title: Text('Enter Password'),
-        content: TextField(
-          controller: passwordController,
-          obscureText: true,
-          decoration: InputDecoration(hintText: "Password"),
+      // Show re-authentication dialog
+      bool? shouldProceed = await Get.dialog<bool>(
+        AlertDialog(
+          title: Text('Confirm Account Deletion'),
+          content: Text(
+              'Please re-enter your password to delete your account. This action cannot be undone.'),
+          actions: [
+            TextButton(
+              child: Text('Cancel'),
+              onPressed: () => Get.back(result: false),
+            ),
+            TextButton(
+              child: Text('Proceed'),
+              onPressed: () => Get.back(result: true),
+            ),
+          ],
         ),
-        actions: [
-          TextButton(
-            child: Text('Submit'),
-            onPressed: () => Get.back(result: passwordController.text),
+      );
+
+      if (shouldProceed != true) {
+        return;
+      }
+
+      // Get the user's password
+      String? password = await Get.dialog<String>(
+        AlertDialog(
+          title: Text('Enter Password'),
+          content: TextField(
+            controller: passwordController,
+            obscureText: true,
+            decoration: InputDecoration(hintText: "Password"),
           ),
-        ],
-      ),
-    );
+          actions: [
+            TextButton(
+              child: Text('Submit'),
+              onPressed: () => Get.back(result: passwordController.text),
+            ),
+          ],
+        ),
+      );
 
-    if (password == null || password.isEmpty) {
-      Get.snackbar('Error', 'Password is required to delete account');
-      return;
+      if (password == null || password.isEmpty) {
+        Get.snackbar('Error', 'Password is required to delete account');
+        return;
+      }
+
+      // Re-authenticate
+      AuthCredential credential = EmailAuthProvider.credential(
+        email: user.email!,
+        password: password,
+      );
+      await user.reauthenticateWithCredential(credential);
+
+      // Delete user data from Firestore
+      await FirebaseFirestore.instance
+          .collection('users')
+          .doc(user.uid)
+          .delete();
+
+      // Delete the user account from Firebase Authentication
+      await user.delete();
+
+      // Navigate to the home screen
+      await Get.offAllNamed(AppRoutes.HOME);
+      Get.snackbar('Success', 'Your account has been deleted');
+    } catch (error) {
+      print('Error deleting account: $error');
+      Get.snackbar('Error', 'Failed to delete account: $error');
+    } finally {
+      // Ensure the controller is always disposed
+      passwordController.dispose();
     }
-
-    // Re-authenticate
-    AuthCredential credential = EmailAuthProvider.credential(
-      email: user.email!,
-      password: password,
-    );
-    await user.reauthenticateWithCredential(credential);
-
-    // Delete user data from Firestore
-    await FirebaseFirestore.instance
-        .collection('users')
-        .doc(user.uid)
-        .delete();
-
-    // Delete the user account from Firebase Authentication
-    await user.delete();
-
-    // Navigate to the home screen
-    await Get.offAllNamed(AppRoutes.HOME);
-    Get.snackbar('Success', 'Your account has been deleted');
-
-  } catch (error) {
-    print('Error deleting account: $error');
-    Get.snackbar('Error', 'Failed to delete account: $error');
-  } finally {
-    // Ensure the controller is always disposed
-    passwordController.dispose();
   }
-}
 
   //get the user details
   void getUserDetails() async {
@@ -163,10 +174,11 @@ Future<void> deleteAccount() async {
     }
   }
 
-    Future<void> loadUserData() async {
+  Future<void> loadUserData() async {
     User? user = _auth.currentUser;
     if (user != null) {
-      DocumentSnapshot userData = await _firestore.collection('users').doc(user.uid).get();
+      DocumentSnapshot userData =
+          await _firestore.collection('users').doc(user.uid).get();
       name.value = userData['name'] ?? '';
       email.value = userData['email'] ?? '';
       username.value = userData['username'] ?? '';
@@ -181,7 +193,7 @@ Future<void> deleteAccount() async {
         await _firestore.collection('users').doc(user.uid).update({
           'name': newName,
         });
-        name.value = newName;  // Update the observable
+        name.value = newName; // Update the observable
         Get.snackbar('Success', 'Name updated successfully');
       }
     } catch (error) {
@@ -197,7 +209,7 @@ Future<void> deleteAccount() async {
         await _firestore.collection('users').doc(user.uid).update({
           'email': newEmail,
         });
-        email.value = newEmail;  // Update the observable
+        email.value = newEmail; // Update the observable
         Get.snackbar('Success', 'Email updated successfully');
       }
     } catch (error) {
@@ -213,7 +225,7 @@ Future<void> deleteAccount() async {
         await _firestore.collection('users').doc(user.uid).update({
           'username': newUsername,
         });
-        username.value = newUsername;  // Update the observable
+        username.value = newUsername; // Update the observable
         Get.snackbar('Success', 'Username updated successfully');
       }
     } catch (error) {
@@ -221,34 +233,69 @@ Future<void> deleteAccount() async {
     }
   }
 
-bool isValidUsername(String username) {
-  // Add your validation logic here
-  // For example:
-  // - Minimum 3 characters, maximum 20
-  // - Only alphanumeric characters and underscores
-  final RegExp usernameRegex = RegExp(r'^[a-z0-9_]{3,20}$');
-  return usernameRegex.hasMatch(username);
-}
-
-Future<void> changePassword(String currentPassword, String newPassword) async {
-  try {
-    User? user = _auth.currentUser;
-    if (user != null) {
-      // Re-authenticate the user
-      AuthCredential credential = EmailAuthProvider.credential(
-        email: user.email!,
-        password: currentPassword,
-      );
-      await user.reauthenticateWithCredential(credential);
-      
-      // Change the password
-      await user.updatePassword(newPassword);
-       logout();
-      
-      Get.snackbar('Success', 'Password changed successfully');
-    }
-  } catch (error) {
-    Get.snackbar('Error', 'Failed to change password: $error');
+  bool isValidUsername(String username) {
+    // Add your validation logic here
+    // For example:
+    // - Minimum 3 characters, maximum 20
+    // - Only alphanumeric characters and underscores
+    final RegExp usernameRegex = RegExp(r'^[a-z0-9_]{3,20}$');
+    return usernameRegex.hasMatch(username);
   }
-}
+
+  Future<void> changePassword(
+      String currentPassword, String newPassword) async {
+    try {
+      User? user = _auth.currentUser;
+      if (user != null) {
+        // Re-authenticate the user
+        AuthCredential credential = EmailAuthProvider.credential(
+          email: user.email!,
+          password: currentPassword,
+        );
+        await user.reauthenticateWithCredential(credential);
+
+        // Change the password
+        await user.updatePassword(newPassword);
+        logout();
+
+        Get.snackbar('Success', 'Password changed successfully');
+      }
+    } catch (error) {
+      Get.snackbar('Error', 'Failed to change password: $error');
+    }
+  }
+
+  Future<void> cancelAllNotifications() async {
+    try {
+      await AwesomeNotifications().cancelAll();
+      Get.snackbar('Success', 'All notifications have been cancelled');
+      fetchNotifications();
+    } catch (error) {
+      Get.snackbar('Error', 'Failed to cancel notifications: $error');
+    }
+  }
+
+  Future<void> fetchNotifications() async {
+    try {
+      isLoading.value = true;
+      List<NotificationModel> fetchedNotifications =
+          await AwesomeNotifications().listScheduledNotifications();
+      notifications.assignAll(fetchedNotifications);
+    } catch (error) {
+      print('Error fetching notifications: $error');
+      Get.snackbar('Error', 'Failed to fetch notifications: $error');
+    } finally {
+      isLoading.value = false;
+    }
+  }
+
+  Future<void> cancelNotification(int id) async {
+    try {
+      await AwesomeNotifications().cancel(id);
+      await fetchNotifications(); // Refresh the list
+      Get.snackbar('Success', 'Notification cancelled');
+    } catch (error) {
+      Get.snackbar('Error', 'Failed to cancel notification: $error');
+    }
+  }
 }

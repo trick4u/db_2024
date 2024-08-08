@@ -30,8 +30,7 @@ class MainScreenController extends GetxController
   void changeIndex(int index) {
     selectedIndex.value = index;
     if (selectedIndex.value == 0) {
-
-          Get.lazyPut(() => ProfileController());
+      Get.lazyPut(() => ProfileController());
     } else if (selectedIndex.value == 1) {
       Get.lazyPut<CalendarController>(() => CalendarController());
     } else if (selectedIndex.value == 2) {
@@ -39,8 +38,6 @@ class MainScreenController extends GetxController
     } else if (selectedIndex.value == 3) {
       Get.lazyPut(() => ProfileController());
     }
-  
-
   }
 
   final List<Widget> pages = [
@@ -56,7 +53,7 @@ class MainScreenController extends GetxController
   // ) {
   //   currentIndex.value = index;
   //   if (currentIndex.value == 0) {
-  
+
   //   //  Get.put(PageOneController());
   //   } else if (currentIndex.value == 1) {
   //     Get.lazyPut<CalendarController>(() => CalendarController());
@@ -65,7 +62,7 @@ class MainScreenController extends GetxController
   //     showDialog(context);
   //   } else if (currentIndex.value == 3) {
   //      Get.lazyPut<ProfileController>(() => ProfileController());
-    
+
   //   }
   // }
 
@@ -129,14 +126,12 @@ class MainScreenController extends GetxController
       title: "Clock",
       activeColor: ColorsConstants().deepPurple,
       inactiveColor: Colors.grey,
-
     ),
     PersistentBottomNavBarItem(
       icon: FontAwesomeIcons.user,
       title: "Profile",
       activeColor: ColorsConstants().deepPurple,
       inactiveColor: Colors.grey,
-      
       onTap: () {
         showPopover(
           context: Get.context!,

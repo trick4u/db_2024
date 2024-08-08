@@ -12,6 +12,8 @@ import '../projectPages/page_two_calendar.dart';
 import '../widgets/event_bottomSheet.dart';
 import 'package:flutter/services.dart';
 
+import 'profile_controller.dart';
+
 class CalendarController extends GetxController {
   CalendarFormat calendarFormat = CalendarFormat.week;
   DateTime focusedDay = DateTime.now();
@@ -235,6 +237,7 @@ class CalendarController extends GetxController {
         'reminderTime':
             reminderTime != null ? Timestamp.fromDate(reminderTime) : null,
         'isCompleted': isCompleted,
+        'createdAt': FieldValue.serverTimestamp(),
       });
 
       QuickEventModel newEvent = QuickEventModel(
@@ -248,6 +251,7 @@ class CalendarController extends GetxController {
         hasReminder: hasReminder,
         reminderTime: reminderTime,
         isCompleted: isCompleted,
+        createdAt: DateTime.now(),
       );
 
       if (hasReminder && reminderTime != null) {
@@ -273,16 +277,6 @@ class CalendarController extends GetxController {
       bool newHasReminder,
       DateTime? newReminderTime,
       bool isCompleted) async {
-    DateTime? startDateTime = newStartTime != null
-        ? DateTime(newDate.year, newDate.month, newDate.day, newStartTime.hour,
-            newStartTime.minute)
-        : null;
-    DateTime? endDateTime = newEndTime != null
-        ? DateTime(newDate.year, newDate.month, newDate.day, newEndTime.hour,
-            newEndTime.minute)
-        : null;
-    bool hasReminder = newReminderTime != null;
-
     if (currentUser == null) return;
     try {
       Map<String, dynamic> updateData = {
@@ -298,6 +292,7 @@ class CalendarController extends GetxController {
             ? Timestamp.fromDate(newReminderTime)
             : null,
         'isCompleted': isCompleted,
+        // Note: We're not updating 'createdAt' here to preserve the original creation time
       };
 
       await eventsCollection.doc(eventId).update(updateData);
@@ -312,6 +307,9 @@ class CalendarController extends GetxController {
         color: newColor,
         hasReminder: newHasReminder,
         reminderTime: newReminderTime,
+        isCompleted: isCompleted,
+        createdAt:
+            DateTime.now(), // This should ideally be fetched from Firestore
       );
 
       if (newHasReminder && newReminderTime != null) {
@@ -397,6 +395,8 @@ class CalendarController extends GetxController {
         allowWhileIdle: true,
       ),
     );
+    var profileController = Get.find<ProfileController>();
+    profileController.fetchNotifications();
 
     print('Notification scheduled for: ${scheduledDate.toString()}');
   }
@@ -443,13 +443,13 @@ class CalendarController extends GetxController {
       DocumentSnapshot eventDoc = await eventsCollection.doc(eventId).get();
       if (eventDoc.exists) {
         bool currentStatus = eventDoc.get('isCompleted') ?? false;
-         bool newStatus = !currentStatus;
+        bool newStatus = !currentStatus;
         await eventsCollection
             .doc(eventId)
             .update({'isCompleted': !currentStatus});
-             if (newStatus) {
-        HapticFeedback.mediumImpact();
-      }
+        if (newStatus) {
+          HapticFeedback.mediumImpact();
+        }
         fetchEvents(selectedDay);
       }
     } catch (e) {

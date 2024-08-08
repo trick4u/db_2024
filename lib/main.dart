@@ -37,6 +37,7 @@ import 'services/app_text_style.dart';
 import 'services/app_theme.dart';
 import 'services/auth_service.dart';
 import 'services/notification_service.dart';
+import 'services/notification_tracking_service.dart';
 import 'services/scale_util.dart';
 
 FlutterLocalNotificationsPlugin notificationsPlugin =
@@ -63,28 +64,13 @@ void main() async {
 
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
-   FirebaseFirestore.instance.settings = Settings(persistenceEnabled: true);
+  FirebaseFirestore.instance.settings = Settings(persistenceEnabled: true);
   Get.put(AuthService());
   await initializeTimeZone();
   if (Platform.isAndroid) {
     await Workmanager().initialize(callbackDispatcher, isInDebugMode: true);
   }
   print('WorkManager initialized!');
-  // Workmanager().registerPeriodicTask(
-  //   "1",
-  //   "simplePeriodicTask",
-  //   frequency: Duration(minutes: 15),
-  //   inputData: {"data": "TusharPeriodicTask"},
-  // );
-
-  // await Workmanager().registerOneOffTask(
-  //   "2",
-  //   "simpleOneOffTask",
-  //   initialDelay: Duration(minutes: 1),
-  //   inputData: {"data": "TusharOneOffTask"},
-  // );
-
-  // print('Registered all tasks!');
 
   await AwesomeNotifications().initialize(
       null,
@@ -115,7 +101,7 @@ void main() async {
           importance: NotificationImportance.Low,
           channelShowBadge: true,
         ),
-          NotificationChannel(
+        NotificationChannel(
           channelKey: 'event_reminders',
           channelName: 'Reminder Notifications',
           channelDescription:
@@ -128,6 +114,9 @@ void main() async {
         ),
       ],
       debug: true);
+
+  // Initialize NotificationTrackingService
+  await Get.putAsync(() => NotificationTrackingService().init());
 
   AndroidInitializationSettings androidSettings =
       AndroidInitializationSettings("@mipmap/ic_launcher");
@@ -156,7 +145,7 @@ void main() async {
     onDismissActionReceivedMethod:
         NotificationService.onDismissActionReceivedMethod,
   );
-
+ 
   AwesomeNotifications().isNotificationAllowed().then((isAllowed) {
     if (!isAllowed) {
       AwesomeNotifications().requestPermissionToSendNotifications();
@@ -167,7 +156,6 @@ void main() async {
 
   runApp(const MyApp());
 }
-
 Future<void> initializeTimeZone() async {
   // Initialize the timezone data
   initializeTimeZones();
