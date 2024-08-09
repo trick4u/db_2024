@@ -138,7 +138,7 @@ class EventCard extends StatelessWidget {
             Text(
               DateFormat('h:mm a').format(event.startTime!),
               style: TextStyle(
-                fontWeight: FontWeight.bold,
+                fontWeight: FontWeight.w500,
                 fontSize: 12,
               ),
             ),

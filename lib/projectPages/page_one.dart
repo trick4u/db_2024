@@ -18,6 +18,7 @@ import '../models/goals_model.dart';
 import '../models/quick_event_model.dart';
 import '../projectController/page_one_controller.dart';
 import '../projectController/pomodoro_controller.dart';
+import '../projectController/statistics_controller.dart';
 import '../services/app_theme.dart';
 import '../temp/music_view.dart';
 import '../widgets/AllSixWidgets.dart';
@@ -64,7 +65,7 @@ class PageOneScreen extends GetWidget<PageOneController> {
                   ),
                 ),
                 InkWell(
-                  onTap: (){
+                  onTap: () {
                     Get.toNamed(AppRoutes.NOTIFICAION);
                   },
                   child: Icon(FontAwesomeIcons.solidNoteSticky),
@@ -132,6 +133,7 @@ class PageOneScreen extends GetWidget<PageOneController> {
                               Text("Just Check"),
                               InkWell(
                                 onTap: () {
+                                  Get.lazyPut(() => StatisticsController());
                                   Get.to(() => StatisticsPage());
                                 },
                                 child: Text("statistics"),
