@@ -34,12 +34,15 @@ class _EventBottomSheetState extends State<EventBottomSheet> {
 
   late TimePickerSpinnerController _reminderController;
   DateTime? _reminderTime;
+  bool _isTitleEmpty = true;
 
   @override
   void initState() {
     super.initState();
     _reminderController = TimePickerSpinnerController();
     _titleController = TextEditingController(text: widget.event?.title ?? '');
+    _isTitleEmpty = _titleController.text.isEmpty;
+    _titleController.addListener(_updateTitleState);
     _descriptionController =
         TextEditingController(text: widget.event?.description ?? '');
     _selectedDate = widget.event?.date ?? widget.initialDate;
@@ -59,6 +62,12 @@ class _EventBottomSheetState extends State<EventBottomSheet> {
     _descriptionController.dispose();
     _reminderController.dispose();
     super.dispose();
+  }
+
+  void _updateTitleState() {
+    setState(() {
+      _isTitleEmpty = _titleController.text.isEmpty;
+    });
   }
 
   @override
@@ -108,9 +117,7 @@ class _EventBottomSheetState extends State<EventBottomSheet> {
                   ),
                   SizedBox(height: 16),
                   ClipRRect(
-                    borderRadius: BorderRadius.all(
-                      Radius.circular(10),
-                    ),
+                    borderRadius: BorderRadius.all(Radius.circular(10)),
                     child: TextField(
                       controller: _titleController,
                       style: appTheme.bodyMedium,
@@ -129,6 +136,7 @@ class _EventBottomSheetState extends State<EventBottomSheet> {
                         contentPadding:
                             EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                       ),
+                      onChanged: (value) => _updateTitleState(),
                     ),
                   ),
                   SizedBox(height: 16),
@@ -281,22 +289,25 @@ class _EventBottomSheetState extends State<EventBottomSheet> {
                     children: [
                       Expanded(
                         child: ElevatedButton(
-                          onPressed: () {
-                            widget.onSave(
-                                _titleController.text,
-                                _descriptionController.text,
-                                _selectedDate,
-                                _startTime != null
-                                    ? TimeOfDay.fromDateTime(_startTime!)
-                                    : null,
-                                _endTime != null
-                                    ? TimeOfDay.fromDateTime(_endTime!)
-                                    : null,
-                                _selectedColor,
-                                _isReminderSet,
-                                _isReminderSet ? _reminderTime : null);
-                            Navigator.pop(context);
-                          },
+                          onPressed: _isTitleEmpty
+                              ? null
+                              : () {
+                                  widget.onSave(
+                                    _titleController.text,
+                                    _descriptionController.text,
+                                    _selectedDate,
+                                    _startTime != null
+                                        ? TimeOfDay.fromDateTime(_startTime!)
+                                        : null,
+                                    _endTime != null
+                                        ? TimeOfDay.fromDateTime(_endTime!)
+                                        : null,
+                                    _selectedColor,
+                                    _isReminderSet,
+                                    _isReminderSet ? _reminderTime : null,
+                                  );
+                                  Navigator.pop(context);
+                                },
                           style: appTheme.primaryButtonStyle,
                           child: Text('Save Event'),
                         ),

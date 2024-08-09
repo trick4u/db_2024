@@ -16,8 +16,8 @@ import 'profile_controller.dart';
 
 class CalendarController extends GetxController {
   CalendarFormat calendarFormat = CalendarFormat.week;
-  DateTime focusedDay = DateTime.now();
-  DateTime selectedDay = DateTime.now();
+ Rx<DateTime> focusedDay = DateTime.now().obs;
+  Rx<DateTime> selectedDay = DateTime.now().obs;
   RxList<QuickEventModel> events = <QuickEventModel>[].obs;
 
   RxMap<DateTime, List<QuickEventModel>> eventsGrouped =
@@ -36,8 +36,9 @@ class CalendarController extends GetxController {
   @override
   void onInit() {
     super.onInit();
-    fetchEvents(selectedDay);
+    fetchEvents(selectedDay.value);
   }
+
 
   bool isDateInPast(DateTime date) {
     final now = DateTime.now();
@@ -54,7 +55,7 @@ class CalendarController extends GetxController {
   }
 
   void setFocusedDay(DateTime day) {
-    focusedDay = day;
+    focusedDay.value = day;
     update();
   }
 
@@ -82,7 +83,7 @@ class CalendarController extends GetxController {
   }
 
   void setSelectedDay(DateTime day) {
-    selectedDay = day;
+    selectedDay.value = day;
     setFocusedDay(day);
     fetchEvents(day);
     update();
@@ -141,7 +142,7 @@ class CalendarController extends GetxController {
 
   void showEventBottomSheet(BuildContext context, {QuickEventModel? event}) {
     if (event == null) {
-      if (!canAddEvent(selectedDay)) {
+      if (!canAddEvent(selectedDay.value)) {
         Get.snackbar(
           'Cannot Add Event',
           'Events cannot be added to past dates.',
@@ -149,7 +150,7 @@ class CalendarController extends GetxController {
         );
         return;
       }
-      if (!canAddMoreEvents(selectedDay)) {
+      if (!canAddMoreEvents(selectedDay.value)) {
         Get.snackbar(
           'Event Limit Reached',
           'You can only add up to 10 events per day.',
@@ -169,7 +170,7 @@ class CalendarController extends GetxController {
         ),
         child: EventBottomSheet(
           event: event,
-          initialDate: selectedDay,
+          initialDate: selectedDay.value,
           onSave: (title, description, date, TimeOfDay? startTime,
               TimeOfDay? endTime, color, hasReminder, reminderTime) {
             // Convert TimeOfDay to DateTime
@@ -346,7 +347,7 @@ class CalendarController extends GetxController {
         await eventsCollection.doc(eventId).delete();
 
         // Refresh the events
-        fetchEvents(selectedDay);
+        fetchEvents(selectedDay.value);
       }
     } catch (e) {
       print('Error archiving event: $e');
@@ -450,7 +451,7 @@ class CalendarController extends GetxController {
         if (newStatus) {
           HapticFeedback.mediumImpact();
         }
-        fetchEvents(selectedDay);
+        fetchEvents(selectedDay.value);
       }
     } catch (e) {
       print('Error toggling event completion: $e');

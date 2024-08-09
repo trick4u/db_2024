@@ -38,10 +38,10 @@ class CalendarPage extends GetWidget<CalendarController> {
                 padding: const EdgeInsets.symmetric(horizontal: 10),
                 child: Column(
                   children: [
-                    CustomCalendarHeader(controller: controller),
+                    CustomCalendarHeader(),
                     PressableDough(
                       onReleased: (d) {
-                        if (controller.canAddEvent(controller.selectedDay)) {
+                        if (controller.canAddEvent(controller.selectedDay.value)) {
                           controller.showEventBottomSheet(context);
                         } else {
                           return;
@@ -56,11 +56,11 @@ class CalendarPage extends GetWidget<CalendarController> {
                             TableCalendar(
                               firstDay: DateTime.utc(2023, 01, 01),
                               lastDay: DateTime.utc(2030, 12, 31),
-                              focusedDay: controller.focusedDay,
+                              focusedDay: controller.focusedDay.value,
                               daysOfWeekHeight: 40,
                               eventLoader: (day) => [],
                               selectedDayPredicate: (day) {
-                                return isSameDay(day, controller.selectedDay);
+                                return isSameDay(day, controller.selectedDay.value);
                               },
                               onDaySelected: (selectedDay, focusedDay) {
                                 controller.setSelectedDay(selectedDay);
@@ -323,15 +323,15 @@ class CalendarPage extends GetWidget<CalendarController> {
                         child: Obx(
                           () {
                             List<QuickEventModel> selectedDayEvents = controller
-                                .getEventsForDay(controller.selectedDay);
+                                .getEventsForDay(controller.selectedDay.value);
                             return selectedDayEvents.isEmpty
                                 ? Center(
                                     child: InkWell(
                                       onTap: () {
                                         if (controller.canAddEvent(
-                                            controller.selectedDay)) {
+                                            controller.selectedDay.value)) {
                                           if (controller.canAddMoreEvents(
-                                              controller.selectedDay)) {
+                                              controller.selectedDay.value)) {
                                             controller
                                                 .showEventBottomSheet(context);
                                           } else {
@@ -359,7 +359,7 @@ class CalendarPage extends GetWidget<CalendarController> {
                                         }
                                       },
                                       child: Text(
-                                        'No events for ${DateFormat('MMMM dd yyyy').format(controller.selectedDay)} ',
+                                        'No events for ${DateFormat('MMMM dd yyyy').format(controller.selectedDay.value)} ',
                                         style: appTheme.bodyMedium,
                                       ),
                                     ),
@@ -369,9 +369,10 @@ class CalendarPage extends GetWidget<CalendarController> {
                                     physics: AlwaysScrollableScrollPhysics(),
                                     itemBuilder: (context, index) {
                                       return EventCard(
-                                      onComplete: (event){
-                                        controller.toggleEventCompletion(event.id);
-                                      },
+                                        onComplete: (event) {
+                                          controller
+                                              .toggleEventCompletion(event.id);
+                                        },
                                         onEdit: (event) {
                                           controller.showEventBottomSheet(
                                               context,
