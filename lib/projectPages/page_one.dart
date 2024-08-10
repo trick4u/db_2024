@@ -133,7 +133,7 @@ class PageOneScreen extends GetWidget<PageOneController> {
                               Text("Just Check"),
                               InkWell(
                                 onTap: () {
-                                  Get.lazyPut(() => StatisticsController());
+                             
                                   Get.to(() => StatisticsPage());
                                 },
                                 child: Text("statistics"),

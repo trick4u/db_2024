@@ -20,7 +20,7 @@ import 'pages/network_screen.dart';
 import 'projectBinding/add_everything_binding.dart';
 import 'projectBinding/add_taskBinding.dart';
 import 'projectBinding/eat_the_frog_binding.dart';
-import 'projectBinding/goals_binding.dart';
+import 'projectBinding/statistics_binding.dart';
 import 'projectBinding/journal_binding.dart';
 import 'projectBinding/notes_binding.dart';
 import 'projectBinding/notification_binding.dart';
@@ -31,7 +31,7 @@ import 'projectBinding/vision_board_binding.dart';
 import 'projectPages/add_everyting.dart';
 import 'projectPages/add_task.dart';
 import 'projectPages/eat_the_frog.dart';
-import 'projectPages/goals.dart';
+import 'projectPages/statistics_screen.dart';
 import 'projectPages/journal_page.dart';
 import 'projectPages/main_screen.dart';
 import 'pages/otp_screen.dart';
@@ -68,7 +68,7 @@ class AppRoutes {
   //network
   static const String NETWORK = '/network';
   // goals
-  static const String GOALS = '/goals';
+  static const String STATS = '/stats';
   //page one
   static const String PAGEONE = '/pageOne';
   //add everything
@@ -83,14 +83,13 @@ class AppRoutes {
   static const String AUTHWRAPPER = '/authWrapper';
   static const String JOURNAL = '/journal';
   static const EMAILVERIFICATION = '/email-verification';
-    static const NOTIFICAION = '/notification';
+  static const NOTIFICAION = '/notification';
 
   static List<GetPage> routes = [
-     GetPage(
-      name: NOTIFICAION,
-      page: () => DisplayedNotificationsScreen(),
-      binding: DisplayedNotificationsBinding()
-    ),
+    GetPage(
+        name: NOTIFICAION,
+        page: () => DisplayedNotificationsScreen(),
+        binding: DisplayedNotificationsBinding()),
     GetPage(
       name: EMAILVERIFICATION,
       page: () => EmailVerificationPage(),
@@ -136,9 +135,9 @@ class AppRoutes {
       binding: PageOneBinding(),
     ),
     GetPage(
-      name: GOALS,
-      page: () => GoalsScreen(),
-      binding: GoalsBinding(),
+      name: STATS,
+      page: () => StatisticsScreen(),
+      binding: StatisticsBinding(),
     ),
     GetPage(
       name: NETWORK,

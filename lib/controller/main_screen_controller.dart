@@ -6,11 +6,12 @@ import 'package:get/get.dart';
 import 'package:tushar_db/constants/colors.dart';
 import 'package:tushar_db/projectController/calendar_controller.dart';
 import 'package:tushar_db/projectController/profile_controller.dart';
-import 'package:tushar_db/projectPages/goals.dart';
+import 'package:tushar_db/projectPages/statistics_screen.dart';
 
 import '../models/quick_event_model.dart';
 import '../projectController/page_one_controller.dart';
 import '../projectController/page_threeController.dart';
+import '../projectController/statistics_controller.dart';
 import '../projectPages/awesome_noti.dart';
 import '../projectPages/main_screen.dart';
 
@@ -34,7 +35,7 @@ class MainScreenController extends GetxController
     } else if (selectedIndex.value == 1) {
       Get.lazyPut<CalendarController>(() => CalendarController());
     } else if (selectedIndex.value == 2) {
-      Get.lazyPut<PageThreecontroller>(() => PageThreecontroller());
+      Get.lazyPut<StatisticsController>(() => StatisticsController());
     } else if (selectedIndex.value == 3) {
       Get.lazyPut(() => ProfileController());
     }
@@ -43,7 +44,7 @@ class MainScreenController extends GetxController
   final List<Widget> pages = [
     PageOneScreen(),
     CalendarPage(),
-    GoalsScreen(),
+    StatisticsScreen(),
     ProfileScreen(),
   ];
 
