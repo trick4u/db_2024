@@ -54,247 +54,256 @@ class PageOneScreen extends GetWidget<PageOneController> {
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
                 Obx(
-                  () => InkWell(
-                    onTap: () {
-                      Get.to(() => MusicView());
-                    },
-                    child: Text(
-                      controller.greeting.toLowerCase() + ".",
-                      style: AppTextTheme.textTheme.displayMedium,
-                    ),
+                  () => Text(
+                    controller.greeting.toLowerCase() + ".",
+                    style: AppTextTheme.textTheme.displayMedium,
                   ),
                 ),
                 InkWell(
                   onTap: () {
                     Get.toNamed(AppRoutes.NOTIFICAION);
                   },
-                  child: Icon(FontAwesomeIcons.solidNoteSticky),
+                  child: Icon(FontAwesomeIcons.bell),
                 ),
               ],
             ),
             const SizedBox(height: 20),
-            // rounded rect container
-            SizedBox(
-              height: MediaQuery.of(context).size.height * 0.4,
-              width: double.infinity,
-              child: CarouselSlider(
-                key: UniqueKey(),
-                slideTransform: CubeTransform(),
-                unlimitedMode: false,
-                initialPage: 0,
-                onSlideChanged: (int index) {
-                  controller.carouselPageIndex.value = index;
-                },
-                children: [
-                  AllSixCards(),
-                  FourBoxes(),
-                  ThreeDayTasks(),
-                  GoalsContainer(),
-                ],
-              ),
+            AllSixCards(
+              height: 300,
+              useFixedHeight: true,
+            onListTypeSelected: (listType) {
+                controller.setSelectedListType(listType);
+              },
             ),
+            // SizedBox(
+            //   height: MediaQuery.of(context).size.height * 0.3,
+            //   width: double.infinity,
+            //   child: CarouselSlider(
+            //     key: UniqueKey(),
+            //     slideTransform: CubeTransform(),
+            //     unlimitedMode: false,
+            //     initialPage: 0,
+            //     onSlideChanged: (int index) {
+            //       controller.carouselPageIndex.value = index;
+            //     },
+            //     children: [
+            //       AllSixCards(
+            //         height: 200,
+            //         useFixedHeight: true,
+            //       ),
+            //       FourBoxes(),
+            //       ThreeDayTasks(),
+            //       GoalsContainer(),
+            //     ],
+            //   ),
+            // ),
             SizedBox(height: 20),
-            Obx(
-              () {
-                if (controller.carouselPageIndex.value == 0) {
-                  return InkWell(
-                    onTap: () {
-                      // bottom sheet
-                      Get.to(() => QuoteWidget());
-                    },
-                    child: Text(
-                      'Morning Tasks',
-                      style: TextStyle(fontSize: 20),
-                    ),
-                  );
-                } else {
-                  return Container();
-                }
-              },
+            Expanded(
+              child: Obx(() => EventsList(
+                events: controller.getSelectedEvents(),
+                eventType: controller.selectedListType.value,
+              )),
             ),
-            Obx(
-              () {
-                if (controller.carouselPageIndex.value == 0) {
-                  return PageOneBottomPart();
-                } else if (controller.carouselPageIndex.value == 1) {
-                  return Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      GestureDetector(
-                        onTap: () {
-                          Get.to(() => JustCheck());
-                        },
-                        child: Container(
-                          height: 200,
-                          width: double.infinity,
-                          color: Colors.pink,
-                          child: Column(
-                            children: [
-                              Text("Just Check"),
-                              InkWell(
-                                onTap: () {
-                             
-                                  Get.to(() => StatisticsPage());
-                                },
-                                child: Text("statistics"),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ],
-                  );
-                } else if (controller.carouselPageIndex.value == 2) {
-                  return InkWell(
-                    onTap: () {
-                      Get.toNamed(AppRoutes.EATTHEFROG);
-                    },
-                    child: Container(
-                      height: 200,
-                      color: Colors.green,
-                      alignment: Alignment.center,
-                      child: Text("eat the frog"),
-                    ),
-                  );
-                } else if (controller.carouselPageIndex.value == 3) {
-                  return Obx(() => AnimatedContainer(
-                        height: 230,
-                        duration: Duration(seconds: 1),
-                        color: controller.backgroundColor.value,
-                        width: double.infinity,
-                        child: Column(
-                          children: [
-                            //   Obx(() => Text(
-                            //         controller.isBreak.value
-                            //             ? 'Break Time'
-                            //             : 'Work Time',
-                            //         style: TextStyle(fontSize: 24),
-                            //       )),
-                            //   Obx(() => Text(
-                            //         '${(controller.seconds.value / 60).floor().toString().padLeft(2, '0')}:${(controller.seconds.value % 60).toString().padLeft(2, '0')}',
-                            //         style: TextStyle(fontSize: 48),
-                            //       )),
-                            //   SizedBox(height: 20),
-                            //   Obx(
-                            //     () => ElevatedButton(
-                            //       onPressed: controller.isRunning.value
-                            //           ? controller.stopTimer
-                            //           : controller.startTimer,
-                            //       child: Text(controller.isRunning.value
-                            //           ? 'Stop'
-                            //           : 'Start'),
-                            //     ),
-                            //   ),
-                            // SizedBox(height: 20),
-                            // SingleChildScrollView(
-                            //   child: Column(
-                            //     mainAxisAlignment: MainAxisAlignment.center,
-                            //     children: [
-                            //       // Your pomodoro timer widgets here
-                            //       SizedBox(height: 20),
-                            //       Obx(() => Text(
-                            //             'Current Stream: ${controller.getCurrentStreamName()}',
-                            //             style: TextStyle(fontSize: 18),
-                            //           )),
-                            //       SizedBox(height: 10),
-                            //       Row(
-                            //         mainAxisAlignment:
-                            //             MainAxisAlignment.center,
-                            //         children: [
-                            //           Obx(() => ElevatedButton(
-                            //                 onPressed:
-                            //                     controller.togglePlayPause,
-                            //                 child: Text(
-                            //                     controller.isPlaying.value
-                            //                         ? 'Pause'
-                            //                         : 'Play'),
-                            //               )),
-                            //           SizedBox(width: 20),
-                            //           ElevatedButton(
-                            //             onPressed: controller.nextStream,
-                            //             child: Text('Next Stream'),
-                            //           ),
-                            //         ],
-                            //       ),
-                            //     ],
-                            //   ),
-                            // ),
-                            Expanded(
-                              child: Column(
-                                children: [
-                                  ListView.builder(
-                                    shrinkWrap: true,
-                                    itemCount: controller.upcomingEvents.length,
-                                    itemBuilder: (context, index) {
-                                      QuickEventModel event =
-                                          controller.upcomingEvents[index];
-                                      return ListTile(
-                                        title: Text(event.title),
-                                        subtitle: Text('${event.description} '),
-                                        leading: Container(
-                                          width: 12,
-                                          height: 12,
-                                          decoration: BoxDecoration(
-                                            shape: BoxShape.circle,
-                                            color: Colors.red,
-                                          ),
-                                        ),
-                                        onTap: () {
-                                          showEventBottomSheet(context, event);
-                                        },
-                                      );
-                                    },
-                                  ),
-                                  // pending events
-                                  // Obx(
-                                  //   () => ListView.builder(
-                                  //     shrinkWrap: true,
-                                  //     itemCount:
-                                  //         controller.pendingEvents.length,
-                                  //     itemBuilder: (context, index) {
-                                  //       QuickEventModel event =
-                                  //           controller.pendingEvents[index];
-                                  //       return ListTile(
-                                  //         title: Text(event.title),
-                                  //         subtitle:
-                                  //             Text('${event.description} '),
-                                  //         leading: Container(
-                                  //           width: 12,
-                                  //           height: 12,
-                                  //           decoration: BoxDecoration(
-                                  //             shape: BoxShape.circle,
-                                  //             color: Colors.red,
-                                  //           ),
-                                  //         ),
-                                  //         onTap: () {
-                                  //           showEventBottomSheet(
-                                  //               context, event);
-                                  //         },
-                                  //       );
-                                  //     },
-                                  //   ),
-                                  // ),
-                                ],
-                              ),
-                            ),
-                          ],
-                        ),
-                      ));
-                } else {
-                  return Container();
-                }
-              },
-            ),
-            InkWell(
-              onTap: () {
-                // bottom sheet
-                showBottomSheet();
-              },
-              child: const Text(
-                'Quick Task',
-                style: TextStyle(fontSize: 20),
-              ),
-            ),
+            // Obx(
+            //   () {
+            //     if (controller.carouselPageIndex.value == 0) {
+            //       return InkWell(
+            //         onTap: () {
+            //           // bottom sheet
+            //           Get.to(() => QuoteWidget());
+            //         },
+            //         child: Text(
+            //           'Morning Tasks',
+            //           style: TextStyle(fontSize: 20),
+            //         ),
+            //       );
+            //     } else {
+            //       return Container();
+            //     }
+            //   },
+            // ),
+            // Obx(
+            //   () {
+            //     if (controller.carouselPageIndex.value == 0) {
+            //       return PageOneBottomPart();
+            //     } else if (controller.carouselPageIndex.value == 1) {
+            //       return Column(
+            //         mainAxisAlignment: MainAxisAlignment.center,
+            //         children: [
+            //           GestureDetector(
+            //             onTap: () {
+            //               Get.to(() => JustCheck());
+            //             },
+            //             child: Container(
+            //               height: 200,
+            //               width: double.infinity,
+            //               color: Colors.pink,
+            //               child: Column(
+            //                 children: [
+            //                   Text("Just Check"),
+            //                   InkWell(
+            //                     onTap: () {
+            //                       Get.to(() => StatisticsPage());
+            //                     },
+            //                     child: Text("statistics"),
+            //                   ),
+            //                 ],
+            //               ),
+            //             ),
+            //           ),
+            //         ],
+            //       );
+            //     } else if (controller.carouselPageIndex.value == 2) {
+            //       return InkWell(
+            //         onTap: () {
+            //           Get.toNamed(AppRoutes.EATTHEFROG);
+            //         },
+            //         child: Container(
+            //           height: 200,
+            //           color: Colors.green,
+            //           alignment: Alignment.center,
+            //           child: Text("eat the frog"),
+            //         ),
+            //       );
+            //     } else if (controller.carouselPageIndex.value == 3) {
+            //       return Obx(() => AnimatedContainer(
+            //             height: 230,
+            //             duration: Duration(seconds: 1),
+            //             color: controller.backgroundColor.value,
+            //             width: double.infinity,
+            //             child: Column(
+            //               children: [
+            //                 //   Obx(() => Text(
+            //                 //         controller.isBreak.value
+            //                 //             ? 'Break Time'
+            //                 //             : 'Work Time',
+            //                 //         style: TextStyle(fontSize: 24),
+            //                 //       )),
+            //                 //   Obx(() => Text(
+            //                 //         '${(controller.seconds.value / 60).floor().toString().padLeft(2, '0')}:${(controller.seconds.value % 60).toString().padLeft(2, '0')}',
+            //                 //         style: TextStyle(fontSize: 48),
+            //                 //       )),
+            //                 //   SizedBox(height: 20),
+            //                 //   Obx(
+            //                 //     () => ElevatedButton(
+            //                 //       onPressed: controller.isRunning.value
+            //                 //           ? controller.stopTimer
+            //                 //           : controller.startTimer,
+            //                 //       child: Text(controller.isRunning.value
+            //                 //           ? 'Stop'
+            //                 //           : 'Start'),
+            //                 //     ),
+            //                 //   ),
+            //                 // SizedBox(height: 20),
+            //                 // SingleChildScrollView(
+            //                 //   child: Column(
+            //                 //     mainAxisAlignment: MainAxisAlignment.center,
+            //                 //     children: [
+            //                 //       // Your pomodoro timer widgets here
+            //                 //       SizedBox(height: 20),
+            //                 //       Obx(() => Text(
+            //                 //             'Current Stream: ${controller.getCurrentStreamName()}',
+            //                 //             style: TextStyle(fontSize: 18),
+            //                 //           )),
+            //                 //       SizedBox(height: 10),
+            //                 //       Row(
+            //                 //         mainAxisAlignment:
+            //                 //             MainAxisAlignment.center,
+            //                 //         children: [
+            //                 //           Obx(() => ElevatedButton(
+            //                 //                 onPressed:
+            //                 //                     controller.togglePlayPause,
+            //                 //                 child: Text(
+            //                 //                     controller.isPlaying.value
+            //                 //                         ? 'Pause'
+            //                 //                         : 'Play'),
+            //                 //               )),
+            //                 //           SizedBox(width: 20),
+            //                 //           ElevatedButton(
+            //                 //             onPressed: controller.nextStream,
+            //                 //             child: Text('Next Stream'),
+            //                 //           ),
+            //                 //         ],
+            //                 //       ),
+            //                 //     ],
+            //                 //   ),
+            //                 // ),
+            //                 Expanded(
+            //                   child: Column(
+            //                     children: [
+            //                       ListView.builder(
+            //                         shrinkWrap: true,
+            //                         itemCount: controller.upcomingEvents.length,
+            //                         itemBuilder: (context, index) {
+            //                           QuickEventModel event =
+            //                               controller.upcomingEvents[index];
+            //                           return ListTile(
+            //                             title: Text(event.title),
+            //                             subtitle: Text('${event.description} '),
+            //                             leading: Container(
+            //                               width: 12,
+            //                               height: 12,
+            //                               decoration: BoxDecoration(
+            //                                 shape: BoxShape.circle,
+            //                                 color: Colors.red,
+            //                               ),
+            //                             ),
+            //                             onTap: () {
+            //                               showEventBottomSheet(context, event);
+            //                             },
+            //                           );
+            //                         },
+            //                       ),
+            //                       // pending events
+            //                       // Obx(
+            //                       //   () => ListView.builder(
+            //                       //     shrinkWrap: true,
+            //                       //     itemCount:
+            //                       //         controller.pendingEvents.length,
+            //                       //     itemBuilder: (context, index) {
+            //                       //       QuickEventModel event =
+            //                       //           controller.pendingEvents[index];
+            //                       //       return ListTile(
+            //                       //         title: Text(event.title),
+            //                       //         subtitle:
+            //                       //             Text('${event.description} '),
+            //                       //         leading: Container(
+            //                       //           width: 12,
+            //                       //           height: 12,
+            //                       //           decoration: BoxDecoration(
+            //                       //             shape: BoxShape.circle,
+            //                       //             color: Colors.red,
+            //                       //           ),
+            //                       //         ),
+            //                       //         onTap: () {
+            //                       //           showEventBottomSheet(
+            //                       //               context, event);
+            //                       //         },
+            //                       //       );
+            //                       //     },
+            //                       //   ),
+            //                       // ),
+            //                     ],
+            //                   ),
+            //                 ),
+            //               ],
+            //             ),
+            //           ));
+            //     } else {
+            //       return Container();
+            //     }
+            //   },
+            // ),
+            // // InkWell(
+            //   onTap: () {
+            //     // bottom sheet
+            //     showBottomSheet();
+            //   },
+            //   child: const Text(
+            //     'Quick Task',
+            //     style: TextStyle(fontSize: 20),
+            //   ),
+            // ),
 
             // text quick task
           ],
@@ -335,149 +344,44 @@ class PageOneScreen extends GetWidget<PageOneController> {
       ),
     );
   }
+}
 
-  void showBottomSheet() {
-    final appTheme = AppTheme();
-    final reminderController = Get.find<
-        PageOneController>(); // Replace with your actual controller name
+class EventsList extends StatelessWidget {
+  final RxList<QuickEventModel> events;
+  final String eventType;
 
-    showModalBottomSheet(
-      context: Get.context!,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (BuildContext context) {
-        return Padding(
-          padding: ScaleUtil.symmetric(horizontal: 10),
-          child: DraggableScrollableSheet(
-            initialChildSize: 0.5,
-            minChildSize: 0.5,
-            maxChildSize: 0.95,
-            builder: (_, scrollController) {
-              return Container(
-                decoration: BoxDecoration(
-                  color: appTheme.cardColor,
-                  borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-                ),
-                child: Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 15),
-                  child: ListView(
-                    controller: scrollController,
-                    children: [
-                      const SizedBox(height: 20),
-                      Text(
-                        'Quick Reminder',
-                        style: appTheme.titleLarge,
-                        textAlign: TextAlign.center,
-                      ),
-                      const SizedBox(height: 20),
-                      Text(
-                        'Remind me about',
-                        style: appTheme.bodyMedium,
-                      ),
-                      const SizedBox(height: 20),
-                      ClipRRect(
-                        borderRadius: BorderRadius.circular(10),
-                        child: TextField(
-                          controller: reminderController.reminderTextController,
-                          onChanged: (value) {},
-                          style: appTheme.bodyMedium,
-                          decoration: InputDecoration(
-                            border: InputBorder.none,
-                            labelText: 'Enter Task Name',
-                            fillColor: appTheme.textFieldFillColor,
-                            filled: true,
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 20),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            'Remind me after',
-                            style: appTheme.bodyMedium,
-                          ),
-                          Obx(() => Text(
-                                'Switch is ${reminderController.repeat.value ? "ON" : "OFF"}',
-                                style: appTheme.bodyMedium,
-                              )),
-                          Obx(() => Switch(
-                                value: reminderController.repeat.value,
-                                onChanged: (value) {
-                                  reminderController.toggleSwitch(value);
-                                },
-                              )),
-                        ],
-                      ),
-                      const SizedBox(height: 20),
-                      ChipWidgets(
-                        pageOneController: reminderController,
-                      ),
-                      const SizedBox(height: 20),
-                      Obx(() {
-                        return Wrap(
-                          spacing: 8.0,
-                          children: [
-                            'Monday',
-                            'Tuesday',
-                            'Wednesday',
-                            'Thursday',
-                            'Friday',
-                            'Saturday',
-                            'Sunday'
-                          ].map((day) {
-                            final isSelected =
-                                reminderController.selectedDays.contains(day);
-                            return FilterChip(
-                              label: Text(day, style: appTheme.bodyMedium),
-                              selected: isSelected,
-                              onSelected: (_) =>
-                                  reminderController.toggleDay(day),
-                              backgroundColor: appTheme.cardColor,
-                              selectedColor: appTheme.colorScheme.primary,
-                            );
-                          }).toList(),
-                        );
-                      }),
-                      SizedBox(height: 20),
-                      ElevatedButton(
-                        onPressed: () {
-                          if (reminderController.timeSelected.value == 1) {
-                            reminderController.schedulePeriodicNotifications(
-                                reminderController.reminderTextController.text,
-                                15,
-                                reminderController.repeat.value);
-                          } else if (reminderController.timeSelected.value ==
-                              2) {
-                            reminderController.schedulePeriodicNotifications(
-                                reminderController.reminderTextController.text,
-                                30,
-                                reminderController.repeat.value);
-                          } else if (reminderController.timeSelected.value ==
-                              3) {
-                            reminderController.schedulePeriodicNotifications(
-                                reminderController.reminderTextController.text,
-                                60,
-                                reminderController.repeat.value);
-                          }
-                          reminderController
-                              .saveReminder(reminderController.repeat.value);
-                          Get.back();
-                        },
-                        style: appTheme.primaryButtonStyle,
-                        child: Text('Save',
-                            style: appTheme.bodyMedium.copyWith(
-                                color: appTheme.colorScheme.onPrimary)),
-                      ),
-                    ],
+  EventsList({required this.events, required this.eventType});
+
+  @override
+  Widget build(BuildContext context) {
+    return Obx(() => events.isEmpty
+        ? Center(child: Text('No $eventType events'))
+        : ListView.builder(
+            itemCount: events.length,
+            itemBuilder: (context, index) {
+              QuickEventModel event = events[index];
+              return ListTile(
+                title: Text(event.title),
+                subtitle:
+                    Text('${event.description} - ${_formatDate(event.date)}'),
+                leading: Container(
+                  width: 12,
+                  height: 12,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: event.color,
                   ),
                 ),
+                onTap: () {
+                  // _showEventBottomSheet(context, event);
+                },
               );
             },
-          ),
-        );
-      },
-    );
+          ));
+  }
+
+  String _formatDate(DateTime date) {
+    return '${date.day}/${date.month}/${date.year}';
   }
 }
 

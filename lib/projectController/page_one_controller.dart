@@ -42,8 +42,10 @@ class PageOneController extends GetxController {
   var greeting = ''.obs;
   RxList<QuickEventModel> upcomingEvents = <QuickEventModel>[].obs;
   RxList<QuickEventModel> pendingEvents = <QuickEventModel>[].obs;
+  RxList<QuickEventModel> completedEvents = <QuickEventModel>[].obs;
   User? currentUser = FirebaseAuth.instance.currentUser;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  final RxString selectedListType = ''.obs;
 
   CollectionReference get eventsCollection {
     return _firestore
@@ -80,6 +82,7 @@ class PageOneController extends GetxController {
     //   getAllGoals();
     fetchUpcomingEvents();
     fetchPendingEvents();
+    fetchCompletedEvents();
 
     audioPlayer = AudioPlayer();
     initializePlayer();
@@ -113,6 +116,23 @@ class PageOneController extends GetxController {
     super.dispose();
   }
 
+  void setSelectedListType(String listType) {
+    selectedListType.value = listType;
+  }
+
+  RxList<QuickEventModel> getSelectedEvents() {
+    switch (selectedListType.value) {
+      case 'upcoming':
+        return upcomingEvents;
+      case 'pending':
+        return pendingEvents;
+      case 'completed tasks':
+        return completedEvents;
+      default:
+        return RxList<QuickEventModel>([]);
+    }
+  }
+
   void fetchPendingEvents() {
     if (currentUser == null) return;
 
@@ -133,6 +153,7 @@ class PageOneController extends GetxController {
       update();
     });
   }
+  // upcoming
 
   void fetchUpcomingEvents() {
     if (currentUser == null) return;
@@ -152,7 +173,6 @@ class PageOneController extends GetxController {
           .map((doc) => QuickEventModel.fromFirestore(doc))
           .toList();
 
-    
       update();
     });
   }
@@ -164,7 +184,9 @@ class PageOneController extends GetxController {
       DateTime newDate,
       TimeOfDay? newStartTime,
       TimeOfDay? newEndTime,
-      Color newColor, bool hasReminder, DateTime? reminderTime) async {
+      Color newColor,
+      bool hasReminder,
+      DateTime? reminderTime) async {
     if (currentUser == null) return;
     try {
       await eventsCollection.doc(eventId).update({
@@ -552,5 +574,33 @@ class PageOneController extends GetxController {
     } catch (e) {
       print(e);
     }
+  }
+
+  //completed tasks
+  void fetchCompletedEvents() async {
+    if (currentUser == null) return;
+
+    try {
+      QuerySnapshot querySnapshot = await _firestore
+          .collection('users')
+          .doc(currentUser!.uid)
+          .collection('events')
+          .where('isCompleted', isEqualTo: true)
+          .limit(10)
+          // Limit to 10 completed events, adjust as needed
+          .get();
+
+      completedEvents.value = querySnapshot.docs
+          .map((doc) => QuickEventModel.fromFirestore(doc))
+          .toList();
+
+      update();
+    } catch (e) {
+      print('Error fetching completed events: $e');
+    }
+  }
+
+  void refreshCompletedEvents() {
+    fetchCompletedEvents();
   }
 }
