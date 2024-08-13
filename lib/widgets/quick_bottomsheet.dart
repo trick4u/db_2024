@@ -1,7 +1,3 @@
-
-
-
-
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -140,12 +136,11 @@ class QuickReminderBottomSheet extends StatelessWidget {
     return ElevatedButton(
       onPressed: () {
         _handleSave();
-        Get.back();
       },
       style: appTheme.primaryButtonStyle,
       child: Text('Save',
-          style: appTheme.bodyMedium.copyWith(
-              color: appTheme.colorScheme.onPrimary)),
+          style: appTheme.bodyMedium
+              .copyWith(color: appTheme.colorScheme.onPrimary)),
     );
   }
 

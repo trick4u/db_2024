@@ -98,20 +98,19 @@ void main() async {
               'Notification channel for daily motivational quotes',
           defaultColor: Color(0xFF9D50DD),
           ledColor: Colors.white,
-          importance: NotificationImportance.Low,
+          importance: NotificationImportance.High,
           channelShowBadge: true,
         ),
         NotificationChannel(
-          channelKey: 'event_reminders',
-          channelName: 'Reminder Notifications',
-          channelDescription:
-              'Notification channel for daily motivational quotes',
-          defaultColor: Color(0xFF9D50DD),
-          ledColor: Colors.white,
-          importance: NotificationImportance.High,
-          channelShowBadge: true,
-          playSound: true
-        ),
+            channelKey: 'event_reminders',
+            channelName: 'Reminder Notifications',
+            channelDescription:
+                'Notification channel for daily motivational quotes',
+            defaultColor: Color(0xFF9D50DD),
+            ledColor: Colors.white,
+            importance: NotificationImportance.High,
+            channelShowBadge: true,
+            playSound: true),
       ],
       debug: true);
 
@@ -145,7 +144,7 @@ void main() async {
     onDismissActionReceivedMethod:
         NotificationService.onDismissActionReceivedMethod,
   );
- 
+
   AwesomeNotifications().isNotificationAllowed().then((isAllowed) {
     if (!isAllowed) {
       AwesomeNotifications().requestPermissionToSendNotifications();
@@ -156,6 +155,7 @@ void main() async {
 
   runApp(const MyApp());
 }
+
 Future<void> initializeTimeZone() async {
   // Initialize the timezone data
   initializeTimeZones();

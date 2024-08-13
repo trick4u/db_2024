@@ -60,17 +60,18 @@ class AllSixCards extends GetWidget<PageOneController> {
       itemCount: items.length,
       itemBuilder: (context, index) {
         return InkWell(
-          onTap: () {
+         onTap: () {
             String tileTitle = items[index]['title']!.toLowerCase();
             if (tileTitle == 'pending' ||
                 tileTitle == 'upcoming' ||
-                tileTitle == 'completed tasks') {
+                tileTitle == 'completed tasks' ||
+                tileTitle == 'all reminders') {
               onListTypeSelected(tileTitle);
-            } else if (tileTitle == 'quick task') {
+            } else if (tileTitle == 'add reminders +') {
               showQuickReminderBottomSheet();
             } else {
               // Handle other tile taps here
-              print('Tapped on $tileTitle');
+              print('Tapped on: $tileTitle');
             }
           },
           child: Container(

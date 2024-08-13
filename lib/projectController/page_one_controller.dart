@@ -13,6 +13,7 @@ import 'package:youtube_explode_dart/youtube_explode_dart.dart';
 
 import '../models/goals_model.dart';
 import '../models/quick_event_model.dart';
+import '../models/reminder_model.dart';
 import '../projectPages/awesome_noti.dart';
 import '../services/notification_service.dart';
 import 'add_task_controller.dart';
@@ -35,7 +36,7 @@ class PageOneController extends GetxController {
   // Rx<GoalsModel> allGoals = GoalsModel().obs;
 
   final RxList<GoalsModel> allGoals = RxList<GoalsModel>([]);
-
+  RxList<ReminderModel> allReminders = <ReminderModel>[].obs;
   //rx status
   Rx<RxStatus> goalsStatus = RxStatus.loading().obs;
 
@@ -52,6 +53,13 @@ class PageOneController extends GetxController {
         .collection('users')
         .doc(currentUser?.uid)
         .collection('events');
+  }
+
+  CollectionReference get remindersCollection {
+    return _firestore
+        .collection('users')
+        .doc(currentUser?.uid)
+        .collection('reminders');
   }
 
   //pomodor timer
@@ -81,7 +89,7 @@ class PageOneController extends GetxController {
   void onInit() {
     //   getAllGoals();
     fetchAllEvents();
-    refreshCompletedEvents();
+    fetchAllReminders();
     audioPlayer = AudioPlayer();
     initializePlayer();
     reminderTextController = TextEditingController();
@@ -114,6 +122,35 @@ class PageOneController extends GetxController {
     super.dispose();
   }
 
+  //for reminders
+  void fetchAllReminders() {
+    if (currentUser == null) return;
+
+    remindersCollection.snapshots().listen((querySnapshot) {
+      allReminders.value = querySnapshot.docs
+          .map((doc) => ReminderModel.fromFirestore(doc))
+          .toList();
+      allReminders.sort((a, b) => b.createdAt.compareTo(a.createdAt));
+      update();
+    });
+  }
+
+  void deleteReminder(String reminderId) async {
+    if (currentUser == null) return;
+    try {
+      await remindersCollection.doc(reminderId).delete();
+      Get.snackbar('Success', 'Reminder deleted successfully');
+    } catch (e) {
+      print('Error deleting reminder: $e');
+      Get.snackbar('Error', 'Failed to delete reminder');
+    }
+  }
+
+  void toggleReminderCompletion(String reminderId, bool isCompleted) {
+    remindersCollection.doc(reminderId).update({'isCompleted': isCompleted});
+    fetchAllReminders();
+  }
+
   void setSelectedListType(String listType) {
     selectedListType.value = listType;
     getSelectedEvents();
@@ -129,6 +166,31 @@ class PageOneController extends GetxController {
         return completedEvents;
       default:
         return RxList<QuickEventModel>([]);
+    }
+  }
+
+  void deleteEvent(String eventId) async {
+    if (currentUser == null) return;
+    try {
+      await eventsCollection.doc(eventId).delete();
+      fetchAllEvents(); // Refresh all event lists
+      Get.snackbar('Success', 'Event deleted successfully');
+    } catch (e) {
+      print('Error deleting event: $e');
+      Get.snackbar('Error', 'Failed to delete event');
+    }
+  }
+
+  // New archive function
+  void archiveEvent(String eventId) async {
+    if (currentUser == null) return;
+    try {
+      await eventsCollection.doc(eventId).update({'isArchived': true});
+      fetchAllEvents(); // Refresh all event lists
+      Get.snackbar('Success', 'Event archived successfully');
+    } catch (e) {
+      print('Error archiving event: $e');
+      Get.snackbar('Error', 'Failed to archive event');
     }
   }
 
@@ -498,11 +560,7 @@ class PageOneController extends GetxController {
 
   //save data into firestore
   Future saveReminder(bool repeat) async {
-    await fireStoreInstance
-        .collection("reminders")
-        .doc(FirebaseAuth.instance.currentUser!.uid)
-        .collection("userReminders")
-        .add({
+    await remindersCollection.add({
       "reminder": reminderTextController.text,
       "time": timeSelected.value,
       "isReminderSet": true,
@@ -600,21 +658,4 @@ class PageOneController extends GetxController {
   }
 
   //completed tasks
-  void fetchCompletedEvents() {
-    if (currentUser == null) return;
-
-    eventsCollection
-        .where('isCompleted', isEqualTo: true)
-        .snapshots()
-        .listen((querySnapshot) {
-      completedEvents.value = querySnapshot.docs
-          .map((doc) => QuickEventModel.fromFirestore(doc))
-          .toList();
-      update();
-    });
-  }
-
-  void refreshCompletedEvents() {
-    fetchCompletedEvents();
-  }
 }

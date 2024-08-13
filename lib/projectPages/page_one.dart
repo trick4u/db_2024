@@ -85,22 +85,14 @@ class PageOneScreen extends GetWidget<PageOneController> {
                       children: [
                         Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 20),
-                          child: FadeInDown(
-                            child: Text(
-                              _getListTitle(controller.selectedListType.value),
-                              style: AppTextTheme.textTheme.titleLarge,
-                            ),
+                          child: Text(
+                            _getListTitle(controller.selectedListType.value),
+                            style: AppTextTheme.textTheme.titleLarge,
                           ),
                         ),
                         const SizedBox(height: 10),
                         Expanded(
-                          child: SlideInUp(
-                            child: EventsList(
-                              events: controller.getSelectedEvents(),
-                              eventType: controller.selectedListType.value,
-                         
-                            ),
-                          ),
+                          child: _buildSelectedList(),
                         ),
                       ],
                     )
@@ -322,12 +314,53 @@ class PageOneScreen extends GetWidget<PageOneController> {
         return 'Pending Tasks';
       case 'completed tasks':
         return 'Completed Tasks';
+      case 'all reminders':
+        return 'All Reminders';
       default:
         return '';
     }
   }
 
+  Widget _buildSelectedList() {
+    switch (controller.selectedListType.value) {
+      case 'all reminders':
+        return _buildRemindersList();
+      default:
+        return EventsList(
+          events: controller.getSelectedEvents(),
+          eventType: controller.selectedListType.value,
+        );
+    }
+  }
 
+  Widget _buildRemindersList() {
+    return Obx(() => ListView.builder(
+          itemCount: controller.allReminders.length,
+          itemBuilder: (context, index) {
+            final reminder = controller.allReminders[index];
+            return ListTile(
+              title: Text(reminder.reminder),
+              subtitle: Text('Time: ${reminder.time} minutes'),
+              trailing: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Checkbox(
+                    value: reminder.isCompleted,
+                    onChanged: (bool? value) {
+                      controller.toggleReminderCompletion(
+                          reminder.id, value ?? false);
+                    },
+                  ),
+                  IconButton(
+                    icon: Icon(Icons.delete),
+                    onPressed: () => controller.deleteReminder(reminder.id),
+                  ),
+                ],
+              ),
+            );
+          },
+        ));
+  }
 }
 
 class PageOneBottomPart extends GetWidget<PageOneController> {

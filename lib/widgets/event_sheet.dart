@@ -5,6 +5,7 @@ import 'package:tushar_db/projectController/page_one_controller.dart';
 
 import '../models/quick_event_model.dart';
 import 'event_bottomSheet.dart';
+import 'event_card.dart';
 
 class EventsList extends StatelessWidget {
   final RxList<QuickEventModel> events;
@@ -17,33 +18,27 @@ class EventsList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+     final PageOneController controller = Get.find<PageOneController>();
     return Obx(() => events.isEmpty
         ? Center(child: Text('No $eventType events'))
         : ListView.builder(
             itemCount: events.length,
             itemBuilder: (context, index) {
               QuickEventModel event = events[index];
-              return ListTile(
-                title: Text(event.title),
-                subtitle:
-                    Text('${event.description} - ${_formatDate(event.date)}'),
-                leading: Container(
-                  width: 12,
-                  height: 12,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: event.color,
-                  ),
-                ),
-                onTap: () {
-                  showEventBottomSheet(context, event);
-                },
+              return EventCard(
+                event: event,
+             onDelete: (event) => controller.deleteEvent(event.id),
+                onEdit: (event) => _showEventBottomSheet(context, event),
+                onArchive: (event) => controller.archiveEvent(event.id),
+                onComplete: (event) => controller.toggleEventCompletion(event.id, event.isCompleted != true),
               );
             },
           ));
   }
 
-  void showEventBottomSheet(BuildContext context, QuickEventModel event) {
+  
+
+void _showEventBottomSheet(BuildContext context, QuickEventModel event) {
     final pageOneController = Get.find<PageOneController>();
 
     showModalBottomSheet(
@@ -59,46 +54,26 @@ class EventsList extends StatelessWidget {
           initialDate: event.date,
           onSave: (title, description, date, startTime, endTime, color,
               hasReminder, reminderTime) {
-            // Convert TimeOfDay to DateTime
             Map<String, dynamic> updatedData = {
               'title': title,
               'description': description,
-              'date': Timestamp.fromDate(date),
+              'date': date,
               'color': color.value,
               'hasReminder': hasReminder,
-              'isCompleted':
-                  event.isCompleted, // Preserve the current completion status
+              'isCompleted': event.isCompleted,
+              'startTime': startTime != null
+                  ? DateTime(date.year, date.month, date.day, startTime.hour, startTime.minute)
+                  : null,
+              'endTime': endTime != null
+                  ? DateTime(date.year, date.month, date.day, endTime.hour, endTime.minute)
+                  : null,
+              'reminderTime': reminderTime,
             };
 
-            if (startTime != null) {
-              updatedData['startTime'] = Timestamp.fromDate(
-                DateTime(date.year, date.month, date.day, startTime.hour,
-                    startTime.minute),
-              );
-            }
-
-            if (endTime != null) {
-              updatedData['endTime'] = Timestamp.fromDate(
-                DateTime(date.year, date.month, date.day, endTime.hour,
-                    endTime.minute),
-              );
-            }
-
-            if (reminderTime != null) {
-              updatedData['reminderTime'] = Timestamp.fromDate(reminderTime);
-            }
-
-            // Update the event
             pageOneController.updateEvent(event.id, updatedData);
-
-            // Close the bottom sheet
           },
         ),
       ),
     );
-  }
-
-  String _formatDate(DateTime date) {
-    return '${date.day}/${date.month}/${date.year}';
   }
 }
