@@ -11,7 +11,7 @@ class QuickEventModel {
   final Color color;
   final bool hasReminder;
   DateTime? reminderTime;
-  final bool? isCompleted;
+  bool? isCompleted;
   final DateTime createdAt; // New field
 
   QuickEventModel({

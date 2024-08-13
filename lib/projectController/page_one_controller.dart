@@ -80,10 +80,8 @@ class PageOneController extends GetxController {
   @override
   void onInit() {
     //   getAllGoals();
-    fetchUpcomingEvents();
-    fetchPendingEvents();
-    fetchCompletedEvents();
-
+    fetchAllEvents();
+    refreshCompletedEvents();
     audioPlayer = AudioPlayer();
     initializePlayer();
     reminderTextController = TextEditingController();
@@ -118,6 +116,7 @@ class PageOneController extends GetxController {
 
   void setSelectedListType(String listType) {
     selectedListType.value = listType;
+    getSelectedEvents();
   }
 
   RxList<QuickEventModel> getSelectedEvents() {
@@ -133,18 +132,49 @@ class PageOneController extends GetxController {
     }
   }
 
+  void fetchAllEvents() {
+    if (currentUser == null) return;
+
+    eventsCollection.snapshots().listen((querySnapshot) {
+      List<QuickEventModel> allEvents = querySnapshot.docs
+          .map((doc) => QuickEventModel.fromFirestore(doc))
+          .toList();
+
+      // Sort all events by date
+      allEvents.sort((a, b) => a.date.compareTo(b.date));
+
+      DateTime now = DateTime.now();
+
+      upcomingEvents.value = allEvents
+          .where(
+              (event) => event.isCompleted != true && event.date.isAfter(now))
+          .toList();
+
+      pendingEvents.value = allEvents
+          .where(
+              (event) => event.isCompleted != true && event.date.isBefore(now))
+          .toList();
+
+      completedEvents.value =
+          allEvents.where((event) => event.isCompleted == true).toList();
+      update();
+    });
+  }
+
+  void updateEvent(String eventId, Map<String, dynamic> updatedData) {
+    eventsCollection.doc(eventId).update(updatedData);
+  }
+
+  void toggleEventCompletion(String eventId, bool isCompleted) {
+    updateEvent(eventId, {'isCompleted': isCompleted});
+    fetchAllEvents(); // Refresh all lists after toggling completion
+  }
+
   void fetchPendingEvents() {
     if (currentUser == null) return;
 
-    DateTime now = DateTime.now();
-    DateTime startDate =
-        now.subtract(Duration(days: 30)); // Fetch events from the last 30 days
-
     eventsCollection
-        .where('date', isGreaterThanOrEqualTo: startDate)
-        .where('date', isLessThan: now)
-        .orderBy('date', descending: true)
-        .limit(10) // Limit to 10 pending events
+        .where('isCompleted', isEqualTo: false)
         .snapshots()
         .listen((querySnapshot) {
       pendingEvents.value = querySnapshot.docs
@@ -158,21 +188,14 @@ class PageOneController extends GetxController {
   void fetchUpcomingEvents() {
     if (currentUser == null) return;
 
-    DateTime now = DateTime.now();
-    DateTime endDate =
-        now.add(Duration(days: 30)); // Fetch events for the next 30 days
-
     eventsCollection
-        .where('date', isGreaterThanOrEqualTo: now)
-        .where('date', isLessThanOrEqualTo: endDate)
-        .orderBy('date')
-        .limit(10) // Limit to 10 upcoming events
+        .where('isCompleted', isEqualTo: false)
+        .where('date', isGreaterThanOrEqualTo: Timestamp.now())
         .snapshots()
         .listen((querySnapshot) {
       upcomingEvents.value = querySnapshot.docs
           .map((doc) => QuickEventModel.fromFirestore(doc))
           .toList();
-
       update();
     });
   }
@@ -577,27 +600,18 @@ class PageOneController extends GetxController {
   }
 
   //completed tasks
-  void fetchCompletedEvents() async {
+  void fetchCompletedEvents() {
     if (currentUser == null) return;
 
-    try {
-      QuerySnapshot querySnapshot = await _firestore
-          .collection('users')
-          .doc(currentUser!.uid)
-          .collection('events')
-          .where('isCompleted', isEqualTo: true)
-          .limit(10)
-          // Limit to 10 completed events, adjust as needed
-          .get();
-
+    eventsCollection
+        .where('isCompleted', isEqualTo: true)
+        .snapshots()
+        .listen((querySnapshot) {
       completedEvents.value = querySnapshot.docs
           .map((doc) => QuickEventModel.fromFirestore(doc))
           .toList();
-
       update();
-    } catch (e) {
-      print('Error fetching completed events: $e');
-    }
+    });
   }
 
   void refreshCompletedEvents() {

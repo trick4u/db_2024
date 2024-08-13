@@ -12,13 +12,12 @@ class AllSixCards extends GetWidget<PageOneController> {
   final appTheme = Get.find<AppTheme>();
   final double? height;
   final bool useFixedHeight;
- final Function(String) onListTypeSelected;
-
+  final Function(String) onListTypeSelected;
 
   AllSixCards({
     this.height,
     this.useFixedHeight = false,
-   required this.onListTypeSelected,
+    required this.onListTypeSelected,
   });
 
   final List<Map<String, String>> items = [
@@ -29,7 +28,7 @@ class AllSixCards extends GetWidget<PageOneController> {
     {'title': 'Upcoming'},
     {'title': 'Vision'},
     {'title': 'Pending'},
-    {'title': 'Quick Task'},
+    {'title': 'Add Reminders +'},
   ];
 
   void showQuickReminderBottomSheet() {
@@ -61,9 +60,11 @@ class AllSixCards extends GetWidget<PageOneController> {
       itemCount: items.length,
       itemBuilder: (context, index) {
         return InkWell(
-       onTap: () {
+          onTap: () {
             String tileTitle = items[index]['title']!.toLowerCase();
-            if (tileTitle == 'pending' || tileTitle == 'upcoming' || tileTitle == 'completed tasks') {
+            if (tileTitle == 'pending' ||
+                tileTitle == 'upcoming' ||
+                tileTitle == 'completed tasks') {
               onListTypeSelected(tileTitle);
             } else if (tileTitle == 'quick task') {
               showQuickReminderBottomSheet();

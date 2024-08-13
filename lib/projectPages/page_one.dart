@@ -24,6 +24,7 @@ import '../temp/music_view.dart';
 import '../widgets/AllSixWidgets.dart';
 import '../widgets/event_bottomSheet.dart';
 import '../widgets/event_card.dart';
+import '../widgets/event_sheet.dart';
 import '../widgets/four_boxes.dart';
 import '../widgets/goals_box.dart';
 import '../widgets/quick_reminder_chips.dart';
@@ -71,38 +72,39 @@ class PageOneScreen extends GetWidget<PageOneController> {
             AllSixCards(
               height: 300,
               useFixedHeight: true,
-            onListTypeSelected: (listType) {
+              onListTypeSelected: (listType) {
                 controller.setSelectedListType(listType);
               },
             ),
-            // SizedBox(
-            //   height: MediaQuery.of(context).size.height * 0.3,
-            //   width: double.infinity,
-            //   child: CarouselSlider(
-            //     key: UniqueKey(),
-            //     slideTransform: CubeTransform(),
-            //     unlimitedMode: false,
-            //     initialPage: 0,
-            //     onSlideChanged: (int index) {
-            //       controller.carouselPageIndex.value = index;
-            //     },
-            //     children: [
-            //       AllSixCards(
-            //         height: 200,
-            //         useFixedHeight: true,
-            //       ),
-            //       FourBoxes(),
-            //       ThreeDayTasks(),
-            //       GoalsContainer(),
-            //     ],
-            //   ),
-            // ),
+
             SizedBox(height: 20),
             Expanded(
-              child: Obx(() => EventsList(
-                events: controller.getSelectedEvents(),
-                eventType: controller.selectedListType.value,
-              )),
+              child: Obx(() => controller.selectedListType.value.isNotEmpty
+                  ? Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 20),
+                          child: FadeInDown(
+                            child: Text(
+                              _getListTitle(controller.selectedListType.value),
+                              style: AppTextTheme.textTheme.titleLarge,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 10),
+                        Expanded(
+                          child: SlideInUp(
+                            child: EventsList(
+                              events: controller.getSelectedEvents(),
+                              eventType: controller.selectedListType.value,
+                         
+                            ),
+                          ),
+                        ),
+                      ],
+                    )
+                  : SizedBox.shrink()),
             ),
             // Obx(
             //   () {
@@ -312,77 +314,20 @@ class PageOneScreen extends GetWidget<PageOneController> {
     );
   }
 
-  void showEventBottomSheet(BuildContext context, QuickEventModel event) {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (context) => Padding(
-        padding: EdgeInsets.only(
-          bottom: MediaQuery.of(context).viewInsets.bottom,
-        ),
-        child: EventBottomSheet(
-          event: event,
-          initialDate: event.date,
-          onSave: (title, description, date, startTime, endTime, color,
-              hasReminder, reminderTime) {
-            // Convert TimeOfDay to DateTime
-
-            controller.updateUpcomingEvent(
-              event.id,
-              title,
-              description,
-              date,
-              startTime,
-              endTime,
-              color,
-              hasReminder,
-              reminderTime,
-            );
-          },
-        ),
-      ),
-    );
-  }
-}
-
-class EventsList extends StatelessWidget {
-  final RxList<QuickEventModel> events;
-  final String eventType;
-
-  EventsList({required this.events, required this.eventType});
-
-  @override
-  Widget build(BuildContext context) {
-    return Obx(() => events.isEmpty
-        ? Center(child: Text('No $eventType events'))
-        : ListView.builder(
-            itemCount: events.length,
-            itemBuilder: (context, index) {
-              QuickEventModel event = events[index];
-              return ListTile(
-                title: Text(event.title),
-                subtitle:
-                    Text('${event.description} - ${_formatDate(event.date)}'),
-                leading: Container(
-                  width: 12,
-                  height: 12,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: event.color,
-                  ),
-                ),
-                onTap: () {
-                  // _showEventBottomSheet(context, event);
-                },
-              );
-            },
-          ));
+  String _getListTitle(String listType) {
+    switch (listType) {
+      case 'upcoming':
+        return 'Upcoming Tasks';
+      case 'pending':
+        return 'Pending Tasks';
+      case 'completed tasks':
+        return 'Completed Tasks';
+      default:
+        return '';
+    }
   }
 
-  String _formatDate(DateTime date) {
-    return '${date.day}/${date.month}/${date.year}';
-  }
+
 }
 
 class PageOneBottomPart extends GetWidget<PageOneController> {
