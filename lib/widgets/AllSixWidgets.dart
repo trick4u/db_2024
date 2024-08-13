@@ -30,6 +30,7 @@ class AllSixCards extends GetWidget<PageOneController> {
     {'title': 'Pending'},
     {'title': 'Add Reminders +'},
   ];
+  final RxString selectedTile = ''.obs;
 
   void showQuickReminderBottomSheet() {
     final reminderController = Get.find<PageOneController>();
@@ -59,35 +60,39 @@ class AllSixCards extends GetWidget<PageOneController> {
       ),
       itemCount: items.length,
       itemBuilder: (context, index) {
-        return InkWell(
-         onTap: () {
-            String tileTitle = items[index]['title']!.toLowerCase();
-            if (tileTitle == 'pending' ||
-                tileTitle == 'upcoming' ||
-                tileTitle == 'completed tasks' ||
-                tileTitle == 'all reminders') {
-              onListTypeSelected(tileTitle);
-            } else if (tileTitle == 'add reminders +') {
-              showQuickReminderBottomSheet();
-            } else {
-              // Handle other tile taps here
-              print('Tapped on: $tileTitle');
-            }
-          },
-          child: Container(
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(10),
-              color: Colors.deepPurpleAccent,
-            ),
-            alignment: Alignment.center,
-            child: Text(
-              items[index]['title']!.toLowerCase(),
-              style: AppTextTheme.textTheme.bodyMedium
-                  ?.copyWith(fontWeight: FontWeight.w500, color: Colors.white),
-              textAlign: TextAlign.center,
-            ),
-          ),
-        );
+        return Obx(() => InkWell(
+              onTap: () {
+                String tileTitle = items[index]['title']!.toLowerCase();
+                selectedTile.value = tileTitle;
+                if (tileTitle == 'pending' ||
+                    tileTitle == 'upcoming' ||
+                    tileTitle == 'completed tasks' ||
+                    tileTitle == 'all reminders') {
+                  onListTypeSelected(tileTitle);
+                } else if (tileTitle == 'add reminders +') {
+                  showQuickReminderBottomSheet();
+                } else {
+                  // Handle other tile taps here
+                  print('Tapped on: ');
+                }
+              },
+              child: Container(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(10),
+                  color:
+                      selectedTile.value == items[index]['title']!.toLowerCase()
+                          ? Colors.deepPurple
+                          : Colors.deepPurpleAccent,
+                ),
+                alignment: Alignment.center,
+                child: Text(
+                  items[index]['title']!.toLowerCase(),
+                  style: AppTextTheme.textTheme.bodyMedium?.copyWith(
+                      fontWeight: FontWeight.w500, color: Colors.white),
+                  textAlign: TextAlign.center,
+                ),
+              ),
+            ));
       },
     );
 
