@@ -6,7 +6,7 @@ import 'package:tushar_db/services/scale_util.dart';
 import '../projectController/profile_controller.dart';
 import '../services/app_theme.dart';
 
-class ProfileScreen extends GetView<ProfileController> {
+class ProfileScreen extends GetWidget<ProfileController> {
   final appTheme = Get.find<AppTheme>();
 
   @override
@@ -115,43 +115,17 @@ class ProfileScreen extends GetView<ProfileController> {
                     _buildOptionTile('delete account',
                         onTap: () => controller.deleteAccount()),
                     SizedBox(height: 20),
-                    Obx(() {
-                      if (controller.isLoading.value) {
-                        return Center(child: CircularProgressIndicator());
-                      } else if (controller.notifications.isEmpty) {
-                        return Center(child: Text('No notifications'));
-                      } else {
-                        return ListView.builder(
-                          shrinkWrap: true,
-                          physics: NeverScrollableScrollPhysics(),
-                          itemCount: controller.notifications.length,
-                          itemBuilder: (context, index) {
-                            var notification = controller.notifications[index];
-                            return ListTile(
-                              title: Text(
-                                  notification.content?.title ?? 'No title'),
-                              subtitle:
-                                  Text(notification.content?.body ?? 'No body'),
-                              trailing: IconButton(
-                                icon: Icon(Icons.delete),
-                                onPressed: () => controller.cancelNotification(
-                                    notification.content?.id ?? 0),
-                              ),
-                            );
-                          },
-                        );
-                      }
-                    }),
+            
                     SizedBox(height: 20),
-                    ElevatedButton(
-                      child: Text('Cancel All Notifications'),
-                      onPressed: () => controller.cancelAllNotifications(),
-                      style: ElevatedButton.styleFrom(
-                        foregroundColor: appTheme.colorScheme.onPrimary,
-                        backgroundColor: appTheme.colorScheme.primary,
-                        padding: EdgeInsets.symmetric(vertical: 12),
-                      ),
-                    ),
+                    // ElevatedButton(
+                    //   child: Text('Cancel All Notifications'),
+                    //   onPressed: () => controller.cancelAllNotifications(),
+                    //   style: ElevatedButton.styleFrom(
+                    //     foregroundColor: appTheme.colorScheme.onPrimary,
+                    //     backgroundColor: appTheme.colorScheme.primary,
+                    //     padding: EdgeInsets.symmetric(vertical: 12),
+                    //   ),
+                    // ),
                   ],
                 ),
               ),

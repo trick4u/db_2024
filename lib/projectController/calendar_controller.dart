@@ -471,4 +471,35 @@ void updateEvent(
       print('Error toggling event completion: $e');
     }
   }
+
+  //toggle event reminder
+    void toggleEventReminder(String eventId) async {
+    if (currentUser == null) return;
+    try {
+      DocumentSnapshot eventDoc = await eventsCollection.doc(eventId).get();
+      if (eventDoc.exists) {
+        QuickEventModel event = QuickEventModel.fromFirestore(eventDoc);
+        bool newReminderStatus = !event.hasReminder;
+        
+        await eventsCollection.doc(eventId).update({
+          'hasReminder': newReminderStatus,
+          'reminderTime': newReminderStatus ? event.reminderTime ?? event.date : null,
+        });
+
+        if (newReminderStatus) {
+          // If turning on the reminder, schedule a notification
+          QuickEventModel updatedEvent = QuickEventModel.fromFirestore(await eventsCollection.doc(eventId).get());
+          await scheduleNotification(updatedEvent);
+        } else {
+          // If turning off the reminder, cancel the notification
+          await cancelNotification(event);
+        }
+
+        fetchEvents(selectedDay.value);
+        update();
+      }
+    } catch (e) {
+      print('Error toggling event reminder: $e');
+    }
+  }
 }

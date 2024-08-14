@@ -31,6 +31,7 @@ class CalendarPage extends GetWidget<CalendarController> {
             ),
             backgroundColor: appTheme.colorScheme.surface,
             foregroundColor: appTheme.colorScheme.onSurface,
+            automaticallyImplyLeading: false,
           ),
           body: SafeArea(
             child: GetBuilder<CalendarController>(
@@ -41,7 +42,8 @@ class CalendarPage extends GetWidget<CalendarController> {
                     CustomCalendarHeader(),
                     PressableDough(
                       onReleased: (d) {
-                        if (controller.canAddEvent(controller.selectedDay.value)) {
+                        if (controller
+                            .canAddEvent(controller.selectedDay.value)) {
                           controller.showEventBottomSheet(context);
                         } else {
                           return;
@@ -60,7 +62,8 @@ class CalendarPage extends GetWidget<CalendarController> {
                               daysOfWeekHeight: 40,
                               eventLoader: (day) => [],
                               selectedDayPredicate: (day) {
-                                return isSameDay(day, controller.selectedDay.value);
+                                return isSameDay(
+                                    day, controller.selectedDay.value);
                               },
                               onDaySelected: (selectedDay, focusedDay) {
                                 controller.setSelectedDay(selectedDay);

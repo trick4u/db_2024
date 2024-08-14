@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
+import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:tushar_db/projectController/calendar_controller.dart';
 
@@ -178,72 +179,87 @@ class EventCard extends StatelessWidget {
   }
 
   Widget _buildCardContent() {
-    return Card(
-      elevation: 2,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(10),
-      ),
-      child: IntrinsicHeight(
-        child: Row(
-          children: [
-            Container(
-              width: 20,
-              decoration: BoxDecoration(
-                color: event.color,
-                // gradient: LinearGradient(
-                //   colors: [event.color, Colors.white],
-                //   begin: Alignment.topCenter,
-                //   end: Alignment.bottomCenter,
-                // ),
-                borderRadius: BorderRadius.only(
-                  topLeft: Radius.circular(10),
-                  bottomLeft: Radius.circular(10),
-                ),
-              ),
-            ),
-            Expanded(
-              child: Padding(
-                padding: const EdgeInsets.all(10.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      event.title,
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 16,
-                        decoration: event.isCompleted == true
-                            ? TextDecoration.lineThrough
-                            : TextDecoration.none,
-                      ),
+    return Stack(
+      children: [
+        Card(
+          elevation: 2,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10),
+          ),
+          child: IntrinsicHeight(
+            child: Row(
+              children: [
+                Container(
+                  width: 20,
+                  decoration: BoxDecoration(
+                    color: event.color,
+                    borderRadius: BorderRadius.only(
+                      topLeft: Radius.circular(10),
+                      bottomLeft: Radius.circular(10),
                     ),
-                    SizedBox(height: 4),
-                    Text(
-                      event.description,
-                      style: TextStyle(
-                        decoration: event.isCompleted == true
-                            ? TextDecoration.lineThrough
-                            : TextDecoration.none,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            if (event.isCompleted == true)
-              Container(
-                width: 20,
-                decoration: BoxDecoration(
-                  color: Colors.green,
-                  borderRadius: BorderRadius.only(
-                    topRight: Radius.circular(10),
-                    bottomRight: Radius.circular(10),
                   ),
                 ),
-              ),
-          ],
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.all(10.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          event.title,
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16,
+                            decoration: event.isCompleted == true
+                                ? TextDecoration.lineThrough
+                                : TextDecoration.none,
+                          ),
+                        ),
+                        SizedBox(height: 4),
+                        Text(
+                          event.description,
+                          style: TextStyle(
+                            decoration: event.isCompleted == true
+                                ? TextDecoration.lineThrough
+                                : TextDecoration.none,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                if (event.isCompleted == true)
+                  Container(
+                    width: 20,
+                    decoration: BoxDecoration(
+                      color: Colors.green,
+                      borderRadius: BorderRadius.only(
+                        topRight: Radius.circular(10),
+                        bottomRight: Radius.circular(10),
+                      ),
+                    ),
+                  ),
+              ],
+            ),
+          ),
         ),
-      ),
+        if (event.hasReminder)
+          Positioned(
+            top: 15,
+            right: 20,
+             child: GestureDetector(
+            onTap: () {
+              final calendarController = Get.find<CalendarController>();
+              calendarController.toggleEventReminder(event.id);
+            },
+            child: Icon(
+              event.hasReminder ? Icons.notifications_active : Icons.notifications_off,
+              size: 18,
+              color: event.hasReminder ? Colors.blue : Colors.grey,
+            ),
+          ),
+        ),
+      ],
     );
   }
 }

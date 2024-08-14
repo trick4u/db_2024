@@ -9,47 +9,48 @@ class DisplayedNotificationsController extends GetxController {
       _trackingService.displayedNotifications;
   RxBool isLoading = false.obs;
 
+  RxList<NotificationModel> notifications = <NotificationModel>[].obs;
+
   @override
   void onInit() {
     super.onInit();
-    fetchDisplayedNotifications();
+    fetchNotifications();
   }
 
-  Future<void> fetchDisplayedNotifications() async {
-    isLoading.value = true;
+
+
+  //awesome notifications
+  Future<void> cancelAllNotifications() async {
     try {
-      await _trackingService.loadDisplayedNotifications();
-      print('Fetched ${displayedNotifications.length} notifications');
-    
+      await AwesomeNotifications().cancelAll();
+      Get.snackbar('Success', 'All notifications have been cancelled');
+      fetchNotifications();
     } catch (error) {
-      print('Error fetching displayed notifications: $error');
-      Get.snackbar('Error', 'Failed to fetch notifications');
+      Get.snackbar('Error', 'Failed to cancel notifications: $error');
+    }
+  }
+
+  Future<void> fetchNotifications() async {
+    try {
+      isLoading.value = true;
+      List<NotificationModel> fetchedNotifications =
+          await AwesomeNotifications().listScheduledNotifications();
+      notifications.assignAll(fetchedNotifications);
+    } catch (error) {
+      print('Error fetching notifications: $error');
+      Get.snackbar('Error', 'Failed to fetch notifications: $error');
     } finally {
       isLoading.value = false;
     }
   }
 
-  Future<void> dismissNotification(int id) async {
+  Future<void> cancelNotification(int id) async {
     try {
       await AwesomeNotifications().cancel(id);
-      await _trackingService.removeDisplayedNotification(id);
-      print('Dismissed notification with id: $id');
-      Get.snackbar('Success', 'Notification dismissed');
+      await fetchNotifications(); // Refresh the list
+      Get.snackbar('Success', 'Notification cancelled');
     } catch (error) {
-      print('Error dismissing notification: $error');
-      Get.snackbar('Error', 'Failed to dismiss notification');
-    }
-  }
-
-  Future<void> dismissAllNotifications() async {
-    try {
-      await AwesomeNotifications().cancelAll();
-      await _trackingService.clearAllDisplayedNotifications();
-      print('Dismissed all notifications');
-      Get.snackbar('Success', 'All notifications have been dismissed');
-    } catch (error) {
-      print('Error dismissing all notifications: $error');
-      Get.snackbar('Error', 'Failed to dismiss notifications');
+      Get.snackbar('Error', 'Failed to cancel notification: $error');
     }
   }
 }

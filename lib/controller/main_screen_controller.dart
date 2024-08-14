@@ -37,6 +37,7 @@ class MainScreenController extends GetxController
     } else if (selectedIndex.value == 2) {
       Get.lazyPut<StatisticsController>(() => StatisticsController());
     } else if (selectedIndex.value == 3) {
+      Get.put(ProfileController());
       Get.lazyPut(() => ProfileController());
     }
   }
