@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -18,7 +20,9 @@ class AllSixCards extends GetWidget<PageOneController> {
     this.height,
     this.useFixedHeight = false,
     required this.onListTypeSelected,
-  });
+  }) {
+    _initializeSelectedTile();
+  }
 
   final List<Map<String, String>> items = [
     {'title': 'Daily journal'},
@@ -31,6 +35,12 @@ class AllSixCards extends GetWidget<PageOneController> {
     {'title': 'Add Reminders +'},
   ];
   final RxString selectedTile = ''.obs;
+    void _initializeSelectedTile() {
+    final List<String> autoSelectTiles = ['upcoming', 'pending', 'completed tasks'];
+    final random = Random();
+    selectedTile.value = autoSelectTiles[random.nextInt(autoSelectTiles.length)];
+    onListTypeSelected(selectedTile.value);
+  }
 
   void showQuickReminderBottomSheet() {
     final reminderController = Get.find<PageOneController>();
