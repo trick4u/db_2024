@@ -81,14 +81,19 @@ class AllSixCards extends GetWidget<PageOneController> {
                   borderRadius: BorderRadius.circular(10),
                   color:
                       selectedTile.value == items[index]['title']!.toLowerCase()
-                          ? Colors.deepPurple
+                          ? Colors.white
                           : Colors.deepPurpleAccent,
                 ),
                 alignment: Alignment.center,
                 child: Text(
                   items[index]['title']!.toLowerCase(),
                   style: AppTextTheme.textTheme.bodyMedium?.copyWith(
-                      fontWeight: FontWeight.w500, color: Colors.white),
+                    fontWeight: FontWeight.w500,
+                    color: selectedTile.value ==
+                            items[index]['title']!.toLowerCase()
+                        ? Colors.deepPurpleAccent
+                        : Colors.white,
+                  ),
                   textAlign: TextAlign.center,
                 ),
               ),

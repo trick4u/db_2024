@@ -30,6 +30,7 @@ import '../widgets/goals_box.dart';
 import '../widgets/quick_reminder_chips.dart';
 import 'package:flutter_carousel_slider/carousel_slider.dart';
 
+import '../widgets/reminder_list.dart';
 import '../widgets/three_day.dart';
 import '../widgets/three_shaped_box.dart';
 import 'main_screen.dart';
@@ -69,12 +70,14 @@ class PageOneScreen extends GetWidget<PageOneController> {
               ],
             ),
             const SizedBox(height: 20),
-            AllSixCards(
-              height: 300,
-              useFixedHeight: true,
-              onListTypeSelected: (listType) {
-                controller.setSelectedListType(listType);
-              },
+            FadeIn(
+              child: AllSixCards(
+                height: 300,
+                useFixedHeight: true,
+                onListTypeSelected: (listType) {
+                  controller.setSelectedListType(listType);
+                },
+              ),
             ),
 
             SizedBox(height: 20),
@@ -315,7 +318,7 @@ class PageOneScreen extends GetWidget<PageOneController> {
       case 'completed tasks':
         return 'Completed Tasks';
       case 'all reminders':
-        return 'All Reminders';
+        return 'all reminders';
       default:
         return '';
     }
@@ -324,7 +327,7 @@ class PageOneScreen extends GetWidget<PageOneController> {
   Widget _buildSelectedList() {
     switch (controller.selectedListType.value) {
       case 'all reminders':
-        return _buildRemindersList();
+        return RemindersList();
       default:
         return EventsList(
           events: controller.getSelectedEvents(),
@@ -333,33 +336,36 @@ class PageOneScreen extends GetWidget<PageOneController> {
     }
   }
 
-  Widget _buildRemindersList() {
-    return Obx(() => ListView.builder(
-          itemCount: controller.allReminders.length,
-          itemBuilder: (context, index) {
-            final reminder = controller.allReminders[index];
-            return ListTile(
-              title: Text(reminder.reminder),
-              subtitle: Text('Time: ${reminder.time} minutes'),
-              trailing: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Checkbox(
-                    value: reminder.isCompleted,
-                    onChanged: (bool? value) {
-                      controller.toggleReminderCompletion(
-                          reminder.id, value ?? false);
-                    },
-                  ),
-                  IconButton(
-                    icon: Icon(Icons.delete),
-                    onPressed: () => controller.deleteReminder(reminder.id),
-                  ),
-                ],
-              ),
-            );
-          },
-        ));
+  Widget _buildEmptyState() {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(
+            Icons.event_note,
+            size: 64,
+            color: Colors.grey,
+          ),
+          SizedBox(height: 16),
+          Text(
+            'No reminders yet',
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+              color: Colors.grey,
+            ),
+          ),
+          SizedBox(height: 8),
+          Text(
+            'Tap "add Reminders +" to create a new reminder',
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              color: Colors.grey,
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }
 

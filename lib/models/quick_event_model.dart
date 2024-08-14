@@ -6,8 +6,8 @@ class QuickEventModel {
   final String title;
   final String description;
   final DateTime date;
-  final DateTime? startTime;
-  final DateTime? endTime;
+  late final DateTime? startTime;
+  late final DateTime? endTime;
   final Color color;
   final bool hasReminder;
   DateTime? reminderTime;

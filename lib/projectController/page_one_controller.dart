@@ -123,6 +123,66 @@ class PageOneController extends GetxController {
   }
 
   //for reminders
+  void updateReminder(
+      String reminderId, String newReminder, int newTime) async {
+    if (currentUser == null) return;
+    try {
+      await remindersCollection.doc(reminderId).update({
+        'reminder': newReminder,
+        'time': newTime,
+      });
+      Get.snackbar('Success', 'Reminder updated successfully');
+      fetchAllReminders(); // Refresh the list
+    } catch (e) {
+      print('Error updating reminder: $e');
+      Get.snackbar('Error', 'Failed to update reminder');
+    }
+  }
+
+  void showEditReminderDialog(ReminderModel reminder) {
+    final TextEditingController reminderController =
+        TextEditingController(text: reminder.reminder);
+    final TextEditingController timeController =
+        TextEditingController(text: reminder.time.toString());
+
+    Get.dialog(
+      AlertDialog(
+        title: Text('Edit Reminder'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            TextField(
+              controller: reminderController,
+              decoration: InputDecoration(labelText: 'Reminder'),
+            ),
+            TextField(
+              controller: timeController,
+              decoration: InputDecoration(labelText: 'Time (minutes)'),
+              keyboardType: TextInputType.number,
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            child: Text('Cancel'),
+            onPressed: () => Get.back(),
+          ),
+          TextButton(
+            child: Text('Save'),
+            onPressed: () {
+              updateReminder(
+                reminder.id,
+                reminderController.text,
+                int.tryParse(timeController.text) ?? reminder.time,
+              );
+              Get.back();
+            },
+          ),
+        ],
+      ),
+    );
+  }
+
   void fetchAllReminders() {
     if (currentUser == null) return;
 
@@ -223,8 +283,46 @@ class PageOneController extends GetxController {
     });
   }
 
-  void updateEvent(String eventId, Map<String, dynamic> updatedData) {
-    eventsCollection.doc(eventId).update(updatedData);
+ Future<void> updateEvent(String eventId, Map<String, dynamic> updatedData) async {
+    if (currentUser == null) return;
+    try {
+      // Fetch the current event data
+      DocumentSnapshot eventDoc = await eventsCollection.doc(eventId).get();
+      Map<String, dynamic> currentData = eventDoc.data() as Map<String, dynamic>;
+
+      // Prepare the update data
+      Map<String, dynamic> finalUpdateData = {};
+
+      // Compare and only include changed fields
+      updatedData.forEach((key, value) {
+        if (key == 'date' || key == 'startTime' || key == 'endTime' || key == 'reminderTime') {
+          // For date and time fields, only update if explicitly provided and different
+          if (value != null) {
+            Timestamp currentTimestamp = currentData[key];
+            Timestamp newTimestamp = (value is DateTime) ? Timestamp.fromDate(value) : value;
+            if (currentTimestamp != newTimestamp) {
+              finalUpdateData[key] = newTimestamp;
+            }
+          }
+        } else if (currentData[key] != value) {
+          // For non-date fields, update if different
+          finalUpdateData[key] = value;
+        }
+      });
+
+      // Only perform the update if there are changes
+      if (finalUpdateData.isNotEmpty) {
+        await eventsCollection.doc(eventId).update(finalUpdateData);
+        print('Event updated: $eventId');
+        fetchAllEvents(); // Refresh all event lists
+        Get.snackbar('Success', 'Event updated successfully');
+      } else {
+        print('No changes detected for event: $eventId');
+      }
+    } catch (e) {
+      print('Error updating event: $e');
+      Get.snackbar('Error', 'Failed to update event');
+    }
   }
 
   void toggleEventCompletion(String eventId, bool isCompleted) {
@@ -264,35 +362,80 @@ class PageOneController extends GetxController {
 
   void updateUpcomingEvent(
       String eventId,
-      String newTitle,
-      String newDescription,
-      DateTime newDate,
+      String? newTitle,
+      String? newDescription,
+      DateTime? newDate,
       TimeOfDay? newStartTime,
       TimeOfDay? newEndTime,
-      Color newColor,
-      bool hasReminder,
+      Color? newColor,
+      bool? hasReminder,
       DateTime? reminderTime) async {
-    if (currentUser == null) return;
-    try {
-      await eventsCollection.doc(eventId).update({
-        'title': newTitle,
-        'description': newDescription,
-        'date': Timestamp.fromDate(newDate),
-        'startTime': newStartTime != null
-            ? Timestamp.fromDate(DateTime(newDate.year, newDate.month,
-                newDate.day, newStartTime.hour, newStartTime.minute))
-            : null,
-        'endTime': newEndTime != null
-            ? Timestamp.fromDate(DateTime(newDate.year, newDate.month,
-                newDate.day, newEndTime.hour, newEndTime.minute))
-            : null,
-        'color': newColor.value,
-      });
-      fetchUpcomingEvents(); // Refresh the upcoming events list
-    } catch (e) {
-      print('Error updating upcoming event: $e');
+    // Fetch the current event data
+    DocumentSnapshot eventDoc = await eventsCollection.doc(eventId).get();
+    Map<String, dynamic> currentData = eventDoc.data() as Map<String, dynamic>;
+
+    Map<String, dynamic> updatedData = {};
+
+    if (newTitle != null) updatedData['title'] = newTitle;
+    if (newDescription != null) updatedData['description'] = newDescription;
+    if (newColor != null) updatedData['color'] = newColor.value;
+    if (hasReminder != null) updatedData['hasReminder'] = hasReminder;
+
+    // Handle date and time updates
+    DateTime currentDate = (currentData['date'] as Timestamp).toDate();
+    DateTime? currentStartTime = currentData['startTime'] != null 
+        ? (currentData['startTime'] as Timestamp).toDate() 
+        : null;
+    DateTime? currentEndTime = currentData['endTime'] != null 
+        ? (currentData['endTime'] as Timestamp).toDate() 
+        : null;
+
+    if (newDate != null && newDate != currentDate) {
+      updatedData['date'] = newDate;
+      
+      // Update start and end times if date changed
+      if (currentStartTime != null) {
+        updatedData['startTime'] = DateTime(
+          newDate.year, newDate.month, newDate.day,
+          currentStartTime.hour, currentStartTime.minute
+        );
+      }
+      if (currentEndTime != null) {
+        updatedData['endTime'] = DateTime(
+          newDate.year, newDate.month, newDate.day,
+          currentEndTime.hour, currentEndTime.minute
+        );
+      }
     }
+
+    // Only update time if explicitly provided
+    if (newStartTime != null) {
+      updatedData['startTime'] = DateTime(
+        newDate?.year ?? currentDate.year,
+        newDate?.month ?? currentDate.month,
+        newDate?.day ?? currentDate.day,
+        newStartTime.hour,
+        newStartTime.minute
+      );
+    }
+
+    if (newEndTime != null) {
+      updatedData['endTime'] = DateTime(
+        newDate?.year ?? currentDate.year,
+        newDate?.month ?? currentDate.month,
+        newDate?.day ?? currentDate.day,
+        newEndTime.hour,
+        newEndTime.minute
+      );
+    }
+
+    if (reminderTime != null) {
+      updatedData['reminderTime'] = reminderTime;
+    }
+
+    await updateEvent(eventId, updatedData);
   }
+
 
   void deleteUpcomingEvent(String eventId) async {
     if (currentUser == null) return;

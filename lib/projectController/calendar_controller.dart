@@ -16,7 +16,7 @@ import 'profile_controller.dart';
 
 class CalendarController extends GetxController {
   CalendarFormat calendarFormat = CalendarFormat.week;
- Rx<DateTime> focusedDay = DateTime.now().obs;
+  Rx<DateTime> focusedDay = DateTime.now().obs;
   Rx<DateTime> selectedDay = DateTime.now().obs;
   RxList<QuickEventModel> events = <QuickEventModel>[].obs;
 
@@ -38,7 +38,6 @@ class CalendarController extends GetxController {
     super.onInit();
     fetchEvents(selectedDay.value);
   }
-
 
   bool isDateInPast(DateTime date) {
     final now = DateTime.now();
@@ -267,7 +266,7 @@ class CalendarController extends GetxController {
     }
   }
 
-  void updateEvent(
+void updateEvent(
       String eventId,
       String newTitle,
       String newDescription,
@@ -280,53 +279,68 @@ class CalendarController extends GetxController {
       bool isCompleted) async {
     if (currentUser == null) return;
     try {
-      Map<String, dynamic> updateData = {
-        'title': newTitle,
-        'description': newDescription,
-        'date': Timestamp.fromDate(newDate),
-        'startTime':
-            newStartTime != null ? Timestamp.fromDate(newStartTime) : null,
-        'endTime': newEndTime != null ? Timestamp.fromDate(newEndTime) : null,
-        'color': newColor.value,
-        'hasReminder': newHasReminder,
-        'reminderTime': newReminderTime != null
-            ? Timestamp.fromDate(newReminderTime)
-            : null,
-        'isCompleted': isCompleted,
-        // Note: We're not updating 'createdAt' here to preserve the original creation time
-      };
+      // First, fetch the current event data
+      DocumentSnapshot eventDoc = await eventsCollection.doc(eventId).get();
+      Map<String, dynamic> currentData = eventDoc.data() as Map<String, dynamic>;
 
-      await eventsCollection.doc(eventId).update(updateData);
+      // Prepare the update data, only including fields that have changed
+      Map<String, dynamic> updateData = {};
 
-      QuickEventModel updatedEvent = QuickEventModel(
-        id: eventId,
-        title: newTitle,
-        description: newDescription,
-        date: newDate,
-        startTime: newStartTime,
-        endTime: newEndTime,
-        color: newColor,
-        hasReminder: newHasReminder,
-        reminderTime: newReminderTime,
-        isCompleted: isCompleted,
-        createdAt:
-            DateTime.now(), // This should ideally be fetched from Firestore
-      );
+      if (newTitle != currentData['title']) updateData['title'] = newTitle;
+      if (newDescription != currentData['description']) updateData['description'] = newDescription;
+      if (newDate != (currentData['date'] as Timestamp).toDate()) updateData['date'] = Timestamp.fromDate(newDate);
+      if (newColor.value != currentData['color']) updateData['color'] = newColor.value;
+      if (newHasReminder != currentData['hasReminder']) updateData['hasReminder'] = newHasReminder;
+      if (isCompleted != currentData['isCompleted']) updateData['isCompleted'] = isCompleted;
 
-      if (newHasReminder && newReminderTime != null) {
-        await updateNotification(updatedEvent);
-      } else {
-        await cancelNotification(updatedEvent);
+      // Only update time fields if they've actually changed
+      if (newStartTime != null && (currentData['startTime'] == null || 
+          newStartTime != (currentData['startTime'] as Timestamp).toDate())) {
+        updateData['startTime'] = Timestamp.fromDate(newStartTime);
+      }
+      if (newEndTime != null && (currentData['endTime'] == null || 
+          newEndTime != (currentData['endTime'] as Timestamp).toDate())) {
+        updateData['endTime'] = Timestamp.fromDate(newEndTime);
+      }
+      if (newReminderTime != null && (currentData['reminderTime'] == null || 
+          newReminderTime != (currentData['reminderTime'] as Timestamp).toDate())) {
+        updateData['reminderTime'] = Timestamp.fromDate(newReminderTime);
       }
 
-      print('Event updated: $eventId');
-      fetchEvents(newDate);
-      update();
+      // Only perform the update if there are changes
+      if (updateData.isNotEmpty) {
+        await eventsCollection.doc(eventId).update(updateData);
+
+        QuickEventModel updatedEvent = QuickEventModel(
+          id: eventId,
+          title: newTitle,
+          description: newDescription,
+          date: newDate,
+          startTime: newStartTime ?? (currentData['startTime'] as Timestamp?)?.toDate(),
+          endTime: newEndTime ?? (currentData['endTime'] as Timestamp?)?.toDate(),
+          color: newColor,
+          hasReminder: newHasReminder,
+          reminderTime: newReminderTime ?? (currentData['reminderTime'] as Timestamp?)?.toDate(),
+          isCompleted: isCompleted,
+          createdAt: (currentData['createdAt'] as Timestamp).toDate(),
+        );
+
+        if (newHasReminder && updatedEvent.reminderTime != null) {
+          await updateNotification(updatedEvent);
+        } else if (!newHasReminder) {
+          await cancelNotification(updatedEvent);
+        }
+
+        print('Event updated: $eventId');
+        fetchEvents(newDate);
+        update();
+      } else {
+        print('No changes detected for event: $eventId');
+      }
     } catch (e) {
       print('Error updating event: $e');
     }
   }
-
   void addToArchive(String eventId) async {
     if (currentUser == null) return;
     try {
