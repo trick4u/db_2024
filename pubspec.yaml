@@ -81,7 +81,7 @@ dependencies:
   dio: ^5.5.0+1
   time_picker_spinner_pop_up: ^2.0.0
   fl_chart: ^0.68.0
-  
+  flutter_rating_bar: ^4.0.1
 
     
  

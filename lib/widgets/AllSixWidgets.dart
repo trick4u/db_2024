@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:tushar_db/app_routes.dart';
 
 import '../projectController/page_one_controller.dart';
 import '../services/app_text_style.dart';
@@ -20,9 +21,7 @@ class AllSixCards extends GetWidget<PageOneController> {
     this.height,
     this.useFixedHeight = false,
     required this.onListTypeSelected,
-  }) {
-    _initializeSelectedTile();
-  }
+  });
 
   final List<Map<String, String>> items = [
     {'title': 'Daily journal'},
@@ -35,10 +34,15 @@ class AllSixCards extends GetWidget<PageOneController> {
     {'title': 'Add Reminders +'},
   ];
   final RxString selectedTile = ''.obs;
-    void _initializeSelectedTile() {
-    final List<String> autoSelectTiles = ['upcoming', 'pending', 'completed tasks'];
+  void _initializeSelectedTile() {
+    final List<String> autoSelectTiles = [
+      'upcoming',
+      'pending',
+      'completed tasks'
+    ];
     final random = Random();
-    selectedTile.value = autoSelectTiles[random.nextInt(autoSelectTiles.length)];
+    selectedTile.value =
+        autoSelectTiles[random.nextInt(autoSelectTiles.length)];
     onListTypeSelected(selectedTile.value);
   }
 
@@ -60,6 +64,7 @@ class AllSixCards extends GetWidget<PageOneController> {
 
   @override
   Widget build(BuildContext context) {
+    _initializeSelectedTile();
     Widget gridView = GridView.builder(
       shrinkWrap: true,
       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
@@ -71,6 +76,7 @@ class AllSixCards extends GetWidget<PageOneController> {
       itemCount: items.length,
       itemBuilder: (context, index) {
         return Obx(() => InkWell(
+              splashColor: Colors.transparent,
               onTap: () {
                 String tileTitle = items[index]['title']!.toLowerCase();
                 selectedTile.value = tileTitle;
@@ -81,14 +87,17 @@ class AllSixCards extends GetWidget<PageOneController> {
                   onListTypeSelected(tileTitle);
                 } else if (tileTitle == 'add reminders +') {
                   showQuickReminderBottomSheet();
-                } else {
-                  // Handle other tile taps here
-                  print('Tapped on: ');
+                } else if (tileTitle == 'daily journal') {
+                  Get.toNamed(AppRoutes.JOURNAL);
                 }
               },
               child: Container(
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(10),
+                  border:
+                      selectedTile.value == items[index]['title']!.toLowerCase()
+                          ? Border.all(color: Colors.deepPurpleAccent, width: 2)
+                          : null,
                   color:
                       selectedTile.value == items[index]['title']!.toLowerCase()
                           ? Colors.white

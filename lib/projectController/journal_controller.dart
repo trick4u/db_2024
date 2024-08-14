@@ -5,6 +5,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:get/get.dart';
 
 
+
 class JournalEntry {
   final String id;
   final String title;
@@ -57,6 +58,7 @@ class JournalController extends GetxController {
           .collection('users')
           .doc(currentUser!.uid)
           .collection('journal_entries')
+          .orderBy('date', descending: false)  // Order by date in ascending order
           .snapshots()
           .listen((snapshot) {
         journalEntries.assignAll(

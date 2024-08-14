@@ -19,11 +19,10 @@ class QuickReminderBottomSheet extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: ScaleUtil.symmetric(horizontal: 10),
+      padding: ScaleUtil.symmetric(horizontal: 5),
       child: DraggableScrollableSheet(
         initialChildSize: 0.5,
         minChildSize: 0.5,
-        maxChildSize: 0.95,
         builder: (_, scrollController) {
           return Container(
             decoration: BoxDecoration(
@@ -55,8 +54,8 @@ class QuickReminderBottomSheet extends StatelessWidget {
                     pageOneController: reminderController,
                   ),
                   const SizedBox(height: 20),
-                  _buildDaySelector(),
-                  SizedBox(height: 20),
+                  // _buildDaySelector(),
+
                   _buildSaveButton(),
                 ],
               ),
@@ -93,44 +92,46 @@ class QuickReminderBottomSheet extends StatelessWidget {
           style: appTheme.bodyMedium,
         ),
         Obx(() => Text(
-              'Switch is ${reminderController.repeat.value ? "ON" : "OFF"}',
+              'Repeat ${reminderController.repeat.value ? "ON" : "OFF"}',
               style: appTheme.bodyMedium,
             )),
-        Obx(() => Switch(
-              value: reminderController.repeat.value,
-              onChanged: (value) {
-                reminderController.toggleSwitch(value);
-              },
-            )),
+        Obx(
+          () => Switch(
+            value: reminderController.repeat.value,
+            onChanged: (value) {
+              reminderController.toggleSwitch(value);
+            },
+          ),
+        ),
       ],
     );
   }
 
-  Widget _buildDaySelector() {
-    return Obx(() {
-      return Wrap(
-        spacing: 8.0,
-        children: [
-          'Monday',
-          'Tuesday',
-          'Wednesday',
-          'Thursday',
-          'Friday',
-          'Saturday',
-          'Sunday'
-        ].map((day) {
-          final isSelected = reminderController.selectedDays.contains(day);
-          return FilterChip(
-            label: Text(day, style: appTheme.bodyMedium),
-            selected: isSelected,
-            onSelected: (_) => reminderController.toggleDay(day),
-            backgroundColor: appTheme.cardColor,
-            selectedColor: appTheme.colorScheme.primary,
-          );
-        }).toList(),
-      );
-    });
-  }
+  // Widget _buildDaySelector() {
+  //   return Obx(() {
+  //     return Wrap(
+  //       spacing: 8.0,
+  //       children: [
+  //         'Monday',
+  //         'Tuesday',
+  //         'Wednesday',
+  //         'Thursday',
+  //         'Friday',
+  //         'Saturday',
+  //         'Sunday'
+  //       ].map((day) {
+  //         final isSelected = reminderController.selectedDays.contains(day);
+  //         return FilterChip(
+  //           label: Text(day, style: appTheme.bodyMedium),
+  //           selected: isSelected,
+  //           onSelected: (_) => reminderController.toggleDay(day),
+  //           backgroundColor: appTheme.cardColor,
+  //           selectedColor: appTheme.colorScheme.primary,
+  //         );
+  //       }).toList(),
+  //     );
+  //   });
+  // }
 
   Widget _buildSaveButton() {
     return ElevatedButton(

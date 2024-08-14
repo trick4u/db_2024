@@ -249,7 +249,7 @@ class EventCard extends StatelessWidget {
             right: 20,
              child: GestureDetector(
             onTap: () {
-              final calendarController = Get.find<CalendarController>();
+              final calendarController = Get.put(CalendarController());
               calendarController.toggleEventReminder(event.id);
             },
             child: Icon(
