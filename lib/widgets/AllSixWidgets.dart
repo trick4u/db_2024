@@ -89,7 +89,9 @@ class AllSixCards extends GetWidget<PageOneController> {
                   showQuickReminderBottomSheet();
                 } else if (tileTitle == 'daily journal') {
                   Get.toNamed(AppRoutes.JOURNAL);
-                }
+                } else if (tileTitle == 'take notes') {
+                  Get.toNamed(AppRoutes.NOTETAKING);
+                } 
               },
               child: Container(
                 decoration: BoxDecoration(

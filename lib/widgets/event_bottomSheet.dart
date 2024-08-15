@@ -1,6 +1,8 @@
+import 'package:animate_do/animate_do.dart';
 import 'package:flex_color_picker/flex_color_picker.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
 import 'package:time_picker_spinner_pop_up/time_picker_spinner_pop_up.dart';
 import 'package:tushar_db/services/scale_util.dart';
@@ -35,6 +37,7 @@ class _EventBottomSheetState extends State<EventBottomSheet> {
   late TimePickerSpinnerController _reminderController;
   DateTime? _reminderTime;
   bool _isTitleEmpty = true;
+  bool _isDescriptionVisible = false;
 
   @override
   void initState() {
@@ -85,7 +88,8 @@ class _EventBottomSheetState extends State<EventBottomSheet> {
               padding: EdgeInsets.symmetric(horizontal: 20, vertical: 20),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.stretch,
+                //  crossAxisAlignment: CrossAxisAlignment.stretch,
+
                 children: [
                   Row(
                     children: [
@@ -94,19 +98,20 @@ class _EventBottomSheetState extends State<EventBottomSheet> {
                         style: appTheme.titleLarge,
                       ),
                       Spacer(),
-                      ElevatedButton(
-                        onPressed: () {
-                          showColorPickerDialog();
-                        },
-                        child: Text('Select Color'),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: _selectedColor,
-                          foregroundColor:
-                              _selectedColor.computeLuminance() > 0.5
-                                  ? Colors.black
-                                  : Colors.white,
-                        ),
-                      ),
+                      _buildReminderWidget(context, appTheme),
+                      // ElevatedButton(
+                      //   onPressed: () {
+                      //     showColorPickerDialog();
+                      //   },
+                      //   child: Text('Select Color'),
+                      //   style: ElevatedButton.styleFrom(
+                      //     backgroundColor: _selectedColor,
+                      //     foregroundColor:
+                      //         _selectedColor.computeLuminance() > 0.5
+                      //             ? Colors.black
+                      //             : Colors.white,
+                      //   ),
+                      // ),
                       IconButton(
                         icon: Icon(Icons.close, color: appTheme.textColor),
                         onPressed: () {
@@ -139,179 +144,163 @@ class _EventBottomSheetState extends State<EventBottomSheet> {
                       onChanged: (value) => _updateTitleState(),
                     ),
                   ),
+
                   SizedBox(height: 16),
-                  ClipRRect(
-                    borderRadius: BorderRadius.all(
-                      Radius.circular(10),
-                    ),
-                    child: TextField(
-                      controller: _descriptionController,
-                      style: appTheme.bodyMedium,
-                      decoration: InputDecoration(
-                        labelText: 'Event Description',
-                        filled: true,
-                        fillColor: appTheme.textFieldFillColor,
-                        labelStyle: appTheme.bodyMedium.copyWith(
-                          color: appTheme.secondaryTextColor,
-                        ),
-                        border: InputBorder.none,
-                        enabledBorder: InputBorder.none,
-                        focusedBorder: InputBorder.none,
-                        errorBorder: InputBorder.none,
-                        disabledBorder: InputBorder.none,
-                        contentPadding:
-                            EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                  if (_isDescriptionVisible) ...[
+                    SizedBox(height: 8),
+                    ClipRRect(
+                      borderRadius: BorderRadius.all(
+                        Radius.circular(10),
                       ),
-                      maxLines: 3,
+                      child: TextField(
+                        controller: _descriptionController,
+                        style: appTheme.bodyMedium,
+                        decoration: InputDecoration(
+                          labelText: 'Description',
+
+                          filled: true,
+                          fillColor: appTheme.textFieldFillColor,
+                          border: InputBorder.none,
+                          enabledBorder: InputBorder.none,
+                          focusedBorder: InputBorder.none,
+                          errorBorder: InputBorder.none,
+                          disabledBorder: InputBorder.none,
+                          // ... (other decoration properties)
+                        ),
+                        maxLines: 3,
+                      ),
                     ),
-                  ),
+                  ],
+
                   SizedBox(
                     height: ScaleUtil.height(10),
                   ),
+                  // Row(
+                  //   children: [
+                  //     // Expanded(
+                  //     //   child: ElevatedButton(
+                  //     //     onPressed: () async {
+                  //     //       final DateTime? picked = await showDatePicker(
+                  //     //         context: context,
+                  //     //         initialDate: _selectedDate,
+                  //     //         firstDate: DateTime.now(),
+                  //     //         lastDate: DateTime(2101),
+                  //     //         builder: (BuildContext context, Widget? child) {
+                  //     //           return Theme(
+                  //     //             data: ThemeData.light().copyWith(
+                  //     //               colorScheme: ColorScheme.light(
+                  //     //                 primary: appTheme.colorScheme.primary,
+                  //     //                 onPrimary: appTheme.colorScheme.onPrimary,
+                  //     //                 surface: appTheme.colorScheme.surface,
+                  //     //                 onSurface: appTheme.colorScheme.onSurface,
+                  //     //               ),
+                  //     //             ),
+                  //     //             child: child!,
+                  //     //           );
+                  //     //         },
+                  //     //       );
+                  //     //       if (picked != null && picked != _selectedDate) {
+                  //     //         setState(() {
+                  //     //           _selectedDate = picked;
+                  //     //         });
+                  //     //       }
+                  //     //     },
+                  //     //     style: appTheme.primaryButtonStyle,
+                  //     //     child: Text('Select Date'),
+                  //     //   ),
+                  //     // ),
+                  //     // SizedBox(width: 16),
+                  //     Expanded(
+                  //       child: TimePickerSpinnerPopUp(
+                  //         mode: CupertinoDatePickerMode.time,
+                  //         initTime: _startTime ?? DateTime.now(),
+                  //         onChange: (dateTime) {
+                  //           setState(() {
+                  //             _startTime = dateTime;
+                  //           });
+                  //         },
+                  //         barrierColor: Colors.black26,
+                  //         minuteInterval: 1,
+                  //         padding: const EdgeInsets.fromLTRB(12, 10, 12, 10),
+                  //         cancelText: 'Cancel',
+                  //         confirmText: 'OK',
+                  //         pressType: PressType.singlePress,
+                  //         timeFormat: 'HH:mm',
+                  //       ),
+                  //     ),
+                  //     SizedBox(
+                  //       width: 10,
+                  //     ),
+                  //     Expanded(
+                  //       child: TimePickerSpinnerPopUp(
+                  //         mode: CupertinoDatePickerMode.time,
+                  //         initTime: _endTime ?? DateTime.now(),
+                  //         onChange: (dateTime) {
+                  //           setState(() {
+                  //             _endTime = dateTime;
+                  //           });
+                  //         },
+                  //         barrierColor: Colors.black26,
+                  //         minuteInterval: 1,
+                  //         padding: const EdgeInsets.fromLTRB(12, 10, 12, 10),
+                  //         cancelText: 'Cancel',
+                  //         confirmText: 'OK',
+                  //         pressType: PressType.singlePress,
+                  //         timeFormat: 'HH:mm',
+                  //       ),
+                  //     ),
+                  //   ],
+                  // ),
+
+                  // Row(
+                  //   mainAxisAlignment: MainAxisAlignment.center,
+                  //   children: [
+                  //     ReminderButton(
+                  //       isReminderSet: _isReminderSet,
+                  //       reminderTime: _reminderTime,
+                  //       onPressed: () {
+                  //         setState(() {
+                  //           _isReminderSet = !_isReminderSet;
+                  //           if (_isReminderSet) {
+                  //             _reminderTime = _reminderTime ?? DateTime.now();
+                  //           } else {
+                  //             _reminderTime = null;
+                  //           }
+                  //         });
+                  //       },
+                  //     ),
+                  //     SizedBox(
+                  //       width: ScaleUtil.width(10),
+                  //     ),
+                  //     TimePickerSpinnerPopUp(
+                  //       mode: CupertinoDatePickerMode.time,
+                  //       initTime: _reminderTime ?? DateTime.now(),
+                  //       onChange: (dateTime) {
+                  //         if (_isReminderSet) {
+                  //           setState(() {
+                  //             _reminderTime = dateTime;
+                  //           });
+                  //         }
+                  //       },
+                  //       barrierColor: Colors.black26,
+                  //       minuteInterval: 1,
+                  //       padding: const EdgeInsets.fromLTRB(12, 10, 12, 10),
+                  //       cancelText: 'Cancel',
+                  //       confirmText: 'OK',
+                  //       pressType: PressType.singlePress,
+                  //       timeFormat: 'HH:mm',
+                  //     ),
+                  //   ],
+                  // ),
+
                   Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
                     children: [
-                      // Expanded(
-                      //   child: ElevatedButton(
-                      //     onPressed: () async {
-                      //       final DateTime? picked = await showDatePicker(
-                      //         context: context,
-                      //         initialDate: _selectedDate,
-                      //         firstDate: DateTime.now(),
-                      //         lastDate: DateTime(2101),
-                      //         builder: (BuildContext context, Widget? child) {
-                      //           return Theme(
-                      //             data: ThemeData.light().copyWith(
-                      //               colorScheme: ColorScheme.light(
-                      //                 primary: appTheme.colorScheme.primary,
-                      //                 onPrimary: appTheme.colorScheme.onPrimary,
-                      //                 surface: appTheme.colorScheme.surface,
-                      //                 onSurface: appTheme.colorScheme.onSurface,
-                      //               ),
-                      //             ),
-                      //             child: child!,
-                      //           );
-                      //         },
-                      //       );
-                      //       if (picked != null && picked != _selectedDate) {
-                      //         setState(() {
-                      //           _selectedDate = picked;
-                      //         });
-                      //       }
-                      //     },
-                      //     style: appTheme.primaryButtonStyle,
-                      //     child: Text('Select Date'),
-                      //   ),
-                      // ),
-                      // SizedBox(width: 16),
-                      Expanded(
-                        child: TimePickerSpinnerPopUp(
-                          mode: CupertinoDatePickerMode.time,
-                          initTime: _startTime ?? DateTime.now(),
-                          onChange: (dateTime) {
-                            setState(() {
-                              _startTime = dateTime;
-                            });
-                          },
-                          barrierColor: Colors.black26,
-                          minuteInterval: 1,
-                          padding: const EdgeInsets.fromLTRB(12, 10, 12, 10),
-                          cancelText: 'Cancel',
-                          confirmText: 'OK',
-                          pressType: PressType.singlePress,
-                          timeFormat: 'HH:mm',
-                        ),
-                      ),
-                      SizedBox(
-                        width: 10,
-                      ),
-                      Expanded(
-                        child: TimePickerSpinnerPopUp(
-                          mode: CupertinoDatePickerMode.time,
-                          initTime: _endTime ?? DateTime.now(),
-                          onChange: (dateTime) {
-                            setState(() {
-                              _endTime = dateTime;
-                            });
-                          },
-                          barrierColor: Colors.black26,
-                          minuteInterval: 1,
-                          padding: const EdgeInsets.fromLTRB(12, 10, 12, 10),
-                          cancelText: 'Cancel',
-                          confirmText: 'OK',
-                          pressType: PressType.singlePress,
-                          timeFormat: 'HH:mm',
-                        ),
-                      ),
-                    ],
-                  ),
-                  SizedBox(height: 16),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: TimePickerSpinnerPopUp(
-                          mode: CupertinoDatePickerMode.time,
-                          initTime: _reminderTime ?? DateTime.now(),
-                          onChange: (dateTime) {
-                            if (_isReminderSet) {
-                              setState(() {
-                                _reminderTime = dateTime;
-                              });
-                            }
-                          },
-                          barrierColor: Colors.black26,
-                          minuteInterval: 1,
-                          padding: const EdgeInsets.fromLTRB(12, 10, 12, 10),
-                          cancelText: 'Cancel',
-                          confirmText: 'OK',
-                          pressType: PressType.singlePress,
-                          timeFormat: 'HH:mm',
-                        ),
-                      ),
-                    ],
-                  ),
-                  SizedBox(height: 8),
-                  ReminderButton(
-                    isReminderSet: _isReminderSet,
-                    reminderTime: _reminderTime,
-                    onPressed: () {
-                      setState(() {
-                        _isReminderSet = !_isReminderSet;
-                        if (_isReminderSet) {
-                          _reminderTime = _reminderTime ?? DateTime.now();
-                        } else {
-                          _reminderTime = null;
-                        }
-                      });
-                    },
-                  ),
-                  SizedBox(height: 8),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: ElevatedButton(
-                          onPressed: _isTitleEmpty
-                              ? null
-                              : () {
-                                  widget.onSave(
-                                    _titleController.text,
-                                    _descriptionController.text,
-                                    _selectedDate,
-                                    _startTime != null
-                                        ? TimeOfDay.fromDateTime(_startTime!)
-                                        : null,
-                                    _endTime != null
-                                        ? TimeOfDay.fromDateTime(_endTime!)
-                                        : null,
-                                    _selectedColor,
-                                    _isReminderSet,
-                                    _isReminderSet ? _reminderTime : null,
-                                  );
-                                  Navigator.pop(context);
-                                },
-                          style: appTheme.primaryButtonStyle,
-                          child: Text('Save Event'),
-                        ),
-                      ),
+                      _buildDescriptionToggleButton(context, appTheme),
+                      SizedBox(width: 16),
+                      _buildColorIconButton(context, appTheme),
+                      SizedBox(width: 16),
+                      _buildSaveIconButton(context, appTheme),
                     ],
                   ),
                 ],
@@ -321,27 +310,149 @@ class _EventBottomSheetState extends State<EventBottomSheet> {
         ));
   }
 
-  void showColorPickerDialog() {
-    final appTheme = Get.find<AppTheme>();
+  Widget _buildDescriptionToggleButton(
+      BuildContext context, AppTheme appTheme) {
+    return FadeIn(
+      child: Container(
+        decoration: BoxDecoration(
+          color: _isDescriptionVisible
+              ? appTheme.colorScheme.primary
+              : appTheme.colorScheme.surface,
+          shape: BoxShape.circle,
+        ),
+        child: Material(
+          color: Colors.transparent,
+          child: InkWell(
+            borderRadius: BorderRadius.circular(20),
+            onTap: () {
+              setState(() {
+                _isDescriptionVisible = !_isDescriptionVisible;
+              });
+            },
+            child: Padding(
+              padding: EdgeInsets.all(10),
+              child: FaIcon(
+                _isDescriptionVisible
+                    ? FontAwesomeIcons.listUl
+                    : FontAwesomeIcons.list,
+                color: _isDescriptionVisible ? Colors.white : Colors.black,
+                size: 20,
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildColorIconButton(BuildContext context, AppTheme appTheme) {
+    return Container(
+      decoration: BoxDecoration(
+        color: _selectedColor,
+        shape: BoxShape.circle,
+      ),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          borderRadius: BorderRadius.circular(20),
+          onTap: () => showColorPickerDialog(context),
+          child: Padding(
+            padding: EdgeInsets.all(10),
+            child: FaIcon(
+              FontAwesomeIcons.palette,
+              color: _selectedColor.computeLuminance() > 0.5
+                  ? Colors.black
+                  : Colors.white,
+              size: 20,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSaveIconButton(BuildContext context, AppTheme appTheme) {
+    return Container(
+      decoration: BoxDecoration(
+        color: _isTitleEmpty ? Colors.grey : appTheme.colorScheme.primary,
+        shape: BoxShape.circle,
+      ),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          borderRadius: BorderRadius.circular(20),
+          onTap: _isTitleEmpty
+              ? null
+              : () {
+                  widget.onSave(
+                    _titleController.text.trim(),
+                    _descriptionController.text.trim(),
+                    _selectedDate,
+                    _startTime != null
+                        ? TimeOfDay.fromDateTime(_startTime!)
+                        : null,
+                    _endTime != null ? TimeOfDay.fromDateTime(_endTime!) : null,
+                    _selectedColor,
+                    _isReminderSet,
+                    _isReminderSet ? _reminderTime : null,
+                  );
+                  Navigator.pop(context);
+                },
+          child: Padding(
+            padding: EdgeInsets.all(10),
+            child: Icon(
+              FontAwesomeIcons.check,
+              color: Colors.white,
+              size: 20,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSelectColorButton(BuildContext context, AppTheme appTheme) {
+    return Container(
+      decoration: BoxDecoration(
+        color: _selectedColor,
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          borderRadius: BorderRadius.circular(8),
+          onTap: () => showColorPickerDialog(context),
+          child: Padding(
+            padding: EdgeInsets.symmetric(vertical: 10, horizontal: 15),
+            child: Text(
+              'Color',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                color: _selectedColor.computeLuminance() > 0.5
+                    ? Colors.black
+                    : Colors.white,
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  void showColorPickerDialog(BuildContext context) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title:
-              Text('Pick a color', style: TextStyle(color: appTheme.textColor)),
-          backgroundColor: appTheme.cardColor,
+          title: const Text('Pick a color'),
           content: SingleChildScrollView(
             child: ColorPicker(
               color: _selectedColor,
               onColorChanged: (Color color) {
                 setState(() => _selectedColor = color);
               },
-              heading: Text('Select color',
-                  style: TextStyle(color: appTheme.textColor)),
-              subheading: Text('Select color shade',
-                  style: TextStyle(color: appTheme.textColor)),
-              wheelSubheading: Text('Selected color and its shades',
-                  style: TextStyle(color: appTheme.textColor)),
+              heading: Text('Select color'),
+              subheading: Text('Select color shade'),
               pickersEnabled: const <ColorPickerType, bool>{
                 ColorPickerType.both: false,
                 ColorPickerType.primary: true,
@@ -354,8 +465,7 @@ class _EventBottomSheetState extends State<EventBottomSheet> {
           ),
           actions: <Widget>[
             TextButton(
-              child: Text('OK',
-                  style: TextStyle(color: appTheme.colorScheme.primary)),
+              child: const Text('OK'),
               onPressed: () {
                 Navigator.of(context).pop();
               },
@@ -366,34 +476,150 @@ class _EventBottomSheetState extends State<EventBottomSheet> {
     );
   }
 
-  void _showReminderTimePicker(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          content: Container(
-            height: 100,
-            child: TimePickerSpinnerPopUp(
-              mode: CupertinoDatePickerMode.time,
-              initTime: _reminderTime ?? DateTime.now(),
-              onChange: (dateTime) {
-                setState(() {
-                  _reminderTime = dateTime;
-                });
-              },
-              barrierColor: Colors.black26,
-              minuteInterval: 1,
-              padding: const EdgeInsets.fromLTRB(12, 10, 12, 10),
-              cancelText: 'Cancel',
-              confirmText: 'OK',
-              pressType: PressType.singlePress,
-              timeFormat: 'HH:mm',
+  Widget _buildSaveButton(BuildContext context, AppTheme appTheme) {
+    return Container(
+      decoration: BoxDecoration(
+        color: _isTitleEmpty ? Colors.grey : appTheme.colorScheme.primary,
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          borderRadius: BorderRadius.circular(8),
+          onTap: _isTitleEmpty
+              ? null
+              : () {
+                  widget.onSave(
+                    _titleController.text.trim(),
+                    _descriptionController.text.trim(),
+                    _selectedDate,
+                    _startTime != null
+                        ? TimeOfDay.fromDateTime(_startTime!)
+                        : null,
+                    _endTime != null ? TimeOfDay.fromDateTime(_endTime!) : null,
+                    _selectedColor,
+                    _isReminderSet,
+                    _isReminderSet ? _reminderTime : null,
+                  );
+                  Navigator.pop(context);
+                },
+          child: Padding(
+            padding: EdgeInsets.symmetric(vertical: 10, horizontal: 15),
+            child: Text(
+              'Save',
+              textAlign: TextAlign.center,
+              style: TextStyle(color: Colors.white),
             ),
           ),
-        );
-      },
+        ),
+      ),
     );
   }
+
+  Widget _buildReminderWidget(BuildContext context, AppTheme appTheme) {
+    return _isReminderSet
+        ? _buildReminderInfo(appTheme)
+        : _buildTimePickerButton(context, appTheme);
+  }
+
+  Widget _buildTimePickerButton(BuildContext context, AppTheme appTheme) {
+    return TimePickerSpinnerPopUp(
+      mode: CupertinoDatePickerMode.time,
+      initTime: DateTime.now(),
+      onChange: (dateTime) {
+        setState(() {
+          _reminderTime = dateTime;
+          _isReminderSet = true;
+        });
+      },
+      barrierColor: Colors.black26,
+      minuteInterval: 1,
+      padding: const EdgeInsets.fromLTRB(12, 10, 12, 10),
+      cancelText: 'Cancel',
+      confirmText: 'OK',
+      pressType: PressType.singlePress,
+      timeFormat: 'HH:mm',
+    );
+  }
+
+  Widget _buildReminderInfo(AppTheme appTheme) {
+    return Container(
+      padding: EdgeInsets.symmetric(vertical: 0, horizontal: 5),
+      decoration: BoxDecoration(
+        color: Colors.green,
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Row(
+            children: [
+              Icon(Icons.alarm_on, color: Colors.white),
+              SizedBox(width: 8),
+              Text(
+                ' ${_formatTime(_reminderTime!)}',
+                style: TextStyle(color: Colors.white),
+              ),
+            ],
+          ),
+          IconButton(
+            icon: Icon(Icons.close, color: Colors.white),
+            onPressed: () {
+              setState(() {
+                _isReminderSet = false;
+                _reminderTime = null;
+              });
+            },
+          ),
+        ],
+      ),
+    );
+  }
+
+  // void showColorPickerDialog() {
+  //   final appTheme = Get.find<AppTheme>();
+  //   showDialog(
+  //     context: context,
+  //     builder: (BuildContext context) {
+  //       return AlertDialog(
+  //         title:
+  //             Text('Pick a color', style: TextStyle(color: appTheme.textColor)),
+  //         backgroundColor: appTheme.cardColor,
+  //         content: SingleChildScrollView(
+  //           child: ColorPicker(
+  //             color: _selectedColor,
+  //             onColorChanged: (Color color) {
+  //               setState(() => _selectedColor = color);
+  //             },
+  //             heading: Text('Select color',
+  //                 style: TextStyle(color: appTheme.textColor)),
+  //             subheading: Text('Select color shade',
+  //                 style: TextStyle(color: appTheme.textColor)),
+  //             wheelSubheading: Text('Selected color and its shades',
+  //                 style: TextStyle(color: appTheme.textColor)),
+  //             pickersEnabled: const <ColorPickerType, bool>{
+  //               ColorPickerType.both: false,
+  //               ColorPickerType.primary: true,
+  //               ColorPickerType.accent: true,
+  //               ColorPickerType.bw: false,
+  //               ColorPickerType.custom: true,
+  //               ColorPickerType.wheel: true,
+  //             },
+  //           ),
+  //         ),
+  //         actions: <Widget>[
+  //           TextButton(
+  //             child: Text('OK',
+  //                 style: TextStyle(color: appTheme.colorScheme.primary)),
+  //             onPressed: () {
+  //               Navigator.of(context).pop();
+  //             },
+  //           ),
+  //         ],
+  //       );
+  //     },
+  //   );
+  // }
 
   String _formatTime(DateTime dateTime) {
     return "${dateTime.hour.toString().padLeft(2, '0')}:${dateTime.minute.toString().padLeft(2, '0')}";

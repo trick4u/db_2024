@@ -20,6 +20,7 @@ import 'pages/network_screen.dart';
 import 'projectBinding/add_everything_binding.dart';
 import 'projectBinding/add_taskBinding.dart';
 import 'projectBinding/eat_the_frog_binding.dart';
+import 'projectBinding/note_taking_binding.dart';
 import 'projectBinding/statistics_binding.dart';
 import 'projectBinding/journal_binding.dart';
 import 'projectBinding/notes_binding.dart';
@@ -31,6 +32,7 @@ import 'projectBinding/vision_board_binding.dart';
 import 'projectPages/add_everyting.dart';
 import 'projectPages/add_task.dart';
 import 'projectPages/eat_the_frog.dart';
+import 'projectPages/note_taking_screen.dart';
 import 'projectPages/statistics_screen.dart';
 import 'projectPages/journal_page.dart';
 import 'projectPages/main_screen.dart';
@@ -84,6 +86,7 @@ class AppRoutes {
   static const String JOURNAL = '/journal';
   static const EMAILVERIFICATION = '/email-verification';
   static const NOTIFICAION = '/notification';
+  static const NOTETAKING = '/noteTaking';
 
   static List<GetPage> routes = [
     GetPage(
@@ -193,6 +196,12 @@ class AppRoutes {
       name: PROFILE,
       page: () => ProfileScreen(),
       binding: ProfileBindings(),
+    ),
+    //note taking
+    GetPage(
+      name: NOTETAKING,
+      page: () => NoteTakingScreen(),
+      binding: NoteTakingBinding(),
     ),
   ];
 }
