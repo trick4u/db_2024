@@ -140,7 +140,7 @@ class _QuickReminderBottomSheetState extends State<QuickReminderBottomSheet> {
   int _getMinutesFromValue(int value) {
     switch (value) {
       case 1:
-        return 5;
+        return 15;
       case 2:
         return 30;
       case 3:
@@ -151,19 +151,21 @@ class _QuickReminderBottomSheetState extends State<QuickReminderBottomSheet> {
   }
 
   Widget _buildTextField(BuildContext context) {
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(10),
-      child: TextField(
-        controller: widget.reminderController.reminderTextController,
-        style: Theme.of(context).textTheme.bodyMedium,
-        decoration: InputDecoration(
-          labelText: 'Reminder Title',
-          filled: true,
-          fillColor: Theme.of(context).inputDecorationTheme.fillColor ??
-              Theme.of(context).hoverColor,
-          border: InputBorder.none,
-          enabledBorder: InputBorder.none,
-          focusedBorder: InputBorder.none,
+    return FadeIn(
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(10),
+        child: TextField(
+          controller: widget.reminderController.reminderTextController,
+          style: Theme.of(context).textTheme.bodyMedium,
+          decoration: InputDecoration(
+            labelText: 'Reminder Title',
+            filled: true,
+            fillColor: Theme.of(context).inputDecorationTheme.fillColor ??
+                Theme.of(context).hoverColor,
+            border: InputBorder.none,
+            enabledBorder: InputBorder.none,
+            focusedBorder: InputBorder.none,
+          ),
         ),
       ),
     );

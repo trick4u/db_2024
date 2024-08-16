@@ -36,7 +36,7 @@ import '../widgets/three_day.dart';
 import '../widgets/three_shaped_box.dart';
 import 'main_screen.dart';
 import 'music_page.dart';
-import 'statistics_page.dart';
+
 
 class PageOneScreen extends GetWidget<PageOneController> {
   final appTheme = Get.find<AppTheme>();
