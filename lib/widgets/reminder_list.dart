@@ -3,6 +3,8 @@ import 'package:get/get.dart';
 
 import '../models/reminder_model.dart';
 import '../projectController/page_one_controller.dart';
+import '../services/app_theme.dart';
+import 'quick_bottomsheet.dart';
 
 class RemindersList extends GetWidget<PageOneController> {
   const RemindersList({Key? key}) : super(key: key);
@@ -31,7 +33,8 @@ class RemindersList extends GetWidget<PageOneController> {
                 Checkbox(
                   value: reminder.isCompleted,
                   onChanged: (bool? value) {
-                    controller.toggleReminderCompletion(reminder.id, value ?? false);
+                    controller.toggleReminderCompletion(
+                        reminder.id, value ?? false);
                   },
                 ),
                 IconButton(
@@ -47,6 +50,7 @@ class RemindersList extends GetWidget<PageOneController> {
   }
 
   Widget _buildEmptyState() {
+    final appTheme = Get.find<AppTheme>();
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -66,11 +70,26 @@ class RemindersList extends GetWidget<PageOneController> {
             ),
           ),
           SizedBox(height: 8),
-          Text(
-            'Tap "Add Reminders +" to create a new reminder',
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              color: Colors.grey,
+          InkWell(
+            onTap: () {
+              showModalBottomSheet(
+                context: Get.context!,
+                isScrollControlled: true,
+                backgroundColor: Colors.transparent,
+                builder: (BuildContext context) {
+                  return QuickReminderBottomSheet(
+                    reminderController: controller,
+                    appTheme: appTheme,
+                  );
+                },
+              );
+            },
+            child: Text(
+              'Tap "add reminders +" to create a new reminder',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                color: Colors.grey,
+              ),
             ),
           ),
         ],

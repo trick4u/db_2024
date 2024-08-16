@@ -27,6 +27,7 @@ import '../widgets/event_card.dart';
 import '../widgets/event_sheet.dart';
 import '../widgets/four_boxes.dart';
 import '../widgets/goals_box.dart';
+import '../widgets/quick_bottomsheet.dart';
 import '../widgets/quick_reminder_chips.dart';
 import 'package:flutter_carousel_slider/carousel_slider.dart';
 
@@ -329,9 +330,11 @@ class PageOneScreen extends GetWidget<PageOneController> {
       case 'all reminders':
         return RemindersList();
       default:
-        return EventsList(
-          events: controller.getSelectedEvents(),
-          eventType: controller.selectedListType.value,
+        return FadeInRight(
+          child: EventsList(
+            events: controller.getSelectedEvents(),
+            eventType: controller.selectedListType.value,
+          ),
         );
     }
   }

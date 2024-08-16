@@ -293,15 +293,17 @@ class _EventBottomSheetState extends State<EventBottomSheet> {
                   //   ],
                   // ),
 
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      _buildDescriptionToggleButton(context, appTheme),
-                      SizedBox(width: 16),
-                      _buildColorIconButton(context, appTheme),
-                      SizedBox(width: 16),
-                      _buildSaveIconButton(context, appTheme),
-                    ],
+                  SlideInLeft(
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        _buildDescriptionToggleButton(context, appTheme),
+                        SizedBox(width: 16),
+                        _buildColorIconButton(context, appTheme),
+                        SizedBox(width: 16),
+                        _buildSaveIconButton(context, appTheme),
+                      ],
+                    ),
                   ),
                 ],
               ),

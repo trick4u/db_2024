@@ -1,12 +1,12 @@
+import 'package:animate_do/animate_do.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import '../projectController/page_one_controller.dart';
 import '../services/app_theme.dart';
 import '../services/scale_util.dart';
-import 'quick_reminder_chips.dart';
 
-class QuickReminderBottomSheet extends StatelessWidget {
+class QuickReminderBottomSheet extends StatefulWidget {
   final PageOneController reminderController;
   final AppTheme appTheme;
 
@@ -17,154 +17,214 @@ class QuickReminderBottomSheet extends StatelessWidget {
   }) : super(key: key);
 
   @override
+  _QuickReminderBottomSheetState createState() =>
+      _QuickReminderBottomSheetState();
+}
+
+class _QuickReminderBottomSheetState extends State<QuickReminderBottomSheet> {
+  bool _isDescriptionVisible = false;
+  bool _isTitleEmpty = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _isTitleEmpty =
+        widget.reminderController.reminderTextController.text.isEmpty;
+    widget.reminderController.reminderTextController
+        .addListener(_updateTitleState);
+    if (widget.reminderController.timeSelected.value == 0) {
+      widget.reminderController.timeSelected.value = 1; // Default to 15 minutes
+    }
+  }
+
+  @override
+  void dispose() {
+    widget.reminderController.reminderTextController
+        .removeListener(_updateTitleState);
+    super.dispose();
+  }
+
+  void _updateTitleState() {
+    setState(() {
+      _isTitleEmpty =
+          widget.reminderController.reminderTextController.text.isEmpty;
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: ScaleUtil.symmetric(horizontal: 5),
-      child: DraggableScrollableSheet(
-        initialChildSize: 0.5,
-        minChildSize: 0.5,
-        builder: (_, scrollController) {
-          return Container(
-            decoration: BoxDecoration(
-              color: appTheme.cardColor,
-              borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-            ),
-            child: Padding(
-              padding: EdgeInsets.symmetric(horizontal: 15),
-              child: ListView(
-                controller: scrollController,
-                children: [
-                  const SizedBox(height: 20),
-                  Text(
-                    'Quick Reminder',
-                    style: appTheme.titleLarge,
-                    textAlign: TextAlign.center,
-                  ),
-                  const SizedBox(height: 20),
-                  Text(
-                    'Remind me about',
-                    style: appTheme.bodyMedium,
-                  ),
-                  const SizedBox(height: 20),
-                  _buildTextField(),
-                  const SizedBox(height: 20),
-                  _buildRepeatSwitch(),
-                  const SizedBox(height: 20),
-                  ChipWidgets(
-                    pageOneController: reminderController,
-                  ),
-                  const SizedBox(height: 20),
-                  // _buildDaySelector(),
-
-                  _buildSaveButton(),
-                ],
-              ),
-            ),
-          );
-        },
-      ),
-    );
-  }
-
-  Widget _buildTextField() {
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(10),
-      child: TextField(
-        controller: reminderController.reminderTextController,
-        onChanged: (value) {},
-        style: appTheme.bodyMedium,
-        decoration: InputDecoration(
-          border: InputBorder.none,
-          labelText: 'Enter Task Name',
-          fillColor: appTheme.textFieldFillColor,
-          filled: true,
+      padding: const EdgeInsets.only(left: 10, right: 10, bottom: 10),
+      child: Card(
+        elevation: 8,
+        color: Theme.of(context).cardColor,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20),
+        ),
+        child: Container(
+          padding: EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              _buildHeader(context),
+              SizedBox(height: 16),
+              _buildTextField(context),
+              SizedBox(height: 16),
+              _buildActionButtons(context),
+            ],
+          ),
         ),
       ),
     );
   }
 
-  Widget _buildRepeatSwitch() {
+  Widget _buildHeader(BuildContext context) {
     return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: [
         Text(
-          'Remind me after',
-          style: appTheme.bodyMedium,
+          'Add Reminder',
+          style: Theme.of(context).textTheme.titleLarge,
         ),
-        Obx(() => Text(
-              'Repeat ${reminderController.repeat.value ? "ON" : "OFF"}',
-              style: appTheme.bodyMedium,
+        Obx(() => IconButton(
+              icon: Icon(
+                widget.reminderController.repeat.value
+                    ? Icons.repeat_one_outlined
+                    : Icons.repeat,
+                color: widget.reminderController.repeat.value
+                    ? widget.appTheme.colorScheme.primary
+                    : widget.appTheme.colorScheme.onSurface.withOpacity(0.5),
+              ),
+              onPressed: () {
+                widget.reminderController
+                    .toggleSwitch(!widget.reminderController.repeat.value);
+              },
             )),
-        Obx(
-          () => Switch(
-            value: reminderController.repeat.value,
-            onChanged: (value) {
-              reminderController.toggleSwitch(value);
-            },
-          ),
+        _buildTimeSelectionPopup(context),
+        SizedBox(width: 8),
+        IconButton(
+          icon: Icon(Icons.close, color: Theme.of(context).iconTheme.color),
+          onPressed: () => Navigator.of(context).pop(),
         ),
       ],
     );
   }
 
-  // Widget _buildDaySelector() {
-  //   return Obx(() {
-  //     return Wrap(
-  //       spacing: 8.0,
-  //       children: [
-  //         'Monday',
-  //         'Tuesday',
-  //         'Wednesday',
-  //         'Thursday',
-  //         'Friday',
-  //         'Saturday',
-  //         'Sunday'
-  //       ].map((day) {
-  //         final isSelected = reminderController.selectedDays.contains(day);
-  //         return FilterChip(
-  //           label: Text(day, style: appTheme.bodyMedium),
-  //           selected: isSelected,
-  //           onSelected: (_) => reminderController.toggleDay(day),
-  //           backgroundColor: appTheme.cardColor,
-  //           selectedColor: appTheme.colorScheme.primary,
-  //         );
-  //       }).toList(),
-  //     );
-  //   });
-  // }
+  Widget _buildTimeSelectionPopup(BuildContext context) {
+    return Obx(() => PopupMenuButton<int>(
+          child: Chip(
+            label: Text(
+                '${_getMinutesFromValue(widget.reminderController.timeSelected.value)} min'),
+            backgroundColor: Theme.of(context).chipTheme.backgroundColor,
+          ),
+          onSelected: (int value) {
+            widget.reminderController.timeSelected.value = value;
+          },
+          itemBuilder: (BuildContext context) => <PopupMenuEntry<int>>[
+            PopupMenuItem<int>(
+              value: 1,
+              child: Text('15 minutes'),
+            ),
+            PopupMenuItem<int>(
+              value: 2,
+              child: Text('30 minutes'),
+            ),
+            PopupMenuItem<int>(
+              value: 3,
+              child: Text('60 minutes'),
+            ),
+          ],
+        ));
+  }
 
-  Widget _buildSaveButton() {
-    return ElevatedButton(
-      onPressed: () {
-        _handleSave();
-      },
-      style: appTheme.primaryButtonStyle,
-      child: Text('Save',
-          style: appTheme.bodyMedium
-              .copyWith(color: appTheme.colorScheme.onPrimary)),
+  int _getMinutesFromValue(int value) {
+    switch (value) {
+      case 1:
+        return 5;
+      case 2:
+        return 30;
+      case 3:
+        return 60;
+      default:
+        return 15; // Default to 15 minutes if an invalid value is somehow set
+    }
+  }
+
+  Widget _buildTextField(BuildContext context) {
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(10),
+      child: TextField(
+        controller: widget.reminderController.reminderTextController,
+        style: Theme.of(context).textTheme.bodyMedium,
+        decoration: InputDecoration(
+          labelText: 'Reminder Title',
+          filled: true,
+          fillColor: Theme.of(context).inputDecorationTheme.fillColor ??
+              Theme.of(context).hoverColor,
+          border: InputBorder.none,
+          enabledBorder: InputBorder.none,
+          focusedBorder: InputBorder.none,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildActionButtons(BuildContext context) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.end,
+      children: [
+        SizedBox(width: 16),
+        _buildSaveButton(context),
+      ],
+    );
+  }
+
+  Widget _buildSaveButton(BuildContext context) {
+    return SlideInRight(
+      child: Container(
+        decoration: BoxDecoration(
+          color: _isTitleEmpty
+              ? Colors.grey
+              : Theme.of(context).colorScheme.primary,
+          shape: BoxShape.circle,
+        ),
+        child: InkWell(
+          borderRadius: BorderRadius.circular(20),
+          onTap: _isTitleEmpty ? null : _handleSave,
+          child: Padding(
+            padding: EdgeInsets.all(10),
+            child: Icon(
+              FontAwesomeIcons.check,
+              color: Theme.of(context).colorScheme.onPrimary,
+              size: 20,
+            ),
+          ),
+        ),
+      ),
     );
   }
 
   void _handleSave() {
-    int minutes;
-    switch (reminderController.timeSelected.value) {
-      case 1:
-        minutes = 15;
-        break;
-      case 2:
-        minutes = 30;
-        break;
-      case 3:
-        minutes = 60;
-        break;
-      default:
-        minutes = 15;
+    if (widget.reminderController.reminderTextController.text.isEmpty) {
+      Get.snackbar('Error', 'Reminder text cannot be empty');
+      return;
     }
-    reminderController.schedulePeriodicNotifications(
-      reminderController.reminderTextController.text,
+
+    int minutes =
+        _getMinutesFromValue(widget.reminderController.timeSelected.value);
+
+    // Ensure timeSelected has a valid value
+    if (widget.reminderController.timeSelected.value == 0) {
+      widget.reminderController.timeSelected.value = 1; // Default to 15 minutes
+    }
+
+    widget.reminderController.schedulePeriodicNotifications(
+      widget.reminderController.reminderTextController.text,
       minutes,
-      reminderController.repeat.value,
+      widget.reminderController.repeat.value,
     );
-    reminderController.saveReminder(reminderController.repeat.value);
+
+    widget.reminderController
+        .saveReminder(widget.reminderController.repeat.value);
   }
 }

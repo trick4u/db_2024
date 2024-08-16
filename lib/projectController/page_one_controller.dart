@@ -669,24 +669,45 @@ class PageOneController extends GetxController {
     }
   }
 
-  Future<void> schedulePeriodicNotifications(
-      String body, int interval, bool repeat) async {
-    AwesomeNotifications().createNotification(
-      content: NotificationContent(
-        id: 10,
-        channelKey: 'quickschedule',
-        title: 'DoBoara Reminder 📅',
-        body: body,
-        largeIcon:
-            'https://cdn.pixabay.com/photo/2024/03/24/17/10/background-8653526_1280.jpg',
-      ),
-      schedule: NotificationInterval(
-        interval: interval * 60,
-        timeZone: await AwesomeNotifications().getLocalTimeZoneIdentifier(),
-        repeats: repeat,
-      ),
-    );
-  }
+Future<void> schedulePeriodicNotifications(
+    String body, int interval, bool repeat) async {
+  // Use WidgetsBinding to ensure we're on the main thread
+  WidgetsBinding.instance.addPostFrameCallback((_) async {
+    try {
+      await AwesomeNotifications().requestPermissionToSendNotifications();
+
+      int notificationId = DateTime.now().millisecondsSinceEpoch.remainder(100000);
+
+      String localTimeZone = await AwesomeNotifications().getLocalTimeZoneIdentifier();
+
+      await AwesomeNotifications().createNotification(
+        content: NotificationContent(
+          id: notificationId,
+          channelKey: 'quickschedule',
+          title: 'DoBoara Reminder 📅',
+          body: body,
+          category: NotificationCategory.Reminder,
+          notificationLayout: NotificationLayout.Default,
+          criticalAlert: true,
+          wakeUpScreen: true,
+        ),
+        schedule: NotificationInterval(
+          interval: interval * 60, // Convert minutes to seconds
+          timeZone: localTimeZone,
+          repeats: repeat,
+          preciseAlarm: true,
+          allowWhileIdle: true,
+         
+        ),
+      );
+
+      print('Periodic notification scheduled: every $interval minutes, repeat: $repeat');
+    } catch (e) {
+      print('Error scheduling notification: $e');
+      // You might want to show an error message to the user here
+    }
+  });
+}
 
   void toggleSwitch(bool value) {
     repeat.value = value;
