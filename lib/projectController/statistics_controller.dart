@@ -1,4 +1,4 @@
-import 'package:fl_chart/fl_chart.dart';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
@@ -11,7 +11,7 @@ import 'page_one_controller.dart';
 class StatisticsController extends GetxController {
   final pageOneController = Get.put(PageOneController());
 
- RxInt completedTasks = 0.obs;
+  RxInt completedTasks = 0.obs;
   RxInt pendingTasks = 0.obs;
   RxList<int> weeklyTaskCompletion = List.generate(7, (_) => 0).obs;
   RxList<int> weeklyPendingTasks = List.generate(7, (_) => 0).obs;
@@ -21,22 +21,39 @@ class StatisticsController extends GetxController {
   Rx<DateTime> currentWeekStart = DateTime.now().obs;
   RxBool hasDataForWeek = true.obs;
   RxBool showCompletedTasks = true.obs;
-
+  final DateTime _threeMonthsAgo = DateTime.now().subtract(
+    Duration(days: 90),
+  );
+  RxBool canGoBack = true.obs;
   @override
   void onInit() {
     super.onInit();
     setCurrentWeekStart(DateTime.now());
+
+    ever(pageOneController.upcomingEvents, (_) => updateStatistics());
+    ever(pageOneController.pendingEvents, (_) => updateStatistics());
+    ever(pageOneController.completedEvents, (_) => updateStatistics());
+
     updateStatistics();
   }
 
   void setCurrentWeekStart(DateTime date) {
-    // Adjust to start week on Sunday
     currentWeekStart.value = date.subtract(Duration(days: date.weekday % 7));
+    updateCanGoBack();
+  }
+
+  void updateCanGoBack() {
+    canGoBack.value = currentWeekStart.value.isAfter(_threeMonthsAgo);
   }
 
   void goToPreviousWeek() {
-    setCurrentWeekStart(currentWeekStart.value.subtract(Duration(days: 7)));
-    updateStatistics();
+    if (canGoBack.value) {
+      setCurrentWeekStart(currentWeekStart.value.subtract(Duration(days: 7)));
+      updateStatistics();
+    } else {
+      // Optionally, show a message to the user
+      Get.snackbar('Limit Reached', 'Cannot view data older than 3 months');
+    }
   }
 
   void goToNextWeek() {
@@ -55,17 +72,18 @@ class StatisticsController extends GetxController {
     return '$startDate-$endDate';
   }
 
-   void updateStatistics() {
+  void updateStatistics() {
     updateTasksOverview();
     updateWeeklyTaskCompletion();
     updateWeeklyPendingTasks();
     updateUpcomingTasks();
-   
   }
- void updateTasksOverview() {
+
+  void updateTasksOverview() {
     completedTasks.value = pageOneController.completedEvents.length;
     pendingTasks.value = pageOneController.pendingEvents.length;
   }
+
   void updateWeeklyTaskCompletion() {
     List<int> newCompletion = List.generate(7, (_) => 0);
     bool hasData = false;
@@ -101,16 +119,14 @@ class StatisticsController extends GetxController {
   }
 
   bool isSameDay(DateTime date1, DateTime date2) {
-    return date1.year == date2.year && date1.month == date2.month && date1.day == date2.day;
+    return date1.year == date2.year &&
+        date1.month == date2.month &&
+        date1.day == date2.day;
   }
 
   void toggleTaskView() {
     showCompletedTasks.toggle();
   }
-
-
- 
-
 
   void updateUpcomingTasks() {
     DateTime now = DateTime.now();

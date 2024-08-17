@@ -33,10 +33,27 @@ class CalendarController extends GetxController {
         .collection('events');
   }
 
+  //expansion
+  RxMap<String, bool> expandedEvents = <String, bool>{}.obs;
+
   @override
   void onInit() {
     super.onInit();
     fetchEvents(selectedDay.value);
+  }
+
+  //expansion
+  void toggleEventExpansion(String eventId) {
+    if (!expandedEvents.containsKey(eventId)) {
+      expandedEvents[eventId] = false;
+    }
+    expandedEvents[eventId] = !expandedEvents[eventId]!;
+    update();
+  }
+
+  // Add this new method to check if an event is expanded
+  bool isEventExpanded(String eventId) {
+    return expandedEvents[eventId] ?? false;
   }
 
   bool isDateInPast(DateTime date) {
@@ -266,7 +283,7 @@ class CalendarController extends GetxController {
     }
   }
 
-void updateEvent(
+  void updateEvent(
       String eventId,
       String newTitle,
       String newDescription,
@@ -281,29 +298,40 @@ void updateEvent(
     try {
       // First, fetch the current event data
       DocumentSnapshot eventDoc = await eventsCollection.doc(eventId).get();
-      Map<String, dynamic> currentData = eventDoc.data() as Map<String, dynamic>;
+      Map<String, dynamic> currentData =
+          eventDoc.data() as Map<String, dynamic>;
 
       // Prepare the update data, only including fields that have changed
       Map<String, dynamic> updateData = {};
 
       if (newTitle != currentData['title']) updateData['title'] = newTitle;
-      if (newDescription != currentData['description']) updateData['description'] = newDescription;
-      if (newDate != (currentData['date'] as Timestamp).toDate()) updateData['date'] = Timestamp.fromDate(newDate);
-      if (newColor.value != currentData['color']) updateData['color'] = newColor.value;
-      if (newHasReminder != currentData['hasReminder']) updateData['hasReminder'] = newHasReminder;
-      if (isCompleted != currentData['isCompleted']) updateData['isCompleted'] = isCompleted;
+      if (newDescription != currentData['description'])
+        updateData['description'] = newDescription;
+      if (newDate != (currentData['date'] as Timestamp).toDate())
+        updateData['date'] = Timestamp.fromDate(newDate);
+      if (newColor.value != currentData['color'])
+        updateData['color'] = newColor.value;
+      if (newHasReminder != currentData['hasReminder'])
+        updateData['hasReminder'] = newHasReminder;
+      if (isCompleted != currentData['isCompleted'])
+        updateData['isCompleted'] = isCompleted;
 
       // Only update time fields if they've actually changed
-      if (newStartTime != null && (currentData['startTime'] == null || 
-          newStartTime != (currentData['startTime'] as Timestamp).toDate())) {
+      if (newStartTime != null &&
+          (currentData['startTime'] == null ||
+              newStartTime !=
+                  (currentData['startTime'] as Timestamp).toDate())) {
         updateData['startTime'] = Timestamp.fromDate(newStartTime);
       }
-      if (newEndTime != null && (currentData['endTime'] == null || 
-          newEndTime != (currentData['endTime'] as Timestamp).toDate())) {
+      if (newEndTime != null &&
+          (currentData['endTime'] == null ||
+              newEndTime != (currentData['endTime'] as Timestamp).toDate())) {
         updateData['endTime'] = Timestamp.fromDate(newEndTime);
       }
-      if (newReminderTime != null && (currentData['reminderTime'] == null || 
-          newReminderTime != (currentData['reminderTime'] as Timestamp).toDate())) {
+      if (newReminderTime != null &&
+          (currentData['reminderTime'] == null ||
+              newReminderTime !=
+                  (currentData['reminderTime'] as Timestamp).toDate())) {
         updateData['reminderTime'] = Timestamp.fromDate(newReminderTime);
       }
 
@@ -316,11 +344,14 @@ void updateEvent(
           title: newTitle,
           description: newDescription,
           date: newDate,
-          startTime: newStartTime ?? (currentData['startTime'] as Timestamp?)?.toDate(),
-          endTime: newEndTime ?? (currentData['endTime'] as Timestamp?)?.toDate(),
+          startTime: newStartTime ??
+              (currentData['startTime'] as Timestamp?)?.toDate(),
+          endTime:
+              newEndTime ?? (currentData['endTime'] as Timestamp?)?.toDate(),
           color: newColor,
           hasReminder: newHasReminder,
-          reminderTime: newReminderTime ?? (currentData['reminderTime'] as Timestamp?)?.toDate(),
+          reminderTime: newReminderTime ??
+              (currentData['reminderTime'] as Timestamp?)?.toDate(),
           isCompleted: isCompleted,
           createdAt: (currentData['createdAt'] as Timestamp).toDate(),
         );
@@ -341,6 +372,7 @@ void updateEvent(
       print('Error updating event: $e');
     }
   }
+
   void addToArchive(String eventId) async {
     if (currentUser == null) return;
     try {
@@ -473,22 +505,24 @@ void updateEvent(
   }
 
   //toggle event reminder
-    void toggleEventReminder(String eventId) async {
+  void toggleEventReminder(String eventId) async {
     if (currentUser == null) return;
     try {
       DocumentSnapshot eventDoc = await eventsCollection.doc(eventId).get();
       if (eventDoc.exists) {
         QuickEventModel event = QuickEventModel.fromFirestore(eventDoc);
         bool newReminderStatus = !event.hasReminder;
-        
+
         await eventsCollection.doc(eventId).update({
           'hasReminder': newReminderStatus,
-          'reminderTime': newReminderStatus ? event.reminderTime ?? event.date : null,
+          'reminderTime':
+              newReminderStatus ? event.reminderTime ?? event.date : null,
         });
 
         if (newReminderStatus) {
           // If turning on the reminder, schedule a notification
-          QuickEventModel updatedEvent = QuickEventModel.fromFirestore(await eventsCollection.doc(eventId).get());
+          QuickEventModel updatedEvent = QuickEventModel.fromFirestore(
+              await eventsCollection.doc(eventId).get());
           await scheduleNotification(updatedEvent);
         } else {
           // If turning off the reminder, cancel the notification

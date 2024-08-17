@@ -31,15 +31,10 @@ class MainScreenController extends GetxController
   void changeIndex(int index) {
     selectedIndex.value = index;
     if (selectedIndex.value == 0) {
-      Get.lazyPut(() => ProfileController());
     } else if (selectedIndex.value == 1) {
-      Get.lazyPut<CalendarController>(() => CalendarController());
     } else if (selectedIndex.value == 2) {
-      Get.lazyPut<StatisticsController>(() => StatisticsController());
-    } else if (selectedIndex.value == 3) {
-      Get.put(ProfileController());
-      Get.lazyPut(() => ProfileController());
-    }
+      Get.find<StatisticsController>().updateStatistics();
+    } else if (selectedIndex.value == 3) {}
   }
 
   final List<Widget> pages = [
@@ -49,27 +44,12 @@ class MainScreenController extends GetxController
     ProfileScreen(),
   ];
 
-  // void changePage(
-  //   int index,
-  //   BuildContext context,
-  // ) {
-  //   currentIndex.value = index;
-  //   if (currentIndex.value == 0) {
-
-  //   //  Get.put(PageOneController());
-  //   } else if (currentIndex.value == 1) {
-  //     Get.lazyPut<CalendarController>(() => CalendarController());
-  //   } else if (currentIndex.value == 2) {
-  //     Get.lazyPut<PageThreecontroller>(() => PageThreecontroller());
-  //     showDialog(context);
-  //   } else if (currentIndex.value == 3) {
-  //      Get.lazyPut<ProfileController>(() => ProfileController());
-
-  //   }
-  // }
-
   @override
   void onInit() {
+    Get.lazyPut(() => ProfileController());
+    Get.lazyPut(() => StatisticsController());
+    Get.lazyPut(() => ProfileController());
+    Get.lazyPut<CalendarController>(() => CalendarController());
     super.onInit();
   }
 

@@ -25,6 +25,7 @@ class EventCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    Get.put(CalendarController());
     return Slidable(
       key: ValueKey(event.id),
       startActionPane: ActionPane(
@@ -215,89 +216,113 @@ class EventCard extends StatelessWidget {
   }
 
   Widget _buildCardContent() {
-    return Stack(
-      children: [
-        Card(
-          elevation: 2,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(10),
-          ),
-          child: IntrinsicHeight(
-            child: Row(
-              children: [
-                Container(
-                  width: 20,
-                  decoration: BoxDecoration(
-                    color: event.color,
-                    borderRadius: BorderRadius.only(
-                      topLeft: Radius.circular(10),
-                      bottomLeft: Radius.circular(10),
-                    ),
-                  ),
-                ),
-                Expanded(
-                  child: Padding(
-                    padding: const EdgeInsets.all(10.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          event.title,
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 16,
-                            decoration: event.isCompleted == true
-                                ? TextDecoration.lineThrough
-                                : TextDecoration.none,
-                          ),
+    return GetBuilder<CalendarController>(
+      builder: (controller) => GestureDetector(
+        onTap: () => controller.toggleEventExpansion(event.id),
+        child: Stack(
+          children: [
+            Card(
+              elevation: 2,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: IntrinsicHeight(
+                child: Row(
+                  children: [
+                    Container(
+                      width: 20,
+                      decoration: BoxDecoration(
+                        color: event.color,
+                        borderRadius: BorderRadius.only(
+                          topLeft: Radius.circular(10),
+                          bottomLeft: Radius.circular(10),
                         ),
-                        SizedBox(height: 4),
-                        Text(
-                          event.description,
-                          style: TextStyle(
-                            decoration: event.isCompleted == true
-                                ? TextDecoration.lineThrough
-                                : TextDecoration.none,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-                if (event.isCompleted == true)
-                  Container(
-                    width: 20,
-                    decoration: BoxDecoration(
-                      color: Colors.green,
-                      borderRadius: BorderRadius.only(
-                        topRight: Radius.circular(10),
-                        bottomRight: Radius.circular(10),
                       ),
                     ),
-                  ),
-              ],
-            ),
-          ),
-        ),
-        if (event.hasReminder)
-          Positioned(
-            top: 15,
-            right: 20,
-            child: GestureDetector(
-              onTap: () {
-                final calendarController = Get.put(CalendarController());
-                calendarController.toggleEventReminder(event.id);
-              },
-              child: Icon(
-                event.hasReminder
-                    ? Icons.notifications_active
-                    : Icons.notifications_off,
-                size: 18,
-                color: event.hasReminder ? Colors.blue : Colors.grey,
+                    Expanded(
+                      child: Padding(
+                        padding: const EdgeInsets.all(10.0),
+                        child: SingleChildScrollView(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                event.title,
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 16,
+                                  decoration: event.isCompleted == true
+                                      ? TextDecoration.lineThrough
+                                      : TextDecoration.none,
+                                ),
+                              ),
+                              SizedBox(height: 4),
+                              AnimatedCrossFade(
+                                firstChild: Text(
+                                  event.description,
+                                  maxLines: 2,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: TextStyle(
+                                    decoration: event.isCompleted == true
+                                        ? TextDecoration.lineThrough
+                                        : TextDecoration.none,
+                                  ),
+                                ),
+                                secondChild: Text(
+                                  event.description,
+                                  style: TextStyle(
+                                    decoration: event.isCompleted == true
+                                        ? TextDecoration.lineThrough
+                                        : TextDecoration.none,
+                                  ),
+                                ),
+                                crossFadeState:
+                                    controller.isEventExpanded(event.id)
+                                        ? CrossFadeState.showSecond
+                                        : CrossFadeState.showFirst,
+                                duration: Duration(milliseconds: 300),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                    if (event.isCompleted == true)
+                      Container(
+                        width: 20,
+                        decoration: BoxDecoration(
+                          color: Colors.green,
+                          borderRadius: BorderRadius.only(
+                            topRight: Radius.circular(10),
+                            bottomRight: Radius.circular(10),
+                          ),
+                        ),
+                      ),
+                  ],
+                ),
               ),
             ),
-          ),
-      ],
+            if (event.hasReminder)
+              Positioned(
+                top: 15,
+                right: 20,
+                child: GestureDetector(
+                  onTap: () {
+                    final calendarController = Get.find<CalendarController>();
+                    calendarController.toggleEventReminder(event.id);
+                  },
+                  child: Icon(
+                    event.hasReminder
+                        ? Icons.notifications_active
+                        : Icons.notifications_off,
+                    size: 18,
+                    color: event.hasReminder ? Colors.blue : Colors.grey,
+                  ),
+                ),
+              ),
+          ],
+        ),
+      ),
     );
   }
 }
