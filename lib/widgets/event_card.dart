@@ -130,7 +130,7 @@ class EventCard extends StatelessWidget {
     );
   }
 
-  Widget _buildTimeColumn() {
+   Widget _buildTimeColumn() {
     return Container(
       width: 60,
       child: Column(
@@ -154,10 +154,23 @@ class EventCard extends StatelessWidget {
               color: Colors.grey,
             ),
           ),
+          if (event.isCompleted == true && event.editedAfterCompletion)
+            Padding(
+              padding: const EdgeInsets.only(top: 4),
+              child: Text(
+                'Edited',
+                style: TextStyle(
+                  fontSize: 10,
+                  color: Colors.blue,
+                  fontStyle: FontStyle.italic,
+                ),
+              ),
+            ),
         ],
       ),
     );
   }
+
 
   Widget _buildCompleteButton() {
     return IconButton(
@@ -167,11 +180,16 @@ class EventCard extends StatelessWidget {
             : Icons.check_circle_outline,
         color: event.isCompleted == true ? Colors.green : Colors.grey,
       ),
-      onPressed: () => onComplete(event),
+      onPressed: () {
+        if (event.isCompleted != true) {
+          onComplete(event);
+        }
+      },
     );
   }
 
-   Widget _buildCardContent() {
+
+  Widget _buildCardContent() {
     return GetBuilder<CalendarController>(
       builder: (controller) => GestureDetector(
         onTap: () => controller.toggleEventExpansion(event.id),
@@ -281,5 +299,4 @@ class EventCard extends StatelessWidget {
       ),
     );
   }
-
 }

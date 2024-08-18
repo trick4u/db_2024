@@ -12,7 +12,9 @@ class QuickEventModel {
   final bool hasReminder;
   DateTime? reminderTime;
   bool? isCompleted;
-  final DateTime createdAt; // New field
+  final DateTime createdAt;
+  final bool editedAfterCompletion;
+  final DateTime? completedAt;  // New field
 
   QuickEventModel({
     required this.id,
@@ -25,7 +27,9 @@ class QuickEventModel {
     required this.hasReminder,
     this.reminderTime,
     this.isCompleted,
-    required this.createdAt, // Add this to the constructor
+    required this.createdAt,
+    this.editedAfterCompletion = false,
+    this.completedAt,  // Add this to the constructor
   });
 
   factory QuickEventModel.fromFirestore(DocumentSnapshot doc) {
@@ -49,7 +53,11 @@ class QuickEventModel {
       isCompleted: data['isCompleted'] ?? false,
       createdAt: data['createdAt'] != null
           ? (data['createdAt'] as Timestamp).toDate()
-          : DateTime.now(), // Add this to parse from Firestore
+          : DateTime.now(),
+      editedAfterCompletion: data['editedAfterCompletion'] ?? false,
+      completedAt: data['completedAt'] != null
+          ? (data['completedAt'] as Timestamp).toDate()
+          : null,  // Parse completedAt from Firestore
     );
   }
 }

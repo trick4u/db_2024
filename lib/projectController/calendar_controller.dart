@@ -212,7 +212,7 @@ class CalendarController extends GetxController {
               }
             } else {
               updateEvent(event.id, title, description, date, startDateTime,
-                  endDateTime, color, hasReminder, reminderTime, false);
+                  endDateTime, color, hasReminder, reminderTime, );
             }
           },
         ),
@@ -292,51 +292,55 @@ class CalendarController extends GetxController {
       DateTime? newEndTime,
       Color newColor,
       bool newHasReminder,
-      DateTime? newReminderTime,
-      bool isCompleted) async {
+      DateTime? newReminderTime) async {
     if (currentUser == null) return;
     try {
-      // First, fetch the current event data
       DocumentSnapshot eventDoc = await eventsCollection.doc(eventId).get();
-      Map<String, dynamic> currentData =
-          eventDoc.data() as Map<String, dynamic>;
+      Map<String, dynamic> currentData = eventDoc.data() as Map<String, dynamic>;
 
-      // Prepare the update data, only including fields that have changed
+      bool wasCompleted = currentData['isCompleted'] ?? false;
+      Timestamp? completedAt = currentData['completedAt'] as Timestamp?;
+
       Map<String, dynamic> updateData = {};
+      Map<String, dynamic> changeLog = {};
 
-      if (newTitle != currentData['title']) updateData['title'] = newTitle;
-      if (newDescription != currentData['description'])
-        updateData['description'] = newDescription;
-      if (newDate != (currentData['date'] as Timestamp).toDate())
-        updateData['date'] = Timestamp.fromDate(newDate);
-      if (newColor.value != currentData['color'])
-        updateData['color'] = newColor.value;
-      if (newHasReminder != currentData['hasReminder'])
-        updateData['hasReminder'] = newHasReminder;
-      if (isCompleted != currentData['isCompleted'])
-        updateData['isCompleted'] = isCompleted;
-
-      // Only update time fields if they've actually changed
-      if (newStartTime != null &&
-          (currentData['startTime'] == null ||
-              newStartTime !=
-                  (currentData['startTime'] as Timestamp).toDate())) {
-        updateData['startTime'] = Timestamp.fromDate(newStartTime);
-      }
-      if (newEndTime != null &&
-          (currentData['endTime'] == null ||
-              newEndTime != (currentData['endTime'] as Timestamp).toDate())) {
-        updateData['endTime'] = Timestamp.fromDate(newEndTime);
-      }
-      if (newReminderTime != null &&
-          (currentData['reminderTime'] == null ||
-              newReminderTime !=
-                  (currentData['reminderTime'] as Timestamp).toDate())) {
-        updateData['reminderTime'] = Timestamp.fromDate(newReminderTime);
+      void addToUpdateAndLog(String field, dynamic newValue, dynamic oldValue) {
+        if (newValue != oldValue) {
+          updateData[field] = newValue;
+          changeLog[field] = {'old': oldValue, 'new': newValue};
+        }
       }
 
-      // Only perform the update if there are changes
+      addToUpdateAndLog('title', newTitle, currentData['title']);
+      addToUpdateAndLog('description', newDescription, currentData['description']);
+      addToUpdateAndLog('date', Timestamp.fromDate(newDate), currentData['date']);
+      addToUpdateAndLog('color', newColor.value, currentData['color']);
+      addToUpdateAndLog('hasReminder', newHasReminder, currentData['hasReminder']);
+
+      if (newStartTime != null) {
+        addToUpdateAndLog('startTime', Timestamp.fromDate(newStartTime), currentData['startTime']);
+      }
+      if (newEndTime != null) {
+        addToUpdateAndLog('endTime', Timestamp.fromDate(newEndTime), currentData['endTime']);
+      }
+      if (newReminderTime != null) {
+        addToUpdateAndLog('reminderTime', Timestamp.fromDate(newReminderTime), currentData['reminderTime']);
+      }
+
       if (updateData.isNotEmpty) {
+        // If the event was completed and is being edited, add a flag
+        if (wasCompleted && completedAt != null) {
+          updateData['editedAfterCompletion'] = true;
+          // Add the change log to Firestore
+          updateData['changeLog'] = FieldValue.arrayUnion([{
+            'timestamp': Timestamp.now(),
+            'changes': changeLog
+          }]);
+        }
+
+        // Ensure isCompleted remains true if it was already completed
+        updateData['isCompleted'] = wasCompleted;
+
         await eventsCollection.doc(eventId).update(updateData);
 
         QuickEventModel updatedEvent = QuickEventModel(
@@ -344,21 +348,19 @@ class CalendarController extends GetxController {
           title: newTitle,
           description: newDescription,
           date: newDate,
-          startTime: newStartTime ??
-              (currentData['startTime'] as Timestamp?)?.toDate(),
-          endTime:
-              newEndTime ?? (currentData['endTime'] as Timestamp?)?.toDate(),
+          startTime: newStartTime ?? (currentData['startTime'] as Timestamp?)?.toDate(),
+          endTime: newEndTime ?? (currentData['endTime'] as Timestamp?)?.toDate(),
           color: newColor,
           hasReminder: newHasReminder,
-          reminderTime: newReminderTime ??
-              (currentData['reminderTime'] as Timestamp?)?.toDate(),
-          isCompleted: isCompleted,
+          reminderTime: newReminderTime ?? (currentData['reminderTime'] as Timestamp?)?.toDate(),
+          isCompleted: wasCompleted,
           createdAt: (currentData['createdAt'] as Timestamp).toDate(),
+          editedAfterCompletion: wasCompleted && updateData['editedAfterCompletion'] == true,
         );
 
-        if (newHasReminder && updatedEvent.reminderTime != null) {
+        if (newHasReminder && updatedEvent.reminderTime != null && !updatedEvent.isCompleted!) {
           await updateNotification(updatedEvent);
-        } else if (!newHasReminder) {
+        } else {
           await cancelNotification(updatedEvent);
         }
 
@@ -372,6 +374,7 @@ class CalendarController extends GetxController {
       print('Error updating event: $e');
     }
   }
+
 
   void addToArchive(String eventId) async {
     if (currentUser == null) return;
@@ -484,33 +487,31 @@ class CalendarController extends GetxController {
     };
   }
 
-  void toggleEventCompletion(String eventId) async {
+ void toggleEventCompletion(String eventId) async {
     if (currentUser == null) return;
     try {
       DocumentSnapshot eventDoc = await eventsCollection.doc(eventId).get();
       if (eventDoc.exists) {
         bool currentStatus = eventDoc.get('isCompleted') ?? false;
-        bool newStatus = !currentStatus;
-        await eventsCollection.doc(eventId).update({'isCompleted': newStatus});
-        
-        if (newStatus) {
-          // If the event is now completed, cancel the reminder
+        if (!currentStatus) {  // Only allow toggling to completed state
+          await eventsCollection.doc(eventId).update({
+            'isCompleted': true,
+            'completedAt': FieldValue.serverTimestamp(),
+          });
+          
           QuickEventModel event = QuickEventModel.fromFirestore(eventDoc);
           if (event.hasReminder) {
             await cancelNotification(event);
-            // Also update the hasReminder field in Firestore
-            await eventsCollection.doc(eventId).update({'hasReminder': false});
+            await eventsCollection.doc(eventId).update({'hasReminder': false},);
           }
           HapticFeedback.mediumImpact();
         }
-        
         fetchEvents(selectedDay.value);
       }
     } catch (e) {
       print('Error toggling event completion: $e');
     }
   }
-
   //toggle event reminder
   void toggleEventReminder(String eventId) async {
     if (currentUser == null) return;
