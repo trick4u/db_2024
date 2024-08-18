@@ -136,68 +136,24 @@ class EventCard extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          if (event.startTime != null)
-            Column(
-              children: [
-                Text(
-                  DateFormat('h:mm a').format(event.startTime!),
-                  style: TextStyle(
-                    fontWeight: FontWeight.w500,
-                    fontSize: 12,
-                  ),
-                ),
-                Text(
-                  DateFormat('MMM').format(event.startTime!),
-                  style: TextStyle(
-                    fontWeight: FontWeight.w400,
-                    fontSize: 10,
-                    color: Colors.grey,
-                  ),
-                ),
-              ],
+          Text(
+            DateFormat('MMM d').format(event.date),
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              fontSize: 14,
             ),
-          if (event.startTime != null && event.endTime != null)
-            SizedBox(height: 4),
-          if (event.endTime != null)
-            Column(
-              children: [
-                Text(
-                  DateFormat('h:mm a').format(event.endTime!),
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 12,
-                  ),
-                ),
-                Text(
-                  DateFormat('MMM').format(event.endTime!),
-                  style: TextStyle(
-                    fontWeight: FontWeight.w400,
-                    fontSize: 10,
-                    color: Colors.grey,
-                  ),
-                ),
-              ],
+          ),
+          SizedBox(height: 4),
+          Text(
+            event.startTime != null
+                ? DateFormat('h:mm a').format(event.startTime!)
+                : DateFormat('h:mm a').format(event.date),
+            style: TextStyle(
+              fontWeight: FontWeight.w500,
+              fontSize: 12,
+              color: Colors.grey,
             ),
-          if (event.startTime == null && event.endTime == null)
-            Column(
-              children: [
-                Text(
-                  DateFormat('h:mm a').format(event.date),
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 12,
-                  ),
-                ),
-                Text(
-                  DateFormat('MMM').format(event.date),
-                  style: TextStyle(
-                    fontWeight: FontWeight.w400,
-                    fontSize: 10,
-                    color: Colors.grey,
-                  ),
-                ),
-              ],
-            ),
+          ),
         ],
       ),
     );
@@ -215,7 +171,7 @@ class EventCard extends StatelessWidget {
     );
   }
 
-  Widget _buildCardContent() {
+   Widget _buildCardContent() {
     return GetBuilder<CalendarController>(
       builder: (controller) => GestureDetector(
         onTap: () => controller.toggleEventExpansion(event.id),
@@ -305,7 +261,7 @@ class EventCard extends StatelessWidget {
             if (event.hasReminder)
               Positioned(
                 top: 15,
-                right: 20,
+                right: event.isCompleted == true ? 40 : 20,
                 child: GestureDetector(
                   onTap: () {
                     final calendarController = Get.find<CalendarController>();
@@ -325,4 +281,5 @@ class EventCard extends StatelessWidget {
       ),
     );
   }
+
 }

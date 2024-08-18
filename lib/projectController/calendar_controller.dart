@@ -491,12 +491,19 @@ class CalendarController extends GetxController {
       if (eventDoc.exists) {
         bool currentStatus = eventDoc.get('isCompleted') ?? false;
         bool newStatus = !currentStatus;
-        await eventsCollection
-            .doc(eventId)
-            .update({'isCompleted': !currentStatus});
+        await eventsCollection.doc(eventId).update({'isCompleted': newStatus});
+        
         if (newStatus) {
+          // If the event is now completed, cancel the reminder
+          QuickEventModel event = QuickEventModel.fromFirestore(eventDoc);
+          if (event.hasReminder) {
+            await cancelNotification(event);
+            // Also update the hasReminder field in Firestore
+            await eventsCollection.doc(eventId).update({'hasReminder': false});
+          }
           HapticFeedback.mediumImpact();
         }
+        
         fetchEvents(selectedDay.value);
       }
     } catch (e) {

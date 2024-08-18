@@ -178,10 +178,15 @@ class StatisticsScreen extends GetWidget<StatisticsController> {
               SizedBox(
                 height: 200,
                 child: Obx(() {
+                  List<int> currentData = controller.showCompletedTasks.value
+                      ? controller.weeklyTaskCompletion
+                      : controller.weeklyPendingTasks;
+                  bool hasData = currentData.any((count) => count > 0);
+
                   return BarChart(
-                    BarChartData(
+                       BarChartData(
                       alignment: BarChartAlignment.spaceAround,
-                      maxY: 8,
+                      maxY: hasData ? _getMaxY(currentData) : 8,
                       minY: 0,
                       gridData: FlGridData(
                         show: true,
@@ -244,37 +249,22 @@ class StatisticsScreen extends GetWidget<StatisticsController> {
                         rightTitles: AxisTitles(
                             sideTitles: SideTitles(showTitles: false)),
                       ),
-                      borderData: FlBorderData(show: false),
-                      barGroups: controller.hasDataForWeek.value
-                          ? List.generate(7, (index) {
-                              return BarChartGroupData(
-                                x: index,
-                                barRods: [
-                                  BarChartRodData(
-                                    toY: controller.showCompletedTasks.value
-                                        ? controller.weeklyTaskCompletion[index]
-                                            .toDouble()
-                                        : controller.weeklyPendingTasks[index]
-                                            .toDouble(),
-                                    color: controller.showCompletedTasks.value
-                                        ? appTheme.colorScheme.primary
-                                        : appTheme.colorScheme.error,
-                                  )
-                                ],
-                              );
-                            })
-                          : List.generate(7, (index) {
-                              return BarChartGroupData(
-                                x: index,
-                                barRods: [
-                                  BarChartRodData(
-                                    toY: 0,
-                                    color: appTheme.secondaryTextColor
-                                        .withOpacity(0.2),
-                                  )
-                                ],
-                              );
-                            }),
+                            borderData: FlBorderData(show: false),
+                      barGroups: List.generate(7, (index) {
+                        return BarChartGroupData(
+                          x: index,
+                          barRods: [
+                            BarChartRodData(
+                              toY: currentData[index].toDouble(),
+                              color: hasData
+                                  ? (controller.showCompletedTasks.value
+                                      ? appTheme.colorScheme.primary
+                                      : appTheme.colorScheme.error)
+                                  : appTheme.secondaryTextColor.withOpacity(0.2),
+                            )
+                          ],
+                        );
+                      }),
                       barTouchData: BarTouchData(enabled: false),
                       extraLinesData: ExtraLinesData(
                         extraLinesOnTop: true,
@@ -284,7 +274,7 @@ class StatisticsScreen extends GetWidget<StatisticsController> {
                             color: Colors.transparent,
                             strokeWidth: 1,
                             label: HorizontalLineLabel(
-                              show: !controller.hasDataForWeek.value,
+                              show: !hasData,
                               alignment: Alignment.center,
                               style: TextStyle(
                                 color: appTheme.secondaryTextColor,
@@ -306,15 +296,10 @@ class StatisticsScreen extends GetWidget<StatisticsController> {
     );
   }
 
-  double _getMaxY() {
-    List<int> data = controller.showCompletedTasks.value
-        ? controller.weeklyTaskCompletion
-        : controller.weeklyPendingTasks;
-    double maxValue =
-        data.reduce((curr, next) => curr > next ? curr : next).toDouble();
+ double _getMaxY(List<int> data) {
+    double maxValue = data.reduce((curr, next) => curr > next ? curr : next).toDouble();
     return maxValue > 8 ? maxValue : 8; // Ensure minimum of 8 for Y-axis
   }
-
   Widget _buildUpcomingTasks(AppTheme appTheme) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,

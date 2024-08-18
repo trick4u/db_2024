@@ -37,7 +37,6 @@ import '../widgets/three_shaped_box.dart';
 import 'main_screen.dart';
 import 'music_page.dart';
 
-
 class PageOneScreen extends GetWidget<PageOneController> {
   final appTheme = Get.find<AppTheme>();
 
@@ -313,13 +312,13 @@ class PageOneScreen extends GetWidget<PageOneController> {
   String _getListTitle(String listType) {
     switch (listType) {
       case 'upcoming':
-        return 'Upcoming Tasks';
+        return 'Upcoming Tasks'.toLowerCase();
       case 'pending':
-        return 'Pending Tasks';
+        return 'Pending Tasks'.toLowerCase();
       case 'completed tasks':
-        return 'Completed Tasks';
+        return 'Completed Tasks'.toLowerCase();
       case 'all reminders':
-        return 'all reminders';
+        return 'all reminders'.toLowerCase();
       default:
         return '';
     }

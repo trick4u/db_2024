@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
@@ -35,6 +34,11 @@ class StatisticsController extends GetxController {
     ever(pageOneController.completedEvents, (_) => updateStatistics());
 
     updateStatistics();
+  }
+
+  bool hasDataForCurrentWeek() {
+    return weeklyTaskCompletion.any((count) => count > 0) ||
+        weeklyPendingTasks.any((count) => count > 0);
   }
 
   void setCurrentWeekStart(DateTime date) {
