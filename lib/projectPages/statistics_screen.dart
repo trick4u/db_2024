@@ -321,7 +321,7 @@ class StatisticsScreen extends GetWidget<StatisticsController> {
               return ListTile(
                 title: Text(task.title, style: appTheme.bodyMedium),
                 subtitle: Text(
-                  DateFormat('MMM dd, yyyy - h:mm a').format(task.createdAt),
+                  DateFormat('MMM dd, yyyy - h:mm a').format(task.createdAt?? DateTime.now()),
                   style: appTheme.bodyMedium.copyWith(
                     color: appTheme.secondaryTextColor,
                   ),

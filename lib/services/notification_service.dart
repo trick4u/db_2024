@@ -2,6 +2,7 @@ import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:get/get.dart';
 
 import '../app_routes.dart';
+import '../projectController/calendar_controller.dart';
 import 'notification_tracking_service.dart';
 
 class NotificationService  extends GetxController{
@@ -22,11 +23,12 @@ class NotificationService  extends GetxController{
    static Future<void> onNotificationDisplayedMethod(ReceivedNotification receivedNotification) async {
     // Handle notification display
     print('Notification displayed: ${receivedNotification.id}');
-    // Convert ReceivedNotification to ReceivedAction
-    final receivedAction = ReceivedAction(
     
-    );
-    Get.find<NotificationTrackingService>().trackDisplayedNotification(receivedAction);
+   if (receivedNotification.id != null) {
+      Get.find<CalendarController>().markNotificationAsDisplayed(receivedNotification.id!);
+    }
+    // Use the received notification directly
+   // Get.find<NotificationTrackingService>().trackDisplayedNotification(receivedNotification);
   }
 
   static Future<void> onDismissActionReceivedMethod(ReceivedAction receivedAction) async {

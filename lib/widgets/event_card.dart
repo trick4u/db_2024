@@ -272,7 +272,7 @@ class EventCard extends StatelessWidget {
                 ),
               ),
             ),
-            if (event.hasReminder)
+           if (event.hasReminder && !event.notificationDisplayed)
               Positioned(
                 top: 15,
                 right: event.isCompleted == true ? 40 : 20,
@@ -282,11 +282,9 @@ class EventCard extends StatelessWidget {
                     calendarController.toggleEventReminder(event.id);
                   },
                   child: Icon(
-                    event.hasReminder
-                        ? Icons.notifications_active
-                        : Icons.notifications_off,
+                    Icons.notifications_active,
                     size: 18,
-                    color: event.hasReminder ? Colors.blue : Colors.grey,
+                    color: Colors.blue,
                   ),
                 ),
               ),

@@ -6,15 +6,16 @@ class QuickEventModel {
   final String title;
   final String description;
   final DateTime date;
-  late final DateTime? startTime;
-  late final DateTime? endTime;
+  final DateTime? startTime;
+  final DateTime? endTime;
   final Color color;
   final bool hasReminder;
-  DateTime? reminderTime;
-  bool? isCompleted;
-  final DateTime createdAt;
-  final bool editedAfterCompletion;
-  final DateTime? completedAt;  // New field
+  final DateTime? reminderTime;
+  final bool? isCompleted;
+  final DateTime? createdAt;
+  final bool? editedAfterCompletion;
+  final DateTime? completedAt;
+  final bool notificationDisplayed;
 
   QuickEventModel({
     required this.id,
@@ -27,37 +28,39 @@ class QuickEventModel {
     required this.hasReminder,
     this.reminderTime,
     this.isCompleted,
-    required this.createdAt,
-    this.editedAfterCompletion = false,
-    this.completedAt,  // Add this to the constructor
+    this.createdAt,
+    this.editedAfterCompletion,
+    this.completedAt,
+    this.notificationDisplayed = false,
   });
 
   factory QuickEventModel.fromFirestore(DocumentSnapshot doc) {
-    Map data = doc.data() as Map<String, dynamic>;
+    Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
+    
+    DateTime? parseTimestamp(dynamic value) {
+      if (value is Timestamp) {
+        return value.toDate();
+      } else if (value is DateTime) {
+        return value;
+      }
+      return null;
+    }
+
     return QuickEventModel(
       id: doc.id,
       title: data['title'] ?? '',
       description: data['description'] ?? '',
-      date: (data['date'] as Timestamp).toDate(),
-      startTime: data['startTime'] != null
-          ? (data['startTime'] as Timestamp).toDate()
-          : null,
-      endTime: data['endTime'] != null
-          ? (data['endTime'] as Timestamp).toDate()
-          : null,
+      date: parseTimestamp(data['date']) ?? DateTime.now(),
+      startTime: parseTimestamp(data['startTime']),
+      endTime: parseTimestamp(data['endTime']),
       color: Color(data['color'] ?? 0xFF000000),
       hasReminder: data['hasReminder'] ?? false,
-      reminderTime: data['reminderTime'] != null
-          ? (data['reminderTime'] as Timestamp).toDate()
-          : null,
-      isCompleted: data['isCompleted'] ?? false,
-      createdAt: data['createdAt'] != null
-          ? (data['createdAt'] as Timestamp).toDate()
-          : DateTime.now(),
-      editedAfterCompletion: data['editedAfterCompletion'] ?? false,
-      completedAt: data['completedAt'] != null
-          ? (data['completedAt'] as Timestamp).toDate()
-          : null,  // Parse completedAt from Firestore
+      reminderTime: parseTimestamp(data['reminderTime']),
+      isCompleted: data['isCompleted'],
+      createdAt: parseTimestamp(data['createdAt']),
+      editedAfterCompletion: data['editedAfterCompletion'],
+      completedAt: parseTimestamp(data['completedAt']),
+      notificationDisplayed: data['notificationDisplayed'] ?? false,
     );
   }
 }

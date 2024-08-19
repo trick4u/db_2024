@@ -39,6 +39,7 @@ class CalendarController extends GetxController {
   @override
   void onInit() {
     super.onInit();
+
     fetchEvents(selectedDay.value);
   }
 
@@ -114,8 +115,6 @@ class CalendarController extends GetxController {
 
   void fetchEvents(DateTime day) {
     if (currentUser == null) return;
-    events.clear();
-    eventsGrouped.clear();
 
     DateTime startOfMonth = DateTime(day.year, day.month, 1);
     DateTime endOfMonth = DateTime(day.year, day.month + 1, 0, 23, 59, 59);
@@ -125,19 +124,24 @@ class CalendarController extends GetxController {
         .where('date', isLessThanOrEqualTo: Timestamp.fromDate(endOfMonth))
         .snapshots()
         .listen((querySnapshot) {
-      eventsGrouped.clear();
-      events.clear(); // Clear the events list
+      Map<DateTime, List<QuickEventModel>> newEventsGrouped = {};
+      List<QuickEventModel> newEvents = [];
+
       for (var doc in querySnapshot.docs) {
         QuickEventModel event = QuickEventModel.fromFirestore(doc);
         DateTime eventDate =
             DateTime(event.date.year, event.date.month, event.date.day);
-        if (!eventsGrouped.containsKey(eventDate)) {
-          eventsGrouped[eventDate] = [];
+
+        if (!newEventsGrouped.containsKey(eventDate)) {
+          newEventsGrouped[eventDate] = [];
         }
-        eventsGrouped[eventDate]!.add(event);
-        events.add(event); // Add the event to the events list
+        newEventsGrouped[eventDate]!.add(event);
+        newEvents.add(event);
       }
-      print('Fetched events: ${eventsGrouped.length} days with events');
+
+      eventsGrouped.value = newEventsGrouped;
+      events.value = newEvents;
+
       update();
     });
   }
@@ -211,8 +215,17 @@ class CalendarController extends GetxController {
                 );
               }
             } else {
-              updateEvent(event.id, title, description, date, startDateTime,
-                  endDateTime, color, hasReminder, reminderTime, );
+              updateEvent(
+                event.id,
+                title,
+                description,
+                date,
+                startDateTime,
+                endDateTime,
+                color,
+                hasReminder,
+                reminderTime,
+              );
             }
           },
         ),
@@ -283,7 +296,7 @@ class CalendarController extends GetxController {
     }
   }
 
-   void updateEvent(
+  void updateEvent(
       String eventId,
       String newTitle,
       String newDescription,
@@ -296,7 +309,8 @@ class CalendarController extends GetxController {
     if (currentUser == null) return;
     try {
       DocumentSnapshot eventDoc = await eventsCollection.doc(eventId).get();
-      Map<String, dynamic> currentData = eventDoc.data() as Map<String, dynamic>;
+      Map<String, dynamic> currentData =
+          eventDoc.data() as Map<String, dynamic>;
 
       bool wasCompleted = currentData['isCompleted'] ?? false;
       Timestamp? completedAt = currentData['completedAt'] as Timestamp?;
@@ -312,19 +326,25 @@ class CalendarController extends GetxController {
       }
 
       addToUpdateAndLog('title', newTitle, currentData['title']);
-      addToUpdateAndLog('description', newDescription, currentData['description']);
-      addToUpdateAndLog('date', Timestamp.fromDate(newDate), currentData['date']);
+      addToUpdateAndLog(
+          'description', newDescription, currentData['description']);
+      addToUpdateAndLog(
+          'date', Timestamp.fromDate(newDate), currentData['date']);
       addToUpdateAndLog('color', newColor.value, currentData['color']);
-      addToUpdateAndLog('hasReminder', newHasReminder, currentData['hasReminder']);
+      addToUpdateAndLog(
+          'hasReminder', newHasReminder, currentData['hasReminder']);
 
       if (newStartTime != null) {
-        addToUpdateAndLog('startTime', Timestamp.fromDate(newStartTime), currentData['startTime']);
+        addToUpdateAndLog('startTime', Timestamp.fromDate(newStartTime),
+            currentData['startTime']);
       }
       if (newEndTime != null) {
-        addToUpdateAndLog('endTime', Timestamp.fromDate(newEndTime), currentData['endTime']);
+        addToUpdateAndLog(
+            'endTime', Timestamp.fromDate(newEndTime), currentData['endTime']);
       }
       if (newReminderTime != null) {
-        addToUpdateAndLog('reminderTime', Timestamp.fromDate(newReminderTime), currentData['reminderTime']);
+        addToUpdateAndLog('reminderTime', Timestamp.fromDate(newReminderTime),
+            currentData['reminderTime']);
       }
 
       if (updateData.isNotEmpty) {
@@ -332,10 +352,9 @@ class CalendarController extends GetxController {
         if (wasCompleted && completedAt != null) {
           updateData['editedAfterCompletion'] = true;
           // Add the change log to Firestore
-          updateData['changeLog'] = FieldValue.arrayUnion([{
-            'timestamp': Timestamp.now(),
-            'changes': changeLog
-          }]);
+          updateData['changeLog'] = FieldValue.arrayUnion([
+            {'timestamp': Timestamp.now(), 'changes': changeLog}
+          ]);
         }
 
         await eventsCollection.doc(eventId).update(updateData);
@@ -345,18 +364,24 @@ class CalendarController extends GetxController {
           title: newTitle,
           description: newDescription,
           date: newDate,
-          startTime: newStartTime ?? (currentData['startTime'] as Timestamp?)?.toDate(),
-          endTime: newEndTime ?? (currentData['endTime'] as Timestamp?)?.toDate(),
+          startTime: newStartTime ??
+              (currentData['startTime'] as Timestamp?)?.toDate(),
+          endTime:
+              newEndTime ?? (currentData['endTime'] as Timestamp?)?.toDate(),
           color: newColor,
           hasReminder: newHasReminder,
-          reminderTime: newReminderTime ?? (currentData['reminderTime'] as Timestamp?)?.toDate(),
+          reminderTime: newReminderTime ??
+              (currentData['reminderTime'] as Timestamp?)?.toDate(),
           isCompleted: wasCompleted,
           createdAt: (currentData['createdAt'] as Timestamp).toDate(),
-          editedAfterCompletion: wasCompleted && updateData['editedAfterCompletion'] == true,
+          editedAfterCompletion:
+              wasCompleted && updateData['editedAfterCompletion'] == true,
           completedAt: completedAt?.toDate(),
         );
 
-        if (newHasReminder && updatedEvent.reminderTime != null && !updatedEvent.isCompleted!) {
+        if (newHasReminder &&
+            updatedEvent.reminderTime != null &&
+            !updatedEvent.isCompleted!) {
           await updateNotification(updatedEvent);
         } else {
           await cancelNotification(updatedEvent);
@@ -372,7 +397,6 @@ class CalendarController extends GetxController {
       print('Error updating event: $e');
     }
   }
-
 
   void addToArchive(String eventId) async {
     if (currentUser == null) return;
@@ -402,6 +426,34 @@ class CalendarController extends GetxController {
   }
 
   //notifications
+  Future<void> markNotificationAsDisplayed(int notificationId) async {
+    // Fetch the eventId using the notificationId
+    DocumentSnapshot mappingDoc = await FirebaseFirestore.instance
+        .collection('notificationMappings')
+        .doc(notificationId.toString())
+        .get();
+
+    if (mappingDoc.exists) {
+      String eventId = mappingDoc.get('eventId');
+
+      // Update the event in Firestore
+      await eventsCollection.doc(eventId).update({
+        'notificationDisplayed': true,
+      });
+
+      // Delete the mapping document as it's no longer needed
+      await FirebaseFirestore.instance
+          .collection('notificationMappings')
+          .doc(notificationId.toString())
+          .delete();
+
+      // Refresh the events to update the UI
+      fetchEvents(selectedDay.value);
+    } else {
+      print('No mapping found for notification ID: $notificationId');
+    }
+  }
+
   Future<void> scheduleNotification(QuickEventModel event) async {
     if (!event.hasReminder || event.reminderTime == null) return;
 
@@ -443,8 +495,10 @@ class CalendarController extends GetxController {
         allowWhileIdle: true,
       ),
     );
-    var profileController = Get.find<ProfileController>();
-    profileController.fetchNotifications();
+    await FirebaseFirestore.instance
+        .collection('notificationMappings')
+        .doc(notificationId.toString())
+        .set({'eventId': event.id});
 
     print('Notification scheduled for: ${scheduledDate.toString()}');
   }
@@ -494,7 +548,7 @@ class CalendarController extends GetxController {
         Map<String, dynamic> updateData = {
           'isCompleted': !currentStatus,
         };
-        
+
         if (!currentStatus) {
           // If marking as complete, add completedAt timestamp
           updateData['completedAt'] = FieldValue.serverTimestamp();
@@ -503,15 +557,15 @@ class CalendarController extends GetxController {
           updateData['completedAt'] = FieldValue.delete();
           updateData['editedAfterCompletion'] = FieldValue.delete();
         }
-        
+
         await eventsCollection.doc(eventId).update(updateData);
-        
+
         QuickEventModel event = QuickEventModel.fromFirestore(eventDoc);
         if (!currentStatus && event.hasReminder) {
           await cancelNotification(event);
           await eventsCollection.doc(eventId).update({'hasReminder': false});
         }
-        
+
         HapticFeedback.mediumImpact();
         fetchEvents(selectedDay.value);
       }
@@ -519,6 +573,7 @@ class CalendarController extends GetxController {
       print('Error toggling event completion: $e');
     }
   }
+
   //toggle event reminder
   void toggleEventReminder(String eventId) async {
     if (currentUser == null) return;
