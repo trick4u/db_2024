@@ -5,6 +5,7 @@ import 'package:get/get.dart';
 
 import '../models/note_model.dart';
 
+
 class NoteTakingController extends GetxController {
   final titleController = TextEditingController();
   final subTasks = <TextEditingController>[].obs;
@@ -12,6 +13,7 @@ class NoteTakingController extends GetxController {
   final _canSave = false.obs;
   final _selectedDate = DateTime.now().obs;
   final _notes = <Note>[].obs;
+  final isLoading = true.obs;
 
   bool get canAddSubTask => _canAddSubTask.value;
   bool get canSave => _canSave.value;
@@ -47,6 +49,16 @@ class NoteTakingController extends GetxController {
           subTasks.last.text.trim().isNotEmpty && subTasks.length < maxSubTasks;
     }
     _canSave.value = titleController.text.trim().isNotEmpty;
+  }
+
+  void initializeForEditing(Note note) {
+    titleController.text = note.title;
+    subTasks.clear();
+    for (var subTask in note.subTasks) {
+      subTasks.add(TextEditingController(text: subTask));
+    }
+    _selectedDate.value = note.date;
+    _updateState();
   }
 
   void addSubTask() {
@@ -103,10 +115,42 @@ class NoteTakingController extends GetxController {
     }
   }
 
+  Future<void> updateNote(String noteId) async {
+    if (currentUser == null) {
+      Get.snackbar('Error', 'You must be logged in to update notes');
+      return;
+    }
+
+    if (canSave) {
+      final updatedNote = Note(
+        id: noteId,
+        title: titleController.text.trim(),
+        subTasks: subTasks.map((controller) => controller.text.trim()).toList(),
+        date: selectedDate,
+        userId: currentUser!.uid,
+      );
+
+      try {
+        await notesCollection.doc(noteId).update(updatedNote.toMap());
+        int index = _notes.indexWhere((n) => n.id == noteId);
+        if (index != -1) {
+          _notes[index] = updatedNote;
+        }
+        Get.back(); // Close the bottom sheet
+        clearFields();
+        Get.snackbar('Success', 'Note updated successfully');
+      } catch (e) {
+        print('Error updating note: $e');
+        Get.snackbar('Error', 'Failed to update note');
+      }
+    }
+  }
+
   Future<void> fetchNotes() async {
     if (currentUser == null) return;
 
     try {
+      isLoading.value = true;
       QuerySnapshot querySnapshot =
           await notesCollection.orderBy('date', descending: true).get();
       _notes.value = querySnapshot.docs
@@ -116,22 +160,8 @@ class NoteTakingController extends GetxController {
     } catch (e) {
       print('Error fetching notes: $e');
       Get.snackbar('Error', 'Failed to fetch notes');
-    }
-  }
-
-  Future<void> updateNote(Note note) async {
-    if (currentUser == null) return;
-
-    try {
-      await notesCollection.doc(note.id).update(note.toMap());
-      int index = _notes.indexWhere((n) => n.id == note.id);
-      if (index != -1) {
-        _notes[index] = note;
-      }
-      Get.snackbar('Success', 'Note updated successfully');
-    } catch (e) {
-      print('Error updating note: $e');
-      Get.snackbar('Error', 'Failed to update note');
+    } finally {
+      isLoading.value = false;
     }
   }
 

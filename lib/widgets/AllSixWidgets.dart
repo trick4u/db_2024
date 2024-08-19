@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
 import 'package:tushar_db/app_routes.dart';
 
@@ -23,15 +24,15 @@ class AllSixCards extends GetWidget<PageOneController> {
     required this.onListTypeSelected,
   });
 
-  final List<Map<String, String>> items = [
-    {'title': 'Daily journal'},
-    {'title': 'Take notes'},
-    {'title': 'All reminders'},
-    {'title': 'Completed tasks'},
-    {'title': 'Upcoming'},
-    {'title': 'Vision'},
-    {'title': 'Pending'},
-    {'title': 'Add Reminders +'},
+  final List<Map<String, dynamic>> items = [
+    {'title': 'Daily journal', 'icon': FontAwesomeIcons.book},
+    {'title': 'Take notes', 'icon': FontAwesomeIcons.noteSticky},
+    {'title': 'All reminders', 'icon': FontAwesomeIcons.listCheck},
+    {'title': 'Completed tasks', 'icon': FontAwesomeIcons.checkDouble},
+    {'title': 'Upcoming', 'icon': FontAwesomeIcons.calendarDay},
+    {'title': 'Vision', 'icon': FontAwesomeIcons.eye},
+    {'title': 'Pending', 'icon': FontAwesomeIcons.clock},
+    {'title': 'Add Reminders', 'icon': FontAwesomeIcons.plus},
   ];
   final RxString selectedTile = ''.obs;
   void _initializeSelectedTile() {
@@ -91,7 +92,7 @@ class AllSixCards extends GetWidget<PageOneController> {
                   Get.toNamed(AppRoutes.JOURNAL);
                 } else if (tileTitle == 'take notes') {
                   Get.toNamed(AppRoutes.NOTETAKING);
-                } 
+                }
               },
               child: Container(
                 decoration: BoxDecoration(
@@ -106,16 +107,32 @@ class AllSixCards extends GetWidget<PageOneController> {
                           : Colors.deepPurpleAccent,
                 ),
                 alignment: Alignment.center,
-                child: Text(
-                  items[index]['title']!.toLowerCase(),
-                  style: AppTextTheme.textTheme.bodyMedium?.copyWith(
-                    fontWeight: FontWeight.w500,
-                    color: selectedTile.value ==
-                            items[index]['title']!.toLowerCase()
-                        ? Colors.deepPurpleAccent
-                        : Colors.white,
-                  ),
-                  textAlign: TextAlign.center,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      items[index]['title']!.toLowerCase(),
+                      style: AppTextTheme.textTheme.bodyMedium?.copyWith(
+                        fontWeight: FontWeight.w500,
+                        color: selectedTile.value ==
+                                items[index]['title']!.toLowerCase()
+                            ? Colors.deepPurpleAccent
+                            : Colors.white,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                    if (items[index]['icon'] != null) ...[
+                      SizedBox(width: 8),
+                      FaIcon(
+                        items[index]['icon'],
+                        size: 16,
+                        color: selectedTile.value ==
+                                items[index]['title']!.toLowerCase()
+                            ? Colors.deepPurpleAccent
+                            : Colors.white,
+                      ),
+                    ]
+                  ],
                 ),
               ),
             ));

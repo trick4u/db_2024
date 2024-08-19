@@ -5,6 +5,7 @@ import 'package:get/get.dart';
 import 'package:omni_datetime_picker/omni_datetime_picker.dart';
 import 'package:tushar_db/projectController/note_taking_controller.dart';
 
+import '../models/note_model.dart';
 import '../services/app_theme.dart';
 
 class NoteTakingScreen extends GetWidget<NoteTakingController> {
@@ -15,18 +16,36 @@ class NoteTakingScreen extends GetWidget<NoteTakingController> {
       appBar: AppBar(
         title: Text('Notes'),
       ),
-      body: Container(),
+      body: Obx(() => ListView.builder(
+            itemCount: controller.notes.length,
+            itemBuilder: (context, index) {
+              Note note = controller.notes[index];
+              return ListTile(
+                title: Text(note.title, style: appTheme.bodyMedium),
+                subtitle: Text(
+                  note.subTasks[0],
+                  style: appTheme.bodyMedium,
+                ),
+              trailing: IconButton(
+                icon: Icon(Icons.edit),
+                onPressed: () => _showNoteBottomSheet(context, note),
+              ),
+                onTap: () {
+                  // TODO: Implement note detail view
+                },
+              );
+            },
+          )),
       floatingActionButton: FloatingActionButton(
         child: Icon(Icons.add),
         onPressed: () {
-          _showNoteBottomSheet(context);
+          _showNoteBottomSheet(context,null);
         },
         backgroundColor: appTheme.colorScheme.primary,
       ),
     );
   }
-
-  void _showNoteBottomSheet(BuildContext context) {
+  void _showNoteBottomSheet(BuildContext context, Note? note) {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -35,17 +54,26 @@ class NoteTakingScreen extends GetWidget<NoteTakingController> {
         padding: EdgeInsets.only(
           bottom: MediaQuery.of(context).viewInsets.bottom,
         ),
-        child: NoteBottomSheet(),
+        child: NoteBottomSheet(note: note),
       ),
     );
   }
 }
 
 class NoteBottomSheet extends GetView<NoteTakingController> {
+  final Note? note;
   final AppTheme appTheme = Get.find<AppTheme>();
+
+  NoteBottomSheet({this.note});
 
   @override
   Widget build(BuildContext context) {
+    if (note != null) {
+      controller.initializeForEditing(note!);
+    } else {
+      controller.clearFields();
+    }
+
     return Padding(
       padding: const EdgeInsets.only(left: 10, right: 10, bottom: 10),
       child: Card(
@@ -62,7 +90,7 @@ class NoteBottomSheet extends GetView<NoteTakingController> {
             children: [
               Row(
                 children: [
-                  Text('Add Note', style: appTheme.titleLarge),
+                  Text(note == null ? 'Add Note' : 'Edit Note', style: appTheme.titleLarge),
                   Spacer(),
                   _buildDatePicker(context),
                   IconButton(
@@ -145,7 +173,7 @@ class NoteBottomSheet extends GetView<NoteTakingController> {
                       Obx(() => controller.subTasks.length <
                               NoteTakingController.maxSubTasks
                           ? _buildSubTaskToggleButton()
-                          : SizedBox()), //
+                          : SizedBox()),
                       SizedBox(width: 16),
                       _buildSaveIconButton(),
                     ],
@@ -246,7 +274,7 @@ class NoteBottomSheet extends GetView<NoteTakingController> {
         ));
   }
 
-  Widget _buildSaveIconButton() {
+ Widget _buildSaveIconButton() {
     return Obx(() => Container(
           decoration: BoxDecoration(
             color:
@@ -257,7 +285,15 @@ class NoteBottomSheet extends GetView<NoteTakingController> {
             color: Colors.transparent,
             child: InkWell(
               borderRadius: BorderRadius.circular(20),
-              onTap: controller.canSave ? controller.saveNote : null,
+              onTap: controller.canSave
+                  ? () {
+                      if (note == null) {
+                        controller.saveNote();
+                      } else {
+                        controller.updateNote(note?.id ?? "");
+                      }
+                    }
+                  : null,
               child: Padding(
                 padding: EdgeInsets.all(10),
                 child: Icon(
