@@ -154,7 +154,7 @@ class EventCard extends StatelessWidget {
               color: Colors.grey,
             ),
           ),
-          if (event.isCompleted == true && event.editedAfterCompletion)
+          if (event.isCompleted == true && event.editedAfterCompletion == true)
             Padding(
               padding: const EdgeInsets.only(top: 4),
               child: Text(
@@ -180,11 +180,7 @@ class EventCard extends StatelessWidget {
             : Icons.check_circle_outline,
         color: event.isCompleted == true ? Colors.green : Colors.grey,
       ),
-      onPressed: () {
-        if (event.isCompleted != true) {
-          onComplete(event);
-        }
-      },
+      onPressed: () => onComplete(event),
     );
   }
 

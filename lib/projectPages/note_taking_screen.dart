@@ -2,6 +2,7 @@ import 'package:animate_do/animate_do.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
+import 'package:omni_datetime_picker/omni_datetime_picker.dart';
 import 'package:tushar_db/projectController/note_taking_controller.dart';
 
 import '../services/app_theme.dart';
@@ -30,15 +31,11 @@ class NoteTakingScreen extends GetWidget<NoteTakingController> {
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder: (context) => SingleChildScrollView(
-        child: Container(
-          padding: EdgeInsets.only(
-            left: 10,
-            right: 10,
-            bottom: MediaQuery.of(context).viewInsets.bottom,
-          ),
-          child: NoteBottomSheet(),
+      builder: (context) => Padding(
+        padding: EdgeInsets.only(
+          bottom: MediaQuery.of(context).viewInsets.bottom,
         ),
+        child: NoteBottomSheet(),
       ),
     );
   }
@@ -49,102 +46,176 @@ class NoteBottomSheet extends GetView<NoteTakingController> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: EdgeInsets.all(16),
-      decoration: BoxDecoration(
+    return Padding(
+      padding: const EdgeInsets.only(left: 10, right: 10, bottom: 10),
+      child: Card(
+        elevation: 8,
         color: appTheme.cardColor,
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20),
+        ),
+        child: Container(
+          padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text('Add Note', style: appTheme.titleLarge),
-              IconButton(
-                icon: Icon(Icons.close, color: appTheme.textColor),
-                onPressed: () => Get.back(),
+              Row(
+                children: [
+                  Text('Add Note', style: appTheme.titleLarge),
+                  Spacer(),
+                  _buildDatePicker(context),
+                  IconButton(
+                    icon: Icon(Icons.close, color: appTheme.textColor),
+                    onPressed: () => Get.back(),
+                  ),
+                ],
               ),
-            ],
-          ),
-          SizedBox(height: 16),
-          ClipRRect(
-            borderRadius: BorderRadius.all(Radius.circular(10)),
-            child: TextField(
-              controller: controller.titleController,
-              style: appTheme.bodyMedium,
-              decoration: InputDecoration(
-                labelText: 'Note Title',
-                filled: true,
-                fillColor: appTheme.textFieldFillColor,
-                labelStyle: appTheme.bodyMedium.copyWith(
-                  color: appTheme.secondaryTextColor,
+              SizedBox(height: 10),
+              ClipRRect(
+                borderRadius: BorderRadius.all(Radius.circular(10)),
+                child: TextField(
+                  controller: controller.titleController,
+                  style: appTheme.bodyMedium,
+                  decoration: InputDecoration(
+                    labelText: 'Note Title',
+                    filled: true,
+                    fillColor: appTheme.textFieldFillColor,
+                    labelStyle: appTheme.bodyMedium.copyWith(
+                      color: appTheme.secondaryTextColor,
+                    ),
+                    border: InputBorder.none,
+                    enabledBorder: InputBorder.none,
+                    focusedBorder: InputBorder.none,
+                    errorBorder: InputBorder.none,
+                    disabledBorder: InputBorder.none,
+                    contentPadding:
+                        EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                  ),
                 ),
-                border: InputBorder.none,
-                enabledBorder: InputBorder.none,
-                focusedBorder: InputBorder.none,
-                errorBorder: InputBorder.none,
-                disabledBorder: InputBorder.none,
-                contentPadding:
-                    EdgeInsets.symmetric(horizontal: 16, vertical: 12),
               ),
-            ),
-          ),
-          SizedBox(height: 16),
-          Obx(() => Column(
-                children: controller.subTasks.asMap().entries.map((entry) {
-                  int index = entry.key;
-                  TextEditingController subTaskController = entry.value;
-                  return Padding(
-                    padding: const EdgeInsets.only(bottom: 8.0),
-                    child: Row(
-                      children: [
-                        Radio<bool>(
-                          value: false,
-                          groupValue: null,
-                          onChanged: (value) {},
-                          activeColor: appTheme.colorScheme.primary,
-                        ),
-                        Expanded(
-                          child: TextField(
-                            controller: subTaskController,
-                            style: appTheme.bodyMedium,
-                            maxLength: 70,
-                            decoration: InputDecoration(
-                              hintText: 'Input the sub-task',
-                              hintStyle: appTheme.bodyMedium
-                                  .copyWith(color: appTheme.secondaryTextColor),
-                              border: InputBorder.none,
-                              counterText: '',
-                              suffixIcon: IconButton(
-                                icon: Icon(Icons.close,
-                                    size: 18,
-                                    color: appTheme.secondaryTextColor),
-                                onPressed: () =>
-                                    controller.removeSubTask(index),
+              SizedBox(height: 10),
+              Obx(() => Column(
+                    children: controller.subTasks.asMap().entries.map((entry) {
+                      int index = entry.key;
+                      TextEditingController subTaskController = entry.value;
+                      return Padding(
+                        padding: const EdgeInsets.only(bottom: 8.0),
+                        child: Row(
+                          children: [
+                            Radio<bool>(
+                              value: false,
+                              groupValue: null,
+                              onChanged: (value) {},
+                              activeColor: appTheme.colorScheme.primary,
+                            ),
+                            Expanded(
+                              child: TextField(
+                                controller: subTaskController,
+                                style: appTheme.bodyMedium,
+                                maxLength: 70,
+                                decoration: InputDecoration(
+                                  hintText: 'Input the sub-task',
+                                  hintStyle: appTheme.bodyMedium.copyWith(
+                                      color: appTheme.secondaryTextColor),
+                                  border: InputBorder.none,
+                                  counterText: '',
+                                  suffixIcon: IconButton(
+                                    icon: Icon(Icons.close,
+                                        size: 18,
+                                        color: appTheme.secondaryTextColor),
+                                    onPressed: () =>
+                                        controller.removeSubTask(index),
+                                  ),
+                                ),
+                                onChanged: (value) =>
+                                    controller.updateSubTask(index, value),
                               ),
                             ),
-                            onChanged: (value) =>
-                                controller.updateSubTask(index, value),
-                          ),
+                          ],
                         ),
-                      ],
-                    ),
-                  );
-                }).toList(),
-              )),
-          SizedBox(height: 16),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.end,
-            children: [
-              _buildSubTaskToggleButton(),
-              SizedBox(width: 16),
-              _buildSaveIconButton(),
+                      );
+                    }).toList(),
+                  )),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  Row(
+                    children: [
+                      Obx(() => controller.subTasks.length <
+                              NoteTakingController.maxSubTasks
+                          ? _buildSubTaskToggleButton()
+                          : SizedBox()), //
+                      SizedBox(width: 16),
+                      _buildSaveIconButton(),
+                    ],
+                  ),
+                ],
+              ),
             ],
           ),
-        ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildDatePicker(BuildContext context) {
+    return InkWell(
+      onTap: () async {
+        DateTime? pickedDate = await showOmniDateTimePicker(
+          context: context,
+          initialDate: controller.selectedDate,
+          firstDate: DateTime.now(),
+          lastDate: DateTime(2101),
+          is24HourMode: true,
+          isShowSeconds: false,
+          minutesInterval: 1,
+          secondsInterval: 1,
+          borderRadius: const BorderRadius.all(Radius.circular(16)),
+          constraints: const BoxConstraints(
+            maxWidth: 200,
+            maxHeight: 400,
+          ),
+          transitionBuilder: (context, anim1, anim2, child) {
+            return FadeTransition(
+              opacity: anim1.drive(
+                Tween(
+                  begin: 0,
+                  end: 1,
+                ),
+              ),
+              child: child,
+            );
+          },
+          transitionDuration: const Duration(milliseconds: 200),
+          barrierDismissible: true,
+          selectableDayPredicate: (dateTime) {
+            // Allow selecting any date
+            return true;
+          },
+        );
+
+        if (pickedDate != null && pickedDate != controller.selectedDate) {
+          controller.updateSelectedDate(pickedDate);
+        }
+      },
+      child: Container(
+        padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        decoration: BoxDecoration(
+          color: appTheme.colorScheme.primary,
+          borderRadius: BorderRadius.circular(8),
+        ),
+        child: Obx(() => Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(Icons.calendar_today, color: Colors.white, size: 16),
+                SizedBox(width: 8),
+                Text(
+                  '${controller.selectedDate.day}/${controller.selectedDate.month}/${controller.selectedDate.year}',
+                  style: TextStyle(color: Colors.white),
+                ),
+              ],
+            )),
       ),
     );
   }

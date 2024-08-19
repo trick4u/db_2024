@@ -1,35 +1,56 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-
+import '../models/note_model.dart';
 
 class NoteTakingController extends GetxController {
   final titleController = TextEditingController();
   final subTasks = <TextEditingController>[].obs;
   final _canAddSubTask = false.obs;
   final _canSave = false.obs;
+  final _selectedDate = DateTime.now().obs;
+  final _notes = <Note>[].obs;
 
   bool get canAddSubTask => _canAddSubTask.value;
   bool get canSave => _canSave.value;
+  DateTime get selectedDate => _selectedDate.value;
+  List<Note> get notes => _notes;
+
+  static const int maxSubTasks = 10;
+
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  User? get currentUser => FirebaseAuth.instance.currentUser;
+
+  CollectionReference get notesCollection {
+    return _firestore
+        .collection('users')
+        .doc(currentUser?.uid)
+        .collection('notes');
+  }
 
   @override
   void onInit() {
     super.onInit();
     ever(subTasks, (_) => _updateState());
     titleController.addListener(_updateState);
+    fetchNotes();
   }
 
   void _updateState() {
     if (subTasks.isEmpty) {
-      _canAddSubTask.value = titleController.text.trim().isNotEmpty;
+      _canAddSubTask.value = titleController.text.trim().isNotEmpty &&
+          subTasks.length < maxSubTasks;
     } else {
-      _canAddSubTask.value = subTasks.last.text.trim().isNotEmpty;
+      _canAddSubTask.value =
+          subTasks.last.text.trim().isNotEmpty && subTasks.length < maxSubTasks;
     }
     _canSave.value = titleController.text.trim().isNotEmpty;
   }
 
   void addSubTask() {
-    if (canAddSubTask) {
+    if (canAddSubTask && subTasks.length < maxSubTasks) {
       subTasks.add(TextEditingController());
       _updateState();
     }
@@ -50,16 +71,80 @@ class NoteTakingController extends GetxController {
     }
   }
 
-  void saveNote() {
+  void updateSelectedDate(DateTime newDate) {
+    _selectedDate.value = newDate;
+  }
+
+  Future<void> saveNote() async {
+    if (currentUser == null) {
+      Get.snackbar('Error', 'You must be logged in to save notes');
+      return;
+    }
+
     if (canSave) {
-      // Implement your save logic here
-      print('Saving note:');
-      print('Title: ${titleController.text.trim()}');
-      for (var i = 0; i < subTasks.length; i++) {
-        print('Sub-task $i: ${subTasks[i].text.trim()}');
+      final note = Note(
+        title: titleController.text.trim(),
+        subTasks: subTasks.map((controller) => controller.text.trim()).toList(),
+        date: selectedDate,
+        userId: currentUser!.uid,
+      );
+
+      try {
+        DocumentReference docRef = await notesCollection.add(note.toMap());
+        note.id = docRef.id;
+        _notes.add(note);
+        Get.back(); // Close the bottom sheet
+        clearFields();
+        Get.snackbar('Success', 'Note saved successfully');
+      } catch (e) {
+        print('Error saving note: $e');
+        Get.snackbar('Error', 'Failed to save note');
       }
-      Get.back(); // Close the bottom sheet
-      clearFields();
+    }
+  }
+
+  Future<void> fetchNotes() async {
+    if (currentUser == null) return;
+
+    try {
+      QuerySnapshot querySnapshot =
+          await notesCollection.orderBy('date', descending: true).get();
+      _notes.value = querySnapshot.docs
+          .map(
+              (doc) => Note.fromMap(doc.data() as Map<String, dynamic>, doc.id))
+          .toList();
+    } catch (e) {
+      print('Error fetching notes: $e');
+      Get.snackbar('Error', 'Failed to fetch notes');
+    }
+  }
+
+  Future<void> updateNote(Note note) async {
+    if (currentUser == null) return;
+
+    try {
+      await notesCollection.doc(note.id).update(note.toMap());
+      int index = _notes.indexWhere((n) => n.id == note.id);
+      if (index != -1) {
+        _notes[index] = note;
+      }
+      Get.snackbar('Success', 'Note updated successfully');
+    } catch (e) {
+      print('Error updating note: $e');
+      Get.snackbar('Error', 'Failed to update note');
+    }
+  }
+
+  Future<void> deleteNote(String noteId) async {
+    if (currentUser == null) return;
+
+    try {
+      await notesCollection.doc(noteId).delete();
+      _notes.removeWhere((note) => note.id == noteId);
+      Get.snackbar('Success', 'Note deleted successfully');
+    } catch (e) {
+      print('Error deleting note: $e');
+      Get.snackbar('Error', 'Failed to delete note');
     }
   }
 
@@ -69,6 +154,7 @@ class NoteTakingController extends GetxController {
       controller.dispose();
     }
     subTasks.clear();
+    _selectedDate.value = DateTime.now();
     _updateState();
   }
 

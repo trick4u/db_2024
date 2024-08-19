@@ -283,7 +283,7 @@ class CalendarController extends GetxController {
     }
   }
 
-  void updateEvent(
+   void updateEvent(
       String eventId,
       String newTitle,
       String newDescription,
@@ -338,9 +338,6 @@ class CalendarController extends GetxController {
           }]);
         }
 
-        // Ensure isCompleted remains true if it was already completed
-        updateData['isCompleted'] = wasCompleted;
-
         await eventsCollection.doc(eventId).update(updateData);
 
         QuickEventModel updatedEvent = QuickEventModel(
@@ -356,6 +353,7 @@ class CalendarController extends GetxController {
           isCompleted: wasCompleted,
           createdAt: (currentData['createdAt'] as Timestamp).toDate(),
           editedAfterCompletion: wasCompleted && updateData['editedAfterCompletion'] == true,
+          completedAt: completedAt?.toDate(),
         );
 
         if (newHasReminder && updatedEvent.reminderTime != null && !updatedEvent.isCompleted!) {
@@ -487,25 +485,34 @@ class CalendarController extends GetxController {
     };
   }
 
- void toggleEventCompletion(String eventId) async {
+  void toggleEventCompletion(String eventId) async {
     if (currentUser == null) return;
     try {
       DocumentSnapshot eventDoc = await eventsCollection.doc(eventId).get();
       if (eventDoc.exists) {
         bool currentStatus = eventDoc.get('isCompleted') ?? false;
-        if (!currentStatus) {  // Only allow toggling to completed state
-          await eventsCollection.doc(eventId).update({
-            'isCompleted': true,
-            'completedAt': FieldValue.serverTimestamp(),
-          });
-          
-          QuickEventModel event = QuickEventModel.fromFirestore(eventDoc);
-          if (event.hasReminder) {
-            await cancelNotification(event);
-            await eventsCollection.doc(eventId).update({'hasReminder': false},);
-          }
-          HapticFeedback.mediumImpact();
+        Map<String, dynamic> updateData = {
+          'isCompleted': !currentStatus,
+        };
+        
+        if (!currentStatus) {
+          // If marking as complete, add completedAt timestamp
+          updateData['completedAt'] = FieldValue.serverTimestamp();
+        } else {
+          // If marking as incomplete, remove completedAt and editedAfterCompletion
+          updateData['completedAt'] = FieldValue.delete();
+          updateData['editedAfterCompletion'] = FieldValue.delete();
         }
+        
+        await eventsCollection.doc(eventId).update(updateData);
+        
+        QuickEventModel event = QuickEventModel.fromFirestore(eventDoc);
+        if (!currentStatus && event.hasReminder) {
+          await cancelNotification(event);
+          await eventsCollection.doc(eventId).update({'hasReminder': false});
+        }
+        
+        HapticFeedback.mediumImpact();
         fetchEvents(selectedDay.value);
       }
     } catch (e) {
