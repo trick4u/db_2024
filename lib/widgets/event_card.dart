@@ -272,7 +272,7 @@ class EventCard extends StatelessWidget {
                 ),
               ),
             ),
-           if (event.hasReminder && !event.notificationDisplayed)
+           if (event.hasReminder && _shouldShowNotificationIcon())
               Positioned(
                 top: 15,
                 right: event.isCompleted == true ? 40 : 20,
@@ -292,5 +292,14 @@ class EventCard extends StatelessWidget {
         ),
       ),
     );
+  }
+  bool _shouldShowNotificationIcon() {
+    if (event.lastNotificationDisplayed == null) {
+      return true;
+    }
+    
+    // Show the icon if the last notification was displayed more than 5 minutes ago
+    // You can adjust this duration as needed
+    return DateTime.now().difference(event.lastNotificationDisplayed!) > Duration(minutes: 1);
   }
 }

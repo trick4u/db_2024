@@ -255,23 +255,8 @@ class CalendarController extends GetxController {
     }
 
     try {
-      DocumentReference docRef = await eventsCollection.add({
-        'title': title,
-        'description': description,
-        'date': Timestamp.fromDate(date),
-        'startTime':
-            startTime != null ? Timestamp.fromDate(startTime) : DateTime.now(),
-        'endTime': endTime != null ? Timestamp.fromDate(endTime) : null,
-        'color': color.value,
-        'hasReminder': hasReminder,
-        'reminderTime':
-            reminderTime != null ? Timestamp.fromDate(reminderTime) : null,
-        'isCompleted': isCompleted,
-        'createdAt': FieldValue.serverTimestamp(),
-      });
-
       QuickEventModel newEvent = QuickEventModel(
-        id: docRef.id,
+        id: '', // This will be set by Firestore
         title: title,
         description: description,
         date: date,
@@ -283,6 +268,9 @@ class CalendarController extends GetxController {
         isCompleted: isCompleted,
         createdAt: DateTime.now(),
       );
+
+      DocumentReference docRef = await eventsCollection.add(newEvent.toFirestore());
+      newEvent = newEvent.copyWith(id: docRef.id);
 
       if (hasReminder && reminderTime != null) {
         await scheduleNotification(newEvent);
@@ -426,7 +414,7 @@ class CalendarController extends GetxController {
   }
 
   //notifications
-  Future<void> markNotificationAsDisplayed(int notificationId) async {
+Future<void> markNotificationAsDisplayed(int notificationId) async {
     try {
       DocumentSnapshot mappingDoc = await FirebaseFirestore.instance
           .collection('notificationMappings')
@@ -442,6 +430,14 @@ class CalendarController extends GetxController {
           await eventsCollection.doc(eventId).update({
             'lastNotificationDisplayed': FieldValue.serverTimestamp(),
           });
+          
+          // Update the local event model
+          QuickEventModel updatedEvent = QuickEventModel.fromFirestore(eventDoc);
+          updatedEvent.lastNotificationDisplayed = DateTime.now();
+          int index = events.indexWhere((e) => e.id == eventId);
+          if (index != -1) {
+            events[index] = updatedEvent;
+          }
         } else {
           print('Event document not found. It may have been deleted.');
         }
@@ -452,8 +448,8 @@ class CalendarController extends GetxController {
             .doc(notificationId.toString())
             .delete();
 
-        // Refresh the events to update the UI
-        fetchEvents(selectedDay.value);
+        // Refresh the UI
+        update();
       } else {
         print('No mapping found for notification ID: $notificationId');
       }
@@ -462,7 +458,7 @@ class CalendarController extends GetxController {
     }
   }
 
-  Future<void> scheduleNotification(QuickEventModel event) async {
+   Future<void> scheduleNotification(QuickEventModel event) async {
     if (!event.hasReminder || event.reminderTime == null) return;
 
     int notificationId = event.id.hashCode;
@@ -513,12 +509,23 @@ class CalendarController extends GetxController {
           .doc(notificationId.toString())
           .set({'eventId': event.id});
 
+      // Reset the lastNotificationDisplayed field in Firestore
+      await eventsCollection.doc(event.id).update({
+        'lastNotificationDisplayed': null,
+      });
+
+      // Update the local event model
+      int index = events.indexWhere((e) => e.id == event.id);
+      if (index != -1) {
+        events[index].lastNotificationDisplayed = null;
+      }
+
       print('Notification scheduled for: ${scheduledDate.toString()}');
+      update(); // Refresh the UI
     } catch (e) {
-      print('Error creating notification mapping: $e');
+      print('Error scheduling notification: $e');
     }
   }
-
   Future<void> updateNotification(QuickEventModel event) async {
     // First, cancel the existing notification
     await cancelNotification(event);
