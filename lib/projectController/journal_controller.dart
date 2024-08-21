@@ -39,7 +39,7 @@ class JournalEntry {
 }
 
 // Journal controller
-class JournalController extends GetxController {
+class  JournalController extends GetxController {
   final journalEntries = <JournalEntry>[].obs;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final FirebaseAuth _auth = FirebaseAuth.instance;

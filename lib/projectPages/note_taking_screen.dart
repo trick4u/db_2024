@@ -14,37 +14,45 @@ class NoteTakingScreen extends GetWidget<NoteTakingController> {
     final appTheme = Get.find<AppTheme>();
     return Scaffold(
       appBar: AppBar(
-        title: Text('Notes'),
+        title: Text('your notes'),
       ),
       body: Obx(() => ListView.builder(
             itemCount: controller.notes.length,
             itemBuilder: (context, index) {
               Note note = controller.notes[index];
-              return ListTile(
-                title: Text(note.title, style: appTheme.bodyMedium),
-                subtitle: Text(
-                  note.subTasks[0],
-                  style: appTheme.bodyMedium,
+              return Card(
+                elevation: 0,
+                margin: EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+                child: Theme(
+                  data: Theme.of(context)
+                      .copyWith(dividerColor: Colors.transparent),
+                  child: ExpansionTile(
+                    title: Text(note.title, style: appTheme.bodyMedium),
+                    children: [
+                      ...note.subTasks.map((subTask) => ListTile(
+                            leading: Icon(Icons.subdirectory_arrow_right),
+                            title: Text(subTask, style: appTheme.bodyMedium),
+                          )),
+                    ],
+                    trailing: IconButton(
+                      icon: Icon(Icons.edit),
+                      onPressed: () => _showNoteBottomSheet(context, note),
+                    ),
+                  ),
                 ),
-              trailing: IconButton(
-                icon: Icon(Icons.edit),
-                onPressed: () => _showNoteBottomSheet(context, note),
-              ),
-                onTap: () {
-                  // TODO: Implement note detail view
-                },
               );
             },
           )),
       floatingActionButton: FloatingActionButton(
         child: Icon(Icons.add),
         onPressed: () {
-          _showNoteBottomSheet(context,null);
+          _showNoteBottomSheet(context, null);
         },
         backgroundColor: appTheme.colorScheme.primary,
       ),
     );
   }
+
   void _showNoteBottomSheet(BuildContext context, Note? note) {
     showModalBottomSheet(
       context: context,
@@ -90,7 +98,8 @@ class NoteBottomSheet extends GetView<NoteTakingController> {
             children: [
               Row(
                 children: [
-                  Text(note == null ? 'Add Note' : 'Edit Note', style: appTheme.titleLarge),
+                  Text(note == null ? 'Add Note' : 'Edit Note',
+                      style: appTheme.titleLarge),
                   Spacer(),
                   _buildDatePicker(context),
                   IconButton(
@@ -168,15 +177,17 @@ class NoteBottomSheet extends GetView<NoteTakingController> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
-                  Row(
-                    children: [
-                      Obx(() => controller.subTasks.length <
-                              NoteTakingController.maxSubTasks
-                          ? _buildSubTaskToggleButton()
-                          : SizedBox()),
-                      SizedBox(width: 16),
-                      _buildSaveIconButton(),
-                    ],
+                  SlideInRight(
+                    child: Row(
+                      children: [
+                        Obx(() => controller.subTasks.length <
+                                NoteTakingController.maxSubTasks
+                            ? _buildSubTaskToggleButton()
+                            : SizedBox()),
+                        SizedBox(width: 16),
+                        _buildSaveIconButton(),
+                      ],
+                    ),
                   ),
                 ],
               ),
@@ -274,7 +285,7 @@ class NoteBottomSheet extends GetView<NoteTakingController> {
         ));
   }
 
- Widget _buildSaveIconButton() {
+  Widget _buildSaveIconButton() {
     return Obx(() => Container(
           decoration: BoxDecoration(
             color:

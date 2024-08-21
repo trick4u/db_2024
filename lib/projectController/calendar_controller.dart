@@ -427,30 +427,38 @@ class CalendarController extends GetxController {
 
   //notifications
   Future<void> markNotificationAsDisplayed(int notificationId) async {
-    // Fetch the eventId using the notificationId
-    DocumentSnapshot mappingDoc = await FirebaseFirestore.instance
-        .collection('notificationMappings')
-        .doc(notificationId.toString())
-        .get();
-
-    if (mappingDoc.exists) {
-      String eventId = mappingDoc.get('eventId');
-
-      // Update the event in Firestore
-      await eventsCollection.doc(eventId).update({
-        'notificationDisplayed': true,
-      });
-
-      // Delete the mapping document as it's no longer needed
-      await FirebaseFirestore.instance
+    try {
+      DocumentSnapshot mappingDoc = await FirebaseFirestore.instance
           .collection('notificationMappings')
           .doc(notificationId.toString())
-          .delete();
+          .get();
 
-      // Refresh the events to update the UI
-      fetchEvents(selectedDay.value);
-    } else {
-      print('No mapping found for notification ID: $notificationId');
+      if (mappingDoc.exists) {
+        String eventId = mappingDoc.get('eventId');
+
+        // Check if the event document still exists
+        DocumentSnapshot eventDoc = await eventsCollection.doc(eventId).get();
+        if (eventDoc.exists) {
+          await eventsCollection.doc(eventId).update({
+            'lastNotificationDisplayed': FieldValue.serverTimestamp(),
+          });
+        } else {
+          print('Event document not found. It may have been deleted.');
+        }
+
+        // Delete the mapping document as it's no longer needed
+        await FirebaseFirestore.instance
+            .collection('notificationMappings')
+            .doc(notificationId.toString())
+            .delete();
+
+        // Refresh the events to update the UI
+        fetchEvents(selectedDay.value);
+      } else {
+        print('No mapping found for notification ID: $notificationId');
+      }
+    } catch (e) {
+      print('Error marking notification as displayed: $e');
     }
   }
 
@@ -474,6 +482,9 @@ class CalendarController extends GetxController {
       return;
     }
 
+    // Cancel any existing notification for this event
+    await AwesomeNotifications().cancel(notificationId);
+
     await AwesomeNotifications().createNotification(
       content: NotificationContent(
         id: notificationId,
@@ -495,12 +506,17 @@ class CalendarController extends GetxController {
         allowWhileIdle: true,
       ),
     );
-    await FirebaseFirestore.instance
-        .collection('notificationMappings')
-        .doc(notificationId.toString())
-        .set({'eventId': event.id});
 
-    print('Notification scheduled for: ${scheduledDate.toString()}');
+    try {
+      await FirebaseFirestore.instance
+          .collection('notificationMappings')
+          .doc(notificationId.toString())
+          .set({'eventId': event.id});
+
+      print('Notification scheduled for: ${scheduledDate.toString()}');
+    } catch (e) {
+      print('Error creating notification mapping: $e');
+    }
   }
 
   Future<void> updateNotification(QuickEventModel event) async {
@@ -575,7 +591,7 @@ class CalendarController extends GetxController {
   }
 
   //toggle event reminder
-  void toggleEventReminder(String eventId) async {
+  Future<void> toggleEventReminder(String eventId) async {
     if (currentUser == null) return;
     try {
       DocumentSnapshot eventDoc = await eventsCollection.doc(eventId).get();
@@ -583,11 +599,21 @@ class CalendarController extends GetxController {
         QuickEventModel event = QuickEventModel.fromFirestore(eventDoc);
         bool newReminderStatus = !event.hasReminder;
 
-        await eventsCollection.doc(eventId).update({
+        Map<String, dynamic> updateData = {
           'hasReminder': newReminderStatus,
           'reminderTime':
               newReminderStatus ? event.reminderTime ?? event.date : null,
-        });
+        };
+
+        if (newReminderStatus) {
+          // Reset the notification display status when turning on the reminder
+          updateData['lastNotificationDisplayed'] = null;
+        } else {
+          // Remove the lastNotificationDisplayed field when turning off the reminder
+          updateData['lastNotificationDisplayed'] = FieldValue.delete();
+        }
+
+        await eventsCollection.doc(eventId).update(updateData);
 
         if (newReminderStatus) {
           // If turning on the reminder, schedule a notification
@@ -600,6 +626,11 @@ class CalendarController extends GetxController {
         }
 
         fetchEvents(selectedDay.value);
+        update();
+      } else {
+        print('Event document not found. It may have been deleted.');
+        // Optionally, you can remove the event from the local state here
+        // events.removeWhere((e) => e.id == eventId);
         update();
       }
     } catch (e) {

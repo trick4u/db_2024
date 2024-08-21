@@ -697,7 +697,6 @@ Future<void> schedulePeriodicNotifications(
           repeats: repeat,
           preciseAlarm: true,
           allowWhileIdle: true,
-         
         ),
       );
 
