@@ -293,13 +293,13 @@ class EventCard extends StatelessWidget {
       ),
     );
   }
-  bool _shouldShowNotificationIcon() {
+   bool _shouldShowNotificationIcon() {
+    if (event.isCompleted == true) return false;
     if (event.lastNotificationDisplayed == null) {
       return true;
     }
     
     // Show the icon if the last notification was displayed more than 5 minutes ago
-    // You can adjust this duration as needed
-    return DateTime.now().difference(event.lastNotificationDisplayed!) > Duration(minutes: 1);
+    return DateTime.now().difference(event.lastNotificationDisplayed!) > Duration(minutes: 5);
   }
 }

@@ -38,6 +38,7 @@ class _EventBottomSheetState extends State<EventBottomSheet> {
   DateTime? _reminderTime;
   bool _isTitleEmpty = true;
   bool _isDescriptionVisible = false;
+    bool _isEventCompleted = false;
 
   @override
   void initState() {
@@ -52,6 +53,7 @@ class _EventBottomSheetState extends State<EventBottomSheet> {
     _selectedColor = widget.event?.color ?? Get.theme.primaryColor;
     _isReminderSet = widget.event?.reminderTime != null;
     _reminderTime = widget.event?.reminderTime;
+     _isEventCompleted = widget.event?.isCompleted ?? false;
     if (widget.event != null) {
       // Assume you have start and end time in your EventModel
       // _startTime = TimeOfDay.fromDateTime(widget.event!.startTime);
@@ -519,6 +521,9 @@ class _EventBottomSheetState extends State<EventBottomSheet> {
   }
 
   Widget _buildReminderWidget(BuildContext context, AppTheme appTheme) {
+    if (_isEventCompleted) {
+      return SizedBox.shrink(); // Don't show reminder widget for completed events
+    }
     return _isReminderSet
         ? _buildReminderInfo(appTheme)
         : _buildTimePickerButton(context, appTheme);
@@ -543,8 +548,7 @@ class _EventBottomSheetState extends State<EventBottomSheet> {
       timeFormat: 'HH:mm',
     );
   }
-
-  Widget _buildReminderInfo(AppTheme appTheme) {
+ Widget _buildReminderInfo(AppTheme appTheme) {
     return Container(
       padding: EdgeInsets.symmetric(vertical: 0, horizontal: 5),
       decoration: BoxDecoration(
