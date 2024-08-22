@@ -5,7 +5,6 @@ import 'package:get/get.dart';
 
 import '../models/note_model.dart';
 
-
 class NoteTakingController extends GetxController {
   final titleController = TextEditingController();
   final subTasks = <TextEditingController>[].obs;
@@ -14,16 +13,23 @@ class NoteTakingController extends GetxController {
   final _selectedDate = DateTime.now().obs;
   final _notes = <Note>[].obs;
   final isLoading = true.obs;
+  final _subtaskLengths = <String, int>{}.obs;
 
   bool get canAddSubTask => _canAddSubTask.value;
   bool get canSave => _canSave.value;
   DateTime get selectedDate => _selectedDate.value;
   List<Note> get notes => _notes;
+  
+  
 
   static const int maxSubTasks = 10;
 
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   User? get currentUser => FirebaseAuth.instance.currentUser;
+   int getSubtaskLength(String noteId) {
+    final note = _notes.firstWhere((note) => note.id == noteId, orElse: () => Note(title: '', subTasks: [], date: DateTime.now(), userId: ''));
+    return note.subTasks.length;
+  }
 
   CollectionReference get notesCollection {
     return _firestore
@@ -35,11 +41,71 @@ class NoteTakingController extends GetxController {
   @override
   void onInit() {
     super.onInit();
+    ever(_notes, _updateSubtaskLengths);
     ever(subTasks, (_) => _updateState());
     titleController.addListener(_updateState);
     fetchNotes();
   }
 
+  void _updateSubtaskLengths(List<Note> notes) {
+    for (var note in notes) {
+      _subtaskLengths[note.id ?? ''] = note.subTasks.length;
+    }
+  }
+
+  Future<void> deleteSubTask(String noteId, int subTaskIndex) async {
+    if (currentUser == null) {
+      Get.snackbar('Error', 'You must be logged in to update notes');
+      return;
+    }
+
+    try {
+      int noteIndex = _notes.indexWhere((note) => note.id == noteId);
+      if (noteIndex == -1) {
+        throw Exception('Note not found');
+      }
+
+      Note note = _notes[noteIndex];
+      List<String> updatedSubTasks = List.from(note.subTasks);
+      updatedSubTasks.removeAt(subTaskIndex);
+
+      Note updatedNote = note.copyWith(
+        subTasks: updatedSubTasks,
+        updatedAt: DateTime.now(),
+      );
+
+      await notesCollection.doc(noteId).update(updatedNote.toMap());
+      _notes[noteIndex] = updatedNote;
+      _notes.refresh();
+
+      Get.snackbar('Success', 'Sub-task deleted successfully');
+    } catch (e) {
+      print('Error deleting sub-task: $e');
+      Get.snackbar('Error', 'Failed to delete sub-task');
+    }
+  }
+
+   Future<void> updateNote(String noteId, Note updatedNote) async {
+    if (currentUser == null) {
+      Get.snackbar('Error', 'You must be logged in to update notes');
+      return;
+    }
+
+    try {
+      await notesCollection.doc(noteId).update(updatedNote.toMap());
+      int index = _notes.indexWhere((n) => n.id == noteId);
+      if (index != -1) {
+        _notes[index] = updatedNote;
+      }
+      _notes.refresh();
+      Get.back(); // Close the bottom sheet
+      clearFields();
+      Get.snackbar('Success', 'Note updated successfully');
+    } catch (e) {
+      print('Error updating note: $e');
+      Get.snackbar('Error', 'Failed to update note');
+    }
+  }
   void _updateState() {
     if (subTasks.isEmpty) {
       _canAddSubTask.value = titleController.text.trim().isNotEmpty &&
@@ -115,37 +181,6 @@ class NoteTakingController extends GetxController {
     }
   }
 
-  Future<void> updateNote(String noteId) async {
-    if (currentUser == null) {
-      Get.snackbar('Error', 'You must be logged in to update notes');
-      return;
-    }
-
-    if (canSave) {
-      final updatedNote = Note(
-        id: noteId,
-        title: titleController.text.trim(),
-        subTasks: subTasks.map((controller) => controller.text.trim()).toList(),
-        date: selectedDate,
-        userId: currentUser!.uid,
-      );
-
-      try {
-        await notesCollection.doc(noteId).update(updatedNote.toMap());
-        int index = _notes.indexWhere((n) => n.id == noteId);
-        if (index != -1) {
-          _notes[index] = updatedNote;
-        }
-        Get.back(); // Close the bottom sheet
-        clearFields();
-        Get.snackbar('Success', 'Note updated successfully');
-      } catch (e) {
-        print('Error updating note: $e');
-        Get.snackbar('Error', 'Failed to update note');
-      }
-    }
-  }
-
   Future<void> fetchNotes() async {
     if (currentUser == null) return;
 
@@ -154,8 +189,7 @@ class NoteTakingController extends GetxController {
       QuerySnapshot querySnapshot =
           await notesCollection.orderBy('date', descending: true).get();
       _notes.value = querySnapshot.docs
-          .map(
-              (doc) => Note.fromMap(doc.data() as Map<String, dynamic>, doc.id))
+          .map((doc) => Note.fromMap(doc.data() as Map<String, dynamic>, doc.id))
           .toList();
     } catch (e) {
       print('Error fetching notes: $e');
@@ -171,6 +205,7 @@ class NoteTakingController extends GetxController {
     try {
       await notesCollection.doc(noteId).delete();
       _notes.removeWhere((note) => note.id == noteId);
+      _subtaskLengths.remove(noteId);
       Get.snackbar('Success', 'Note deleted successfully');
     } catch (e) {
       print('Error deleting note: $e');

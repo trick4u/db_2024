@@ -44,4 +44,24 @@ class Note {
       userId: map['userId'] as String,
     );
   }
+
+  Note copyWith({
+    String? id,
+    String? title,
+    List<String>? subTasks,
+    DateTime? date,
+    DateTime? createdAt,
+    DateTime? updatedAt,
+    String? userId,
+  }) {
+    return Note(
+      id: id ?? this.id,
+      title: title ?? this.title,
+      subTasks: subTasks ?? this.subTasks,
+      date: date ?? this.date,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? DateTime.now(),
+      userId: userId ?? this.userId,
+    );
+  }
 }

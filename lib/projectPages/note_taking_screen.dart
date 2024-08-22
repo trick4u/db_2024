@@ -1,5 +1,6 @@
 import 'package:animate_do/animate_do.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
 import 'package:omni_datetime_picker/omni_datetime_picker.dart';
@@ -7,6 +8,7 @@ import 'package:tushar_db/projectController/note_taking_controller.dart';
 
 import '../models/note_model.dart';
 import '../services/app_theme.dart';
+import '../widgets/note_listView.dart';
 
 class NoteTakingScreen extends GetWidget<NoteTakingController> {
   @override
@@ -16,33 +18,7 @@ class NoteTakingScreen extends GetWidget<NoteTakingController> {
       appBar: AppBar(
         title: Text('your notes'),
       ),
-      body: Obx(() => ListView.builder(
-            itemCount: controller.notes.length,
-            itemBuilder: (context, index) {
-              Note note = controller.notes[index];
-              return Card(
-                elevation: 0,
-                margin: EdgeInsets.symmetric(vertical: 8, horizontal: 16),
-                child: Theme(
-                  data: Theme.of(context)
-                      .copyWith(dividerColor: Colors.transparent),
-                  child: ExpansionTile(
-                    title: Text(note.title, style: appTheme.bodyMedium),
-                    children: [
-                      ...note.subTasks.map((subTask) => ListTile(
-                            leading: Icon(Icons.subdirectory_arrow_right),
-                            title: Text(subTask, style: appTheme.bodyMedium),
-                          )),
-                    ],
-                    trailing: IconButton(
-                      icon: Icon(Icons.edit),
-                      onPressed: () => _showNoteBottomSheet(context, note),
-                    ),
-                  ),
-                ),
-              );
-            },
-          )),
+      body: NoteListView(),
       floatingActionButton: FloatingActionButton(
         child: Icon(Icons.add),
         onPressed: () {
@@ -52,6 +28,7 @@ class NoteTakingScreen extends GetWidget<NoteTakingController> {
       ),
     );
   }
+
 
   void _showNoteBottomSheet(BuildContext context, Note? note) {
     showModalBottomSheet(
@@ -301,7 +278,15 @@ class NoteBottomSheet extends GetView<NoteTakingController> {
                       if (note == null) {
                         controller.saveNote();
                       } else {
-                        controller.updateNote(note?.id ?? "");
+                           Note updatedNote = note!.copyWith(
+                          title: controller.titleController.text.trim(),
+                          subTasks: controller.subTasks
+                              .map((controller) => controller.text.trim())
+                              .toList(),
+                          date: controller.selectedDate,
+                          updatedAt: DateTime.now(),
+                        );
+                       controller.updateNote(note!.id ?? "", updatedNote);
                       }
                     }
                   : null,
