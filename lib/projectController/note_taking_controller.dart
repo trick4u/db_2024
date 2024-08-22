@@ -255,6 +255,37 @@ class NoteTakingController extends GetxController {
     }
   }
 
+  Future<void> deleteAllNotes() async {
+    if (currentUser == null) {
+      Get.snackbar('Error', 'You must be logged in to delete notes');
+      return;
+    }
+
+    try {
+      // Get all documents in the notes collection
+      QuerySnapshot querySnapshot = await notesCollection.get();
+
+      // Create a batch write operation
+      WriteBatch batch = _firestore.batch();
+
+      // Add delete operations to the batch
+      for (DocumentSnapshot doc in querySnapshot.docs) {
+        batch.delete(doc.reference);
+      }
+
+      // Commit the batch
+      await batch.commit();
+
+      // Clear the local list of notes
+      _notes.clear();
+
+      Get.snackbar('Success', 'All notes have been deleted');
+    } catch (e) {
+      print('Error deleting all notes: $e');
+      Get.snackbar('Error', 'Failed to delete all notes');
+    }
+  }
+
   void clearFields() {
     titleController.clear();
     for (var controller in subTasks) {

@@ -17,6 +17,13 @@ class NoteTakingScreen extends GetWidget<NoteTakingController> {
     return Scaffold(
       appBar: AppBar(
         title: Text('your notes'),
+          actions: [
+          IconButton(
+            icon: Icon(Icons.delete_forever),
+            onPressed: () => _showDeleteAllConfirmation(context),
+          ),
+        ],
+      
       ),
       body: NoteListView(),
       floatingActionButton: Obx(() {
@@ -31,6 +38,32 @@ class NoteTakingScreen extends GetWidget<NoteTakingController> {
             : SizedBox
                 .shrink(); // This will hide the FAB when max notes are reached
       }),
+    );
+  }
+    void _showDeleteAllConfirmation(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Delete All Notes'),
+          content: Text('Are you sure you want to delete all notes? This action cannot be undone.'),
+          actions: <Widget>[
+            TextButton(
+              child: Text('Cancel'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+            TextButton(
+              child: Text('Delete All'),
+              onPressed: () {
+                controller.deleteAllNotes();
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
     );
   }
 
