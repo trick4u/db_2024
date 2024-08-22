@@ -28,24 +28,7 @@ class EventCard extends StatelessWidget {
     Get.put(CalendarController());
     return Slidable(
       key: ValueKey(event.id),
-      startActionPane: ActionPane(
-        motion: const BehindMotion(),
-        extentRatio: 0.25,
-        children: [
-          _buildActionButton(
-            icon: Icons.archive,
-            label: 'Archive',
-            color: Colors.green,
-            onTap: () {
-              onArchive(event);
-
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text('Archive action')),
-              );
-            },
-          ),
-        ],
-      ),
+    
       endActionPane: ActionPane(
         motion: const BehindMotion(),
         extentRatio: 0.5,
@@ -130,7 +113,7 @@ class EventCard extends StatelessWidget {
     );
   }
 
-   Widget _buildTimeColumn() {
+  Widget _buildTimeColumn() {
     return Container(
       width: 60,
       child: Column(
@@ -171,7 +154,6 @@ class EventCard extends StatelessWidget {
     );
   }
 
-
   Widget _buildCompleteButton() {
     return IconButton(
       icon: Icon(
@@ -183,7 +165,6 @@ class EventCard extends StatelessWidget {
       onPressed: () => onComplete(event),
     );
   }
-
 
   Widget _buildCardContent() {
     return GetBuilder<CalendarController>(
@@ -272,7 +253,7 @@ class EventCard extends StatelessWidget {
                 ),
               ),
             ),
-           if (event.hasReminder && _shouldShowNotificationIcon())
+            if (event.hasReminder && _shouldShowNotificationIcon())
               Positioned(
                 top: 15,
                 right: event.isCompleted == true ? 40 : 20,
@@ -293,13 +274,16 @@ class EventCard extends StatelessWidget {
       ),
     );
   }
-   bool _shouldShowNotificationIcon() {
+
+  bool _shouldShowNotificationIcon() {
     if (event.isCompleted == true) return false;
+
     if (event.lastNotificationDisplayed == null) {
       return true;
     }
-    
+
     // Show the icon if the last notification was displayed more than 5 minutes ago
-    return DateTime.now().difference(event.lastNotificationDisplayed!) > Duration(minutes: 5);
+    return DateTime.now().difference(event.lastNotificationDisplayed!) >
+        Duration(minutes: 5);
   }
 }

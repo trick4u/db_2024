@@ -1,14 +1,19 @@
+import 'package:animate_do/animate_do.dart';
 import 'package:dough/dough.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
+import 'package:table_calendar/table_calendar.dart';
 import 'package:tushar_db/services/scale_util.dart';
 
 import '../projectController/journal_controller.dart';
 import '../services/app_theme.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
+
+import '../widgets/journal_calendar_header.dart';
+import 'journalEntryScreen.dart';
 
 class JournalPage extends GetWidget<JournalController> {
   final appTheme = Get.find<AppTheme>();
@@ -17,301 +22,210 @@ class JournalPage extends GetWidget<JournalController> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        elevation: 0,
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: Colors.black),
-          onPressed: () => Get.back(),
-        ),
+        centerTitle: false,
         title: Text(
-          'Journal',
-          style: TextStyle(fontWeight: FontWeight.bold),
-        ),
-        actions: [
-          IconButton(
-            icon: Icon(FontAwesomeIcons.plus),
-            onPressed: () => Get.to(() => JournalEntryView()),
+          'your journal..',
+          style: appTheme.titleLarge.copyWith(
+            letterSpacing: 1.5,
           ),
-        ],
+        ),
+        backgroundColor: appTheme.colorScheme.surface,
+        foregroundColor: appTheme.colorScheme.onSurface,
+        automaticallyImplyLeading: false,
       ),
-      body: Padding(
-        padding: EdgeInsets.all(8.0),
-        child: Obx(
-          () => controller.journalEntries.isEmpty
-              ? Center(child: Text('No entries yet. Add one!'))
-              : MasonryGridView.count(
-                  crossAxisCount: 3,
-                  itemCount: controller.journalEntries.length,
-                  itemBuilder: (BuildContext context, int index) {
-                    final entry = controller.journalEntries[index];
-                    return GestureDetector(
-                      onTap: () =>
-                          Get.to(() => JournalDetailView(entry: entry)),
+      body: SafeArea(
+        child: GetBuilder<JournalController>(
+          builder: (controller) => Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 10),
+            child: Column(
+              children: [
+                JournalCalendarHeader(),
+                GestureDetector(
+                  onVerticalDragEnd: (details) {
+                    if (details.primaryVelocity! < 0) {
+                      // Swipe up detected
+                      controller.toggleCalendarFormat();
+                    }
+                  },
+                  child: PressableDough(
+                    onReleased: (d) {
+                      //  controller.showAddEntryDialog(context);
+                    },
+                    child: FadeInDown(
                       child: Card(
-                        color: index % 2 == 0
-                            ? Colors.grey[800]
-                            : Colors.grey[300],
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(15),
-                        ),
-                        child: Stack(
+                        elevation: 2,
+                        color: appTheme.cardColor,
+                        child: Column(
                           children: [
-                            Padding(
-                              padding: EdgeInsets.all(16),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    entry.title,
-                                    style: TextStyle(
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.bold,
-                                      color: index % 2 == 0
-                                          ? Colors.white
-                                          : Colors.black,
-                                    ),
-                                  ),
-                                  SizedBox(height: 8),
-                                  Text(
-                                    entry.content,
-                                    style: TextStyle(
-                                      fontSize: 14,
-                                      color: index % 2 == 0
-                                          ? Colors.white70
-                                          : Colors.black87,
-                                    ),
-                                    maxLines: 5,
-                                    overflow: TextOverflow.ellipsis,
-                                  ),
-                                  SizedBox(height: 8),
-                                  Text(
-                                    DateFormat('MMM d, yyyy')
-                                        .format(entry.date),
-                                    style: TextStyle(
-                                      fontSize: 12,
-                                      color: index % 2 == 0
-                                          ? Colors.white54
-                                          : Colors.black54,
-                                    ),
-                                  ),
-                                ],
+                            SizedBox(height: 20),
+                            FadeInDown(
+                              child: Padding(
+                                padding: ScaleUtil.symmetric(horizontal: 10),
+                                child: _buildCalendar(),
                               ),
                             ),
-                            Positioned(
-                              top: 8,
-                              right: 8,
-                              child: IconButton(
-                                icon: Icon(
-                                  Icons.delete,
-                                  color: index % 2 == 0
-                                      ? Colors.white70
-                                      : Colors.black54,
-                                ),
-                                onPressed: () => _showDeleteConfirmationDialog(
-                                    context, entry),
-                              ),
-                            ),
+                            SizedBox(height: ScaleUtil.height(10)),
                           ],
                         ),
                       ),
-                    );
-                  },
-                  mainAxisSpacing: 8.0,
-                  crossAxisSpacing: 8.0,
+                    ),
+                  ),
                 ),
+                SizedBox(height: ScaleUtil.height(10)),
+                Expanded(
+                  child: Obx(() => ListView.builder(
+                        itemCount: controller.entries.length,
+                        itemBuilder: (context, index) {
+                          final entry = controller.entries[index];
+                          return ListTile(
+                            title: Text(entry.title),
+                            subtitle: Text(entry.content),
+                            onTap: () =>
+                                Get.to(() => JournalEntryScreen(entry: entry)),
+                          );
+                        },
+                      )),
+                ),
+              ],
+            ),
+          ),
         ),
       ),
     );
   }
 
-  void _showDeleteConfirmationDialog(BuildContext context, JournalEntry entry) {
+  Widget _buildCalendar() {
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: 8.0, vertical: 16.0),
+      child: TableCalendar(
+        firstDay: DateTime.utc(2023, 01, 01),
+        lastDay: DateTime.utc(2030, 12, 31),
+        focusedDay: controller.focusedDay.value,
+        selectedDayPredicate: (day) =>
+            isSameDay(day, controller.selectedDay.value),
+        calendarFormat: controller.calendarFormat.value,
+        onDaySelected: (
+          selectedDay,
+          focusedDay,
+        ) {
+          controller.setSelectedDay(selectedDay);
+          controller.setFocusedDay(focusedDay);
+        },
+        onFormatChanged: (format) => controller.toggleCalendarFormat(),
+        onPageChanged: (focusedDay) {
+          controller.setFocusedDay(focusedDay);
+          controller.fetchEntries(focusedDay);
+        },
+        calendarStyle: CalendarStyle(
+          outsideDaysVisible: false,
+          cellMargin: EdgeInsets.all(4),
+          cellPadding: EdgeInsets.all(2),
+          defaultTextStyle: TextStyle(color: appTheme.textColor),
+          weekendTextStyle: TextStyle(color: appTheme.textColor),
+          holidayTextStyle: TextStyle(color: appTheme.textColor),
+          selectedDecoration: BoxDecoration(
+            color: appTheme.colorScheme.primary,
+            shape: BoxShape.rectangle,
+            borderRadius: BorderRadius.circular(8),
+          ),
+          todayDecoration: BoxDecoration(
+            color: appTheme.colorScheme.primary.withOpacity(0.3),
+            shape: BoxShape.rectangle,
+            borderRadius: BorderRadius.circular(8),
+          ),
+          markerDecoration: BoxDecoration(
+            color: appTheme.colorScheme.primary,
+            shape: BoxShape.circle,
+          ),
+        ),
+        headerVisible: false,
+        daysOfWeekHeight: 40,
+        daysOfWeekStyle: DaysOfWeekStyle(
+          weekdayStyle: TextStyle(
+            color: appTheme.colorScheme.primary,
+            fontWeight: FontWeight.w500,
+            fontSize: 14,
+          ),
+          weekendStyle: TextStyle(
+            color: appTheme.colorScheme.secondary,
+            fontWeight: FontWeight.w500,
+            fontSize: 14,
+          ),
+          decoration: BoxDecoration(
+            border: Border(
+              bottom: BorderSide(
+                  color: appTheme.colorScheme.primary.withOpacity(0.2),
+                  width: 2),
+            ),
+          ),
+        ),
+        calendarBuilders: CalendarBuilders(
+          selectedBuilder: (context, date, _) {
+            return Container(
+              margin: const EdgeInsets.all(4.0),
+              alignment: Alignment.center,
+              decoration: BoxDecoration(
+                color: appTheme.colorScheme.primary,
+                borderRadius: BorderRadius.circular(8.0),
+              ),
+              child: Text(
+                date.day.toString(),
+                style: TextStyle(
+                  color: appTheme.colorScheme.onPrimary,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            );
+          },
+          markerBuilder: (context, date, events) {
+            if (events.isNotEmpty) {
+              return Positioned(
+                right: 1,
+                bottom: 1,
+                child: Container(
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: appTheme.colorScheme.primary,
+                  ),
+                  width: 6,
+                  height: 6,
+                ),
+              );
+            }
+            return null;
+          },
+        ),
+      ),
+    );
+  }
+
+  void _showDeleteConfirmation(BuildContext context, JournalEntry entry) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text('Delete Entry'),
-          content: Text('Are you sure you want to delete this journal entry?'),
+          backgroundColor: appTheme.colorScheme.surface,
+          title: Text('Confirm Delete',
+              style: TextStyle(color: appTheme.textColor)),
+          content: Text('Are you sure you want to delete this entry?',
+              style: TextStyle(color: appTheme.textColor)),
           actions: <Widget>[
             TextButton(
-              child: Text('Cancel'),
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
+              child: Text('Cancel',
+                  style: TextStyle(color: appTheme.colorScheme.primary)),
+              onPressed: () => Navigator.of(context).pop(),
             ),
             TextButton(
-              child: Text('Delete'),
+              child: Text('Delete',
+                  style: TextStyle(color: appTheme.colorScheme.error)),
               onPressed: () {
-                controller.removeEntry(entry.id);
+                controller.deleteEntry(entry.id);
                 Navigator.of(context).pop();
-                Get.snackbar('Success', 'Journal entry deleted successfully!');
               },
             ),
           ],
         );
       },
-    );
-  }
-}
-
-class JournalDetailView extends StatelessWidget {
-  final JournalEntry entry;
-  final appTheme = Get.find<AppTheme>();
-
-  JournalDetailView({required this.entry});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Journal Entry'),
-        actions: [
-          IconButton(
-            icon: Icon(Icons.edit),
-            onPressed: () => Get.to(() => JournalEntryView(entry: entry)),
-          ),
-        ],
-      ),
-      body: SingleChildScrollView(
-        padding: EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              entry.title,
-              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-            ),
-            SizedBox(height: 8),
-            Text(
-              DateFormat('MMMM d, yyyy').format(entry.date),
-              style: TextStyle(fontSize: 14, color: Colors.grey),
-            ),
-            SizedBox(height: 16),
-            Text(
-              entry.content,
-              style: TextStyle(fontSize: 16),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class JournalEntryView extends GetWidget<JournalController> {
-  final JournalEntry? entry;
-
-  JournalEntryView({this.entry});
-
-  @override
-  Widget build(BuildContext context) {
-    final titleController = TextEditingController(text: entry?.title ?? '');
-    final contentController = TextEditingController(text: entry?.content ?? '');
-    final currentDate = entry?.date ?? DateTime.now();
-    final appTheme = Get.find<AppTheme>();
-
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(entry == null ? 'New Entry' : 'Edit Entry'),
-        actions: [
-          IconButton(
-            icon: Icon(Icons.save),
-            onPressed: () async {
-              final newEntry = JournalEntry(
-                id: entry?.id ?? '',
-                title: titleController.text,
-                content: contentController.text,
-                date: currentDate,
-              );
-
-              try {
-                if (entry == null) {
-                  await controller.addEntry(newEntry);
-                } else {
-                  await controller.updateEntry(newEntry);
-                }
-                Get.back();
-                Get.snackbar('Success', 'Journal entry saved successfully!');
-              } catch (e) {
-                Get.snackbar('Error', 'Failed to save journal entry: $e');
-              }
-            },
-          ),
-        ],
-      ),
-      body: Padding(
-        padding: ScaleUtil.symmetric(horizontal: 20, vertical: 10),
-        child: SingleChildScrollView(
-          child: Column(
-            children: [
-              PressableDough(
-                onReleased: (d) {
-                  appTheme.toggleTheme();
-                },
-                child: Container(
-                  padding: EdgeInsets.symmetric(vertical: 8, horizontal: 16),
-                  decoration: BoxDecoration(
-                    color: Theme.of(context).primaryColor,
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  child: Text(
-                    DateFormat('MMMM d, yyyy').format(currentDate),
-                    style: appTheme.bodyMedium.copyWith(color: Colors.white),
-                  ),
-                ),
-              ),
-              SizedBox(height: ScaleUtil.height(20)),
-              Container(
-                decoration: BoxDecoration(
-                  color: appTheme.textFieldFillColor,
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: TextField(
-                  controller: titleController,
-                  style: appTheme.bodyMedium,
-                  decoration: InputDecoration(
-                    hintText: "What should be its title..",
-                    filled: true,
-                    fillColor: Colors.transparent,
-                    labelStyle: appTheme.bodyMedium.copyWith(
-                      color: appTheme.secondaryTextColor,
-                    ),
-                    border: InputBorder.none,
-                    contentPadding:
-                        EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                  ),
-                ),
-              ),
-              SizedBox(height: ScaleUtil.height(16)),
-              Container(
-                height: 400,
-                decoration: BoxDecoration(
-                  color: appTheme.textFieldFillColor,
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(10),
-                  child: TextField(
-                    controller: contentController,
-                    style: appTheme.bodyMedium,
-                    decoration: InputDecoration(
-                      hintText: "Please write on..",
-                      filled: true,
-                      fillColor: Colors.transparent,
-                      labelStyle: appTheme.bodyMedium.copyWith(
-                        color: appTheme.secondaryTextColor,
-                      ),
-                      border: InputBorder.none,
-                      contentPadding:
-                          EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                    ),
-                    maxLines: null,
-                    expands: true,
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
     );
   }
 }

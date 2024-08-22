@@ -573,8 +573,10 @@ Future<void> markNotificationAsDisplayed(int notificationId) async {
         };
 
         if (!currentStatus) {
-          // If marking as complete, add completedAt timestamp
+          // If marking as complete, add completedAt timestamp and remove reminder
           updateData['completedAt'] = FieldValue.serverTimestamp();
+          updateData['hasReminder'] = false;
+          updateData['reminderTime'] = FieldValue.delete();
         } else {
           // If marking as incomplete, remove completedAt and editedAfterCompletion
           updateData['completedAt'] = FieldValue.delete();
@@ -586,7 +588,6 @@ Future<void> markNotificationAsDisplayed(int notificationId) async {
         QuickEventModel event = QuickEventModel.fromFirestore(eventDoc);
         if (!currentStatus && event.hasReminder) {
           await cancelNotification(event);
-          await eventsCollection.doc(eventId).update({'hasReminder': false});
         }
 
         HapticFeedback.mediumImpact();
@@ -596,7 +597,6 @@ Future<void> markNotificationAsDisplayed(int notificationId) async {
       print('Error toggling event completion: $e');
     }
   }
-
   //toggle event reminder
   Future<void> toggleEventReminder(String eventId) async {
     if (currentUser == null) return;

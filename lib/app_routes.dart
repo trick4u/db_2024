@@ -29,9 +29,11 @@ import 'projectBinding/page_one_binding.dart';
 import 'projectBinding/profile_bindings.dart';
 import 'projectBinding/three_tasks_binding.dart';
 import 'projectBinding/vision_board_binding.dart';
+import 'projectController/journal_controller.dart';
 import 'projectPages/add_everyting.dart';
 import 'projectPages/add_task.dart';
 import 'projectPages/eat_the_frog.dart';
+import 'projectPages/journalEntryScreen.dart';
 import 'projectPages/note_taking_screen.dart';
 import 'projectPages/statistics_screen.dart';
 import 'projectPages/journal_page.dart';
@@ -84,11 +86,20 @@ class AppRoutes {
   static const String VISIONBOARD = '/visionBoard';
   static const String AUTHWRAPPER = '/authWrapper';
   static const String JOURNAL = '/journal';
-  static const EMAILVERIFICATION = '/email-verification';
-  static const NOTIFICAION = '/notification';
-  static const NOTETAKING = '/noteTaking';
+  static const String EMAILVERIFICATION = '/email-verification';
+  static const String NOTIFICAION = '/notification';
+  static const String NOTETAKING = '/noteTaking';
+  //journal entry screen
+  static const String JOURNALENTRYSCREEN = '/journalEntryScreen';
 
   static List<GetPage> routes = [
+    GetPage(
+      name: JOURNALENTRYSCREEN,
+      page: () => JournalEntryScreen(),
+      binding: BindingsBuilder(() {
+        Get.lazyPut<JournalController>(() => JournalController());
+      }),
+    ),
     GetPage(
         name: NOTIFICAION,
         page: () => DisplayedNotificationsScreen(),
