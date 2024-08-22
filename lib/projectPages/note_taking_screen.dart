@@ -19,18 +19,22 @@ class NoteTakingScreen extends GetWidget<NoteTakingController> {
         title: Text('your notes'),
       ),
       body: NoteListView(),
-      floatingActionButton: FloatingActionButton(
-        child: Icon(Icons.add),
-        onPressed: () {
-          _showNoteBottomSheet(context, null);
-        },
-        backgroundColor: appTheme.colorScheme.primary,
-      ),
+      floatingActionButton: Obx(() {
+        return controller.canAddMoreNotes
+            ? FloatingActionButton(
+                onPressed: () {
+                  // Show bottom sheet to add new note
+                  _showNoteBottomSheet(context);
+                },
+                child: Icon(Icons.add),
+              )
+            : SizedBox
+                .shrink(); // This will hide the FAB when max notes are reached
+      }),
     );
   }
 
-
-  void _showNoteBottomSheet(BuildContext context, Note? note) {
+  void _showNoteBottomSheet(BuildContext context) {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -39,7 +43,7 @@ class NoteTakingScreen extends GetWidget<NoteTakingController> {
         padding: EdgeInsets.only(
           bottom: MediaQuery.of(context).viewInsets.bottom,
         ),
-        child: NoteBottomSheet(note: note),
+        child: NoteBottomSheet(),
       ),
     );
   }
@@ -278,7 +282,7 @@ class NoteBottomSheet extends GetView<NoteTakingController> {
                       if (note == null) {
                         controller.saveNote();
                       } else {
-                           Note updatedNote = note!.copyWith(
+                        Note updatedNote = note!.copyWith(
                           title: controller.titleController.text.trim(),
                           subTasks: controller.subTasks
                               .map((controller) => controller.text.trim())
@@ -286,7 +290,7 @@ class NoteBottomSheet extends GetView<NoteTakingController> {
                           date: controller.selectedDate,
                           updatedAt: DateTime.now(),
                         );
-                       controller.updateNote(note!.id ?? "", updatedNote);
+                        controller.updateNote(note!.id ?? "", updatedNote);
                       }
                     }
                   : null,

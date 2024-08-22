@@ -15,19 +15,28 @@ class NoteTakingController extends GetxController {
   final isLoading = true.obs;
   final _subtaskLengths = <String, int>{}.obs;
 
+  final isLoadingMore = false.obs;
+
   bool get canAddSubTask => _canAddSubTask.value;
   bool get canSave => _canSave.value;
   DateTime get selectedDate => _selectedDate.value;
   List<Note> get notes => _notes;
-  
-  
+  static const int maxNotes = 20;
 
   static const int maxSubTasks = 10;
+  static const int notesPerPage = 10;
 
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   User? get currentUser => FirebaseAuth.instance.currentUser;
-   int getSubtaskLength(String noteId) {
-    final note = _notes.firstWhere((note) => note.id == noteId, orElse: () => Note(title: '', subTasks: [], date: DateTime.now(), userId: ''));
+  bool get canAddMoreNotes => _notes.length < maxNotes;
+  DocumentSnapshot? _lastDocument;
+  bool _hasMoreNotes = true;
+
+  int getSubtaskLength(String noteId) {
+    final note = _notes.firstWhere((note) => note.id == noteId,
+        orElse: () =>
+            Note(title: '', subTasks: [], date: DateTime.now(), userId: ''));
+
     return note.subTasks.length;
   }
 
@@ -85,7 +94,7 @@ class NoteTakingController extends GetxController {
     }
   }
 
-   Future<void> updateNote(String noteId, Note updatedNote) async {
+  Future<void> updateNote(String noteId, Note updatedNote) async {
     if (currentUser == null) {
       Get.snackbar('Error', 'You must be logged in to update notes');
       return;
@@ -106,6 +115,7 @@ class NoteTakingController extends GetxController {
       Get.snackbar('Error', 'Failed to update note');
     }
   }
+
   void _updateState() {
     if (subTasks.isEmpty) {
       _canAddSubTask.value = titleController.text.trim().isNotEmpty &&
@@ -159,7 +169,7 @@ class NoteTakingController extends GetxController {
       return;
     }
 
-    if (canSave) {
+    if (canSave && canAddMoreNotes) {
       final note = Note(
         title: titleController.text.trim(),
         subTasks: subTasks.map((controller) => controller.text.trim()).toList(),
@@ -178,24 +188,56 @@ class NoteTakingController extends GetxController {
         print('Error saving note: $e');
         Get.snackbar('Error', 'Failed to save note');
       }
+    } else if (!canAddMoreNotes) {
+      Get.snackbar('Error', 'Maximum number of notes (20) reached');
     }
   }
 
-  Future<void> fetchNotes() async {
+  Future<void> fetchNotes({bool loadMore = false}) async {
     if (currentUser == null) return;
+    if (loadMore && !_hasMoreNotes) return;
 
     try {
-      isLoading.value = true;
-      QuerySnapshot querySnapshot =
-          await notesCollection.orderBy('date', descending: true).get();
-      _notes.value = querySnapshot.docs
-          .map((doc) => Note.fromMap(doc.data() as Map<String, dynamic>, doc.id))
+      if (loadMore) {
+        isLoadingMore.value = true;
+      } else {
+        isLoading.value = true;
+      }
+
+      Query query =
+          notesCollection.orderBy('date', descending: true).limit(notesPerPage);
+
+      if (loadMore && _lastDocument != null) {
+        query = query.startAfterDocument(_lastDocument!);
+      }
+
+      QuerySnapshot querySnapshot = await query.get();
+
+      if (querySnapshot.docs.isEmpty) {
+        _hasMoreNotes = false;
+        return;
+      }
+
+      _lastDocument = querySnapshot.docs.last;
+
+      final newNotes = querySnapshot.docs
+          .map(
+              (doc) => Note.fromMap(doc.data() as Map<String, dynamic>, doc.id))
           .toList();
+
+      if (loadMore) {
+        _notes.addAll(newNotes);
+      } else {
+        _notes.assignAll(newNotes);
+      }
+
+      _hasMoreNotes = querySnapshot.docs.length == notesPerPage;
     } catch (e) {
       print('Error fetching notes: $e');
       Get.snackbar('Error', 'Failed to fetch notes');
     } finally {
       isLoading.value = false;
+      isLoadingMore.value = false;
     }
   }
 
