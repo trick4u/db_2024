@@ -10,6 +10,7 @@ class Note {
   DateTime createdAt;
   DateTime updatedAt;
   String userId;
+  bool isCompleted;
 
   Note({
     this.id,
@@ -19,6 +20,7 @@ class Note {
     required this.userId,
     DateTime? createdAt,
     DateTime? updatedAt,
+    this.isCompleted = false,
   })  : this.createdAt = createdAt ?? DateTime.now(),
         this.updatedAt = updatedAt ?? DateTime.now();
 
@@ -30,6 +32,7 @@ class Note {
       'createdAt': Timestamp.fromDate(createdAt),
       'updatedAt': Timestamp.fromDate(updatedAt),
       'userId': userId,
+      'isCompleted': isCompleted,
     };
   }
 
@@ -42,6 +45,7 @@ class Note {
       createdAt: (map['createdAt'] as Timestamp).toDate(),
       updatedAt: (map['updatedAt'] as Timestamp).toDate(),
       userId: map['userId'] as String,
+      isCompleted: map['isCompleted'] as bool? ?? false,
     );
   }
 
@@ -53,6 +57,7 @@ class Note {
     DateTime? createdAt,
     DateTime? updatedAt,
     String? userId,
+    bool? isCompleted,
   }) {
     return Note(
       id: id ?? this.id,
@@ -62,6 +67,7 @@ class Note {
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? DateTime.now(),
       userId: userId ?? this.userId,
+      isCompleted: isCompleted ?? this.isCompleted,
     );
   }
 }

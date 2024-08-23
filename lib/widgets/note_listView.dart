@@ -19,6 +19,18 @@ class NoteListView extends GetWidget<NoteTakingController> {
     return Color.lerp(Colors.white, Colors.deepPurpleAccent, t)!;
   }
 
+  TextStyle _getTextStyle(
+      Color textColor, bool isCompleted, AppTheme appTheme) {
+    return appTheme.bodyMedium.copyWith(
+      color: textColor,
+      decoration:
+          isCompleted ? TextDecoration.lineThrough : TextDecoration.none,
+      decorationColor:
+          textColor.computeLuminance() > 0.5 ? Colors.white : Colors.black,
+      decorationThickness: 2,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final appTheme = Get.find<AppTheme>();
@@ -47,6 +59,11 @@ class NoteListView extends GetWidget<NoteTakingController> {
 
               Note note = controller.notes[index];
               Color tileColor = _getTileColor(index, controller.notes.length);
+              Color textColor = tileColor.computeLuminance() > 0.5
+                  ? Colors.black
+                  : Colors.white;
+              TextStyle textStyle =
+                  _getTextStyle(textColor, note.isCompleted, appTheme);
 
               return Slidable(
                 key: ValueKey(note.id),
@@ -76,11 +93,21 @@ class NoteListView extends GetWidget<NoteTakingController> {
                     data: Theme.of(context)
                         .copyWith(dividerColor: Colors.transparent),
                     child: ExpansionTile(
-                      title: Text(note.title,
-                          style: appTheme.bodyMedium.copyWith(
-                              color: tileColor.computeLuminance() > 0.5
-                                  ? Colors.black
-                                  : Colors.white)),
+                      leading: Transform.scale(
+                        scale: 1.2,
+                        child: Checkbox(
+                          value: note.isCompleted,
+                          onChanged: (_) =>
+                              controller.toggleNoteCompletion(note.id!),
+                          activeColor: Colors.green,
+                          checkColor: textColor,
+                          side: BorderSide(color: textColor),
+                        ),
+                      ),
+                      title: Text(
+                        note.title,
+                        style: textStyle,
+                      ),
                       trailing: SizedBox(
                         width: 150,
                         child: Row(
@@ -88,19 +115,16 @@ class NoteListView extends GetWidget<NoteTakingController> {
                           children: [
                             Text(
                               DateFormat('MMM d, yyyy').format(note.date),
-                              style: appTheme.bodyMedium.copyWith(
-                                  color: tileColor.computeLuminance() > 0.5
-                                      ? Colors.grey[600]
-                                      : Colors.grey[300]),
+                              style: textStyle.copyWith(
+                                color: textColor.withOpacity(0.7),
+                                decoration: TextDecoration.none,
+                              ),
                             ),
                             SizedBox(width: 8),
                             SizedBox(
                               width: 24,
                               child: note.subTasks.isNotEmpty
-                                  ? Icon(Icons.expand_more,
-                                      color: tileColor.computeLuminance() > 0.5
-                                          ? Colors.black
-                                          : Colors.white)
+                                  ? Icon(Icons.expand_more, color: textColor)
                                   : null,
                             ),
                           ],
@@ -115,24 +139,16 @@ class NoteListView extends GetWidget<NoteTakingController> {
                                   return ListTile(
                                     tileColor: tileColor,
                                     leading: Icon(
-                                        Icons.subdirectory_arrow_right,
-                                        color:
-                                            tileColor.computeLuminance() > 0.5
-                                                ? Colors.black
-                                                : Colors.white),
-                                    title: Text(subTask,
-                                        style: appTheme.bodyMedium.copyWith(
-                                            color:
-                                                tileColor.computeLuminance() >
-                                                        0.5
-                                                    ? Colors.black
-                                                    : Colors.white)),
+                                      Icons.subdirectory_arrow_right,
+                                      color: textColor,
+                                    ),
+                                    title: Text(
+                                      subTask,
+                                      style: textStyle,
+                                    ),
                                     trailing: IconButton(
                                       icon: Icon(Icons.close,
-                                          color:
-                                              tileColor.computeLuminance() > 0.5
-                                                  ? Colors.grey[600]
-                                                  : Colors.grey[300]),
+                                          color: textColor.withOpacity(0.7)),
                                       onPressed: () async {
                                         await controller.deleteSubTask(
                                             note.id ?? "", subTaskIndex);

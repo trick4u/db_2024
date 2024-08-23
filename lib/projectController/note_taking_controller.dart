@@ -56,6 +56,33 @@ class NoteTakingController extends GetxController {
     fetchNotes();
   }
 
+
+  Future<void> toggleNoteCompletion(String noteId) async {
+    try {
+      int index = _notes.indexWhere((note) => note.id == noteId);
+      if (index != -1) {
+        Note updatedNote = _notes[index].copyWith(
+          isCompleted: !_notes[index].isCompleted,
+          updatedAt: DateTime.now(),
+        );
+
+        await notesCollection.doc(noteId).update(updatedNote.toMap());
+        _notes[index] = updatedNote;
+        _notes.refresh();
+
+        Get.snackbar(
+          "Note Updated",
+          updatedNote.isCompleted ? "Note marked as completed" : "Note marked as incomplete",
+          snackPosition: SnackPosition.BOTTOM,
+          duration: Duration(seconds: 2),
+        );
+      }
+    } catch (e) {
+      print('Error toggling note completion: $e');
+      Get.snackbar('Error', 'Failed to update note status');
+    }
+  }
+
   void _updateSubtaskLengths(List<Note> notes) {
     for (var note in notes) {
       _subtaskLengths[note.id ?? ''] = note.subTasks.length;
