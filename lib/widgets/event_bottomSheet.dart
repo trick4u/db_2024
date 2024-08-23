@@ -79,60 +79,48 @@ class _EventBottomSheetState extends State<EventBottomSheet> {
   Widget build(BuildContext context) {
     final appTheme = Get.find<AppTheme>();
     return Obx(() => Padding(
-          padding: const EdgeInsets.only(left: 10, right: 10, bottom: 10),
+          padding: ScaleUtil.only(left: 10, right: 10, bottom: 10),
           child: Card(
             elevation: 8,
             color: appTheme.cardColor,
             shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(20),
+              borderRadius: BorderRadius.circular(ScaleUtil.scale(20)),
             ),
             child: Container(
-              padding: EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+              padding: ScaleUtil.symmetric(horizontal: 20, vertical: 20),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
-                //  crossAxisAlignment: CrossAxisAlignment.stretch,
-
                 children: [
                   Row(
                     children: [
                       Text(
                         widget.event == null ? 'Add Event' : 'Edit Event',
-                        style: appTheme.titleLarge,
+                        style: AppTextTheme.textTheme.titleLarge,
                       ),
                       Spacer(),
                       _buildReminderWidget(context, appTheme),
-                      // ElevatedButton(
-                      //   onPressed: () {
-                      //     showColorPickerDialog();
-                      //   },
-                      //   child: Text('Select Color'),
-                      //   style: ElevatedButton.styleFrom(
-                      //     backgroundColor: _selectedColor,
-                      //     foregroundColor:
-                      //         _selectedColor.computeLuminance() > 0.5
-                      //             ? Colors.black
-                      //             : Colors.white,
-                      //   ),
-                      // ),
                       IconButton(
-                        icon: Icon(Icons.close, color: appTheme.textColor),
+                        icon: Icon(Icons.close,
+                            color: appTheme.textColor,
+                            size: ScaleUtil.scale(24)),
                         onPressed: () {
                           Get.back();
                         },
                       ),
                     ],
                   ),
-                  SizedBox(height: 16),
+                  SizedBox(height: ScaleUtil.height(16)),
                   ClipRRect(
-                    borderRadius: BorderRadius.all(Radius.circular(10)),
+                    borderRadius:
+                        BorderRadius.all(Radius.circular(ScaleUtil.scale(10))),
                     child: TextField(
                       controller: _titleController,
-                      style: appTheme.bodyMedium,
+                      style: AppTextTheme.textTheme.bodyMedium,
                       decoration: InputDecoration(
                         labelText: 'Event Title',
                         filled: true,
                         fillColor: appTheme.textFieldFillColor,
-                        labelStyle: appTheme.bodyMedium.copyWith(
+                        labelStyle: AppTextTheme.textTheme.bodyMedium?.copyWith(
                           color: appTheme.secondaryTextColor,
                         ),
                         border: InputBorder.none,
@@ -141,25 +129,23 @@ class _EventBottomSheetState extends State<EventBottomSheet> {
                         errorBorder: InputBorder.none,
                         disabledBorder: InputBorder.none,
                         contentPadding:
-                            EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                            ScaleUtil.symmetric(horizontal: 16, vertical: 12),
                       ),
                       onChanged: (value) => _updateTitleState(),
                     ),
                   ),
-
-                  SizedBox(height: 16),
+                  SizedBox(height: ScaleUtil.height(16)),
                   if (_isDescriptionVisible) ...[
-                    SizedBox(height: 8),
+                    SizedBox(height: ScaleUtil.height(8)),
                     ClipRRect(
                       borderRadius: BorderRadius.all(
-                        Radius.circular(10),
+                        Radius.circular(ScaleUtil.scale(10)),
                       ),
                       child: TextField(
                         controller: _descriptionController,
-                        style: appTheme.bodyMedium,
+                        style: AppTextTheme.textTheme.bodyMedium,
                         decoration: InputDecoration(
                           labelText: 'Description',
-
                           filled: true,
                           fillColor: appTheme.textFieldFillColor,
                           border: InputBorder.none,
@@ -167,142 +153,22 @@ class _EventBottomSheetState extends State<EventBottomSheet> {
                           focusedBorder: InputBorder.none,
                           errorBorder: InputBorder.none,
                           disabledBorder: InputBorder.none,
-                          // ... (other decoration properties)
+                          contentPadding:
+                              ScaleUtil.symmetric(horizontal: 16, vertical: 12),
                         ),
                         maxLines: 3,
                       ),
                     ),
                   ],
-
-                  SizedBox(
-                    height: ScaleUtil.height(10),
-                  ),
-                  // Row(
-                  //   children: [
-                  //     // Expanded(
-                  //     //   child: ElevatedButton(
-                  //     //     onPressed: () async {
-                  //     //       final DateTime? picked = await showDatePicker(
-                  //     //         context: context,
-                  //     //         initialDate: _selectedDate,
-                  //     //         firstDate: DateTime.now(),
-                  //     //         lastDate: DateTime(2101),
-                  //     //         builder: (BuildContext context, Widget? child) {
-                  //     //           return Theme(
-                  //     //             data: ThemeData.light().copyWith(
-                  //     //               colorScheme: ColorScheme.light(
-                  //     //                 primary: appTheme.colorScheme.primary,
-                  //     //                 onPrimary: appTheme.colorScheme.onPrimary,
-                  //     //                 surface: appTheme.colorScheme.surface,
-                  //     //                 onSurface: appTheme.colorScheme.onSurface,
-                  //     //               ),
-                  //     //             ),
-                  //     //             child: child!,
-                  //     //           );
-                  //     //         },
-                  //     //       );
-                  //     //       if (picked != null && picked != _selectedDate) {
-                  //     //         setState(() {
-                  //     //           _selectedDate = picked;
-                  //     //         });
-                  //     //       }
-                  //     //     },
-                  //     //     style: appTheme.primaryButtonStyle,
-                  //     //     child: Text('Select Date'),
-                  //     //   ),
-                  //     // ),
-                  //     // SizedBox(width: 16),
-                  //     Expanded(
-                  //       child: TimePickerSpinnerPopUp(
-                  //         mode: CupertinoDatePickerMode.time,
-                  //         initTime: _startTime ?? DateTime.now(),
-                  //         onChange: (dateTime) {
-                  //           setState(() {
-                  //             _startTime = dateTime;
-                  //           });
-                  //         },
-                  //         barrierColor: Colors.black26,
-                  //         minuteInterval: 1,
-                  //         padding: const EdgeInsets.fromLTRB(12, 10, 12, 10),
-                  //         cancelText: 'Cancel',
-                  //         confirmText: 'OK',
-                  //         pressType: PressType.singlePress,
-                  //         timeFormat: 'HH:mm',
-                  //       ),
-                  //     ),
-                  //     SizedBox(
-                  //       width: 10,
-                  //     ),
-                  //     Expanded(
-                  //       child: TimePickerSpinnerPopUp(
-                  //         mode: CupertinoDatePickerMode.time,
-                  //         initTime: _endTime ?? DateTime.now(),
-                  //         onChange: (dateTime) {
-                  //           setState(() {
-                  //             _endTime = dateTime;
-                  //           });
-                  //         },
-                  //         barrierColor: Colors.black26,
-                  //         minuteInterval: 1,
-                  //         padding: const EdgeInsets.fromLTRB(12, 10, 12, 10),
-                  //         cancelText: 'Cancel',
-                  //         confirmText: 'OK',
-                  //         pressType: PressType.singlePress,
-                  //         timeFormat: 'HH:mm',
-                  //       ),
-                  //     ),
-                  //   ],
-                  // ),
-
-                  // Row(
-                  //   mainAxisAlignment: MainAxisAlignment.center,
-                  //   children: [
-                  //     ReminderButton(
-                  //       isReminderSet: _isReminderSet,
-                  //       reminderTime: _reminderTime,
-                  //       onPressed: () {
-                  //         setState(() {
-                  //           _isReminderSet = !_isReminderSet;
-                  //           if (_isReminderSet) {
-                  //             _reminderTime = _reminderTime ?? DateTime.now();
-                  //           } else {
-                  //             _reminderTime = null;
-                  //           }
-                  //         });
-                  //       },
-                  //     ),
-                  //     SizedBox(
-                  //       width: ScaleUtil.width(10),
-                  //     ),
-                  //     TimePickerSpinnerPopUp(
-                  //       mode: CupertinoDatePickerMode.time,
-                  //       initTime: _reminderTime ?? DateTime.now(),
-                  //       onChange: (dateTime) {
-                  //         if (_isReminderSet) {
-                  //           setState(() {
-                  //             _reminderTime = dateTime;
-                  //           });
-                  //         }
-                  //       },
-                  //       barrierColor: Colors.black26,
-                  //       minuteInterval: 1,
-                  //       padding: const EdgeInsets.fromLTRB(12, 10, 12, 10),
-                  //       cancelText: 'Cancel',
-                  //       confirmText: 'OK',
-                  //       pressType: PressType.singlePress,
-                  //       timeFormat: 'HH:mm',
-                  //     ),
-                  //   ],
-                  // ),
-
+                  SizedBox(height: ScaleUtil.height(10)),
                   SlideInLeft(
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.end,
                       children: [
                         _buildDescriptionToggleButton(context, appTheme),
-                        SizedBox(width: 16),
+                        SizedBox(width: ScaleUtil.width(16)),
                         _buildColorIconButton(context, appTheme),
-                        SizedBox(width: 16),
+                        SizedBox(width: ScaleUtil.width(16)),
                         _buildSaveIconButton(context, appTheme),
                       ],
                     ),
@@ -327,20 +193,20 @@ class _EventBottomSheetState extends State<EventBottomSheet> {
         child: Material(
           color: Colors.transparent,
           child: InkWell(
-            borderRadius: BorderRadius.circular(20),
+            borderRadius: BorderRadius.circular(ScaleUtil.scale(20)),
             onTap: () {
               setState(() {
                 _isDescriptionVisible = !_isDescriptionVisible;
               });
             },
             child: Padding(
-              padding: EdgeInsets.all(10),
+              padding: ScaleUtil.all(10),
               child: FaIcon(
                 _isDescriptionVisible
                     ? FontAwesomeIcons.listUl
                     : FontAwesomeIcons.list,
                 color: _isDescriptionVisible ? Colors.white : Colors.black,
-                size: 20,
+                size: ScaleUtil.scale(20),
               ),
             ),
           ),
@@ -358,16 +224,16 @@ class _EventBottomSheetState extends State<EventBottomSheet> {
       child: Material(
         color: Colors.transparent,
         child: InkWell(
-          borderRadius: BorderRadius.circular(20),
+          borderRadius: BorderRadius.circular(ScaleUtil.scale(20)),
           onTap: () => showColorPickerDialog(context),
           child: Padding(
-            padding: EdgeInsets.all(10),
+            padding: ScaleUtil.all(10),
             child: FaIcon(
               FontAwesomeIcons.palette,
               color: _selectedColor.computeLuminance() > 0.5
                   ? Colors.black
                   : Colors.white,
-              size: 20,
+              size: ScaleUtil.scale(20),
             ),
           ),
         ),
@@ -384,7 +250,7 @@ class _EventBottomSheetState extends State<EventBottomSheet> {
       child: Material(
         color: Colors.transparent,
         child: InkWell(
-          borderRadius: BorderRadius.circular(20),
+          borderRadius: BorderRadius.circular(ScaleUtil.scale(20)),
           onTap: _isTitleEmpty
               ? null
               : () {
@@ -403,11 +269,11 @@ class _EventBottomSheetState extends State<EventBottomSheet> {
                   Navigator.pop(context);
                 },
           child: Padding(
-            padding: EdgeInsets.all(10),
+            padding: ScaleUtil.all(10),
             child: Icon(
               FontAwesomeIcons.check,
               color: Colors.white,
-              size: 20,
+              size: ScaleUtil.scale(20),
             ),
           ),
         ),
@@ -419,19 +285,19 @@ class _EventBottomSheetState extends State<EventBottomSheet> {
     return Container(
       decoration: BoxDecoration(
         color: _selectedColor,
-        borderRadius: BorderRadius.circular(8),
+        borderRadius: BorderRadius.circular(ScaleUtil.scale(8)),
       ),
       child: Material(
         color: Colors.transparent,
         child: InkWell(
-          borderRadius: BorderRadius.circular(8),
+          borderRadius: BorderRadius.circular(ScaleUtil.scale(8)),
           onTap: () => showColorPickerDialog(context),
           child: Padding(
-            padding: EdgeInsets.symmetric(vertical: 10, horizontal: 15),
+            padding: ScaleUtil.symmetric(vertical: 10, horizontal: 15),
             child: Text(
               'Color',
               textAlign: TextAlign.center,
-              style: TextStyle(
+              style: AppTextTheme.textTheme.bodyMedium?.copyWith(
                 color: _selectedColor.computeLuminance() > 0.5
                     ? Colors.black
                     : Colors.white,
@@ -448,15 +314,17 @@ class _EventBottomSheetState extends State<EventBottomSheet> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: const Text('Pick a color'),
+          title: Text('Pick a color', style: AppTextTheme.textTheme.titleLarge),
           content: SingleChildScrollView(
             child: ColorPicker(
               color: _selectedColor,
               onColorChanged: (Color color) {
                 setState(() => _selectedColor = color);
               },
-              heading: Text('Select color'),
-              subheading: Text('Select color shade'),
+              heading: Text('Select color',
+                  style: AppTextTheme.textTheme.titleMedium),
+              subheading: Text('Select color shade',
+                  style: AppTextTheme.textTheme.titleSmall),
               pickersEnabled: const <ColorPickerType, bool>{
                 ColorPickerType.both: false,
                 ColorPickerType.primary: true,
@@ -469,7 +337,7 @@ class _EventBottomSheetState extends State<EventBottomSheet> {
           ),
           actions: <Widget>[
             TextButton(
-              child: const Text('OK'),
+              child: Text('OK', style: AppTextTheme.textTheme.labelLarge),
               onPressed: () {
                 Navigator.of(context).pop();
               },
@@ -484,12 +352,12 @@ class _EventBottomSheetState extends State<EventBottomSheet> {
     return Container(
       decoration: BoxDecoration(
         color: _isTitleEmpty ? Colors.grey : appTheme.colorScheme.primary,
-        borderRadius: BorderRadius.circular(8),
+        borderRadius: BorderRadius.circular(ScaleUtil.scale(8)),
       ),
       child: Material(
         color: Colors.transparent,
         child: InkWell(
-          borderRadius: BorderRadius.circular(8),
+          borderRadius: BorderRadius.circular(ScaleUtil.scale(8)),
           onTap: _isTitleEmpty
               ? null
               : () {
@@ -508,11 +376,12 @@ class _EventBottomSheetState extends State<EventBottomSheet> {
                   Navigator.pop(context);
                 },
           child: Padding(
-            padding: EdgeInsets.symmetric(vertical: 10, horizontal: 15),
+            padding: ScaleUtil.symmetric(vertical: 10, horizontal: 15),
             child: Text(
               'Save',
               textAlign: TextAlign.center,
-              style: TextStyle(color: Colors.white),
+              style: AppTextTheme.textTheme.labelLarge
+                  ?.copyWith(color: Colors.white),
             ),
           ),
         ),
@@ -542,7 +411,8 @@ class _EventBottomSheetState extends State<EventBottomSheet> {
       },
       barrierColor: Colors.black26,
       minuteInterval: 1,
-      padding: const EdgeInsets.fromLTRB(12, 10, 12, 10),
+      padding: EdgeInsets.fromLTRB(ScaleUtil.width(12), ScaleUtil.height(10),
+          ScaleUtil.width(12), ScaleUtil.height(10)),
       cancelText: 'Cancel',
       confirmText: 'OK',
       pressType: PressType.singlePress,
@@ -552,26 +422,29 @@ class _EventBottomSheetState extends State<EventBottomSheet> {
 
   Widget _buildReminderInfo(AppTheme appTheme) {
     return Container(
-      padding: EdgeInsets.symmetric(vertical: 0, horizontal: 5),
+      padding: ScaleUtil.symmetric(vertical: 0, horizontal: 5),
       decoration: BoxDecoration(
         color: Colors.green,
-        borderRadius: BorderRadius.circular(8),
+        borderRadius: BorderRadius.circular(ScaleUtil.scale(8)),
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Row(
             children: [
-              Icon(Icons.alarm_on, color: Colors.white),
-              SizedBox(width: 8),
+              Icon(Icons.alarm_on,
+                  color: Colors.white, size: ScaleUtil.scale(20)),
+              SizedBox(width: ScaleUtil.width(8)),
               Text(
                 ' ${_formatTime(_reminderTime!)}',
-                style: TextStyle(color: Colors.white),
+                style: AppTextTheme.textTheme.bodyMedium
+                    ?.copyWith(color: Colors.white),
               ),
             ],
           ),
           IconButton(
-            icon: Icon(Icons.close, color: Colors.white),
+            icon: Icon(Icons.close,
+                color: Colors.white, size: ScaleUtil.scale(20)),
             onPressed: () {
               setState(() {
                 _isReminderSet = false;
@@ -583,51 +456,6 @@ class _EventBottomSheetState extends State<EventBottomSheet> {
       ),
     );
   }
-
-  // void showColorPickerDialog() {
-  //   final appTheme = Get.find<AppTheme>();
-  //   showDialog(
-  //     context: context,
-  //     builder: (BuildContext context) {
-  //       return AlertDialog(
-  //         title:
-  //             Text('Pick a color', style: TextStyle(color: appTheme.textColor)),
-  //         backgroundColor: appTheme.cardColor,
-  //         content: SingleChildScrollView(
-  //           child: ColorPicker(
-  //             color: _selectedColor,
-  //             onColorChanged: (Color color) {
-  //               setState(() => _selectedColor = color);
-  //             },
-  //             heading: Text('Select color',
-  //                 style: TextStyle(color: appTheme.textColor)),
-  //             subheading: Text('Select color shade',
-  //                 style: TextStyle(color: appTheme.textColor)),
-  //             wheelSubheading: Text('Selected color and its shades',
-  //                 style: TextStyle(color: appTheme.textColor)),
-  //             pickersEnabled: const <ColorPickerType, bool>{
-  //               ColorPickerType.both: false,
-  //               ColorPickerType.primary: true,
-  //               ColorPickerType.accent: true,
-  //               ColorPickerType.bw: false,
-  //               ColorPickerType.custom: true,
-  //               ColorPickerType.wheel: true,
-  //             },
-  //           ),
-  //         ),
-  //         actions: <Widget>[
-  //           TextButton(
-  //             child: Text('OK',
-  //                 style: TextStyle(color: appTheme.colorScheme.primary)),
-  //             onPressed: () {
-  //               Navigator.of(context).pop();
-  //             },
-  //           ),
-  //         ],
-  //       );
-  //     },
-  //   );
-  // }
 
   String _formatTime(DateTime dateTime) {
     return "${dateTime.hour.toString().padLeft(2, '0')}:${dateTime.minute.toString().padLeft(2, '0')}";
@@ -652,10 +480,10 @@ class ReminderButton extends StatelessWidget {
     return InkWell(
       onTap: onPressed,
       child: Container(
-        padding: EdgeInsets.symmetric(vertical: 10, horizontal: 15),
+        padding: ScaleUtil.symmetric(vertical: 10, horizontal: 15),
         decoration: BoxDecoration(
           color: isReminderSet ? Colors.green : appTheme.colorScheme.secondary,
-          borderRadius: BorderRadius.circular(8),
+          borderRadius: BorderRadius.circular(ScaleUtil.scale(8)),
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -663,13 +491,16 @@ class ReminderButton extends StatelessWidget {
             Icon(
               isReminderSet ? Icons.alarm_on : Icons.alarm_add,
               color: appTheme.colorScheme.onSecondary,
+              size: ScaleUtil.scale(20),
             ),
-            SizedBox(width: 8),
+            SizedBox(width: ScaleUtil.width(8)),
             Text(
               isReminderSet && reminderTime != null
                   ? 'Reminder: ${_formatTime(reminderTime!)}'
                   : 'Set Reminder',
-              style: TextStyle(color: appTheme.colorScheme.onSecondary),
+              style: AppTextTheme.textTheme.bodyMedium?.copyWith(
+                color: appTheme.colorScheme.onSecondary,
+              ),
             ),
           ],
         ),

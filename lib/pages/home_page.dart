@@ -117,7 +117,7 @@ class MyHomePage extends StatelessWidget {
             appTheme.toggleTheme();
           },
           child: Container(
-            height: ScaleUtil.height(310),
+            height: ScaleUtil.height(300),
             margin: ScaleUtil.all(20),
             padding: ScaleUtil.all(20),
             decoration: BoxDecoration(
@@ -130,6 +130,7 @@ class MyHomePage extends StatelessWidget {
               children: [
                 SizedBox(height: ScaleUtil.height(10)),
                 Text('Get Started', style: appTheme.titleLarge),
+                SizedBox(height: ScaleUtil.height(10)),
                 Text(
                   'Register for events, subscribe to calendars and manage events you\'re going to.',
                   style: appTheme.bodyMedium,
@@ -151,182 +152,9 @@ class MyHomePage extends StatelessWidget {
                   style: appTheme.primaryButtonStyle,
                 ),
                 SizedBox(height: ScaleUtil.height(16)),
-                Row(
-                  children: [
-                    Expanded(
-                      child: ElevatedButton(
-                        child: Icon(Icons.apple),
-                        onPressed: () {},
-                        style: appTheme.primaryButtonStyle,
-                      ),
-                    ),
-                    SizedBox(width: ScaleUtil.width(10)),
-                    Expanded(
-                      child: ElevatedButton(
-                        child: Text('G'),
-                        onPressed: () {},
-                        style: appTheme.primaryButtonStyle,
-                      ),
-                    ),
-                  ],
-                ),
               ],
             ),
           ),
         ));
   }
 }
-
-// class MyHomePage extends GetWidget<HomeController> {
-//   const MyHomePage({super.key});
-
-//   //dispose the tab controller
-//   @override
-//   Widget build(BuildContext context) {
-//     // timeDilation = 10.0;
-
-//     return Scaffold(
-//         backgroundColor:
-//             controller.isDarkMode.value ? Colors.black : Colors.white,
-//         resizeToAvoidBottomInset: false,
-//         appBar: AppBar(
-//           centerTitle: false,
-//           title: Hero(
-//             tag: 'logo',
-//             child: PressableDough(
-//               onReleased: (s) {
-//                 controller.changeTheme();
-//               },
-//               child: AbsorbPointer(
-//                 child: Obx(() => Text(
-//                       'doBoard',
-//                       style: TextStyle(
-//                         fontFamily: GoogleFonts.inder().fontFamily,
-//                         fontSize: ScaleUtil.fontSize ScaleUtil.fontSize ScaleUtil.fontSize ScaleUtil.fontSize ScaleUtil.fontSize 40,
-//                         fontWeight: FontWeight.bold,
-//                         color: controller.isDarkMode.value
-//                             ? Colors.white
-//                             : Colors.black,
-//                         decoration: TextDecoration.none,
-//                         inherit: false,
-//                       ),
-//                     )),
-//               ),
-//             ),
-//           ),
-//         ),
-//         body: SafeArea(
-//           child: Container(
-//             height: MediaQuery.of(context).size.height,
-//             width: MediaQuery.of(context).size.width,
-//             margin: EdgeInsets.all(10),
-//             color: controller.isDarkMode.value ? Colors.black : Colors.white,
-//             child: Column(
-//               children: [
-//                 Center(
-//                   child: Text(
-//                     'Welcome to doBoard!',
-//                     style: TextStyle(
-//                       fontFamily: GoogleFonts.ubuntu().fontFamily,
-//                       fontSize: ScaleUtil.fontSize ScaleUtil.fontSize ScaleUtil.fontSize ScaleUtil.fontSize ScaleUtil.fontSize 20,
-//                     ),
-//                   ),
-//                 ),
-//                 SizedBox(height: 20),
-//                 Container(
-//                   height: 100,
-//                   width: 200,
-//                   decoration: BoxDecoration(
-//                     color: controller.isDarkMode.value
-//                         ? Colors.white
-//                         : Colors.black,
-//                     borderRadius: BorderRadius.circular(10),
-//                   ),
-//                   child: TabBar(
-//                     controller: controller.tabController,
-//                     indicatorColor: Colors.transparent,
-//                     labelColor: Colors.white,
-//                     unselectedLabelColor: Colors.white70,
-//                     onTap: (index) {
-//                       controller.tabController.animateTo(index);
-//                     },
-//                     labelStyle: TextStyle(
-//                       color: Colors.black,
-//                     ),
-//                     tabs: [
-//                       Tab(
-//                         text: 'Login',
-//                       ),
-//                       Tab(
-//                         text: 'Register',
-//                       ),
-//                     ],
-//                   ),
-//                 ),
-
-//                 //sized box
-//                 SizedBox(height: 20),
-//                 // tab bar view
-//                 Expanded(
-//                   child: TabBarView(
-//                     controller: controller.tabController,
-//                     clipBehavior: Clip.none,
-//                     children: [
-//                       //login
-//                       LoginForm(controller: controller),
-//                       //register
-//                       RegistrationForm(controller: controller),
-//                     ],
-//                   ),
-//                 ),
-
-//                 TextButton(
-//                   onPressed: () {
-//                     Get.toNamed(AppRoutes.PHONEAUTH);
-//                   },
-//                   child: Text("Phone Auth"),
-//                 ),
-//               ],
-//             ),
-//           ),
-//         ));
-//   }
-// }
-
-// class LoginForm extends StatelessWidget {
-//   const LoginForm({
-//     super.key,
-//     required this.controller,
-//   });
-
-//   final HomeController controller;
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return Column(
-//       children: [
-//         //email
-//         TextField(
-//           controller: controller.emailController,
-//           decoration: InputDecoration(
-//             hintText: 'Email',
-//           ),
-//         ),
-//         //password
-//         TextField(
-//           controller: controller.passwordController,
-//           decoration: InputDecoration(
-//             hintText: 'Password',
-//           ),
-//         ),
-//         //login button
-//         TextButton(
-//           onPressed: () {
-//             controller.login();
-//           },
-//           child: Text('Login'),
-//         ),
-//       ],
-//     );
-//   }
-// }

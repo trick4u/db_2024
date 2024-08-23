@@ -124,10 +124,10 @@ class AllSixCards extends GetWidget<PageOneController> {
                       textAlign: TextAlign.center,
                     ),
                     if (items[index]['icon'] != null) ...[
-                      SizedBox(width: 8),
+                      SizedBox(width: ScaleUtil.width(8)),
                       FaIcon(
                         items[index]['icon'],
-                        size: 16,
+                        size: ScaleUtil.scale(16),
                         color: selectedTile.value ==
                                 items[index]['title']!.toLowerCase()
                             ? Colors.deepPurpleAccent
@@ -143,7 +143,8 @@ class AllSixCards extends GetWidget<PageOneController> {
 
     if (useFixedHeight) {
       return SizedBox(
-        height: height ?? 200, // Default height if not provided
+        height:
+            height ?? ScaleUtil.height(200), // Default height if not provided
         child: gridView,
       );
     } else {
@@ -151,147 +152,5 @@ class AllSixCards extends GetWidget<PageOneController> {
     }
   }
 
-  void showBottomSheet() {
-    final appTheme = AppTheme();
-    final reminderController = Get.find<
-        PageOneController>(); // Replace with your actual controller name
-
-    showModalBottomSheet(
-      context: Get.context!,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (BuildContext context) {
-        return Padding(
-          padding: ScaleUtil.symmetric(horizontal: 10),
-          child: DraggableScrollableSheet(
-            initialChildSize: 0.5,
-            minChildSize: 0.5,
-            maxChildSize: 0.95,
-            builder: (_, scrollController) {
-              return Container(
-                decoration: BoxDecoration(
-                  color: appTheme.cardColor,
-                  borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-                ),
-                child: Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 15),
-                  child: ListView(
-                    controller: scrollController,
-                    children: [
-                      const SizedBox(height: 20),
-                      Text(
-                        'Quick Reminder',
-                        style: appTheme.titleLarge,
-                        textAlign: TextAlign.center,
-                      ),
-                      const SizedBox(height: 20),
-                      Text(
-                        'Remind me about',
-                        style: appTheme.bodyMedium,
-                      ),
-                      const SizedBox(height: 20),
-                      ClipRRect(
-                        borderRadius: BorderRadius.circular(10),
-                        child: TextField(
-                          controller: reminderController.reminderTextController,
-                          onChanged: (value) {},
-                          style: appTheme.bodyMedium,
-                          decoration: InputDecoration(
-                            border: InputBorder.none,
-                            labelText: 'Enter Task Name',
-                            fillColor: appTheme.textFieldFillColor,
-                            filled: true,
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 20),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            'Remind me after',
-                            style: appTheme.bodyMedium,
-                          ),
-                          Obx(() => Text(
-                                'Switch is ${reminderController.repeat.value ? "ON" : "OFF"}',
-                                style: appTheme.bodyMedium,
-                              )),
-                          Obx(() => Switch(
-                                value: reminderController.repeat.value,
-                                onChanged: (value) {
-                                  reminderController.toggleSwitch(value);
-                                },
-                              )),
-                        ],
-                      ),
-                      const SizedBox(height: 20),
-                      ChipWidgets(
-                        pageOneController: reminderController,
-                      ),
-                      const SizedBox(height: 20),
-                      Obx(() {
-                        return Wrap(
-                          spacing: 8.0,
-                          children: [
-                            'Monday',
-                            'Tuesday',
-                            'Wednesday',
-                            'Thursday',
-                            'Friday',
-                            'Saturday',
-                            'Sunday'
-                          ].map((day) {
-                            final isSelected =
-                                reminderController.selectedDays.contains(day);
-                            return FilterChip(
-                              label: Text(day, style: appTheme.bodyMedium),
-                              selected: isSelected,
-                              onSelected: (_) =>
-                                  reminderController.toggleDay(day),
-                              backgroundColor: appTheme.cardColor,
-                              selectedColor: appTheme.colorScheme.primary,
-                            );
-                          }).toList(),
-                        );
-                      }),
-                      SizedBox(height: 20),
-                      ElevatedButton(
-                        onPressed: () {
-                          if (reminderController.timeSelected.value == 1) {
-                            reminderController.schedulePeriodicNotifications(
-                                reminderController.reminderTextController.text,
-                                15,
-                                reminderController.repeat.value);
-                          } else if (reminderController.timeSelected.value ==
-                              2) {
-                            reminderController.schedulePeriodicNotifications(
-                                reminderController.reminderTextController.text,
-                                30,
-                                reminderController.repeat.value);
-                          } else if (reminderController.timeSelected.value ==
-                              3) {
-                            reminderController.schedulePeriodicNotifications(
-                                reminderController.reminderTextController.text,
-                                60,
-                                reminderController.repeat.value);
-                          }
-                          reminderController
-                              .saveReminder(reminderController.repeat.value);
-                          Get.back();
-                        },
-                        style: appTheme.primaryButtonStyle,
-                        child: Text('Save',
-                            style: appTheme.bodyMedium.copyWith(
-                                color: appTheme.colorScheme.onPrimary)),
-                      ),
-                    ],
-                  ),
-                ),
-              );
-            },
-          ),
-        );
-      },
-    );
-  }
+ 
 }

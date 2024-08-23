@@ -3,7 +3,9 @@ import 'package:get/get.dart';
 
 import '../models/reminder_model.dart';
 import '../projectController/page_one_controller.dart';
+import '../services/app_text_style.dart';
 import '../services/app_theme.dart';
+import '../services/scale_util.dart';
 import 'quick_bottomsheet.dart';
 
 class RemindersList extends GetWidget<PageOneController> {
@@ -21,24 +23,34 @@ class RemindersList extends GetWidget<PageOneController> {
         itemBuilder: (context, index) {
           final reminder = controller.allReminders[index];
           return ListTile(
-            title: Text(reminder.reminder),
-            subtitle: Text('Time: ${reminder.time} minutes'),
+            title: Text(
+              reminder.reminder,
+              style: AppTextTheme.textTheme.bodyLarge,
+            ),
+            subtitle: Text(
+              'Time: ${reminder.time} minutes',
+              style: AppTextTheme.textTheme.bodyMedium,
+            ),
             trailing: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
                 IconButton(
-                  icon: Icon(Icons.edit),
+                  icon: Icon(Icons.edit, size: ScaleUtil.scale(24)),
                   onPressed: () => controller.showEditReminderDialog(reminder),
                 ),
-                Checkbox(
-                  value: reminder.isCompleted,
-                  onChanged: (bool? value) {
-                    controller.toggleReminderCompletion(
-                        reminder.id, value ?? false);
-                  },
+                SizedBox(
+                  width: ScaleUtil.scale(24),
+                  height: ScaleUtil.scale(24),
+                  child: Checkbox(
+                    value: reminder.isCompleted,
+                    onChanged: (bool? value) {
+                      controller.toggleReminderCompletion(
+                          reminder.id, value ?? false);
+                    },
+                  ),
                 ),
                 IconButton(
-                  icon: Icon(Icons.delete),
+                  icon: Icon(Icons.delete, size: ScaleUtil.scale(24)),
                   onPressed: () => controller.deleteReminder(reminder.id),
                 ),
               ],
@@ -57,19 +69,18 @@ class RemindersList extends GetWidget<PageOneController> {
         children: [
           Icon(
             Icons.event_note,
-            size: 64,
+            size: ScaleUtil.scale(64),
             color: Colors.grey,
           ),
-          SizedBox(height: 16),
+          SizedBox(height: ScaleUtil.height(16)),
           Text(
             'No reminders yet',
-            style: TextStyle(
-              fontSize: 18,
+            style: AppTextTheme.textTheme.titleMedium?.copyWith(
               fontWeight: FontWeight.bold,
               color: Colors.grey,
             ),
           ),
-          SizedBox(height: 8),
+          SizedBox(height: ScaleUtil.height(8)),
           InkWell(
             onTap: () {
               showModalBottomSheet(
@@ -87,7 +98,7 @@ class RemindersList extends GetWidget<PageOneController> {
             child: Text(
               'Tap "add reminders +" to create a new reminder',
               textAlign: TextAlign.center,
-              style: TextStyle(
+              style: AppTextTheme.textTheme.bodyMedium?.copyWith(
                 color: Colors.grey,
               ),
             ),

@@ -209,7 +209,7 @@ class NoteListView extends GetWidget<NoteTakingController> {
               style: TextStyle(
                 color: Colors.white,
                 fontWeight: FontWeight.bold,
-                fontSize: ScaleUtil.fontSize(12),
+                fontSize: ScaleUtil.fontSize(10),
               ),
             ),
           ],

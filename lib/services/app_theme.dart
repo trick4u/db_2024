@@ -58,7 +58,7 @@ class AppTheme extends GetxController {
       ? Color(0xFF424242) // Slightly lighter than dark background
       : Color(0xFFE0E0E0);
   TextStyle get titleLarge => TextStyle(
-        fontSize: ScaleUtil.fontSize(20),
+        fontSize: ScaleUtil.fontSize(16),
         fontWeight: FontWeight.bold,
         fontFamily: "Euclid",
         color: textColor,
@@ -66,6 +66,11 @@ class AppTheme extends GetxController {
 
   TextStyle get bodyMedium => TextStyle(
         fontSize: ScaleUtil.fontSize(14),
+        color: textColor,
+        fontFamily: "Euclid",
+      );
+  TextStyle get bodySmall => TextStyle(
+        fontSize: ScaleUtil.fontSize(12),
         color: textColor,
         fontFamily: "Euclid",
       );
