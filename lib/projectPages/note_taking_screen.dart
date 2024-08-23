@@ -220,10 +220,15 @@ class NoteBottomSheet extends GetView<NoteTakingController> {
   Widget _buildDatePicker(BuildContext context) {
     return InkWell(
       onTap: () async {
+        DateTime now = DateTime.now();
+        DateTime initialDate = controller.selectedDate.isAfter(now)
+            ? controller.selectedDate
+            : now;
+
         DateTime? pickedDate = await showOmniDateTimePicker(
           context: context,
-          initialDate: controller.selectedDate,
-          firstDate: DateTime.now(),
+          initialDate: initialDate,
+          firstDate: now,
           lastDate: DateTime(2101),
           is24HourMode: true,
           isShowSeconds: false,
@@ -248,8 +253,8 @@ class NoteBottomSheet extends GetView<NoteTakingController> {
           transitionDuration: const Duration(milliseconds: 200),
           barrierDismissible: true,
           selectableDayPredicate: (dateTime) {
-            // Allow selecting any date
-            return true;
+            // Allow selecting any date from today onwards
+            return dateTime.isAfter(now.subtract(Duration(days: 1)));
           },
         );
 
