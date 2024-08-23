@@ -28,7 +28,6 @@ class EventCard extends StatelessWidget {
     Get.put(CalendarController());
     return Slidable(
       key: ValueKey(event.id),
-    
       endActionPane: ActionPane(
         motion: const BehindMotion(),
         extentRatio: 0.5,
@@ -120,7 +119,7 @@ class EventCard extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Text(
-            DateFormat('MMM d').format(event.date),
+            DateFormat('MMM d').format(event.createdAt),
             style: TextStyle(
               fontWeight: FontWeight.bold,
               fontSize: 14,
@@ -130,7 +129,7 @@ class EventCard extends StatelessWidget {
           Text(
             event.startTime != null
                 ? DateFormat('h:mm a').format(event.startTime!)
-                : DateFormat('h:mm a').format(event.date),
+                : DateFormat('h:mm a').format(event.createdAt),
             style: TextStyle(
               fontWeight: FontWeight.w500,
               fontSize: 12,

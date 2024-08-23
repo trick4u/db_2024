@@ -17,36 +17,41 @@ class NoteTakingScreen extends GetWidget<NoteTakingController> {
     return Scaffold(
       appBar: AppBar(
         title: Text('your notes'),
-          actions: [
+        actions: [
           IconButton(
             icon: Icon(Icons.delete_forever),
             onPressed: () => _showDeleteAllConfirmation(context),
           ),
         ],
-      
       ),
       body: NoteListView(),
       floatingActionButton: Obx(() {
         return controller.canAddMoreNotes
             ? FloatingActionButton(
+                backgroundColor: Colors.white,
                 onPressed: () {
                   // Show bottom sheet to add new note
                   _showNoteBottomSheet(context);
                 },
-                child: Icon(Icons.add),
+                child: Icon(
+                  Icons.add,
+                  color: Colors.deepPurpleAccent,
+                ),
               )
             : SizedBox
                 .shrink(); // This will hide the FAB when max notes are reached
       }),
     );
   }
-    void _showDeleteAllConfirmation(BuildContext context) {
+
+  void _showDeleteAllConfirmation(BuildContext context) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
           title: Text('Delete All Notes'),
-          content: Text('Are you sure you want to delete all notes? This action cannot be undone.'),
+          content: Text(
+              'Are you sure you want to delete all notes? This action cannot be undone.'),
           actions: <Widget>[
             TextButton(
               child: Text('Cancel'),

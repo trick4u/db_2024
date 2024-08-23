@@ -69,7 +69,7 @@ class NoteListView extends GetWidget<NoteTakingController> {
                   ],
                 ),
                 child: Card(
-                  elevation: 0,
+                  elevation: 1,
                   margin: EdgeInsets.symmetric(vertical: 8, horizontal: 16),
                   color: tileColor,
                   child: Theme(
