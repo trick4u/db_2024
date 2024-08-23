@@ -9,6 +9,7 @@ import 'package:tushar_db/services/scale_util.dart';
 import '../models/note_model.dart';
 import '../projectController/note_taking_controller.dart';
 import '../projectPages/note_taking_screen.dart';
+import '../services/app_text_style.dart';
 import '../services/app_theme.dart';
 
 class NoteListView extends GetWidget<NoteTakingController> {
@@ -20,20 +21,20 @@ class NoteListView extends GetWidget<NoteTakingController> {
   }
 
   TextStyle _getTextStyle(
-      Color textColor, bool isCompleted, AppTheme appTheme) {
-    return appTheme.bodyMedium.copyWith(
+      Color textColor, bool isCompleted, BuildContext context) {
+    return AppTextTheme.textTheme.bodyMedium!.merge(TextStyle(
       color: textColor,
       decoration:
           isCompleted ? TextDecoration.lineThrough : TextDecoration.none,
       decorationColor:
           textColor.computeLuminance() > 0.5 ? Colors.white : Colors.black,
-      decorationThickness: 2,
-    );
+      decorationThickness: ScaleUtil.scale(2),
+    ));
   }
 
   @override
   Widget build(BuildContext context) {
-    final appTheme = Get.find<AppTheme>();
+    final appTextTheme = Get.put(AppTextTheme());
     return Obx(() {
       if (controller.isLoading.value && controller.notes.isEmpty) {
         return Center(child: CircularProgressIndicator());
@@ -63,8 +64,7 @@ class NoteListView extends GetWidget<NoteTakingController> {
                   ? Colors.black
                   : Colors.white;
               TextStyle textStyle =
-                  _getTextStyle(textColor, note.isCompleted, appTheme);
-
+                  _getTextStyle(textColor, note.isCompleted, context);
               return Slidable(
                 key: ValueKey(note.id),
                 endActionPane: ActionPane(
@@ -87,14 +87,14 @@ class NoteListView extends GetWidget<NoteTakingController> {
                 ),
                 child: Card(
                   elevation: 1,
-                  margin: EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+                  margin: ScaleUtil.symmetric(vertical: 8, horizontal: 16),
                   color: tileColor,
                   child: Theme(
                     data: Theme.of(context)
                         .copyWith(dividerColor: Colors.transparent),
                     child: ExpansionTile(
                       leading: Transform.scale(
-                        scale: 1.2,
+                        scale: ScaleUtil.scale(1.2),
                         child: Checkbox(
                           value: note.isCompleted,
                           onChanged: (_) =>
@@ -109,7 +109,7 @@ class NoteListView extends GetWidget<NoteTakingController> {
                         style: textStyle,
                       ),
                       trailing: SizedBox(
-                        width: 150,
+                        width: ScaleUtil.width(150),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.end,
                           children: [
@@ -120,9 +120,9 @@ class NoteListView extends GetWidget<NoteTakingController> {
                                 decoration: TextDecoration.none,
                               ),
                             ),
-                            SizedBox(width: 8),
+                            SizedBox(width: ScaleUtil.width(8)),
                             SizedBox(
-                              width: 24,
+                              width: ScaleUtil.width(24),
                               child: note.subTasks.isNotEmpty
                                   ? Icon(Icons.expand_more, color: textColor)
                                   : null,
@@ -181,17 +181,17 @@ class NoteListView extends GetWidget<NoteTakingController> {
       padding: EdgeInsets.zero,
       backgroundColor: Colors.transparent,
       child: Container(
-        width: 80,
-        height: 60,
+        width: ScaleUtil.width(80),
+        height: ScaleUtil.height(60),
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(10),
+          borderRadius: BorderRadius.circular(ScaleUtil.scale(10)),
           color: color,
           boxShadow: [
             BoxShadow(
               color: color.withOpacity(0.3),
-              spreadRadius: 1,
-              blurRadius: 3,
-              offset: Offset(0, 2),
+              spreadRadius: ScaleUtil.scale(1),
+              blurRadius: ScaleUtil.scale(3),
+              offset: Offset(0, ScaleUtil.scale(2)),
             ),
           ],
         ),
@@ -201,15 +201,15 @@ class NoteListView extends GetWidget<NoteTakingController> {
             Icon(
               icon,
               color: Colors.white,
-              size: 30,
+              size: ScaleUtil.scale(30),
             ),
-            SizedBox(height: 4),
+            SizedBox(height: ScaleUtil.height(4)),
             Text(
               label,
               style: TextStyle(
                 color: Colors.white,
                 fontWeight: FontWeight.bold,
-                fontSize: 12,
+                fontSize: ScaleUtil.fontSize(12),
               ),
             ),
           ],

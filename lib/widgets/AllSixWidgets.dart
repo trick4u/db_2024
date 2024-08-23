@@ -70,8 +70,8 @@ class AllSixCards extends GetWidget<PageOneController> {
       shrinkWrap: true,
       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: 2,
-        crossAxisSpacing: 8.0,
-        mainAxisSpacing: 8.0,
+        crossAxisSpacing: ScaleUtil.width(8.0),
+        mainAxisSpacing: ScaleUtil.height(8.0),
         childAspectRatio: 3.0,
       ),
       itemCount: items.length,
@@ -96,10 +96,12 @@ class AllSixCards extends GetWidget<PageOneController> {
               },
               child: Container(
                 decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(10),
+                  borderRadius: BorderRadius.circular(ScaleUtil.scale(10)),
                   border:
                       selectedTile.value == items[index]['title']!.toLowerCase()
-                          ? Border.all(color: Colors.deepPurpleAccent, width: 2)
+                          ? Border.all(
+                              color: Colors.deepPurpleAccent,
+                              width: ScaleUtil.scale(2))
                           : null,
                   color:
                       selectedTile.value == items[index]['title']!.toLowerCase()

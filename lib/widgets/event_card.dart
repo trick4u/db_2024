@@ -6,6 +6,8 @@ import 'package:tushar_db/projectController/calendar_controller.dart';
 
 import '../models/quick_event_model.dart';
 import '../projectPages/page_two_calendar.dart';
+import '../services/app_text_style.dart';
+import '../services/scale_util.dart';
 
 class EventCard extends StatelessWidget {
   final QuickEventModel event;
@@ -46,7 +48,7 @@ class EventCard extends StatelessWidget {
           ),
         ],
       ),
-      child: _buildEventCardContent(),
+      child: _buildEventCardContent(context),
     );
   }
 
@@ -61,17 +63,17 @@ class EventCard extends StatelessWidget {
       padding: EdgeInsets.zero,
       backgroundColor: Colors.transparent,
       child: Container(
-        width: 80,
-        height: 60,
+        width: ScaleUtil.width(80),
+        height: ScaleUtil.height(60),
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(10),
+          borderRadius: BorderRadius.circular(ScaleUtil.scale(10)),
           color: color,
           boxShadow: [
             BoxShadow(
               color: color.withOpacity(0.3),
-              spreadRadius: 1,
-              blurRadius: 3,
-              offset: Offset(0, 2),
+              spreadRadius: ScaleUtil.scale(1),
+              blurRadius: ScaleUtil.scale(3),
+              offset: Offset(0, ScaleUtil.scale(2)),
             ),
           ],
         ),
@@ -81,15 +83,14 @@ class EventCard extends StatelessWidget {
             Icon(
               icon,
               color: Colors.white,
-              size: 30,
+              size: ScaleUtil.scale(30),
             ),
-            SizedBox(height: 4),
+            SizedBox(height: ScaleUtil.height(4)),
             Text(
               label,
-              style: TextStyle(
+              style: AppTextTheme.textTheme.labelSmall!.copyWith(
                 color: Colors.white,
                 fontWeight: FontWeight.bold,
-                fontSize: 12,
               ),
             ),
           ],
@@ -98,51 +99,48 @@ class EventCard extends StatelessWidget {
     );
   }
 
-  Widget _buildEventCardContent() {
+  Widget _buildEventCardContent(BuildContext context) {
     return Container(
-      margin: EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+      margin: ScaleUtil.symmetric(vertical: 8, horizontal: 16),
       child: Row(
         children: [
-          _buildTimeColumn(),
-          SizedBox(width: 8),
-          Expanded(child: _buildCardContent()),
+          _buildTimeColumn(context),
+          SizedBox(width: ScaleUtil.width(8)),
+          Expanded(child: _buildCardContent(context)),
           _buildCompleteButton(),
         ],
       ),
     );
   }
 
-  Widget _buildTimeColumn() {
+  Widget _buildTimeColumn(BuildContext context) {
     return Container(
-      width: 60,
+      width: ScaleUtil.width(60),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Text(
             DateFormat('MMM d').format(event.createdAt),
-            style: TextStyle(
+            style: AppTextTheme.textTheme.labelMedium!.copyWith(
               fontWeight: FontWeight.bold,
-              fontSize: 14,
             ),
           ),
-          SizedBox(height: 4),
+          SizedBox(height: ScaleUtil.height(4)),
           Text(
             event.startTime != null
                 ? DateFormat('h:mm a').format(event.startTime!)
                 : DateFormat('h:mm a').format(event.createdAt),
-            style: TextStyle(
+            style: AppTextTheme.textTheme.labelSmall!.copyWith(
               fontWeight: FontWeight.w500,
-              fontSize: 12,
               color: Colors.grey,
             ),
           ),
           if (event.isCompleted == true && event.editedAfterCompletion == true)
             Padding(
-              padding: const EdgeInsets.only(top: 4),
+              padding: ScaleUtil.only(top: 4),
               child: Text(
                 'Edited',
-                style: TextStyle(
-                  fontSize: 10,
+                style: AppTextTheme.textTheme.labelSmall!.copyWith(
                   color: Colors.blue,
                   fontStyle: FontStyle.italic,
                 ),
@@ -160,12 +158,13 @@ class EventCard extends StatelessWidget {
             ? Icons.check_circle
             : Icons.check_circle_outline,
         color: event.isCompleted == true ? Colors.green : Colors.grey,
+        size: ScaleUtil.scale(24),
       ),
       onPressed: () => onComplete(event),
     );
   }
 
-  Widget _buildCardContent() {
+  Widget _buildCardContent(BuildContext context) {
     return GetBuilder<CalendarController>(
       builder: (controller) => GestureDetector(
         onTap: () => controller.toggleEventExpansion(event.id),
@@ -174,45 +173,46 @@ class EventCard extends StatelessWidget {
             Card(
               elevation: 2,
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(10),
+                borderRadius: BorderRadius.circular(ScaleUtil.scale(10)),
               ),
               child: IntrinsicHeight(
                 child: Row(
                   children: [
                     Container(
-                      width: 20,
+                      width: ScaleUtil.width(20),
                       decoration: BoxDecoration(
                         color: event.color,
                         borderRadius: BorderRadius.only(
-                          topLeft: Radius.circular(10),
-                          bottomLeft: Radius.circular(10),
+                          topLeft: Radius.circular(ScaleUtil.scale(10)),
+                          bottomLeft: Radius.circular(ScaleUtil.scale(10)),
                         ),
                       ),
                     ),
                     Expanded(
                       child: Padding(
-                        padding: const EdgeInsets.all(10.0),
+                        padding: ScaleUtil.all(10.0),
                         child: SingleChildScrollView(
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
                                 event.title,
-                                style: TextStyle(
+                                style: AppTextTheme.textTheme.titleMedium!
+                                    .copyWith(
                                   fontWeight: FontWeight.bold,
-                                  fontSize: 16,
                                   decoration: event.isCompleted == true
                                       ? TextDecoration.lineThrough
                                       : TextDecoration.none,
                                 ),
                               ),
-                              SizedBox(height: 4),
+                              SizedBox(height: ScaleUtil.height(4)),
                               AnimatedCrossFade(
                                 firstChild: Text(
                                   event.description,
                                   maxLines: 2,
                                   overflow: TextOverflow.ellipsis,
-                                  style: TextStyle(
+                                  style: AppTextTheme.textTheme.bodyMedium!
+                                      .copyWith(
                                     decoration: event.isCompleted == true
                                         ? TextDecoration.lineThrough
                                         : TextDecoration.none,
@@ -220,7 +220,8 @@ class EventCard extends StatelessWidget {
                                 ),
                                 secondChild: Text(
                                   event.description,
-                                  style: TextStyle(
+                                  style: AppTextTheme.textTheme.bodyMedium!
+                                      .copyWith(
                                     decoration: event.isCompleted == true
                                         ? TextDecoration.lineThrough
                                         : TextDecoration.none,
@@ -239,12 +240,12 @@ class EventCard extends StatelessWidget {
                     ),
                     if (event.isCompleted == true)
                       Container(
-                        width: 20,
+                        width: ScaleUtil.width(20),
                         decoration: BoxDecoration(
                           color: Colors.green,
                           borderRadius: BorderRadius.only(
-                            topRight: Radius.circular(10),
-                            bottomRight: Radius.circular(10),
+                            topRight: Radius.circular(ScaleUtil.scale(10)),
+                            bottomRight: Radius.circular(ScaleUtil.scale(10)),
                           ),
                         ),
                       ),
@@ -254,8 +255,10 @@ class EventCard extends StatelessWidget {
             ),
             if (event.hasReminder && _shouldShowNotificationIcon())
               Positioned(
-                top: 15,
-                right: event.isCompleted == true ? 40 : 20,
+                top: ScaleUtil.height(15),
+                right: event.isCompleted == true
+                    ? ScaleUtil.width(40)
+                    : ScaleUtil.width(20),
                 child: GestureDetector(
                   onTap: () {
                     final calendarController = Get.find<CalendarController>();
@@ -263,7 +266,7 @@ class EventCard extends StatelessWidget {
                   },
                   child: Icon(
                     Icons.notifications_active,
-                    size: 18,
+                    size: ScaleUtil.scale(18),
                     color: Colors.blue,
                   ),
                 ),
