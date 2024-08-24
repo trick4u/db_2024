@@ -53,23 +53,24 @@ class _QuickReminderBottomSheetState extends State<QuickReminderBottomSheet> {
 
   @override
   Widget build(BuildContext context) {
+    ScaleUtil.init(context);
     return Padding(
-      padding: const EdgeInsets.only(left: 10, right: 10, bottom: 10),
+      padding: ScaleUtil.only(left: 10, right: 10, bottom: 10),
       child: Card(
-        elevation: 8,
+        elevation: ScaleUtil.scale(8),
         color: Theme.of(context).cardColor,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(20),
+          borderRadius: ScaleUtil.circular(20),
         ),
         child: Container(
-          padding: EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+          padding: ScaleUtil.symmetric(horizontal: 20, vertical: 20),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
               _buildHeader(context),
-              SizedBox(height: 16),
+              ScaleUtil.sizedBox(height: 16),
               _buildTextField(context),
-              SizedBox(height: 16),
+              ScaleUtil.sizedBox(height: 16),
               _buildActionButtons(context),
             ],
           ),
@@ -84,7 +85,9 @@ class _QuickReminderBottomSheetState extends State<QuickReminderBottomSheet> {
       children: [
         Text(
           'Add Reminder',
-          style: Theme.of(context).textTheme.titleLarge,
+          style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                fontSize: ScaleUtil.fontSize(15),
+              ),
         ),
         Obx(() => IconButton(
               icon: Icon(
@@ -94,6 +97,7 @@ class _QuickReminderBottomSheetState extends State<QuickReminderBottomSheet> {
                 color: widget.reminderController.repeat.value
                     ? widget.appTheme.colorScheme.primary
                     : widget.appTheme.colorScheme.onSurface.withOpacity(0.5),
+                size: ScaleUtil.iconSize(18),
               ),
               onPressed: () {
                 widget.reminderController
@@ -101,9 +105,10 @@ class _QuickReminderBottomSheetState extends State<QuickReminderBottomSheet> {
               },
             )),
         _buildTimeSelectionPopup(context),
-        SizedBox(width: 8),
         IconButton(
-          icon: Icon(Icons.close, color: Theme.of(context).iconTheme.color),
+          icon: Icon(Icons.close,
+              color: Theme.of(context).iconTheme.color,
+              size: ScaleUtil.iconSize(18)),
           onPressed: () => Navigator.of(context).pop(),
         ),
       ],
@@ -114,7 +119,9 @@ class _QuickReminderBottomSheetState extends State<QuickReminderBottomSheet> {
     return Obx(() => PopupMenuButton<int>(
           child: Chip(
             label: Text(
-                '${_getMinutesFromValue(widget.reminderController.timeSelected.value)} min'),
+              '${_getMinutesFromValue(widget.reminderController.timeSelected.value)} min',
+              style: TextStyle(fontSize: ScaleUtil.fontSize(12)),
+            ),
             backgroundColor: Theme.of(context).chipTheme.backgroundColor,
           ),
           onSelected: (int value) {
@@ -123,15 +130,18 @@ class _QuickReminderBottomSheetState extends State<QuickReminderBottomSheet> {
           itemBuilder: (BuildContext context) => <PopupMenuEntry<int>>[
             PopupMenuItem<int>(
               value: 1,
-              child: Text('15 minutes'),
+              child: Text('15 minutes',
+                  style: TextStyle(fontSize: ScaleUtil.fontSize(12))),
             ),
             PopupMenuItem<int>(
               value: 2,
-              child: Text('30 minutes'),
+              child: Text('30 minutes',
+                  style: TextStyle(fontSize: ScaleUtil.fontSize(12))),
             ),
             PopupMenuItem<int>(
               value: 3,
-              child: Text('60 minutes'),
+              child: Text('60 minutes',
+                  style: TextStyle(fontSize: ScaleUtil.fontSize(12))),
             ),
           ],
         ));
@@ -153,18 +163,22 @@ class _QuickReminderBottomSheetState extends State<QuickReminderBottomSheet> {
   Widget _buildTextField(BuildContext context) {
     return FadeIn(
       child: ClipRRect(
-        borderRadius: BorderRadius.circular(10),
+        borderRadius: ScaleUtil.circular(10),
         child: TextField(
           controller: widget.reminderController.reminderTextController,
-          style: Theme.of(context).textTheme.bodyMedium,
+          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                fontSize: ScaleUtil.fontSize(12),
+              ),
           decoration: InputDecoration(
             labelText: 'Reminder Title',
+            labelStyle: TextStyle(fontSize: ScaleUtil.fontSize(12)),
             filled: true,
             fillColor: Theme.of(context).inputDecorationTheme.fillColor ??
                 Theme.of(context).hoverColor,
             border: InputBorder.none,
             enabledBorder: InputBorder.none,
             focusedBorder: InputBorder.none,
+            contentPadding: ScaleUtil.symmetric(horizontal: 16, vertical: 12),
           ),
         ),
       ),
@@ -175,7 +189,7 @@ class _QuickReminderBottomSheetState extends State<QuickReminderBottomSheet> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.end,
       children: [
-        SizedBox(width: 16),
+        ScaleUtil.sizedBox(width: 16),
         _buildSaveButton(context),
       ],
     );
@@ -191,14 +205,14 @@ class _QuickReminderBottomSheetState extends State<QuickReminderBottomSheet> {
           shape: BoxShape.circle,
         ),
         child: InkWell(
-          borderRadius: BorderRadius.circular(20),
+          borderRadius: ScaleUtil.circular(20),
           onTap: _isTitleEmpty ? null : _handleSave,
           child: Padding(
-            padding: EdgeInsets.all(10),
+            padding: ScaleUtil.all(10),
             child: Icon(
               FontAwesomeIcons.check,
               color: Theme.of(context).colorScheme.onPrimary,
-              size: 20,
+              size: ScaleUtil.iconSize(15),
             ),
           ),
         ),
@@ -208,7 +222,15 @@ class _QuickReminderBottomSheetState extends State<QuickReminderBottomSheet> {
 
   void _handleSave() {
     if (widget.reminderController.reminderTextController.text.isEmpty) {
-      Get.snackbar('Error', 'Reminder text cannot be empty');
+      Get.snackbar(
+        'Error',
+        'Reminder text cannot be empty',
+        snackPosition: SnackPosition.BOTTOM,
+        margin: ScaleUtil.symmetric(horizontal: 10, vertical: 10),
+        padding: ScaleUtil.symmetric(horizontal: 20, vertical: 15),
+        borderRadius: ScaleUtil.scale(10),
+        duration: Duration(seconds: 3),
+      );
       return;
     }
 

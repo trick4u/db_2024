@@ -209,11 +209,7 @@ class _EventBottomSheetState extends State<EventBottomSheet> {
             SizedBox(width: 8),
             Text(
               _getRepetitionText(),
-              style: TextStyle(
-                color:
-                    _selectedRepetition != null ? Colors.white : Colors.black,
-                fontSize: 14,
-              ),
+              style: AppTextTheme.textTheme.titleSmall,
             ),
           ],
         ),

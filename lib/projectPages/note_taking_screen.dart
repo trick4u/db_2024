@@ -154,7 +154,7 @@ class NoteBottomSheet extends GetView<NoteTakingController> {
                     fillColor: appTheme.textFieldFillColor,
                     labelStyle: appTheme.bodyMedium.copyWith(
                       color: appTheme.secondaryTextColor,
-                      fontSize: ScaleUtil.fontSize(16),
+                      fontSize: ScaleUtil.fontSize(12),
                     ),
                     border: InputBorder.none,
                     enabledBorder: InputBorder.none,
@@ -191,13 +191,13 @@ class NoteBottomSheet extends GetView<NoteTakingController> {
                                   hintText: 'Input the sub-task',
                                   hintStyle: appTheme.bodyMedium.copyWith(
                                     color: appTheme.secondaryTextColor,
-                                    fontSize: ScaleUtil.fontSize(16),
+                                    fontSize: ScaleUtil.fontSize(10),
                                   ),
                                   border: InputBorder.none,
                                   counterText: '',
                                   suffixIcon: IconButton(
                                     icon: Icon(Icons.close,
-                                        size: ScaleUtil.iconSize(18),
+                                        size: ScaleUtil.iconSize(14),
                                         color: appTheme.secondaryTextColor),
                                     onPressed: () =>
                                         controller.removeSubTask(index),

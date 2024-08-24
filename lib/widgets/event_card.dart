@@ -267,7 +267,7 @@ class EventCard extends StatelessWidget {
                   },
                   child: Icon(
                     Icons.notifications_active,
-                    size: ScaleUtil.iconSize(18),
+                    size: ScaleUtil.iconSize(14),
                     color: Colors.blue,
                   ),
                 ),
