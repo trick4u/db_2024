@@ -184,7 +184,7 @@ class StatisticsScreen extends GetWidget<StatisticsController> {
                   bool hasData = currentData.any((count) => count > 0);
 
                   return BarChart(
-                       BarChartData(
+                    BarChartData(
                       alignment: BarChartAlignment.spaceAround,
                       maxY: hasData ? _getMaxY(currentData) : 8,
                       minY: 0,
@@ -249,7 +249,7 @@ class StatisticsScreen extends GetWidget<StatisticsController> {
                         rightTitles: AxisTitles(
                             sideTitles: SideTitles(showTitles: false)),
                       ),
-                            borderData: FlBorderData(show: false),
+                      borderData: FlBorderData(show: false),
                       barGroups: List.generate(7, (index) {
                         return BarChartGroupData(
                           x: index,
@@ -260,7 +260,8 @@ class StatisticsScreen extends GetWidget<StatisticsController> {
                                   ? (controller.showCompletedTasks.value
                                       ? appTheme.colorScheme.primary
                                       : appTheme.colorScheme.error)
-                                  : appTheme.secondaryTextColor.withOpacity(0.2),
+                                  : appTheme.secondaryTextColor
+                                      .withOpacity(0.2),
                             )
                           ],
                         );
@@ -296,10 +297,12 @@ class StatisticsScreen extends GetWidget<StatisticsController> {
     );
   }
 
- double _getMaxY(List<int> data) {
-    double maxValue = data.reduce((curr, next) => curr > next ? curr : next).toDouble();
+  double _getMaxY(List<int> data) {
+    double maxValue =
+        data.reduce((curr, next) => curr > next ? curr : next).toDouble();
     return maxValue > 8 ? maxValue : 8; // Ensure minimum of 8 for Y-axis
   }
+
   Widget _buildUpcomingTasks(AppTheme appTheme) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -321,7 +324,8 @@ class StatisticsScreen extends GetWidget<StatisticsController> {
               return ListTile(
                 title: Text(task.title, style: appTheme.bodyMedium),
                 subtitle: Text(
-                  DateFormat('MMM dd, yyyy - h:mm a').format(task.createdAt?? DateTime.now()),
+                  DateFormat('MMM dd, yyyy')
+                      .format(task.date ?? DateTime.now()),
                   style: appTheme.bodyMedium.copyWith(
                     color: appTheme.secondaryTextColor,
                   ),

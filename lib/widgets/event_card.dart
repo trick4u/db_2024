@@ -115,7 +115,7 @@ class EventCard extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Text(
-            DateFormat('MMM d').format(event.createdAt),
+            DateFormat('MMM d').format(event.date),
             style: TextStyle(
               fontWeight: FontWeight.bold,
               fontSize: 14,

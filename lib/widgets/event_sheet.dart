@@ -18,7 +18,7 @@ class EventsList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-     final PageOneController controller = Get.find<PageOneController>();
+    final PageOneController controller = Get.find<PageOneController>();
     return Obx(() => events.isEmpty
         ? Center(child: Text('No $eventType events'))
         : ListView.builder(
@@ -27,7 +27,7 @@ class EventsList extends StatelessWidget {
               QuickEventModel event = events[index];
               return EventCard(
                 event: event,
-             onDelete: (event) => controller.deleteEvent(event.id),
+                onDelete: (event) => controller.deleteEvent(event.id),
                 onEdit: (event) => _showEventBottomSheet(context, event),
                 onArchive: (event) => controller.archiveEvent(event.id),
                 onComplete: (event) => controller.toggleEventCompletion(event.id, event.isCompleted != true),
@@ -36,9 +36,7 @@ class EventsList extends StatelessWidget {
           ));
   }
 
-  
-
-void _showEventBottomSheet(BuildContext context, QuickEventModel event) {
+  void _showEventBottomSheet(BuildContext context, QuickEventModel event) {
     final pageOneController = Get.find<PageOneController>();
 
     showModalBottomSheet(
@@ -53,7 +51,7 @@ void _showEventBottomSheet(BuildContext context, QuickEventModel event) {
           event: event,
           initialDate: event.date,
           onSave: (title, description, date, startTime, endTime, color,
-              hasReminder, reminderTime) {
+              hasReminder, reminderTime, repetition) {
             Map<String, dynamic> updatedData = {
               'title': title,
               'description': description,
@@ -68,6 +66,7 @@ void _showEventBottomSheet(BuildContext context, QuickEventModel event) {
                   ? DateTime(date.year, date.month, date.day, endTime.hour, endTime.minute)
                   : null,
               'reminderTime': reminderTime,
+              'repetition': repetition, // Add this line to include the repetition
             };
 
             pageOneController.updateEvent(event.id, updatedData);

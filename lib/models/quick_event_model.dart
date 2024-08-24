@@ -16,6 +16,8 @@ class QuickEventModel {
   final bool? editedAfterCompletion;
   final DateTime? completedAt;
   DateTime? lastNotificationDisplayed;
+  final String? repetition;
+  
 
   QuickEventModel({
     required this.id,
@@ -32,6 +34,7 @@ class QuickEventModel {
     this.editedAfterCompletion,
     this.completedAt,
     this.lastNotificationDisplayed,
+    this.repetition,
   });
 
   factory QuickEventModel.fromFirestore(DocumentSnapshot doc) {
@@ -41,18 +44,27 @@ class QuickEventModel {
       title: data['title'] ?? '',
       description: data['description'] ?? '',
       date: (data['date'] as Timestamp).toDate(),
-      startTime: data['startTime'] != null ? (data['startTime'] as Timestamp).toDate() : null,
-      endTime: data['endTime'] != null ? (data['endTime'] as Timestamp).toDate() : null,
+      startTime: data['startTime'] != null
+          ? (data['startTime'] as Timestamp).toDate()
+          : null,
+      endTime: data['endTime'] != null
+          ? (data['endTime'] as Timestamp).toDate()
+          : null,
       color: Color(data['color'] ?? 0xFF000000),
       hasReminder: data['hasReminder'] ?? false,
-      reminderTime: data['reminderTime'] != null ? (data['reminderTime'] as Timestamp).toDate() : null,
+      reminderTime: data['reminderTime'] != null
+          ? (data['reminderTime'] as Timestamp).toDate()
+          : null,
       isCompleted: data['isCompleted'],
       createdAt: (data['createdAt'] as Timestamp).toDate(),
       editedAfterCompletion: data['editedAfterCompletion'],
-      completedAt: data['completedAt'] != null ? (data['completedAt'] as Timestamp).toDate() : null,
-      lastNotificationDisplayed: data['lastNotificationDisplayed'] != null 
-          ? (data['lastNotificationDisplayed'] as Timestamp).toDate() 
+      completedAt: data['completedAt'] != null
+          ? (data['completedAt'] as Timestamp).toDate()
           : null,
+      lastNotificationDisplayed: data['lastNotificationDisplayed'] != null
+          ? (data['lastNotificationDisplayed'] as Timestamp).toDate()
+          : null,
+      repetition: data['repetition'],
     );
   }
 
@@ -65,13 +77,15 @@ class QuickEventModel {
       'endTime': endTime != null ? Timestamp.fromDate(endTime!) : null,
       'color': color.value,
       'hasReminder': hasReminder,
-      'reminderTime': reminderTime != null ? Timestamp.fromDate(reminderTime!) : null,
+      'reminderTime':
+          reminderTime != null ? Timestamp.fromDate(reminderTime!) : null,
       'isCompleted': isCompleted,
       'createdAt': Timestamp.fromDate(createdAt),
       'editedAfterCompletion': editedAfterCompletion,
-      'completedAt': completedAt != null ? Timestamp.fromDate(completedAt!) : null,
-      'lastNotificationDisplayed': lastNotificationDisplayed != null 
-          ? Timestamp.fromDate(lastNotificationDisplayed!) 
+      'completedAt':
+          completedAt != null ? Timestamp.fromDate(completedAt!) : null,
+      'lastNotificationDisplayed': lastNotificationDisplayed != null
+          ? Timestamp.fromDate(lastNotificationDisplayed!)
           : null,
     };
   }
@@ -104,9 +118,12 @@ class QuickEventModel {
       reminderTime: reminderTime ?? this.reminderTime,
       isCompleted: isCompleted ?? this.isCompleted,
       createdAt: createdAt ?? this.createdAt,
-      editedAfterCompletion: editedAfterCompletion ?? this.editedAfterCompletion,
+      editedAfterCompletion:
+          editedAfterCompletion ?? this.editedAfterCompletion,
       completedAt: completedAt ?? this.completedAt,
-      lastNotificationDisplayed: lastNotificationDisplayed ?? this.lastNotificationDisplayed,
+      lastNotificationDisplayed:
+          lastNotificationDisplayed ?? this.lastNotificationDisplayed,
+      repetition: repetition ?? repetition,
     );
   }
 }

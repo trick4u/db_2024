@@ -151,10 +151,26 @@ class CalendarController extends GetxController {
     return eventsGrouped[dateKey]?.isNotEmpty ?? false;
   }
 
-  void deleteEvent(String eventId) async {
+  Future<void> deleteEvent(String eventId) async {
     if (currentUser == null) return;
     try {
-      await eventsCollection.doc(eventId).delete();
+      // First, fetch the event data
+      DocumentSnapshot eventDoc = await eventsCollection.doc(eventId).get();
+      if (eventDoc.exists) {
+        QuickEventModel event = QuickEventModel.fromFirestore(eventDoc);
+        
+        // Cancel the notification if it exists
+        await cancelNotification(event);
+
+        // Delete the event from Firestore
+        await eventsCollection.doc(eventId).delete();
+
+        // Remove the event from the local list
+        events.removeWhere((e) => e.id == eventId);
+
+        print('Event deleted: $eventId');
+        update();
+      }
     } catch (e) {
       print('Error deleting event: $e');
     }
@@ -191,8 +207,15 @@ class CalendarController extends GetxController {
         child: EventBottomSheet(
           event: event,
           initialDate: selectedDay.value,
-          onSave: (title, description, date, TimeOfDay? startTime,
-              TimeOfDay? endTime, color, hasReminder, reminderTime) {
+          onSave: (title,
+              description,
+              date,
+              TimeOfDay? startTime,
+              TimeOfDay? endTime,
+              color,
+              hasReminder,
+              reminderTime,
+              repetition) {
             // Convert TimeOfDay to DateTime
             DateTime? startDateTime = startTime != null
                 ? DateTime(date.year, date.month, date.day, startTime.hour,
@@ -206,7 +229,7 @@ class CalendarController extends GetxController {
             if (event == null) {
               if (canAddEvent(date)) {
                 addEvent(title, description, date, startDateTime, endDateTime,
-                    color, hasReminder, reminderTime, false);
+                    color, hasReminder, reminderTime, false, repetition);
               } else {
                 Get.snackbar(
                   'Cannot Add Event',
@@ -225,6 +248,7 @@ class CalendarController extends GetxController {
                 color,
                 hasReminder,
                 reminderTime,
+                repetition,
               );
             }
           },
@@ -242,7 +266,8 @@ class CalendarController extends GetxController {
       Color color,
       bool hasReminder,
       DateTime? reminderTime,
-      bool isCompleted) async {
+      bool isCompleted,
+      String? repetition) async {
     if (currentUser == null) return;
 
     if (!canAddMoreEvents(date)) {
@@ -255,33 +280,63 @@ class CalendarController extends GetxController {
     }
 
     try {
-      QuickEventModel newEvent = QuickEventModel(
-        id: '', // This will be set by Firestore
-        title: title,
-        description: description,
-        date: date,
-        startTime: startTime,
-        endTime: endTime,
-        color: color,
-        hasReminder: hasReminder,
-        reminderTime: reminderTime,
-        isCompleted: isCompleted,
-        createdAt: DateTime.now(),
-      );
+      List<DateTime> repetitionDates = _getRepetitionDates(date, repetition);
 
-      DocumentReference docRef = await eventsCollection.add(newEvent.toFirestore());
-      newEvent = newEvent.copyWith(id: docRef.id);
+      for (DateTime eventDate in repetitionDates) {
+        QuickEventModel newEvent = QuickEventModel(
+          id: '', // This will be set by Firestore
+          title: title,
+          description: description,
+          date: eventDate,
+          startTime: startTime,
+          endTime: endTime,
+          color: color,
+          hasReminder: hasReminder,
+          reminderTime: reminderTime,
+          isCompleted: isCompleted,
+          createdAt: DateTime.now(),
+          repetition: repetition,
+        );
 
-      if (hasReminder && reminderTime != null) {
-        await scheduleNotification(newEvent);
+        DocumentReference docRef =
+            await eventsCollection.add(newEvent.toFirestore());
+        newEvent = newEvent.copyWith(id: docRef.id);
+
+        if (hasReminder && reminderTime != null) {
+          await scheduleNotification(newEvent);
+        }
+
+        print('Event added for date: $eventDate');
       }
 
-      print('Event added for date: $date');
       fetchEvents(date);
       update();
     } catch (e) {
       print('Error adding event: $e');
     }
+  }
+
+  List<DateTime> _getRepetitionDates(DateTime initialDate, String? repetition) {
+    List<DateTime> dates = [initialDate];
+
+    if (repetition == 'week') {
+      final endOfWeek =
+          initialDate.add(Duration(days: 7 - initialDate.weekday));
+      for (var i = 1; i < 7; i++) {
+        final nextDate = initialDate.add(Duration(days: i));
+        if (!nextDate.isAfter(endOfWeek)) {
+          dates.add(nextDate);
+        }
+      }
+    } else if (repetition == 'month') {
+      final lastDayOfMonth =
+          DateTime(initialDate.year, initialDate.month + 1, 0);
+      for (var i = 1; i <= lastDayOfMonth.day - initialDate.day; i++) {
+        dates.add(initialDate.add(Duration(days: i)));
+      }
+    }
+
+    return dates;
   }
 
   void updateEvent(
@@ -293,7 +348,8 @@ class CalendarController extends GetxController {
       DateTime? newEndTime,
       Color newColor,
       bool newHasReminder,
-      DateTime? newReminderTime) async {
+      DateTime? newReminderTime,
+      String? newRepetition) async {
     if (currentUser == null) return;
     try {
       DocumentSnapshot eventDoc = await eventsCollection.doc(eventId).get();
@@ -321,6 +377,7 @@ class CalendarController extends GetxController {
       addToUpdateAndLog('color', newColor.value, currentData['color']);
       addToUpdateAndLog(
           'hasReminder', newHasReminder, currentData['hasReminder']);
+      addToUpdateAndLog('repetition', newRepetition, currentData['repetition']);
 
       if (newStartTime != null) {
         addToUpdateAndLog('startTime', Timestamp.fromDate(newStartTime),
@@ -414,7 +471,7 @@ class CalendarController extends GetxController {
   }
 
   //notifications
-Future<void> markNotificationAsDisplayed(int notificationId) async {
+  Future<void> markNotificationAsDisplayed(int notificationId) async {
     try {
       DocumentSnapshot mappingDoc = await FirebaseFirestore.instance
           .collection('notificationMappings')
@@ -430,9 +487,10 @@ Future<void> markNotificationAsDisplayed(int notificationId) async {
           await eventsCollection.doc(eventId).update({
             'lastNotificationDisplayed': FieldValue.serverTimestamp(),
           });
-          
+
           // Update the local event model
-          QuickEventModel updatedEvent = QuickEventModel.fromFirestore(eventDoc);
+          QuickEventModel updatedEvent =
+              QuickEventModel.fromFirestore(eventDoc);
           updatedEvent.lastNotificationDisplayed = DateTime.now();
           int index = events.indexWhere((e) => e.id == eventId);
           if (index != -1) {
@@ -458,7 +516,7 @@ Future<void> markNotificationAsDisplayed(int notificationId) async {
     }
   }
 
-   Future<void> scheduleNotification(QuickEventModel event) async {
+  Future<void> scheduleNotification(QuickEventModel event) async {
     if (!event.hasReminder || event.reminderTime == null) return;
 
     int notificationId = event.id.hashCode;
@@ -526,6 +584,7 @@ Future<void> markNotificationAsDisplayed(int notificationId) async {
       print('Error scheduling notification: $e');
     }
   }
+
   Future<void> updateNotification(QuickEventModel event) async {
     // First, cancel the existing notification
     await cancelNotification(event);
@@ -534,9 +593,21 @@ Future<void> markNotificationAsDisplayed(int notificationId) async {
     await scheduleNotification(event);
   }
 
-  Future<void> cancelNotification(QuickEventModel event) async {
-    int notificationId = event.id.hashCode;
-    await AwesomeNotifications().cancel(notificationId);
+ Future<void> cancelNotification(QuickEventModel event) async {
+    try {
+      // Cancel the notification using the event's ID as the notification ID
+      await AwesomeNotifications().cancel(event.id.hashCode);
+      
+      // If you're using a separate collection to store notification mappings, delete it here
+      await FirebaseFirestore.instance
+          .collection('notificationMappings')
+          .doc(event.id.hashCode.toString())
+          .delete();
+
+      print('Notification canceled for event: ${event.id}');
+    } catch (e) {
+      print('Error canceling notification: $e');
+    }
   }
 
   //
@@ -597,6 +668,7 @@ Future<void> markNotificationAsDisplayed(int notificationId) async {
       print('Error toggling event completion: $e');
     }
   }
+
   //toggle event reminder
   Future<void> toggleEventReminder(String eventId) async {
     if (currentUser == null) return;
