@@ -58,7 +58,7 @@ class AppTextTheme {
       titleMedium: TextStyle(
         fontFamily: 'Euclid',
         fontSize: ScaleUtil.fontSize(14),
-        fontWeight: FontWeight.w600,
+        fontWeight: FontWeight.w500,
       ),
       titleSmall: TextStyle(
         fontFamily: 'Euclid',

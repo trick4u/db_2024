@@ -8,18 +8,22 @@ import 'package:tushar_db/projectController/note_taking_controller.dart';
 
 import '../models/note_model.dart';
 import '../services/app_theme.dart';
+import '../services/scale_util.dart';
 import '../widgets/note_listView.dart';
 
 class NoteTakingScreen extends GetWidget<NoteTakingController> {
   @override
   Widget build(BuildContext context) {
     final appTheme = Get.find<AppTheme>();
+    ScaleUtil.init(context);
+
     return Scaffold(
       appBar: AppBar(
-        title: Text('your notes'),
+        title: Text('your notes',
+            style: TextStyle(fontSize: ScaleUtil.fontSize(20))),
         actions: [
           IconButton(
-            icon: Icon(Icons.delete_forever),
+            icon: Icon(Icons.delete_forever, size: ScaleUtil.iconSize(24)),
             onPressed: () => _showDeleteAllConfirmation(context),
           ),
         ],
@@ -30,16 +34,15 @@ class NoteTakingScreen extends GetWidget<NoteTakingController> {
             ? FloatingActionButton(
                 backgroundColor: Colors.white,
                 onPressed: () {
-                  // Show bottom sheet to add new note
                   _showNoteBottomSheet(context);
                 },
                 child: Icon(
                   Icons.add,
                   color: Colors.deepPurpleAccent,
+                  size: ScaleUtil.iconSize(24),
                 ),
               )
-            : SizedBox
-                .shrink(); // This will hide the FAB when max notes are reached
+            : SizedBox.shrink();
       }),
     );
   }
@@ -49,18 +52,23 @@ class NoteTakingScreen extends GetWidget<NoteTakingController> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text('Delete All Notes'),
+          title: Text('Delete All Notes',
+              style: TextStyle(fontSize: ScaleUtil.fontSize(18))),
           content: Text(
-              'Are you sure you want to delete all notes? This action cannot be undone.'),
+            'Are you sure you want to delete all notes? This action cannot be undone.',
+            style: TextStyle(fontSize: ScaleUtil.fontSize(16)),
+          ),
           actions: <Widget>[
             TextButton(
-              child: Text('Cancel'),
+              child: Text('Cancel',
+                  style: TextStyle(fontSize: ScaleUtil.fontSize(16))),
               onPressed: () {
                 Navigator.of(context).pop();
               },
             ),
             TextButton(
-              child: Text('Delete All'),
+              child: Text('Delete All',
+                  style: TextStyle(fontSize: ScaleUtil.fontSize(16))),
               onPressed: () {
                 controller.deleteAllNotes();
                 Navigator.of(context).pop();
@@ -102,43 +110,51 @@ class NoteBottomSheet extends GetView<NoteTakingController> {
     }
 
     return Padding(
-      padding: const EdgeInsets.only(left: 10, right: 10, bottom: 10),
+      padding: ScaleUtil.only(left: 10, right: 10, bottom: 10),
       child: Card(
-        elevation: 8,
+        elevation: ScaleUtil.scale(8),
         color: appTheme.cardColor,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(20),
+          borderRadius: ScaleUtil.circular(20),
         ),
         child: Container(
-          padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+          padding: ScaleUtil.symmetric(horizontal: 20, vertical: 10),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Row(
                 children: [
-                  Text(note == null ? 'Add Note' : 'Edit Note',
-                      style: appTheme.titleLarge),
+                  Text(
+                    note == null ? 'Add Note' : 'Edit Note',
+                    style: appTheme.titleLarge.copyWith(
+                      fontSize: ScaleUtil.fontSize(15),
+                    ),
+                  ),
                   Spacer(),
                   _buildDatePicker(context),
                   IconButton(
-                    icon: Icon(Icons.close, color: appTheme.textColor),
+                    icon: Icon(Icons.close,
+                        color: appTheme.textColor,
+                        size: ScaleUtil.iconSize(15)),
                     onPressed: () => Get.back(),
                   ),
                 ],
               ),
-              SizedBox(height: 10),
+              ScaleUtil.sizedBox(height: 10),
               ClipRRect(
-                borderRadius: BorderRadius.all(Radius.circular(10)),
+                borderRadius: ScaleUtil.circular(10),
                 child: TextField(
                   controller: controller.titleController,
-                  style: appTheme.bodyMedium,
+                  style: appTheme.bodyMedium
+                      .copyWith(fontSize: ScaleUtil.fontSize(16)),
                   decoration: InputDecoration(
                     labelText: 'Note Title',
                     filled: true,
                     fillColor: appTheme.textFieldFillColor,
                     labelStyle: appTheme.bodyMedium.copyWith(
                       color: appTheme.secondaryTextColor,
+                      fontSize: ScaleUtil.fontSize(16),
                     ),
                     border: InputBorder.none,
                     enabledBorder: InputBorder.none,
@@ -146,17 +162,17 @@ class NoteBottomSheet extends GetView<NoteTakingController> {
                     errorBorder: InputBorder.none,
                     disabledBorder: InputBorder.none,
                     contentPadding:
-                        EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                        ScaleUtil.symmetric(horizontal: 16, vertical: 6),
                   ),
                 ),
               ),
-              SizedBox(height: 10),
+              ScaleUtil.sizedBox(height: 10),
               Obx(() => Column(
                     children: controller.subTasks.asMap().entries.map((entry) {
                       int index = entry.key;
                       TextEditingController subTaskController = entry.value;
                       return Padding(
-                        padding: const EdgeInsets.only(bottom: 8.0),
+                        padding: ScaleUtil.only(bottom: 8.0),
                         child: Row(
                           children: [
                             Radio<bool>(
@@ -168,17 +184,20 @@ class NoteBottomSheet extends GetView<NoteTakingController> {
                             Expanded(
                               child: TextField(
                                 controller: subTaskController,
-                                style: appTheme.bodyMedium,
+                                style: appTheme.bodyMedium
+                                    .copyWith(fontSize: ScaleUtil.fontSize(16)),
                                 maxLength: 70,
                                 decoration: InputDecoration(
                                   hintText: 'Input the sub-task',
                                   hintStyle: appTheme.bodyMedium.copyWith(
-                                      color: appTheme.secondaryTextColor),
+                                    color: appTheme.secondaryTextColor,
+                                    fontSize: ScaleUtil.fontSize(16),
+                                  ),
                                   border: InputBorder.none,
                                   counterText: '',
                                   suffixIcon: IconButton(
                                     icon: Icon(Icons.close,
-                                        size: 18,
+                                        size: ScaleUtil.iconSize(18),
                                         color: appTheme.secondaryTextColor),
                                     onPressed: () =>
                                         controller.removeSubTask(index),
@@ -203,7 +222,7 @@ class NoteBottomSheet extends GetView<NoteTakingController> {
                                 NoteTakingController.maxSubTasks
                             ? _buildSubTaskToggleButton()
                             : SizedBox()),
-                        SizedBox(width: 16),
+                        ScaleUtil.sizedBox(width: 16),
                         _buildSaveIconButton(),
                       ],
                     ),
@@ -229,10 +248,10 @@ class NoteBottomSheet extends GetView<NoteTakingController> {
           isShowSeconds: false,
           minutesInterval: 1,
           secondsInterval: 1,
-          borderRadius: const BorderRadius.all(Radius.circular(16)),
-          constraints: const BoxConstraints(
-            maxWidth: 200,
-            maxHeight: 400,
+          borderRadius: ScaleUtil.circular(16),
+          constraints: BoxConstraints(
+            maxWidth: ScaleUtil.width(200),
+            maxHeight: ScaleUtil.height(400),
           ),
           transitionBuilder: (context, anim1, anim2, child) {
             return FadeTransition(
@@ -248,7 +267,6 @@ class NoteBottomSheet extends GetView<NoteTakingController> {
           transitionDuration: const Duration(milliseconds: 200),
           barrierDismissible: true,
           selectableDayPredicate: (dateTime) {
-            // Allow selecting any date
             return true;
           },
         );
@@ -258,19 +276,21 @@ class NoteBottomSheet extends GetView<NoteTakingController> {
         }
       },
       child: Container(
-        padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        padding: ScaleUtil.symmetric(horizontal: 8, vertical: 4),
         decoration: BoxDecoration(
           color: appTheme.colorScheme.primary,
-          borderRadius: BorderRadius.circular(8),
+          borderRadius: ScaleUtil.circular(8),
         ),
         child: Obx(() => Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Icon(Icons.calendar_today, color: Colors.white, size: 16),
-                SizedBox(width: 8),
+                Icon(Icons.calendar_today,
+                    color: Colors.white, size: ScaleUtil.iconSize(16)),
+                ScaleUtil.sizedBox(width: 8),
                 Text(
                   '${controller.selectedDate.day}/${controller.selectedDate.month}/${controller.selectedDate.year}',
-                  style: TextStyle(color: Colors.white),
+                  style: TextStyle(
+                      color: Colors.white, fontSize: ScaleUtil.fontSize(14)),
                 ),
               ],
             )),
@@ -289,14 +309,14 @@ class NoteBottomSheet extends GetView<NoteTakingController> {
           child: Material(
             color: Colors.transparent,
             child: InkWell(
-              borderRadius: BorderRadius.circular(20),
+              borderRadius: ScaleUtil.circular(20),
               onTap: controller.canAddSubTask ? controller.addSubTask : null,
               child: Padding(
-                padding: EdgeInsets.all(10),
+                padding: ScaleUtil.all(10),
                 child: FaIcon(
                   FontAwesomeIcons.listUl,
                   color: controller.canAddSubTask ? Colors.white : Colors.black,
-                  size: 20,
+                  size: ScaleUtil.iconSize(15),
                 ),
               ),
             ),
@@ -314,7 +334,7 @@ class NoteBottomSheet extends GetView<NoteTakingController> {
           child: Material(
             color: Colors.transparent,
             child: InkWell(
-              borderRadius: BorderRadius.circular(20),
+              borderRadius: ScaleUtil.circular(20),
               onTap: controller.canSave
                   ? () {
                       if (note == null) {
@@ -333,11 +353,11 @@ class NoteBottomSheet extends GetView<NoteTakingController> {
                     }
                   : null,
               child: Padding(
-                padding: EdgeInsets.all(10),
+                padding: ScaleUtil.all(10),
                 child: Icon(
                   FontAwesomeIcons.check,
                   color: Colors.white,
-                  size: 20,
+                  size: ScaleUtil.iconSize(15),
                 ),
               ),
             ),

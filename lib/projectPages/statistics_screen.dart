@@ -10,18 +10,20 @@ import 'package:tushar_db/constants/colors.dart';
 import '../projectController/statistics_controller.dart';
 import '../services/app_text_style.dart';
 import '../services/app_theme.dart';
+import '../services/scale_util.dart';
 
 class StatisticsScreen extends GetWidget<StatisticsController> {
   @override
   Widget build(BuildContext context) {
     final appTheme = Get.find<AppTheme>();
+    ScaleUtil.init(context); // Initialize ScaleUtil
 
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: false,
         title: Text(
           "Your Stats".toLowerCase(),
-          style: appTheme.titleLarge,
+          style: appTheme.titleLarge.copyWith(fontSize: ScaleUtil.fontSize(20)),
         ),
         backgroundColor: appTheme.colorScheme.surface,
         foregroundColor: appTheme.colorScheme.onSurface,
@@ -29,17 +31,17 @@ class StatisticsScreen extends GetWidget<StatisticsController> {
       body: SafeArea(
         child: SingleChildScrollView(
           child: Padding(
-            padding: const EdgeInsets.all(16.0),
+            padding: ScaleUtil.all(16.0),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                SizedBox(height: 20),
+                ScaleUtil.sizedBox(height: 20),
                 _buildTasksOverview(appTheme),
-                SizedBox(height: 20),
+                ScaleUtil.sizedBox(height: 20),
                 _buildWeeklyTaskChart(appTheme),
-                SizedBox(height: 20),
+                ScaleUtil.sizedBox(height: 20),
                 _buildUpcomingTasks(appTheme),
-                SizedBox(height: 20),
+                ScaleUtil.sizedBox(height: 20),
               ],
             ),
           ),
@@ -68,7 +70,7 @@ class StatisticsScreen extends GetWidget<StatisticsController> {
                 ),
               ),
             ),
-            SizedBox(width: 16),
+            ScaleUtil.sizedBox(width: 16),
             Expanded(
               child: GestureDetector(
                 onTap: () {
@@ -93,11 +95,12 @@ class StatisticsScreen extends GetWidget<StatisticsController> {
   Widget _buildOverviewCard(String title, String value,
       {bool isSelected = false, required AppTheme appTheme}) {
     return Container(
-      padding: EdgeInsets.all(16),
+      padding: ScaleUtil.all(16),
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(10),
+        borderRadius: ScaleUtil.circular(10),
         border: isSelected
-            ? Border.all(color: appTheme.colorScheme.primary, width: 2)
+            ? Border.all(
+                color: appTheme.colorScheme.primary, width: ScaleUtil.scale(2))
             : null,
         color: isSelected
             ? appTheme.colorScheme.surface
@@ -109,15 +112,17 @@ class StatisticsScreen extends GetWidget<StatisticsController> {
           Text(
             value,
             style: appTheme.titleLarge.copyWith(
+              fontSize: ScaleUtil.fontSize(15),
               color: isSelected
                   ? appTheme.colorScheme.primary
                   : appTheme.colorScheme.onPrimary,
             ),
           ),
-          SizedBox(height: 8),
+          ScaleUtil.sizedBox(height: 8),
           Text(
             title,
             style: appTheme.bodyMedium.copyWith(
+              fontSize: ScaleUtil.fontSize(14),
               color: isSelected
                   ? appTheme.colorScheme.primary
                   : appTheme.colorScheme.onPrimary,
@@ -135,10 +140,10 @@ class StatisticsScreen extends GetWidget<StatisticsController> {
           controller.toggleTaskView();
         },
         child: Container(
-          padding: EdgeInsets.all(16),
+          padding: ScaleUtil.all(16),
           decoration: BoxDecoration(
             color: appTheme.cardColor,
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: ScaleUtil.circular(12),
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -151,32 +156,37 @@ class StatisticsScreen extends GetWidget<StatisticsController> {
                             ? 'Completion of Daily Tasks'
                             : 'Pending Daily Tasks',
                         style: appTheme.bodyMedium.copyWith(
-                            fontWeight: FontWeight.bold, fontSize: 14),
+                            fontWeight: FontWeight.bold,
+                            fontSize: ScaleUtil.fontSize(12)),
                       )),
                   Row(
                     children: [
                       Obx(() => controller.canGoBack == true
                           ? IconButton(
                               icon: Icon(Icons.arrow_back_ios,
-                                  size: 12, color: appTheme.secondaryTextColor),
+                                  size: ScaleUtil.iconSize(12),
+                                  color: appTheme.secondaryTextColor),
                               onPressed: controller.goToPreviousWeek,
                             )
                           : SizedBox.shrink()),
                       Obx(() => Text(controller.getDateRangeText(),
-                          style:
-                              TextStyle(color: appTheme.secondaryTextColor))),
+                          style: TextStyle(
+                            color: appTheme.secondaryTextColor,
+                            fontSize: ScaleUtil.fontSize(10),
+                          ))),
                       IconButton(
                         icon: Icon(Icons.arrow_forward_ios,
-                            size: 12, color: appTheme.secondaryTextColor),
+                            size: ScaleUtil.iconSize(12),
+                            color: appTheme.secondaryTextColor),
                         onPressed: controller.goToNextWeek,
                       ),
                     ],
                   ),
                 ],
               ),
-              SizedBox(height: 16),
+              ScaleUtil.sizedBox(height: 14),
               SizedBox(
-                height: 200,
+                height: ScaleUtil.height(150),
                 child: Obx(() {
                   List<int> currentData = controller.showCompletedTasks.value
                       ? controller.weeklyTaskCompletion
@@ -195,7 +205,7 @@ class StatisticsScreen extends GetWidget<StatisticsController> {
                         getDrawingHorizontalLine: (value) {
                           return FlLine(
                             color: appTheme.secondaryTextColor.withOpacity(0.2),
-                            strokeWidth: 1,
+                            strokeWidth: ScaleUtil.scale(1),
                           );
                         },
                       ),
@@ -215,12 +225,12 @@ class StatisticsScreen extends GetWidget<StatisticsController> {
                                 'Sat'
                               ];
                               return Padding(
-                                padding: const EdgeInsets.only(top: 8.0),
+                                padding: ScaleUtil.only(top: 8.0),
                                 child: Text(
                                   titles[value.toInt()],
                                   style: TextStyle(
                                     color: appTheme.secondaryTextColor,
-                                    fontSize: 12,
+                                    fontSize: ScaleUtil.fontSize(10),
                                   ),
                                 ),
                               );
@@ -236,12 +246,12 @@ class StatisticsScreen extends GetWidget<StatisticsController> {
                                 value.toInt().toString(),
                                 style: TextStyle(
                                   color: appTheme.secondaryTextColor,
-                                  fontSize: 12,
+                                  fontSize: ScaleUtil.fontSize(12),
                                 ),
                                 textAlign: TextAlign.left,
                               );
                             },
-                            reservedSize: 30,
+                            reservedSize: ScaleUtil.width(30),
                           ),
                         ),
                         topTitles: AxisTitles(
@@ -273,13 +283,13 @@ class StatisticsScreen extends GetWidget<StatisticsController> {
                           HorizontalLine(
                             y: 4,
                             color: Colors.transparent,
-                            strokeWidth: 1,
+                            strokeWidth: ScaleUtil.scale(1),
                             label: HorizontalLineLabel(
                               show: !hasData,
                               alignment: Alignment.center,
                               style: TextStyle(
                                 color: appTheme.secondaryTextColor,
-                                fontSize: 16,
+                                fontSize: ScaleUtil.fontSize(16),
                               ),
                               labelResolver: (line) => 'No data present',
                             ),
@@ -307,13 +317,18 @@ class StatisticsScreen extends GetWidget<StatisticsController> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('Tasks in Next 7 Days',
-            style: appTheme.titleLarge.copyWith(fontSize: 18)),
-        SizedBox(height: 8),
+        Text(
+          'Tasks in Next 7 Days',
+          style: appTheme.titleLarge.copyWith(
+            fontSize: ScaleUtil.fontSize(14),
+          ),
+        ),
+        ScaleUtil.sizedBox(height: 8),
         Obx(() {
           if (controller.upcomingTasks.isEmpty) {
             return Text('No upcoming tasks in the next 7 days.',
-                style: appTheme.bodyMedium);
+                style: appTheme.bodyMedium
+                    .copyWith(fontSize: ScaleUtil.fontSize(14)));
           }
           return ListView.builder(
             shrinkWrap: true,
@@ -322,15 +337,23 @@ class StatisticsScreen extends GetWidget<StatisticsController> {
             itemBuilder: (context, index) {
               final task = controller.upcomingTasks[index];
               return ListTile(
-                title: Text(task.title, style: appTheme.bodyMedium),
+                title: Text(
+                  task.title,
+                  style: appTheme.bodyMedium.copyWith(
+                    fontSize: ScaleUtil.fontSize(12),
+                  ),
+                ),
                 subtitle: Text(
                   DateFormat('MMM dd, yyyy')
                       .format(task.date ?? DateTime.now()),
                   style: appTheme.bodyMedium.copyWith(
                     color: appTheme.secondaryTextColor,
+                    fontSize: ScaleUtil.fontSize(10),
                   ),
                 ),
-                leading: Icon(Icons.event, color: appTheme.colorScheme.primary),
+                leading: Icon(Icons.event,
+                    color: appTheme.colorScheme.primary,
+                    size: ScaleUtil.iconSize(14)),
               );
             },
           );

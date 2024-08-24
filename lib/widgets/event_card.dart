@@ -66,17 +66,17 @@ class EventCard extends StatelessWidget {
       padding: EdgeInsets.zero,
       backgroundColor: Colors.transparent,
       child: Container(
-        width: 60,
-        height: 40,
+        width: ScaleUtil.width(50),
+        height: ScaleUtil.height(30),
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(10),
+          borderRadius: ScaleUtil.circular(8),
           color: color,
           boxShadow: [
             BoxShadow(
               color: color.withOpacity(0.3),
-              spreadRadius: 1,
-              blurRadius: 3,
-              offset: Offset(0, 2),
+              spreadRadius: ScaleUtil.scale(1),
+              blurRadius: ScaleUtil.scale(3),
+              offset: Offset(0, ScaleUtil.scale(2)),
             ),
           ],
         ),
@@ -86,7 +86,7 @@ class EventCard extends StatelessWidget {
             Icon(
               icon,
               color: Colors.white,
-              size: 30,
+              size: ScaleUtil.iconSize(15),
             ),
           ],
         ),
@@ -96,11 +96,11 @@ class EventCard extends StatelessWidget {
 
   Widget _buildEventCardContent(BuildContext context) {
     return Container(
-      margin: EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+      margin: ScaleUtil.symmetric(vertical: 8, horizontal: 16),
       child: Row(
         children: [
           _buildTimeColumn(),
-          SizedBox(width: 8),
+          ScaleUtil.sizedBox(width: 8),
           Expanded(child: _buildCardContent(context)),
           _buildCompleteButton(),
         ],
@@ -110,7 +110,7 @@ class EventCard extends StatelessWidget {
 
   Widget _buildTimeColumn() {
     return Container(
-      width: 60,
+      width: ScaleUtil.width(60),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
@@ -118,27 +118,27 @@ class EventCard extends StatelessWidget {
             DateFormat('MMM d').format(event.date),
             style: TextStyle(
               fontWeight: FontWeight.bold,
-              fontSize: 14,
+              fontSize: ScaleUtil.fontSize(12),
             ),
           ),
-          SizedBox(height: 4),
+          ScaleUtil.sizedBox(height: 4),
           Text(
             event.startTime != null
                 ? DateFormat('h:mm a').format(event.startTime!)
                 : DateFormat('h:mm a').format(event.createdAt),
             style: TextStyle(
               fontWeight: FontWeight.w500,
-              fontSize: 12,
+              fontSize: ScaleUtil.fontSize(10),
               color: Colors.grey,
             ),
           ),
           if (event.isCompleted == true && event.editedAfterCompletion == true)
             Padding(
-              padding: const EdgeInsets.only(top: 4),
+              padding: ScaleUtil.only(top: 4),
               child: Text(
                 'Edited',
                 style: TextStyle(
-                  fontSize: 10,
+                  fontSize: ScaleUtil.fontSize(10),
                   color: Colors.blue,
                   fontStyle: FontStyle.italic,
                 ),
@@ -156,6 +156,7 @@ class EventCard extends StatelessWidget {
             ? Icons.check_circle
             : Icons.check_circle_outline,
         color: event.isCompleted == true ? Colors.green : Colors.grey,
+        size: ScaleUtil.iconSize(18),
       ),
       onPressed: () => onComplete(event),
     );
@@ -170,7 +171,7 @@ class EventCard extends StatelessWidget {
             Card(
               elevation: 0,
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(ScaleUtil.scale(10)),
+                borderRadius: ScaleUtil.circular(10),
               ),
               child: IntrinsicHeight(
                 child: Row(
@@ -180,8 +181,8 @@ class EventCard extends StatelessWidget {
                       decoration: BoxDecoration(
                         color: event.color,
                         borderRadius: BorderRadius.only(
-                          topLeft: Radius.circular(ScaleUtil.scale(10)),
-                          bottomLeft: Radius.circular(ScaleUtil.scale(10)),
+                          topLeft: ScaleUtil.radius(10),
+                          bottomLeft: ScaleUtil.radius(10),
                         ),
                       ),
                     ),
@@ -190,19 +191,20 @@ class EventCard extends StatelessWidget {
                         padding: ScaleUtil.all(10.0),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
-                          mainAxisSize: MainAxisSize.min, // Add this line
+                          mainAxisSize: MainAxisSize.min,
                           children: [
                             Text(
                               event.title,
                               style:
                                   AppTextTheme.textTheme.titleMedium!.copyWith(
+                                fontSize: ScaleUtil.fontSize(14),
                                 decoration: event.isCompleted == true
                                     ? TextDecoration.lineThrough
                                     : TextDecoration.none,
                               ),
                             ),
                             if (event.description.isNotEmpty) ...[
-                              SizedBox(height: ScaleUtil.height(4)),
+                              ScaleUtil.sizedBox(height: 4),
                               AnimatedCrossFade(
                                 firstChild: Text(
                                   event.description,
@@ -210,6 +212,7 @@ class EventCard extends StatelessWidget {
                                   overflow: TextOverflow.ellipsis,
                                   style: AppTextTheme.textTheme.bodyMedium!
                                       .copyWith(
+                                    fontSize: ScaleUtil.fontSize(14),
                                     decoration: event.isCompleted == true
                                         ? TextDecoration.lineThrough
                                         : TextDecoration.none,
@@ -219,6 +222,7 @@ class EventCard extends StatelessWidget {
                                   event.description,
                                   style: AppTextTheme.textTheme.bodyMedium!
                                       .copyWith(
+                                    fontSize: ScaleUtil.fontSize(14),
                                     decoration: event.isCompleted == true
                                         ? TextDecoration.lineThrough
                                         : TextDecoration.none,
@@ -241,8 +245,8 @@ class EventCard extends StatelessWidget {
                         decoration: BoxDecoration(
                           color: Colors.green,
                           borderRadius: BorderRadius.only(
-                            topRight: Radius.circular(ScaleUtil.scale(10)),
-                            bottomRight: Radius.circular(ScaleUtil.scale(10)),
+                            topRight: ScaleUtil.radius(10),
+                            bottomRight: ScaleUtil.radius(10),
                           ),
                         ),
                       ),
@@ -263,7 +267,7 @@ class EventCard extends StatelessWidget {
                   },
                   child: Icon(
                     Icons.notifications_active,
-                    size: ScaleUtil.scale(18),
+                    size: ScaleUtil.iconSize(18),
                     color: Colors.blue,
                   ),
                 ),

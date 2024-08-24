@@ -11,14 +11,18 @@ class ProfileScreen extends GetWidget<ProfileController> {
 
   @override
   Widget build(BuildContext context) {
+    ScaleUtil.init(context); // Initialize ScaleUtil
+
     return Scaffold(
       resizeToAvoidBottomInset: false,
       appBar: AppBar(
-        title: Obx(() => Text(controller.username.value)),
+        title: Obx(() => Text(controller.username.value,
+            style: TextStyle(fontSize: ScaleUtil.fontSize(18)))),
         automaticallyImplyLeading: false,
         actions: [
           TextButton(
-            child: Text('Edit', style: TextStyle()),
+            child: Text('Edit',
+                style: TextStyle(fontSize: ScaleUtil.fontSize(16))),
             onPressed: () => _showEditDialog(context),
           ),
         ],
@@ -35,13 +39,13 @@ class ProfileScreen extends GetWidget<ProfileController> {
                     height: ScaleUtil.height(200),
                     width: ScaleUtil.width(200),
                     decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(20),
+                      borderRadius: ScaleUtil.circular(20),
                       boxShadow: [
                         BoxShadow(
                           color: appTheme.colorScheme.primary.withOpacity(0.3),
-                          blurRadius: 10,
-                          spreadRadius: 1,
-                          offset: Offset(0, 5),
+                          blurRadius: ScaleUtil.scale(10),
+                          spreadRadius: ScaleUtil.scale(1),
+                          offset: Offset(0, ScaleUtil.scale(5)),
                         ),
                       ],
                       color: Colors.blue,
@@ -49,18 +53,27 @@ class ProfileScreen extends GetWidget<ProfileController> {
                     ),
                   ),
                 ),
-                SizedBox(height: 16),
+                ScaleUtil.sizedBox(height: 16),
                 Obx(
                   () => Text(
                     controller.name.value,
-                    style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                    style: TextStyle(
+                        fontSize: ScaleUtil.fontSize(20),
+                        fontWeight: FontWeight.bold),
                     textAlign: TextAlign.center,
                   ),
                 ),
                 Obx(() => Text(controller.email.value ?? '',
+                    style: TextStyle(fontSize: ScaleUtil.fontSize(12)),
                     textAlign: TextAlign.center)),
                 TextButton(
-                  child: Text('Edit', style: TextStyle(color: Colors.blue)),
+                  child: Text(
+                    'Edit',
+                    style: TextStyle(
+                      color: Colors.blue,
+                      fontSize: ScaleUtil.fontSize(12),
+                    ),
+                  ),
                   onPressed: () => _showEditDialog(context),
                 ),
               ],
@@ -70,21 +83,21 @@ class ProfileScreen extends GetWidget<ProfileController> {
               child: RefreshIndicator(
                 onRefresh: controller.fetchNotifications,
                 child: ListView(
-                  padding: EdgeInsets.symmetric(horizontal: 16),
+                  padding: ScaleUtil.symmetric(horizontal: 16),
                   children: [
-                    SizedBox(height: 20),
+                    ScaleUtil.sizedBox(height: 20),
                     InkWell(
                       splashColor: Colors.transparent,
                       onTap: () => appTheme.toggleTheme(),
                       child: Obx(() => Container(
-                            padding: EdgeInsets.symmetric(
+                            padding: ScaleUtil.symmetric(
                                 vertical: 12, horizontal: 16),
-                            margin: EdgeInsets.only(bottom: 8),
+                            margin: ScaleUtil.only(bottom: 8),
                             decoration: BoxDecoration(
                               color: appTheme.isDarkMode
                                   ? Colors.white
                                   : Colors.black,
-                              borderRadius: BorderRadius.circular(8),
+                              borderRadius: ScaleUtil.circular(8),
                             ),
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -92,6 +105,7 @@ class ProfileScreen extends GetWidget<ProfileController> {
                                 Text(
                                   'theme',
                                   style: TextStyle(
+                                    fontSize: ScaleUtil.fontSize(12),
                                     color: appTheme.isDarkMode
                                         ? Colors.black
                                         : Colors.white,
@@ -99,7 +113,7 @@ class ProfileScreen extends GetWidget<ProfileController> {
                                 ),
                                 Icon(
                                   Icons.arrow_forward_ios,
-                                  size: 16,
+                                  size: ScaleUtil.iconSize(16),
                                   color: appTheme.isDarkMode
                                       ? Colors.black
                                       : Colors.white,
@@ -114,18 +128,7 @@ class ProfileScreen extends GetWidget<ProfileController> {
                         onTap: () => controller.logout()),
                     _buildOptionTile('delete account',
                         onTap: () => controller.deleteAccount()),
-                    SizedBox(height: 20),
-            
-                    SizedBox(height: 20),
-                    // ElevatedButton(
-                    //   child: Text('Cancel All Notifications'),
-                    //   onPressed: () => controller.cancelAllNotifications(),
-                    //   style: ElevatedButton.styleFrom(
-                    //     foregroundColor: appTheme.colorScheme.onPrimary,
-                    //     backgroundColor: appTheme.colorScheme.primary,
-                    //     padding: EdgeInsets.symmetric(vertical: 12),
-                    //   ),
-                    // ),
+                    ScaleUtil.sizedBox(height: 20),
                   ],
                 ),
               ),
@@ -141,15 +144,20 @@ class ProfileScreen extends GetWidget<ProfileController> {
     return InkWell(
       onTap: onTap,
       child: Container(
-        padding: EdgeInsets.symmetric(vertical: 12, horizontal: 16),
-        margin: EdgeInsets.only(bottom: 8),
+        padding: ScaleUtil.symmetric(vertical: 12, horizontal: 16),
+        margin: ScaleUtil.only(bottom: 8),
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(8),
+          borderRadius: ScaleUtil.circular(8),
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text(title),
+            Text(
+              title,
+              style: TextStyle(
+                fontSize: ScaleUtil.fontSize(12),
+              ),
+            ),
             if (isSwitch)
               Switch(
                 value: false,
@@ -159,7 +167,7 @@ class ProfileScreen extends GetWidget<ProfileController> {
                 activeColor: Colors.blue,
               )
             else
-              Icon(Icons.arrow_forward_ios, size: 16),
+              Icon(Icons.arrow_forward_ios, size: ScaleUtil.iconSize(16)),
           ],
         ),
       ),
@@ -176,7 +184,7 @@ class ProfileScreen extends GetWidget<ProfileController> {
 
         return AlertDialog(
           title: Text('Edit Profile',
-              style: Theme.of(context).textTheme.titleLarge),
+              style: TextStyle(fontSize: ScaleUtil.fontSize(20))),
           content: SingleChildScrollView(
             child: Column(
               mainAxisSize: MainAxisSize.min,
@@ -184,32 +192,32 @@ class ProfileScreen extends GetWidget<ProfileController> {
                 TextField(
                   decoration: InputDecoration(
                     labelText: 'Name',
-                    labelStyle: Theme.of(context).textTheme.bodyMedium,
+                    labelStyle: TextStyle(fontSize: ScaleUtil.fontSize(16)),
                     border: OutlineInputBorder(),
                   ),
-                  style: Theme.of(context).textTheme.bodyMedium,
+                  style: TextStyle(fontSize: ScaleUtil.fontSize(16)),
                   onChanged: (value) => newName = value,
                   controller: TextEditingController(text: newName),
                 ),
-                SizedBox(height: 16),
+                ScaleUtil.sizedBox(height: 16),
                 TextField(
                   decoration: InputDecoration(
                     labelText: 'Email',
-                    labelStyle: Theme.of(context).textTheme.bodyMedium,
+                    labelStyle: TextStyle(fontSize: ScaleUtil.fontSize(16)),
                     border: OutlineInputBorder(),
                   ),
-                  style: Theme.of(context).textTheme.bodyMedium,
+                  style: TextStyle(fontSize: ScaleUtil.fontSize(16)),
                   onChanged: (value) => newEmail = value,
                   controller: TextEditingController(text: newEmail),
                 ),
-                SizedBox(height: 16),
+                ScaleUtil.sizedBox(height: 16),
                 TextField(
                   decoration: InputDecoration(
                     labelText: 'Username',
-                    labelStyle: Theme.of(context).textTheme.bodyMedium,
+                    labelStyle: TextStyle(fontSize: ScaleUtil.fontSize(16)),
                     border: OutlineInputBorder(),
                   ),
-                  style: Theme.of(context).textTheme.bodyMedium,
+                  style: TextStyle(fontSize: ScaleUtil.fontSize(16)),
                   onChanged: (value) => newUsername = value,
                   controller: TextEditingController(text: newUsername),
                 ),
@@ -219,32 +227,30 @@ class ProfileScreen extends GetWidget<ProfileController> {
           actions: [
             TextButton(
                 child: Text('Cancel',
-                    style: Theme.of(context).textTheme.bodyMedium),
+                    style: TextStyle(fontSize: ScaleUtil.fontSize(16))),
                 onPressed: () => Get.back()),
             TextButton(
               child: Text('Save',
-                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        color: Theme.of(context).colorScheme.primary,
-                      )),
+                  style: TextStyle(
+                    fontSize: ScaleUtil.fontSize(16),
+                    color: Theme.of(context).colorScheme.primary,
+                  )),
               onPressed: () async {
                 Navigator.of(context).pop();
                 bool anyChanges = false;
 
                 if (newName != controller.name.value) {
                   await controller.updateName(newName);
-
                   anyChanges = true;
                 }
 
                 if (newEmail != controller.email.value) {
                   await controller.updateEmail(newEmail);
-
                   anyChanges = true;
                 }
 
                 if (newUsername != controller.username.value) {
                   await controller.updateUsername(newUsername);
-
                   anyChanges = true;
                 }
 
@@ -267,7 +273,7 @@ class ProfileScreen extends GetWidget<ProfileController> {
       builder: (BuildContext context) {
         return AlertDialog(
           title: Text('Change Password',
-              style: Theme.of(context).textTheme.titleLarge),
+              style: TextStyle(fontSize: ScaleUtil.fontSize(20))),
           content: SingleChildScrollView(
             child: Column(
               mainAxisSize: MainAxisSize.min,
@@ -275,32 +281,32 @@ class ProfileScreen extends GetWidget<ProfileController> {
                 TextField(
                   decoration: InputDecoration(
                     labelText: 'Current Password',
-                    labelStyle: Theme.of(context).textTheme.bodyMedium,
+                    labelStyle: TextStyle(fontSize: ScaleUtil.fontSize(16)),
                     border: OutlineInputBorder(),
                   ),
-                  style: Theme.of(context).textTheme.bodyMedium,
+                  style: TextStyle(fontSize: ScaleUtil.fontSize(16)),
                   obscureText: true,
                   onChanged: (value) => currentPassword = value,
                 ),
-                SizedBox(height: 16),
+                ScaleUtil.sizedBox(height: 16),
                 TextField(
                   decoration: InputDecoration(
                     labelText: 'New Password',
-                    labelStyle: Theme.of(context).textTheme.bodyMedium,
+                    labelStyle: TextStyle(fontSize: ScaleUtil.fontSize(16)),
                     border: OutlineInputBorder(),
                   ),
-                  style: Theme.of(context).textTheme.bodyMedium,
+                  style: TextStyle(fontSize: ScaleUtil.fontSize(16)),
                   obscureText: true,
                   onChanged: (value) => newPassword = value,
                 ),
-                SizedBox(height: 16),
+                ScaleUtil.sizedBox(height: 16),
                 TextField(
                   decoration: InputDecoration(
                     labelText: 'Confirm New Password',
-                    labelStyle: Theme.of(context).textTheme.bodyMedium,
+                    labelStyle: TextStyle(fontSize: ScaleUtil.fontSize(16)),
                     border: OutlineInputBorder(),
                   ),
-                  style: Theme.of(context).textTheme.bodyMedium,
+                  style: TextStyle(fontSize: ScaleUtil.fontSize(16)),
                   obscureText: true,
                   onChanged: (value) => confirmNewPassword = value,
                 ),
@@ -309,15 +315,16 @@ class ProfileScreen extends GetWidget<ProfileController> {
           ),
           actions: [
             TextButton(
-              child:
-                  Text('Cancel', style: Theme.of(context).textTheme.bodyMedium),
+              child: Text('Cancel',
+                  style: TextStyle(fontSize: ScaleUtil.fontSize(16))),
               onPressed: () => Get.back(),
             ),
             TextButton(
               child: Text('Change',
-                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        color: Theme.of(context).colorScheme.primary,
-                      )),
+                  style: TextStyle(
+                    fontSize: ScaleUtil.fontSize(16),
+                    color: Theme.of(context).colorScheme.primary,
+                  )),
               onPressed: () {
                 if (newPassword != confirmNewPassword) {
                   Get.snackbar('Error', 'New passwords do not match');

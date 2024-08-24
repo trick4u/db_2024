@@ -58,308 +58,314 @@ class CalendarPage extends GetWidget<CalendarController> {
                           }
                         },
                         child: FadeInUp(
-                          child: Card(
-                            elevation: 2,
-                            color: appTheme.cardColor,
-                            child: Column(
-                              children: [
-                                SizedBox(height: 20),
-                                FadeInDown(
-                                  child: Padding(
-                                    padding:
-                                        ScaleUtil.symmetric(horizontal: 10),
-                                    child: TableCalendar(
-                                      firstDay: DateTime.utc(2023, 01, 01),
-                                      lastDay: DateTime.utc(2030, 12, 31),
-                                      focusedDay: controller.focusedDay.value,
-                                      daysOfWeekHeight: 40,
-                                      eventLoader: (day) => [],
-                                      selectedDayPredicate: (day) {
-                                        return isSameDay(
-                                            day, controller.selectedDay.value);
-                                      },
-                                      onDaySelected: (selectedDay, focusedDay) {
-                                        controller.setSelectedDay(selectedDay);
-                                        controller.setFocusedDay(focusedDay);
-                                      },
-                                      calendarFormat: controller.calendarFormat,
-                                      onFormatChanged: (format) {
-                                        controller.setCalendarFormat(format);
-                                      },
-                                      onPageChanged: (focusedDay) {
-                                        controller.setFocusedDay(focusedDay);
-                                        controller.fetchEvents(focusedDay);
-                                      },
-                                      calendarStyle: CalendarStyle(
-                                        outsideDaysVisible: false,
-                                        cellMargin: ScaleUtil.all(4),
-                                        defaultTextStyle: TextStyle(
-                                            color: appTheme.textColor),
-                                        weekendTextStyle: TextStyle(
-                                            color: appTheme.textColor),
-                                        holidayTextStyle: TextStyle(
-                                            color: appTheme.textColor),
+                            child: Card(
+                          elevation: ScaleUtil.scale(2),
+                          color: appTheme.cardColor,
+                          child: Column(
+                            children: [
+                              ScaleUtil.sizedBox(height: 20),
+                              FadeInDown(
+                                child: Padding(
+                                  padding: ScaleUtil.symmetric(horizontal: 10),
+                                  child: TableCalendar(
+                                    firstDay: DateTime.utc(2023, 01, 01),
+                                    lastDay: DateTime.utc(2030, 12, 31),
+                                    focusedDay: controller.focusedDay.value,
+                                    daysOfWeekHeight: ScaleUtil.height(40),
+                                    eventLoader: (day) => [],
+                                    selectedDayPredicate: (day) {
+                                      return isSameDay(
+                                          day, controller.selectedDay.value);
+                                    },
+                                    onDaySelected: (selectedDay, focusedDay) {
+                                      controller.setSelectedDay(selectedDay);
+                                      controller.setFocusedDay(focusedDay);
+                                    },
+                                    calendarFormat: controller.calendarFormat,
+                                    onFormatChanged: (format) {
+                                      controller.setCalendarFormat(format);
+                                    },
+                                    onPageChanged: (focusedDay) {
+                                      controller.setFocusedDay(focusedDay);
+                                      controller.fetchEvents(focusedDay);
+                                    },
+                                    calendarStyle: CalendarStyle(
+                                      outsideDaysVisible: false,
+                                      cellMargin: ScaleUtil.all(4),
+                                      defaultTextStyle: TextStyle(
+                                        color: appTheme.textColor,
+                                        fontSize: ScaleUtil.fontSize(14),
                                       ),
-                                      headerVisible: false,
-                                      headerStyle: HeaderStyle(
-                                        formatButtonVisible: false,
-                                        titleCentered: false,
-                                        rightChevronIcon: Icon(
-                                            Icons.chevron_right,
-                                            color: appTheme.textColor),
-                                        rightChevronPadding:
-                                            EdgeInsets.symmetric(
-                                                horizontal: 100),
-                                        titleTextStyle: appTheme.titleLarge,
-                                        leftChevronVisible: false,
-                                        rightChevronVisible: true,
-                                        headerPadding: EdgeInsets.symmetric(
-                                            vertical: 10, horizontal: 20),
-                                        titleTextFormatter: (date, locale) {
-                                          return DateFormat.yMMMM()
-                                              .format(date);
-                                        },
+                                      weekendTextStyle: TextStyle(
+                                        color: appTheme.textColor,
+                                        fontSize: ScaleUtil.fontSize(14),
                                       ),
-                                      onHeaderTapped: (focusedDay) {
-                                        controller.toggleCalendarFormat();
-                                        controller.setFocusedDay(focusedDay);
+                                      holidayTextStyle: TextStyle(
+                                        color: appTheme.textColor,
+                                        fontSize: ScaleUtil.fontSize(14),
+                                      ),
+                                    ),
+                                    headerVisible: false,
+                                    headerStyle: HeaderStyle(
+                                      formatButtonVisible: false,
+                                      titleCentered: false,
+                                      rightChevronIcon: Icon(
+                                        Icons.chevron_right,
+                                        color: appTheme.textColor,
+                                        size: ScaleUtil.iconSize(24),
+                                      ),
+                                      rightChevronPadding:
+                                          ScaleUtil.symmetric(horizontal: 100),
+                                      titleTextStyle:
+                                          appTheme.titleLarge.copyWith(
+                                        fontSize: ScaleUtil.fontSize(18),
+                                      ),
+                                      leftChevronVisible: false,
+                                      rightChevronVisible: true,
+                                      headerPadding: ScaleUtil.symmetric(
+                                          vertical: 10, horizontal: 20),
+                                      titleTextFormatter: (date, locale) {
+                                        return DateFormat.yMMMM().format(date);
                                       },
-                                      daysOfWeekStyle: DaysOfWeekStyle(
-                                        weekdayStyle: TextStyle(
-                                          color: appTheme.colorScheme.primary,
-                                          fontWeight: FontWeight.w500,
-                                          fontSize: 16,
-                                        ),
-                                        weekendStyle: TextStyle(
-                                          color: appTheme.colorScheme.secondary,
-                                          fontWeight: FontWeight.w500,
-                                          fontSize: 16,
-                                        ),
+                                    ),
+                                    onHeaderTapped: (focusedDay) {
+                                      controller.toggleCalendarFormat();
+                                      controller.setFocusedDay(focusedDay);
+                                    },
+                                    daysOfWeekStyle: DaysOfWeekStyle(
+                                      weekdayStyle: TextStyle(
+                                        color: appTheme.colorScheme.primary,
+                                        fontWeight: FontWeight.w500,
+                                        fontSize: ScaleUtil.fontSize(14),
                                       ),
-                                      calendarBuilders: CalendarBuilders(
-                                        defaultBuilder:
-                                            (context, day, focusedDay) {
-                                          bool hasEvents =
-                                              controller.hasEventsForDay(day);
-                                          int eventCount = controller
-                                              .getEventCountForDay(day);
-                                          return Container(
-                                            margin: const EdgeInsets.all(4.0),
-                                            decoration: BoxDecoration(
-                                              color: Colors.transparent,
-                                              borderRadius:
-                                                  BorderRadius.circular(8.0),
-                                              border: hasEvents
-                                                  ? Border.all(
-                                                      color: appTheme
-                                                          .colorScheme.primary,
-                                                      width: 1)
-                                                  : null,
-                                            ),
-                                            child: Stack(
-                                              children: [
-                                                Center(
-                                                  child: Text(
-                                                    day.day.toString(),
-                                                    style: TextStyle(
-                                                      fontWeight:
-                                                          FontWeight.bold,
-                                                      fontFamily: 'Euclid',
-                                                      color: hasEvents
-                                                          ? appTheme.colorScheme
-                                                              .primary
-                                                          : appTheme.textColor,
-                                                    ),
+                                      weekendStyle: TextStyle(
+                                        color: appTheme.colorScheme.secondary,
+                                        fontWeight: FontWeight.w500,
+                                        fontSize: ScaleUtil.fontSize(14),
+                                      ),
+                                    ),
+                                    calendarBuilders: CalendarBuilders(
+                                      defaultBuilder:
+                                          (context, day, focusedDay) {
+                                        bool hasEvents =
+                                            controller.hasEventsForDay(day);
+                                        int eventCount =
+                                            controller.getEventCountForDay(day);
+                                        return Container(
+                                          margin: ScaleUtil.all(4.0),
+                                          decoration: BoxDecoration(
+                                            color: Colors.transparent,
+                                            borderRadius:
+                                                ScaleUtil.circular(8.0),
+                                            border: hasEvents
+                                                ? Border.all(
+                                                    color: appTheme
+                                                        .colorScheme.primary,
+                                                    width: ScaleUtil.scale(1))
+                                                : null,
+                                          ),
+                                          child: Stack(
+                                            children: [
+                                              Center(
+                                                child: Text(
+                                                  day.day.toString(),
+                                                  style: TextStyle(
+                                                    fontWeight: FontWeight.bold,
+                                                    fontFamily: 'Euclid',
+                                                    fontSize:
+                                                        ScaleUtil.fontSize(12),
+                                                    color: hasEvents
+                                                        ? appTheme
+                                                            .colorScheme.primary
+                                                        : appTheme.textColor,
                                                   ),
                                                 ),
-                                                if (eventCount > 0)
-                                                  Positioned(
-                                                    right: 1,
-                                                    bottom: 1,
-                                                    child: Container(
-                                                      padding:
-                                                          EdgeInsets.all(2),
-                                                      decoration: BoxDecoration(
-                                                        color: appTheme
-                                                            .colorScheme
-                                                            .primary,
-                                                        borderRadius:
-                                                            BorderRadius
-                                                                .circular(10),
-                                                      ),
-                                                      constraints:
-                                                          BoxConstraints(
-                                                        minWidth: 15,
-                                                        minHeight: 15,
-                                                      ),
-                                                      child: Center(
-                                                        child: Text(
-                                                          eventCount.toString(),
-                                                          style: TextStyle(
-                                                            color: appTheme
-                                                                .colorScheme
-                                                                .onPrimary,
-                                                            fontSize: 9,
-                                                            fontFamily:
-                                                                'Euclid',
-                                                          ),
+                                              ),
+                                              if (eventCount > 0)
+                                                Positioned(
+                                                  right: ScaleUtil.scale(1),
+                                                  bottom: ScaleUtil.scale(1),
+                                                  child: Container(
+                                                    padding: ScaleUtil.all(2),
+                                                    decoration: BoxDecoration(
+                                                      color: appTheme
+                                                          .colorScheme.primary,
+                                                      borderRadius:
+                                                          ScaleUtil.circular(8),
+                                                    ),
+                                                    constraints: BoxConstraints(
+                                                      minWidth:
+                                                          ScaleUtil.width(14),
+                                                      minHeight:
+                                                          ScaleUtil.height(14),
+                                                    ),
+                                                    child: Center(
+                                                      child: Text(
+                                                        eventCount.toString(),
+                                                        style: TextStyle(
+                                                          color: appTheme
+                                                              .colorScheme
+                                                              .onPrimary,
+                                                          fontSize: ScaleUtil
+                                                              .fontSize(7),
+                                                          fontFamily: 'Euclid',
                                                         ),
                                                       ),
                                                     ),
                                                   ),
-                                              ],
-                                            ),
-                                          );
-                                        },
-                                        selectedBuilder: (context, date, _) {
-                                          bool hasEvents =
-                                              controller.hasEventsForDay(date);
-                                          int eventCount = controller
-                                              .getEventCountForDay(date);
-                                          return Container(
-                                            margin: const EdgeInsets.all(4.0),
-                                            decoration: BoxDecoration(
-                                              color:
-                                                  appTheme.colorScheme.primary,
-                                              borderRadius:
-                                                  BorderRadius.circular(8.0),
-                                              border: hasEvents
-                                                  ? Border.all(
+                                                ),
+                                            ],
+                                          ),
+                                        );
+                                      },
+                                      selectedBuilder: (context, date, _) {
+                                        bool hasEvents =
+                                            controller.hasEventsForDay(date);
+                                        int eventCount = controller
+                                            .getEventCountForDay(date);
+                                        return Container(
+                                          margin: ScaleUtil.all(4.0),
+                                          decoration: BoxDecoration(
+                                            color: appTheme.colorScheme.primary,
+                                            borderRadius:
+                                                ScaleUtil.circular(8.0),
+                                            border: hasEvents
+                                                ? Border.all(
+                                                    color: appTheme
+                                                        .colorScheme.onPrimary,
+                                                    width: ScaleUtil.scale(1))
+                                                : null,
+                                          ),
+                                          child: Stack(
+                                            children: [
+                                              Center(
+                                                child: Text(
+                                                  date.day.toString(),
+                                                  style: TextStyle(
+                                                    color: appTheme
+                                                        .colorScheme.onPrimary,
+                                                    fontFamily: 'Euclid',
+                                                    fontSize:
+                                                        ScaleUtil.fontSize(14),
+                                                  ),
+                                                ),
+                                              ),
+                                              if (eventCount > 0)
+                                                Positioned(
+                                                  right: ScaleUtil.scale(1),
+                                                  bottom: ScaleUtil.scale(1),
+                                                  child: Container(
+                                                    padding: ScaleUtil.all(2),
+                                                    decoration: BoxDecoration(
                                                       color: appTheme
                                                           .colorScheme
                                                           .onPrimary,
-                                                      width: 1)
-                                                  : null,
-                                            ),
-                                            child: Stack(
-                                              children: [
-                                                Center(
-                                                  child: Text(
-                                                    date.day.toString(),
-                                                    style: TextStyle(
-                                                      color: appTheme
-                                                          .colorScheme
-                                                          .onPrimary,
-                                                      fontFamily: 'Euclid',
+                                                      borderRadius:
+                                                          ScaleUtil.circular(
+                                                              10),
                                                     ),
-                                                  ),
-                                                ),
-                                                if (eventCount > 0)
-                                                  Positioned(
-                                                    right: 1,
-                                                    bottom: 1,
-                                                    child: Container(
-                                                      padding:
-                                                          EdgeInsets.all(2),
-                                                      decoration: BoxDecoration(
-                                                        color: appTheme
-                                                            .colorScheme
-                                                            .onPrimary,
-                                                        borderRadius:
-                                                            BorderRadius
-                                                                .circular(10),
-                                                      ),
-                                                      constraints:
-                                                          BoxConstraints(
-                                                        minWidth: 15,
-                                                        minHeight: 15,
-                                                      ),
-                                                      child: Center(
-                                                        child: Text(
-                                                          eventCount.toString(),
-                                                          style: TextStyle(
-                                                            color: appTheme
-                                                                .colorScheme
-                                                                .primary,
-                                                            fontFamily:
-                                                                'Euclid',
-                                                            fontSize: 9,
-                                                          ),
+                                                    constraints: BoxConstraints(
+                                                      minWidth:
+                                                          ScaleUtil.width(15),
+                                                      minHeight:
+                                                          ScaleUtil.height(15),
+                                                    ),
+                                                    child: Center(
+                                                      child: Text(
+                                                        eventCount.toString(),
+                                                        style: TextStyle(
+                                                          color: appTheme
+                                                              .colorScheme
+                                                              .primary,
+                                                          fontFamily: 'Euclid',
+                                                          fontSize: ScaleUtil
+                                                              .fontSize(9),
                                                         ),
                                                       ),
                                                     ),
                                                   ),
-                                              ],
-                                            ),
-                                          );
-                                        },
-                                        todayBuilder: (context, date, _) {
-                                          bool hasEvents =
-                                              controller.hasEventsForDay(date);
-                                          int eventCount = controller
-                                              .getEventCountForDay(date);
-                                          return Container(
-                                            margin: const EdgeInsets.all(4.0),
-                                            decoration: BoxDecoration(
-                                              color: appTheme
-                                                  .colorScheme.primary
-                                                  .withOpacity(0.3),
-                                              borderRadius:
-                                                  BorderRadius.circular(8.0),
-                                              border: hasEvents
-                                                  ? Border.all(
+                                                ),
+                                            ],
+                                          ),
+                                        );
+                                      },
+                                      todayBuilder: (context, date, _) {
+                                        bool hasEvents =
+                                            controller.hasEventsForDay(date);
+                                        int eventCount = controller
+                                            .getEventCountForDay(date);
+                                        return Container(
+                                          margin: ScaleUtil.all(4.0),
+                                          decoration: BoxDecoration(
+                                            color: appTheme.colorScheme.primary
+                                                .withOpacity(0.3),
+                                            borderRadius:
+                                                ScaleUtil.circular(8.0),
+                                            border: hasEvents
+                                                ? Border.all(
+                                                    color: appTheme
+                                                        .colorScheme.primary,
+                                                    width: ScaleUtil.scale(1))
+                                                : null,
+                                          ),
+                                          child: Stack(
+                                            children: [
+                                              Center(
+                                                child: Text(
+                                                  date.day.toString(),
+                                                  style: TextStyle(
+                                                    color: appTheme
+                                                        .colorScheme.primary,
+                                                    fontSize:
+                                                        ScaleUtil.fontSize(14),
+                                                  ),
+                                                ),
+                                              ),
+                                              if (eventCount > 0)
+                                                Positioned(
+                                                  right: ScaleUtil.scale(1),
+                                                  bottom: ScaleUtil.scale(1),
+                                                  child: Container(
+                                                    padding: ScaleUtil.all(2),
+                                                    decoration: BoxDecoration(
                                                       color: appTheme
                                                           .colorScheme.primary,
-                                                      width: 1)
-                                                  : null,
-                                            ),
-                                            child: Stack(
-                                              children: [
-                                                Center(
-                                                  child: Text(
-                                                    date.day.toString(),
-                                                    style: TextStyle(
-                                                        color: appTheme
-                                                            .colorScheme
-                                                            .primary),
-                                                  ),
-                                                ),
-                                                if (eventCount > 0)
-                                                  Positioned(
-                                                    right: 1,
-                                                    bottom: 1,
-                                                    child: Container(
-                                                      padding:
-                                                          EdgeInsets.all(2),
-                                                      decoration: BoxDecoration(
-                                                        color: appTheme
-                                                            .colorScheme
-                                                            .primary,
-                                                        borderRadius:
-                                                            BorderRadius
-                                                                .circular(10),
-                                                      ),
-                                                      constraints:
-                                                          BoxConstraints(
-                                                        minWidth: 15,
-                                                        minHeight: 15,
-                                                      ),
-                                                      child: Center(
-                                                        child: Text(
-                                                          eventCount.toString(),
-                                                          style: TextStyle(
-                                                            color: appTheme
-                                                                .colorScheme
-                                                                .onPrimary,
-                                                            fontSize: 9,
-                                                          ),
+                                                      borderRadius:
+                                                          ScaleUtil.circular(
+                                                              10),
+                                                    ),
+                                                    constraints: BoxConstraints(
+                                                      minWidth:
+                                                          ScaleUtil.width(15),
+                                                      minHeight:
+                                                          ScaleUtil.height(15),
+                                                    ),
+                                                    child: Center(
+                                                      child: Text(
+                                                        eventCount.toString(),
+                                                        style: TextStyle(
+                                                          color: appTheme
+                                                              .colorScheme
+                                                              .onPrimary,
+                                                          fontSize: ScaleUtil
+                                                              .fontSize(9),
                                                         ),
                                                       ),
                                                     ),
                                                   ),
-                                              ],
-                                            ),
-                                          );
-                                        },
-                                      ),
+                                                ),
+                                            ],
+                                          ),
+                                        );
+                                      },
                                     ),
                                   ),
                                 ),
-                                SizedBox(height: ScaleUtil.height(10)),
-                              ],
-                            ),
+                              ),
+                              ScaleUtil.sizedBox(height: 10),
+                            ],
                           ),
-                        ),
+                        )),
                       ),
                     ),
                     SizedBox(height: ScaleUtil.height(10)),
