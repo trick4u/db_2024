@@ -29,22 +29,38 @@ class StatisticsScreen extends GetWidget<StatisticsController> {
         foregroundColor: appTheme.colorScheme.onSurface,
       ),
       body: SafeArea(
-        child: SingleChildScrollView(
-          child: Padding(
-            padding: ScaleUtil.all(16.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                ScaleUtil.sizedBox(height: 20),
-                _buildTasksOverview(appTheme),
-                ScaleUtil.sizedBox(height: 20),
-                _buildWeeklyTaskChart(appTheme),
-                ScaleUtil.sizedBox(height: 20),
-                _buildUpcomingTasks(appTheme),
-                ScaleUtil.sizedBox(height: 20),
-              ],
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Expanded(
+              flex: 2,
+              child: Padding(
+                padding: ScaleUtil.symmetric(horizontal: 8, vertical: 8),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _buildTasksOverview(appTheme),
+                    ScaleUtil.sizedBox(height: 20),
+                    _buildWeeklyTaskChart(appTheme),
+                    ScaleUtil.sizedBox(height: 20),
+                    Padding(
+                      padding:
+                          ScaleUtil.symmetric(horizontal: 16.0, vertical: 0.0),
+                      child: Text(
+                        'Tasks in Next 7 Days',
+                        style: appTheme.titleLarge.copyWith(
+                          fontSize: ScaleUtil.fontSize(14),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
             ),
-          ),
+            Expanded(
+              child: _buildUpcomingTasks(appTheme),
+            ),
+          ],
         ),
       ),
     );
@@ -314,51 +330,38 @@ class StatisticsScreen extends GetWidget<StatisticsController> {
   }
 
   Widget _buildUpcomingTasks(AppTheme appTheme) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          'Tasks in Next 7 Days',
-          style: appTheme.titleLarge.copyWith(
-            fontSize: ScaleUtil.fontSize(14),
-          ),
-        ),
-        ScaleUtil.sizedBox(height: 8),
-        Obx(() {
-          if (controller.upcomingTasks.isEmpty) {
-            return Text('No upcoming tasks in the next 7 days.',
-                style: appTheme.bodyMedium
-                    .copyWith(fontSize: ScaleUtil.fontSize(14)));
-          }
-          return ListView.builder(
-            shrinkWrap: true,
-            physics: NeverScrollableScrollPhysics(),
-            itemCount: controller.upcomingTasks.length,
-            itemBuilder: (context, index) {
-              final task = controller.upcomingTasks[index];
-              return ListTile(
-                title: Text(
-                  task.title,
-                  style: appTheme.bodyMedium.copyWith(
-                    fontSize: ScaleUtil.fontSize(12),
-                  ),
-                ),
-                subtitle: Text(
-                  DateFormat('MMM dd, yyyy')
-                      .format(task.date ?? DateTime.now()),
-                  style: appTheme.bodyMedium.copyWith(
-                    color: appTheme.secondaryTextColor,
-                    fontSize: ScaleUtil.fontSize(10),
-                  ),
-                ),
-                leading: Icon(Icons.event,
-                    color: appTheme.colorScheme.primary,
-                    size: ScaleUtil.iconSize(14)),
-              );
-            },
+    return Obx(() {
+      if (controller.upcomingTasks.isEmpty) {
+        return Text(
+          'No upcoming tasks in the next 7 days.',
+          style: appTheme.bodyMedium,
+        );
+      }
+      return ListView.builder(
+        physics: AlwaysScrollableScrollPhysics(),
+        itemCount: controller.upcomingTasks.length,
+        itemBuilder: (context, index) {
+          final task = controller.upcomingTasks[index];
+          return ListTile(
+            title: Text(
+              task.title,
+              style: appTheme.bodyMedium.copyWith(
+                fontSize: ScaleUtil.fontSize(12),
+              ),
+            ),
+            subtitle: Text(
+              DateFormat('MMM dd, yyyy').format(task.date ?? DateTime.now()),
+              style: appTheme.bodyMedium.copyWith(
+                color: appTheme.secondaryTextColor,
+                fontSize: ScaleUtil.fontSize(10),
+              ),
+            ),
+            leading: Icon(Icons.event,
+                color: appTheme.colorScheme.primary,
+                size: ScaleUtil.iconSize(14)),
           );
-        }),
-      ],
-    );
+        },
+      );
+    });
   }
 }
