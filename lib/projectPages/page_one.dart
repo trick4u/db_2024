@@ -88,9 +88,24 @@ class PageOneScreen extends GetWidget<PageOneController> {
                       children: [
                         Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 20),
-                          child: Text(
-                            _getListTitle(controller.selectedListType.value),
-                            style: AppTextTheme.textTheme.titleLarge,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                _getListTitle(
+                                    controller.selectedListType.value),
+                                style: AppTextTheme.textTheme.titleLarge,
+                              ),
+                              Text(
+                                _getTaskCount(
+                                    controller.selectedListType.value),
+                                style:
+                                    AppTextTheme.textTheme.bodyMedium?.copyWith(
+                                  color: appTheme.secondaryTextColor,
+                                  fontSize: ScaleUtil.fontSize(12),
+                                ),
+                              ),
+                            ],
                           ),
                         ),
                         const SizedBox(height: 10),
@@ -101,7 +116,6 @@ class PageOneScreen extends GetWidget<PageOneController> {
                     )
                   : SizedBox.shrink()),
             ),
-           
           ],
         ),
       ),
@@ -118,6 +132,21 @@ class PageOneScreen extends GetWidget<PageOneController> {
         return 'Completed Tasks'.toLowerCase();
       case 'all reminders':
         return 'all reminders'.toLowerCase();
+      default:
+        return '';
+    }
+  }
+
+  String _getTaskCount(String listType) {
+    switch (listType) {
+      case 'upcoming':
+        return 'Total upcoming tasks: ${controller.upcomingEvents.length}';
+      case 'pending':
+        return 'Total pending tasks: ${controller.pendingEvents.length}';
+      case 'completed tasks':
+        return 'Total completed tasks: ${controller.completedEvents.length}';
+      case 'all reminders':
+        return 'Total reminders: ${controller.allReminders.length}';
       default:
         return '';
     }

@@ -184,7 +184,7 @@ class ProfileScreen extends GetWidget<ProfileController> {
 
         return AlertDialog(
           title: Text('Edit Profile',
-              style: TextStyle(fontSize: ScaleUtil.fontSize(20))),
+              style: TextStyle(fontSize: ScaleUtil.fontSize(15))),
           content: SingleChildScrollView(
             child: Column(
               mainAxisSize: MainAxisSize.min,
@@ -192,7 +192,7 @@ class ProfileScreen extends GetWidget<ProfileController> {
                 TextField(
                   decoration: InputDecoration(
                     labelText: 'Name',
-                    labelStyle: TextStyle(fontSize: ScaleUtil.fontSize(16)),
+                    labelStyle: TextStyle(fontSize: ScaleUtil.fontSize(12)),
                     border: OutlineInputBorder(),
                   ),
                   style: TextStyle(fontSize: ScaleUtil.fontSize(16)),
