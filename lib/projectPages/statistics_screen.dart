@@ -46,11 +46,29 @@ class StatisticsScreen extends GetWidget<StatisticsController> {
                     Padding(
                       padding:
                           ScaleUtil.symmetric(horizontal: 16.0, vertical: 0.0),
-                      child: Text(
-                        'Tasks in Next 7 Days',
-                        style: appTheme.titleLarge.copyWith(
-                          fontSize: ScaleUtil.fontSize(14),
-                        ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Tasks in Next 7 Days',
+                            style: appTheme.titleLarge.copyWith(
+                              fontSize: ScaleUtil.fontSize(14),
+                            ),
+                          ),
+                          Obx(() {
+                            if (controller.upcomingTasks.length > 0) {
+                              return Text(
+                                'Total upcoming tasks: ${controller.upcomingTasks.length}',
+                                style: appTheme.bodyMedium.copyWith(
+                                  fontSize: ScaleUtil.fontSize(12),
+                                  color: appTheme.secondaryTextColor,
+                                ),
+                              );
+                            } else {
+                              return SizedBox.shrink();
+                            }
+                          }),
+                        ],
                       ),
                     ),
                   ],
