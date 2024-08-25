@@ -47,6 +47,13 @@ class PageOneController extends GetxController {
   User? currentUser = FirebaseAuth.instance.currentUser;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final RxString selectedListType = ''.obs;
+  //pagination
+  static const int eventsPerPage = 10;
+  final RxBool isLoadingMore = false.obs;
+  final RxBool hasMoreEvents = true.obs;
+  DocumentSnapshot? _lastUpcomingDocument;
+  DocumentSnapshot? _lastPendingDocument;
+  DocumentSnapshot? _lastCompletedDocument;
 
   CollectionReference get eventsCollection {
     return _firestore
@@ -254,35 +261,92 @@ class PageOneController extends GetxController {
     }
   }
 
-  void fetchAllEvents() {
+ Future<void> fetchAllEvents({bool loadMore = false}) async {
     if (currentUser == null) return;
+    if (loadMore && !hasMoreEvents.value) return;
 
-    eventsCollection.snapshots().listen((querySnapshot) {
-      List<QuickEventModel> allEvents = querySnapshot.docs
+    try {
+      isLoadingMore.value = loadMore;
+      isLoading.value = !loadMore;
+
+      Query query = eventsCollection.orderBy('date').limit(eventsPerPage);
+
+      if (loadMore) {
+        switch (selectedListType.value) {
+          case 'upcoming':
+            if (_lastUpcomingDocument != null) {
+              query = query.startAfterDocument(_lastUpcomingDocument!);
+            }
+            break;
+          case 'pending':
+            if (_lastPendingDocument != null) {
+              query = query.startAfterDocument(_lastPendingDocument!);
+            }
+            break;
+          case 'completed tasks':
+            if (_lastCompletedDocument != null) {
+              query = query.startAfterDocument(_lastCompletedDocument!);
+            }
+            break;
+        }
+      }
+
+      QuerySnapshot querySnapshot = await query.get();
+
+      if (querySnapshot.docs.isEmpty) {
+        hasMoreEvents.value = false;
+        return;
+      }
+
+      final newEvents = querySnapshot.docs
           .map((doc) => QuickEventModel.fromFirestore(doc))
           .toList();
 
-      // Sort all events by date
-      allEvents.sort((a, b) => a.date.compareTo(b.date));
-
       DateTime now = DateTime.now();
 
-      upcomingEvents.value = allEvents
-          .where(
-              (event) => event.isCompleted != true && event.date.isAfter(now))
-          .toList();
+      List<QuickEventModel> upcomingList = [];
+      List<QuickEventModel> pendingList = [];
+      List<QuickEventModel> completedList = [];
 
-      pendingEvents.value = allEvents
-          .where(
-              (event) => event.isCompleted != true && event.date.isBefore(now))
-          .toList();
+      for (var event in newEvents) {
+        if (event.isCompleted == true) {
+          completedList.add(event);
+        } else if (event.date.isAfter(now)) {
+          upcomingList.add(event);
+        } else {
+          pendingList.add(event);
+        }
+      }
 
-      completedEvents.value =
-          allEvents.where((event) => event.isCompleted == true).toList();
-      update();
-    });
+      if (loadMore) {
+        upcomingEvents.addAll(upcomingList);
+        pendingEvents.addAll(pendingList);
+        completedEvents.addAll(completedList);
+      } else {
+        upcomingEvents.assignAll(upcomingList);
+        pendingEvents.assignAll(pendingList);
+        completedEvents.assignAll(completedList);
+      }
+
+      _lastUpcomingDocument = upcomingList.isNotEmpty ? querySnapshot.docs.last : _lastUpcomingDocument;
+      _lastPendingDocument = pendingList.isNotEmpty ? querySnapshot.docs.last : _lastPendingDocument;
+      _lastCompletedDocument = completedList.isNotEmpty ? querySnapshot.docs.last : _lastCompletedDocument;
+
+      hasMoreEvents.value = querySnapshot.docs.length == eventsPerPage;
+    } catch (e) {
+      print('Error fetching events: $e');
+      Get.snackbar('Error', 'Failed to fetch events');
+    } finally {
+      isLoading.value = false;
+      isLoadingMore.value = false;
+    }
   }
 
+ void loadMoreEvents() {
+    if (!isLoadingMore.value && hasMoreEvents.value) {
+      fetchAllEvents(loadMore: true);
+    }
+  }
  Future<void> updateEvent(String eventId, Map<String, dynamic> updatedData) async {
     if (currentUser == null) return;
     try {

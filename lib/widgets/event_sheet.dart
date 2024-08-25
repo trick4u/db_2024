@@ -10,31 +10,52 @@ import 'event_card.dart';
 class EventsList extends StatelessWidget {
   final RxList<QuickEventModel> events;
   final String eventType;
+  final VoidCallback onLoadMore;
 
   EventsList({
     required this.events,
     required this.eventType,
+    required this.onLoadMore,
   });
 
   @override
   Widget build(BuildContext context) {
     final PageOneController controller = Get.find<PageOneController>();
+    
     return Obx(() => events.isEmpty
         ? Center(child: Text('No $eventType events'))
-        : ListView.builder(
-            itemCount: events.length,
-            itemBuilder: (context, index) {
-              QuickEventModel event = events[index];
-              return EventCard(
-                event: event,
-                onDelete: (event) => controller.deleteEvent(event.id),
-                onEdit: (event) => _showEventBottomSheet(context, event),
-                onArchive: (event) => controller.archiveEvent(event.id),
-                onComplete: (event) => controller.toggleEventCompletion(event.id, event.isCompleted != true),
-              );
+        : NotificationListener<ScrollNotification>(
+            onNotification: (ScrollNotification scrollInfo) {
+              if (scrollInfo.metrics.pixels == scrollInfo.metrics.maxScrollExtent) {
+                onLoadMore();
+              }
+              return true;
             },
+            child: ListView.builder(
+              itemCount: events.length + 1,
+              itemBuilder: (context, index) {
+                if (index == events.length) {
+                  return Obx(() => controller.isLoadingMore.value
+                      ? Center(child: CircularProgressIndicator())
+                      : controller.hasMoreEvents.value
+                          ? SizedBox(height: 50)
+                          : Center(child: Text('No more events')));
+                }
+                
+                QuickEventModel event = events[index];
+                return EventCard(
+                  event: event,
+                  onDelete: (event) => controller.deleteEvent(event.id),
+                  onEdit: (event) => _showEventBottomSheet(context, event),
+                  onArchive: (event) => controller.archiveEvent(event.id),
+                  onComplete: (event) => controller.toggleEventCompletion(event.id, event.isCompleted != true),
+                );
+              },
+            ),
           ));
   }
+
+
 
   void _showEventBottomSheet(BuildContext context, QuickEventModel event) {
     final pageOneController = Get.find<PageOneController>();
