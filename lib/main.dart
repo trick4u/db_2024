@@ -82,16 +82,6 @@ void main() async {
             defaultColor: const Color(0xFF9D50DD),
             ledColor: Colors.blue),
         NotificationChannel(
-          channelKey: 'quote_channel',
-          channelName: 'Daily Quote Notifications',
-          channelDescription:
-              'Notification channel for daily motivational quotes',
-          defaultColor: Color(0xFF9D50DD),
-          ledColor: Colors.white,
-          importance: NotificationImportance.High,
-          channelShowBadge: true,
-        ),
-        NotificationChannel(
           channelKey: 'quickschedule',
           channelName: 'Reminder Notifications',
           channelDescription:
@@ -102,15 +92,17 @@ void main() async {
           channelShowBadge: true,
         ),
         NotificationChannel(
-            channelKey: 'event_reminders',
-            channelName: 'Reminder Notifications',
-            channelDescription:
-                'Notification channel for daily motivational quotes',
-            defaultColor: Color(0xFF9D50DD),
-            ledColor: Colors.white,
-            importance: NotificationImportance.High,
-            channelShowBadge: true,
-            playSound: true),
+          channelKey: 'event_reminders',
+          channelName: 'Reminder Notifications',
+          channelDescription:
+              'Notification channel for daily motivational quotes',
+          defaultColor: Color(0xFF9D50DD),
+          ledColor: Colors.white,
+          importance: NotificationImportance.High,
+          channelShowBadge: true,
+          playSound: true,
+          soundSource: 'assets/success.mp3',
+        ),
       ],
       debug: true);
 

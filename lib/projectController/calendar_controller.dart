@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
+import 'package:just_audio/just_audio.dart';
 import 'package:table_calendar/table_calendar.dart';
 
 import '../models/quick_event_model.dart';
@@ -26,6 +27,8 @@ class CalendarController extends GetxController {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   User? currentUser = FirebaseAuth.instance.currentUser;
 
+  late AudioPlayer _audioPlayer = AudioPlayer();
+
   CollectionReference get eventsCollection {
     return _firestore
         .collection('users')
@@ -39,7 +42,7 @@ class CalendarController extends GetxController {
   @override
   void onInit() {
     super.onInit();
-
+    _audioPlayer = AudioPlayer();
     fetchEvents(selectedDay.value);
   }
 
@@ -158,7 +161,7 @@ class CalendarController extends GetxController {
       DocumentSnapshot eventDoc = await eventsCollection.doc(eventId).get();
       if (eventDoc.exists) {
         QuickEventModel event = QuickEventModel.fromFirestore(eventDoc);
-        
+
         // Cancel the notification if it exists
         await cancelNotification(event);
 
@@ -547,6 +550,7 @@ class CalendarController extends GetxController {
         body: event.description,
         notificationLayout: NotificationLayout.Default,
         wakeUpScreen: true,
+        customSound: 'assets/success.mp3'
       ),
       schedule: NotificationCalendar(
         year: scheduledDate.year,
@@ -593,11 +597,11 @@ class CalendarController extends GetxController {
     await scheduleNotification(event);
   }
 
- Future<void> cancelNotification(QuickEventModel event) async {
+  Future<void> cancelNotification(QuickEventModel event) async {
     try {
       // Cancel the notification using the event's ID as the notification ID
       await AwesomeNotifications().cancel(event.id.hashCode);
-      
+
       // If you're using a separate collection to store notification mappings, delete it here
       await FirebaseFirestore.instance
           .collection('notificationMappings')
@@ -648,6 +652,8 @@ class CalendarController extends GetxController {
           updateData['completedAt'] = FieldValue.serverTimestamp();
           updateData['hasReminder'] = false;
           updateData['reminderTime'] = FieldValue.delete();
+          await _audioPlayer.setAsset('assets/success.mp3');
+          await _audioPlayer.play();
         } else {
           // If marking as incomplete, remove completedAt and editedAfterCompletion
           updateData['completedAt'] = FieldValue.delete();

@@ -112,6 +112,7 @@ class EventCard extends StatelessWidget {
     return Container(
       width: ScaleUtil.width(60),
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Text(
@@ -254,7 +255,7 @@ class EventCard extends StatelessWidget {
                 ),
               ),
             ),
-            if (event.hasReminder && _shouldShowNotificationIcon())
+            if (event.hasReminder && _shouldShowNotificationInfo())
               Positioned(
                 top: ScaleUtil.height(15),
                 right: event.isCompleted == true
@@ -288,5 +289,49 @@ class EventCard extends StatelessWidget {
     // Show the icon if the last notification was displayed more than 5 minutes ago
     return DateTime.now().difference(event.lastNotificationDisplayed!) >
         Duration(minutes: 5);
+  }
+
+  bool _shouldShowNotificationInfo() {
+    if (event.isCompleted == true) return false;
+    if (!event.hasReminder || event.reminderTime == null) return false;
+
+    DateTime scheduledDate = DateTime(
+      event.date.year,
+      event.date.month,
+      event.date.day,
+      event.reminderTime!.hour,
+      event.reminderTime!.minute,
+    );
+
+    return scheduledDate.isAfter(DateTime.now());
+  }
+
+  String _formatScheduledTime() {
+    if (event.reminderTime == null) return '';
+
+    DateTime scheduledDate = DateTime(
+      event.date.year,
+      event.date.month,
+      event.date.day,
+      event.reminderTime!.hour,
+      event.reminderTime!.minute,
+    );
+
+    final now = DateTime.now();
+
+    if (scheduledDate.year == now.year &&
+        scheduledDate.month == now.month &&
+        scheduledDate.day == now.day) {
+      // If the scheduled date is today, just show the time
+      return 'Today at ${DateFormat('h:mm a').format(scheduledDate)}';
+    } else if (scheduledDate.year == now.year &&
+        scheduledDate.month == now.month &&
+        scheduledDate.day == now.day + 1) {
+      // If the scheduled date is tomorrow, show "Tomorrow" and the time
+      return ' ${DateFormat('h:mm a').format(scheduledDate)}';
+    } else {
+      // Otherwise, show the full date and time
+      return DateFormat(' h:mm a').format(scheduledDate);
+    }
   }
 }
