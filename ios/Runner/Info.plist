@@ -45,5 +45,26 @@
 	<true/>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
+	<key>UIBackgroundModes</key>
+    <array>
+        <string>remote-notification</string>
+		  <string>audio</string>
+    </array>
+
+    <!-- If you want to play custom sounds -->
+    <key>UILocalNotificationSoundName</key>
+    <string>notification_sound.wav</string>
+
+    <!-- For iOS 10 and above -->
+    <key>NSCalendarsUsageDescription</key>
+    <string>This app requires access to the calendar to schedule event reminders.</string>
+
+    <key>NSRemindersUsageDescription</key>
+    <string>This app requires access to reminders to create event reminders.</string>
+
+    <!-- For requesting notification permissions -->
+    <key>NSUserNotificationUsageDescription</key>
+    <string>This app requires permission to send you event reminders and updates.</string>
+
 </dict>
 </plist>

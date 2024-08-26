@@ -98,10 +98,10 @@ void main() async {
               'Notification channel for daily motivational quotes',
           defaultColor: Color(0xFF9D50DD),
           ledColor: Colors.white,
-          importance: NotificationImportance.High,
+          importance: NotificationImportance.Max,
           channelShowBadge: true,
           playSound: true,
-          soundSource: 'assets/success.mp3',
+          soundSource: 'notification_sound',
         ),
       ],
       debug: true);

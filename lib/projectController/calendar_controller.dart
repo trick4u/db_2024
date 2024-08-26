@@ -540,9 +540,9 @@ class CalendarController extends GetxController {
     }
 
     // Cancel any existing notification for this event
-    await AwesomeNotifications().cancel(notificationId);
+    // await AwesomeNotifications().cancel(notificationId);
 
-    await AwesomeNotifications().createNotification(
+    bool success = await AwesomeNotifications().createNotification(
       content: NotificationContent(
         id: notificationId,
         channelKey: 'event_reminders',
@@ -550,7 +550,8 @@ class CalendarController extends GetxController {
         body: event.description,
         notificationLayout: NotificationLayout.Default,
         wakeUpScreen: true,
-        customSound: 'assets/success.mp3'
+        category: NotificationCategory.Reminder,
+        customSound: 'notification_sound',
       ),
       schedule: NotificationCalendar(
         year: scheduledDate.year,
@@ -564,7 +565,6 @@ class CalendarController extends GetxController {
         allowWhileIdle: true,
       ),
     );
-
     try {
       await FirebaseFirestore.instance
           .collection('notificationMappings')
@@ -582,10 +582,16 @@ class CalendarController extends GetxController {
         events[index].lastNotificationDisplayed = null;
       }
 
-      print('Notification scheduled for: ${scheduledDate.toString()}');
-      update(); // Refresh the UI
-    } catch (e) {
+      if (success) {
+        print('Notification scheduled for: ${scheduledDate.toString()}');
+      } else {
+        print('Failed to schedule notification');
+      }
+
+      // ... rest of the method ...
+    } catch (e, stackTrace) {
       print('Error scheduling notification: $e');
+      print('Stack trace: $stackTrace');
     }
   }
 
