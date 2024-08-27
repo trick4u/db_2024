@@ -375,6 +375,9 @@ class CalendarPage extends GetWidget<CalendarController> {
                           List<QuickEventModel> selectedDayEvents = controller
                               .getEventsForDay(controller.selectedDay.value);
                           int eventCount = selectedDayEvents.length;
+                          int completedEventCount = selectedDayEvents
+                              .where((event) => event.isCompleted ?? false)
+                              .length;
                           return selectedDayEvents.isEmpty
                               ? Center(
                                   child: InkWell(
@@ -420,9 +423,25 @@ class CalendarPage extends GetWidget<CalendarController> {
                                     Padding(
                                       padding: ScaleUtil.symmetric(
                                           horizontal: 16.0, vertical: 8.0),
-                                      child: Text(
-                                        'Total events : $eventCount',
-                                        style: appTheme.bodyMedium.copyWith(),
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            'Total events : $eventCount',
+                                            style:
+                                                appTheme.bodyMedium.copyWith(),
+                                          ),
+                                          if (completedEventCount > 0)
+                                            Text(
+                                              'Completed events : $completedEventCount',
+                                              style:
+                                                  appTheme.bodyMedium.copyWith(
+                                                color: appTheme
+                                                    .colorScheme.primary,
+                                              ),
+                                            ),
+                                        ],
                                       ),
                                     ),
                                     ListView.builder(

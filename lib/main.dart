@@ -99,7 +99,7 @@ void main() async {
           defaultColor: Color(0xFF9D50DD),
           ledColor: Colors.white,
           importance: NotificationImportance.Max,
-          channelShowBadge: true,
+          channelShowBadge: false,
           playSound: true,
           soundSource: 'notification_sound',
         ),
@@ -144,6 +144,7 @@ void main() async {
       print('Notification Allowed');
     }
   });
+   AwesomeNotifications().setGlobalBadgeCounter(0);
 
   runApp(const MyApp());
 }
