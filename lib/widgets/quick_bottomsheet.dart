@@ -2,6 +2,7 @@ import 'package:animate_do/animate_do.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import '../models/reminder_model.dart';
 import '../projectController/page_one_controller.dart';
 import '../services/app_theme.dart';
 import '../services/scale_util.dart';
@@ -9,16 +10,17 @@ import '../services/scale_util.dart';
 class QuickReminderBottomSheet extends StatefulWidget {
   final PageOneController reminderController;
   final AppTheme appTheme;
+  final ReminderModel? reminderToEdit;
 
   const QuickReminderBottomSheet({
     Key? key,
     required this.reminderController,
     required this.appTheme,
+    this.reminderToEdit,
   }) : super(key: key);
 
   @override
-  _QuickReminderBottomSheetState createState() =>
-      _QuickReminderBottomSheetState();
+  _QuickReminderBottomSheetState createState() => _QuickReminderBottomSheetState();
 }
 
 class _QuickReminderBottomSheetState extends State<QuickReminderBottomSheet> {
@@ -28,30 +30,46 @@ class _QuickReminderBottomSheetState extends State<QuickReminderBottomSheet> {
   @override
   void initState() {
     super.initState();
-    _isTitleEmpty =
-        widget.reminderController.reminderTextController.text.isEmpty;
-    widget.reminderController.reminderTextController
-        .addListener(_updateTitleState);
-    if (widget.reminderController.timeSelected.value == 0) {
-      widget.reminderController.timeSelected.value = 1; // Default to 15 minutes
+    if (widget.reminderToEdit != null) {
+      widget.reminderController.reminderTextController.text = widget.reminderToEdit!.reminder;
+      widget.reminderController.timeSelected.value = _getValueFromMinutes(widget.reminderToEdit!.time);
+      widget.reminderController.repeat.value = widget.reminderToEdit!.repeat;
+      widget.reminderController.nextNotificationTime.value = widget.reminderToEdit!.triggerTime;
+    } else {
+      widget.reminderController.reminderTextController.clear();
+      widget.reminderController.timeSelected.value = 1;
+      widget.reminderController.repeat.value = false;
+      widget.reminderController.calculateTriggerTime(15);
     }
+    
+    _isTitleEmpty = widget.reminderController.reminderTextController.text.isEmpty;
+    widget.reminderController.reminderTextController.addListener(_updateTitleState);
   }
 
   @override
   void dispose() {
-    widget.reminderController.reminderTextController
-        .removeListener(_updateTitleState);
+    widget.reminderController.reminderTextController.removeListener(_updateTitleState);
     super.dispose();
   }
-
-  void _updateTitleState() {
+ void _updateTitleState() {
     setState(() {
-      _isTitleEmpty =
-          widget.reminderController.reminderTextController.text.isEmpty;
+      _isTitleEmpty = widget.reminderController.reminderTextController.text.isEmpty;
     });
   }
+   int _getValueFromMinutes(int minutes) {
+    switch (minutes) {
+      case 15:
+        return 1;
+      case 30:
+        return 2;
+      case 60:
+        return 3;
+      default:
+        return 1;
+    }
+  }
 
-  @override
+   @override
   Widget build(BuildContext context) {
     ScaleUtil.init(context);
     return Padding(
@@ -79,12 +97,13 @@ class _QuickReminderBottomSheetState extends State<QuickReminderBottomSheet> {
     );
   }
 
+
   Widget _buildHeader(BuildContext context) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: [
         Text(
-          'Add Reminder',
+          widget.reminderToEdit != null ? 'Edit Reminder' : 'Add Reminder',
           style: Theme.of(context).textTheme.titleLarge?.copyWith(
                 fontSize: ScaleUtil.fontSize(15),
               ),
@@ -100,8 +119,7 @@ class _QuickReminderBottomSheetState extends State<QuickReminderBottomSheet> {
                 size: ScaleUtil.iconSize(18),
               ),
               onPressed: () {
-                widget.reminderController
-                    .toggleSwitch(!widget.reminderController.repeat.value);
+                widget.reminderController.toggleSwitch(!widget.reminderController.repeat.value);
               },
             )),
         _buildTimeSelectionPopup(context),
@@ -115,6 +133,8 @@ class _QuickReminderBottomSheetState extends State<QuickReminderBottomSheet> {
     );
   }
 
+
+
   Widget _buildTimeSelectionPopup(BuildContext context) {
     return Obx(() => PopupMenuButton<int>(
           child: Chip(
@@ -126,6 +146,7 @@ class _QuickReminderBottomSheetState extends State<QuickReminderBottomSheet> {
           ),
           onSelected: (int value) {
             widget.reminderController.timeSelected.value = value;
+            widget.reminderController.calculateTriggerTime(_getMinutesFromValue(value));
           },
           itemBuilder: (BuildContext context) => <PopupMenuEntry<int>>[
             PopupMenuItem<int>(
@@ -195,7 +216,7 @@ class _QuickReminderBottomSheetState extends State<QuickReminderBottomSheet> {
     );
   }
 
-  Widget _buildSaveButton(BuildContext context) {
+Widget _buildSaveButton(BuildContext context) {
     return SlideInRight(
       child: Container(
         decoration: BoxDecoration(
@@ -234,21 +255,25 @@ class _QuickReminderBottomSheetState extends State<QuickReminderBottomSheet> {
       return;
     }
 
-    int minutes =
-        _getMinutesFromValue(widget.reminderController.timeSelected.value);
+    int minutes = _getMinutesFromValue(widget.reminderController.timeSelected.value);
 
-    // Ensure timeSelected has a valid value
-    if (widget.reminderController.timeSelected.value == 0) {
-      widget.reminderController.timeSelected.value = 1; // Default to 15 minutes
+    if (widget.reminderToEdit != null) {
+      widget.reminderController.updateReminder(
+        widget.reminderToEdit!.id,
+        widget.reminderController.reminderTextController.text,
+        minutes,
+        widget.reminderController.repeat.value,
+      );
+    } else {
+      widget.reminderController.schedulePeriodicNotifications(
+        widget.reminderController.reminderTextController.text,
+        minutes,
+        widget.reminderController.repeat.value,
+      );
+
+      widget.reminderController.saveReminder(widget.reminderController.repeat.value);
     }
 
-    widget.reminderController.schedulePeriodicNotifications(
-      widget.reminderController.reminderTextController.text,
-      minutes,
-      widget.reminderController.repeat.value,
-    );
-
-    widget.reminderController
-        .saveReminder(widget.reminderController.repeat.value);
+    Navigator.of(context).pop();
   }
 }

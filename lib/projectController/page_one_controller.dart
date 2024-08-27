@@ -114,65 +114,72 @@ class PageOneController extends GetxController {
   }
 
   //for reminders
-  void updateReminder(
-      String reminderId, String newReminder, int newTime) async {
-    if (currentUser == null) return;
+  Future<void> updateReminder(String reminderId, String newReminder, int newTime, bool repeat) async {
     try {
+      DateTime newTriggerTime = DateTime.now().add(Duration(minutes: newTime));
       await remindersCollection.doc(reminderId).update({
-        'reminder': newReminder,
-        'time': newTime,
+        "reminder": newReminder,
+        "time": newTime,
+        "repeat": repeat,
+        "triggerTime": Timestamp.fromDate(newTriggerTime),
       });
-      Get.snackbar('Success', 'Reminder updated successfully');
+
+      // Reschedule the notification
+      await AwesomeNotifications().cancel(int.parse(reminderId));
+      await schedulePeriodicNotifications(newReminder, newTime, repeat);
+
+      Get.back();
       fetchAllReminders(); // Refresh the list
     } catch (e) {
       print('Error updating reminder: $e');
       Get.snackbar('Error', 'Failed to update reminder');
     }
   }
+  
 
-  void showEditReminderDialog(ReminderModel reminder) {
-    final TextEditingController reminderController =
-        TextEditingController(text: reminder.reminder);
-    final TextEditingController timeController =
-        TextEditingController(text: reminder.time.toString());
+  // void showEditReminderDialog(ReminderModel reminder) {
+  //   final TextEditingController reminderController =
+  //       TextEditingController(text: reminder.reminder);
+  //   final TextEditingController timeController =
+  //       TextEditingController(text: reminder.time.toString());
 
-    Get.dialog(
-      AlertDialog(
-        title: Text('Edit Reminder'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            TextField(
-              controller: reminderController,
-              decoration: InputDecoration(labelText: 'Reminder'),
-            ),
-            TextField(
-              controller: timeController,
-              decoration: InputDecoration(labelText: 'Time (minutes)'),
-              keyboardType: TextInputType.number,
-            ),
-          ],
-        ),
-        actions: [
-          TextButton(
-            child: Text('Cancel'),
-            onPressed: () => Get.back(),
-          ),
-          TextButton(
-            child: Text('Save'),
-            onPressed: () {
-              updateReminder(
-                reminder.id,
-                reminderController.text,
-                int.tryParse(timeController.text) ?? reminder.time,
-              );
-              Get.back();
-            },
-          ),
-        ],
-      ),
-    );
-  }
+  //   Get.dialog(
+  //     AlertDialog(
+  //       title: Text('Edit Reminder'),
+  //       content: Column(
+  //         mainAxisSize: MainAxisSize.min,
+  //         children: [
+  //           TextField(
+  //             controller: reminderController,
+  //             decoration: InputDecoration(labelText: 'Reminder'),
+  //           ),
+  //           TextField(
+  //             controller: timeController,
+  //             decoration: InputDecoration(labelText: 'Time (minutes)'),
+  //             keyboardType: TextInputType.number,
+  //           ),
+  //         ],
+  //       ),
+  //       actions: [
+  //         TextButton(
+  //           child: Text('Cancel'),
+  //           onPressed: () => Get.back(),
+  //         ),
+  //         TextButton(
+  //           child: Text('Save'),
+  //           onPressed: () {
+  //             updateReminder(
+  //               reminder.id,
+  //               reminderController.text,
+  //               int.tryParse(timeController.text) ?? reminder.time,
+  //             );
+  //             Get.back();
+  //           },
+  //         ),
+  //       ],
+  //     ),
+  //   );
+  // }
 
   void fetchAllReminders() {
     if (currentUser == null) return;
@@ -593,7 +600,6 @@ class PageOneController extends GetxController {
           ),
         );
 
-        
         print('Next notification time: ${nextNotificationTime.value}');
       } catch (e) {
         print('Error scheduling notification: $e');
@@ -601,6 +607,11 @@ class PageOneController extends GetxController {
       }
     });
   }
+   void calculateTriggerTime(int minutes) {
+    DateTime now = DateTime.now();
+    nextNotificationTime.value = now.add(Duration(minutes: minutes));
+  }
+
 
   String getFormattedNextNotificationTime() {
     if (nextNotificationTime.value == null) {
@@ -630,6 +641,7 @@ class PageOneController extends GetxController {
       "isReminderSet": true,
       "createdAt": FieldValue.serverTimestamp(),
       "repeat": repeat,
+      "triggerTime": nextNotificationTime.value,
     }).then((_) {
       Get.back();
     });
