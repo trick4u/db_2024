@@ -10,7 +10,6 @@ import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:just_audio/just_audio.dart';
 
-
 import '../models/goals_model.dart';
 import '../models/quick_event_model.dart';
 import '../models/reminder_model.dart';
@@ -47,6 +46,7 @@ class PageOneController extends GetxController {
   User? currentUser = FirebaseAuth.instance.currentUser;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final RxString selectedListType = ''.obs;
+  Rx<DateTime?> nextNotificationTime = Rx<DateTime?>(null);
 
   CollectionReference get eventsCollection {
     return _firestore
@@ -80,18 +80,12 @@ class PageOneController extends GetxController {
   var isLoading = true.obs;
   final Dio dio = Dio();
 
-  final List<String> streams = [
-    'https://play.streamafrica.net/lofiradio',
-    'https://play.streamafrica.net/classicalradio',
-  ];
-
   @override
   void onInit() {
     //   getAllGoals();
     fetchAllEvents();
     fetchAllReminders();
-    audioPlayer = AudioPlayer();
-    initializePlayer();
+
     reminderTextController = TextEditingController();
     originalFontColor.value = chips[0].fontColor!;
 
@@ -108,10 +102,7 @@ class PageOneController extends GetxController {
   void onReady() {
     //getAllGoals();
 
-    fetchGoals();
     updateGreeting();
-    _initializeColorAnimation();
-    fetchMorningTasks();
   }
 
   @override
@@ -283,23 +274,29 @@ class PageOneController extends GetxController {
     });
   }
 
- Future<void> updateEvent(String eventId, Map<String, dynamic> updatedData) async {
+  Future<void> updateEvent(
+      String eventId, Map<String, dynamic> updatedData) async {
     if (currentUser == null) return;
     try {
       // Fetch the current event data
       DocumentSnapshot eventDoc = await eventsCollection.doc(eventId).get();
-      Map<String, dynamic> currentData = eventDoc.data() as Map<String, dynamic>;
+      Map<String, dynamic> currentData =
+          eventDoc.data() as Map<String, dynamic>;
 
       // Prepare the update data
       Map<String, dynamic> finalUpdateData = {};
 
       // Compare and only include changed fields
       updatedData.forEach((key, value) {
-        if (key == 'date' || key == 'startTime' || key == 'endTime' || key == 'reminderTime') {
+        if (key == 'date' ||
+            key == 'startTime' ||
+            key == 'endTime' ||
+            key == 'reminderTime') {
           // For date and time fields, only update if explicitly provided and different
           if (value != null) {
             Timestamp currentTimestamp = currentData[key];
-            Timestamp newTimestamp = (value is DateTime) ? Timestamp.fromDate(value) : value;
+            Timestamp newTimestamp =
+                (value is DateTime) ? Timestamp.fromDate(value) : value;
             if (currentTimestamp != newTimestamp) {
               finalUpdateData[key] = newTimestamp;
             }
@@ -383,50 +380,44 @@ class PageOneController extends GetxController {
 
     // Handle date and time updates
     DateTime currentDate = (currentData['date'] as Timestamp).toDate();
-    DateTime? currentStartTime = currentData['startTime'] != null 
-        ? (currentData['startTime'] as Timestamp).toDate() 
+    DateTime? currentStartTime = currentData['startTime'] != null
+        ? (currentData['startTime'] as Timestamp).toDate()
         : null;
-    DateTime? currentEndTime = currentData['endTime'] != null 
-        ? (currentData['endTime'] as Timestamp).toDate() 
+    DateTime? currentEndTime = currentData['endTime'] != null
+        ? (currentData['endTime'] as Timestamp).toDate()
         : null;
 
     if (newDate != null && newDate != currentDate) {
       updatedData['date'] = newDate;
-      
+
       // Update start and end times if date changed
       if (currentStartTime != null) {
-        updatedData['startTime'] = DateTime(
-          newDate.year, newDate.month, newDate.day,
-          currentStartTime.hour, currentStartTime.minute
-        );
+        updatedData['startTime'] = DateTime(newDate.year, newDate.month,
+            newDate.day, currentStartTime.hour, currentStartTime.minute);
       }
       if (currentEndTime != null) {
-        updatedData['endTime'] = DateTime(
-          newDate.year, newDate.month, newDate.day,
-          currentEndTime.hour, currentEndTime.minute
-        );
+        updatedData['endTime'] = DateTime(newDate.year, newDate.month,
+            newDate.day, currentEndTime.hour, currentEndTime.minute);
       }
     }
 
     // Only update time if explicitly provided
     if (newStartTime != null) {
       updatedData['startTime'] = DateTime(
-        newDate?.year ?? currentDate.year,
-        newDate?.month ?? currentDate.month,
-        newDate?.day ?? currentDate.day,
-        newStartTime.hour,
-        newStartTime.minute
-      );
+          newDate?.year ?? currentDate.year,
+          newDate?.month ?? currentDate.month,
+          newDate?.day ?? currentDate.day,
+          newStartTime.hour,
+          newStartTime.minute);
     }
 
     if (newEndTime != null) {
       updatedData['endTime'] = DateTime(
-        newDate?.year ?? currentDate.year,
-        newDate?.month ?? currentDate.month,
-        newDate?.day ?? currentDate.day,
-        newEndTime.hour,
-        newEndTime.minute
-      );
+          newDate?.year ?? currentDate.year,
+          newDate?.month ?? currentDate.month,
+          newDate?.day ?? currentDate.day,
+          newEndTime.hour,
+          newEndTime.minute);
     }
 
     if (reminderTime != null) {
@@ -435,7 +426,6 @@ class PageOneController extends GetxController {
 
     await updateEvent(eventId, updatedData);
   }
-
 
   void deleteUpcomingEvent(String eventId) async {
     if (currentUser == null) return;
@@ -447,36 +437,6 @@ class PageOneController extends GetxController {
     }
   }
 
-  void initializePlayer() async {
-    await player.setUrl(streams[currentStreamIndex.value]);
-    player.playbackEventStream.listen((event) {
-      isPlaying.value = player.playing;
-    });
-  }
-
-  void togglePlayPause() {
-    if (player.playing) {
-      player.pause();
-    } else {
-      player.play();
-    }
-  }
-
-  void nextStream() async {
-    currentStreamIndex.value = (currentStreamIndex.value + 1) % streams.length;
-    await player.stop();
-    await player.setUrl(streams[currentStreamIndex.value]);
-    player.play();
-  }
-
-  String getCurrentStreamName() {
-    List<String> names = [
-      'Lo-Fi',
-      'Classical',
-    ];
-    return names[currentStreamIndex.value];
-  }
-
   @override
   void onClose() {
     player.dispose();
@@ -484,56 +444,6 @@ class PageOneController extends GetxController {
   }
 
   //increase volume
-
-  void _initializeColorAnimation() {
-    _colorTimer = Timer.periodic(Duration(seconds: 1), (timer) {
-      if (isRunning.value) {
-        double progress = (workDuration - seconds.value) / workDuration;
-        backgroundColor.value = Color.lerp(startColor, endColor, progress)!;
-      }
-    });
-  }
-
-  void increaseVolume() {
-    audioPlayer.setVolume(10);
-  }
-
-  void startTimer() async {
-    isRunning.value = true;
-    seconds.value = isBreak.value ? breakDuration : workDuration;
-    var audioUrl =
-        'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-13.mp3'; // YouTube video ID
-    audioPlayer.setUrl(audioUrl);
-    //increase volume of audio
-    increaseVolume();
-
-    audioPlayer.play();
-    _timerTick();
-  }
-
-  void _timerTick() {
-    if (seconds.value > 0) {
-      Future.delayed(Duration(seconds: 1), () {
-        if (isRunning.value) {
-          seconds.value--;
-          _timerTick();
-        }
-      });
-    } else {
-      _onTimerComplete();
-    }
-  }
-
-  void _onTimerComplete() {
-    isRunning.value = false;
-    isBreak.value = !isBreak.value;
-    audioPlayer.stop();
-  }
-
-  void stopTimer() {
-    isRunning.value = false;
-    audioPlayer.stop();
-  }
 
   void updateGreeting() {
     final now = DateTime.now();
@@ -558,27 +468,6 @@ class PageOneController extends GetxController {
   }
 
   //get all goals
-  void getAllGoals() async {
-    goalsStatus.value = RxStatus.loading();
-    try {
-      // oreder by created at
-      fireStoreInstance
-          .collection("goals")
-          .doc(FirebaseAuth.instance.currentUser!.uid)
-          .collection("userGoals")
-          .orderBy("createdAt", descending: true)
-          .snapshots()
-          .listen((event) {
-        allGoals.clear();
-        allGoals.value =
-            event.docs.map((e) => GoalsModel.fromJson(e.data())).toList();
-      });
-
-      goalsStatus.value = RxStatus.success();
-    } catch (e) {
-      goalsStatus.value = RxStatus.error(e.toString());
-    }
-  }
 
   void scheduleNotifications(String body, int interval, bool repeat) {
     AwesomeNotifications().cancelAll(); // Clear all existing notifications
@@ -669,44 +558,56 @@ class PageOneController extends GetxController {
     }
   }
 
-Future<void> schedulePeriodicNotifications(
-    String body, int interval, bool repeat) async {
-  // Use WidgetsBinding to ensure we're on the main thread
-  WidgetsBinding.instance.addPostFrameCallback((_) async {
-    try {
-      await AwesomeNotifications().requestPermissionToSendNotifications();
+  Future<void> schedulePeriodicNotifications(
+      String body, int interval, bool repeat) async {
+    // Use WidgetsBinding to ensure we're on the main thread
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      try {
+        await AwesomeNotifications().requestPermissionToSendNotifications();
 
-      int notificationId = DateTime.now().millisecondsSinceEpoch.remainder(100000);
+        int notificationId =
+            DateTime.now().millisecondsSinceEpoch.remainder(100000);
 
-      String localTimeZone = await AwesomeNotifications().getLocalTimeZoneIdentifier();
+        String localTimeZone =
+            await AwesomeNotifications().getLocalTimeZoneIdentifier();
+        DateTime now = DateTime.now();
+        nextNotificationTime.value = now.add(Duration(minutes: interval));
 
-      await AwesomeNotifications().createNotification(
-        content: NotificationContent(
-          id: notificationId,
-          channelKey: 'quickschedule',
-          title: 'DoBoara Reminder 📅',
-          body: body,
-          category: NotificationCategory.Reminder,
-          notificationLayout: NotificationLayout.Default,
-          criticalAlert: true,
-          wakeUpScreen: true,
-        ),
-        schedule: NotificationInterval(
-          interval: interval * 60, // Convert minutes to seconds
-          timeZone: localTimeZone,
-          repeats: repeat,
-          preciseAlarm: true,
-          allowWhileIdle: true,
-        ),
-      );
+        await AwesomeNotifications().createNotification(
+          content: NotificationContent(
+            id: notificationId,
+            channelKey: 'quickschedule',
+            title: 'DoBoara Reminder 📅',
+            body: body,
+            category: NotificationCategory.Reminder,
+            notificationLayout: NotificationLayout.Default,
+            criticalAlert: true,
+            wakeUpScreen: true,
+          ),
+          schedule: NotificationInterval(
+            interval: interval * 60, // Convert minutes to seconds
+            timeZone: localTimeZone,
+            repeats: repeat,
+            preciseAlarm: true,
+            allowWhileIdle: true,
+          ),
+        );
 
-      print('Periodic notification scheduled: every $interval minutes, repeat: $repeat');
-    } catch (e) {
-      print('Error scheduling notification: $e');
-      // You might want to show an error message to the user here
+        
+        print('Next notification time: ${nextNotificationTime.value}');
+      } catch (e) {
+        print('Error scheduling notification: $e');
+        // You might want to show an error message to the user here
+      }
+    });
+  }
+
+  String getFormattedNextNotificationTime() {
+    if (nextNotificationTime.value == null) {
+      return 'Not set';
     }
-  });
-}
+    return DateFormat('MMM d, y HH:mm').format(nextNotificationTime.value!);
+  }
 
   void toggleSwitch(bool value) {
     repeat.value = value;
@@ -735,90 +636,9 @@ Future<void> schedulePeriodicNotifications(
   }
 
   //get goals from firestore
-  void fetchGoals() async {
-    goalsStatus.value = RxStatus.loading();
-    try {
-      if (currentUser != null) {
-        var snapshot = await _firestore
-            .collection('users')
-            .doc(currentUser!.uid)
-            .collection('goals')
-            .get();
-        goalsList.value = snapshot.docs
-            .map((doc) =>
-                Goals.fromMap(doc.data() as Map<String, dynamic>, doc.id))
-            .toList();
-        goalsStatus.value = RxStatus.success();
-      }
-    } catch (e) {
-      goalsStatus.value = RxStatus.error(e.toString());
-
-      print(e);
-    }
-  }
-
-  void addGoal(String goal) async {
-    if (currentUser != null) {
-      var docRef = await _firestore
-          .collection('users')
-          .doc(currentUser!.uid)
-          .collection('goals')
-          .add({
-        'goal': goal,
-        'createdTime': Timestamp.now(),
-      });
-      goalsList
-          .add(Goals(id: docRef.id, goal: goal, createdTime: Timestamp.now()));
-    }
-  }
-
-  void updateGoal(String id, String newGoal) async {
-    if (currentUser != null) {
-      await _firestore
-          .collection('users')
-          .doc(currentUser!.uid)
-          .collection('goals')
-          .doc(id)
-          .update({'goal': newGoal});
-      var index = goalsList.indexWhere((goal) => goal.id == id);
-      if (index != -1) {
-        goalsList[index] = Goals(
-            id: id, goal: newGoal, createdTime: goalsList[index].createdTime);
-        goalsList.refresh(); // Notify GetX to update the UI
-      }
-    }
-  }
-
-  void deleteGoal(String id) async {
-    if (currentUser != null) {
-      await _firestore
-          .collection('users')
-          .doc(currentUser!.uid)
-          .collection('goals')
-          .doc(id)
-          .delete();
-      goalsList.removeWhere((goal) => goal.id == id);
-    }
-  }
 
   String getReadableTime(Timestamp timestamp) {
     DateTime dateTime = timestamp.toDate();
     return DateFormat('yyyy-MM-dd HH:mm:ss').format(dateTime);
   }
-
-  //fetch morning tasks
-  void fetchMorningTasks() async {
-    try {
-      var snapshot = await _firestore
-          .collection('users')
-          .doc(currentUser!.uid)
-          .collection('Morning')
-          .get();
-      print(snapshot.docs);
-    } catch (e) {
-      print(e);
-    }
-  }
-
-  //completed tasks
 }

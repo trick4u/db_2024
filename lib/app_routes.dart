@@ -19,7 +19,7 @@ import 'pages/login_page.dart';
 import 'pages/network_screen.dart';
 import 'projectBinding/add_everything_binding.dart';
 import 'projectBinding/add_taskBinding.dart';
-import 'projectBinding/eat_the_frog_binding.dart';
+
 import 'projectBinding/note_taking_binding.dart';
 import 'projectBinding/statistics_binding.dart';
 import 'projectBinding/journal_binding.dart';
@@ -32,7 +32,7 @@ import 'projectBinding/vision_board_binding.dart';
 import 'projectController/journal_controller.dart';
 import 'projectPages/add_everyting.dart';
 import 'projectPages/add_task.dart';
-import 'projectPages/eat_the_frog.dart';
+
 import 'projectPages/journalEntryScreen.dart';
 import 'projectPages/note_taking_screen.dart';
 import 'projectPages/statistics_screen.dart';
@@ -190,11 +190,7 @@ class AppRoutes {
       binding: AddTaskbinding(),
     ),
     //eat the frog
-    GetPage(
-      name: EATTHEFROG,
-      page: () => EatTheFrog(),
-      binding: EatTheFrogBinding(),
-    ),
+   
     //three tasksscreen
     GetPage(
       name: THREETASKSSCREEN,
