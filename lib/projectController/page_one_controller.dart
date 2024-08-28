@@ -114,7 +114,8 @@ class PageOneController extends GetxController {
   }
 
   //for reminders
-  Future<void> updateReminder(String reminderId, String newReminder, int newTime, bool repeat) async {
+  Future<void> updateReminder(
+      String reminderId, String newReminder, int newTime, bool repeat) async {
     try {
       DateTime newTriggerTime = DateTime.now().add(Duration(minutes: newTime));
       await remindersCollection.doc(reminderId).update({
@@ -135,7 +136,6 @@ class PageOneController extends GetxController {
       Get.snackbar('Error', 'Failed to update reminder');
     }
   }
-  
 
   // void showEditReminderDialog(ReminderModel reminder) {
   //   final TextEditingController reminderController =
@@ -577,29 +577,34 @@ class PageOneController extends GetxController {
 
         String localTimeZone =
             await AwesomeNotifications().getLocalTimeZoneIdentifier();
-        DateTime now = DateTime.now();
-        nextNotificationTime.value = now.add(Duration(minutes: interval));
+          DateTime now = DateTime.now();
+      DateTime scheduledDate = now.add(Duration(minutes: interval));
+      nextNotificationTime.value = scheduledDate;
 
-        await AwesomeNotifications().createNotification(
-          content: NotificationContent(
-            id: notificationId,
-            channelKey: 'quickschedule',
-            title: 'DoBoara Reminder 📅',
-            body: body,
-            category: NotificationCategory.Reminder,
-            notificationLayout: NotificationLayout.Default,
-            criticalAlert: true,
-            wakeUpScreen: true,
-          ),
-          schedule: NotificationInterval(
-            interval: interval * 60, // Convert minutes to seconds
-            timeZone: localTimeZone,
-            repeats: repeat,
-            preciseAlarm: true,
-            allowWhileIdle: true,
-          ),
-        );
-
+      await AwesomeNotifications().createNotification(
+        content: NotificationContent(
+          id: notificationId,
+          channelKey: 'quickschedule',
+          title: 'DoBoara Reminder 📅',
+          body: body,
+          category: NotificationCategory.Reminder,
+          notificationLayout: NotificationLayout.Default,
+          criticalAlert: true,
+          wakeUpScreen: true,
+        ),
+        schedule: NotificationCalendar(
+          year: scheduledDate.year,
+          month: scheduledDate.month,
+          day: scheduledDate.day,
+          hour: scheduledDate.hour,
+          minute: scheduledDate.minute,
+          second: 0,
+          millisecond: 0,
+          repeats: repeat,
+          allowWhileIdle: true,
+          preciseAlarm: true,
+        ),
+      );
         print('Next notification time: ${nextNotificationTime.value}');
       } catch (e) {
         print('Error scheduling notification: $e');
@@ -607,11 +612,11 @@ class PageOneController extends GetxController {
       }
     });
   }
-   void calculateTriggerTime(int minutes) {
+
+  void calculateTriggerTime(int minutes) {
     DateTime now = DateTime.now();
     nextNotificationTime.value = now.add(Duration(minutes: minutes));
   }
-
 
   String getFormattedNextNotificationTime() {
     if (nextNotificationTime.value == null) {

@@ -274,6 +274,5 @@ Widget _buildSaveButton(BuildContext context) {
       widget.reminderController.saveReminder(widget.reminderController.repeat.value);
     }
 
-    Navigator.of(context).pop();
   }
 }

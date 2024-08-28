@@ -69,13 +69,16 @@ class NoteListView extends GetWidget<NoteTakingController> {
                 key: ValueKey(note.id),
                 endActionPane: ActionPane(
                   motion: const BehindMotion(),
-                  extentRatio: 0.5,
+                  extentRatio: 0.25,
                   children: [
                     _buildActionButton(
                       icon: Icons.edit,
-                      label: 'Edit',
+                      label: '',
                       color: Colors.blue,
                       onTap: () => _showNoteBottomSheet(context, note),
+                    ),
+                    SizedBox(
+                      width: ScaleUtil.width(4),
                     ),
                     _buildActionButton(
                       icon: Icons.delete,
@@ -181,8 +184,8 @@ class NoteListView extends GetWidget<NoteTakingController> {
       padding: EdgeInsets.zero,
       backgroundColor: Colors.transparent,
       child: Container(
-        width: 80,
-        height: 60,
+        width: ScaleUtil.width(50),
+        height: ScaleUtil.height(30),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(10),
           color: color,
@@ -201,16 +204,7 @@ class NoteListView extends GetWidget<NoteTakingController> {
             Icon(
               icon,
               color: Colors.white,
-              size: 30,
-            ),
-            SizedBox(height: 4),
-            Text(
-              label,
-              style: TextStyle(
-                color: Colors.white,
-                fontWeight: FontWeight.bold,
-                fontSize: 12,
-              ),
+              size: ScaleUtil.iconSize(15),
             ),
           ],
         ),
