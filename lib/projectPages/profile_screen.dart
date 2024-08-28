@@ -124,7 +124,7 @@ class ProfileScreen extends GetWidget<ProfileController> {
                     ),
                     _buildOptionTile('change password',
                         onTap: () => _showChangePasswordDialog(context)),
-                    _buildOptionTile('logout',
+                       _buildOptionTile('logout',
                         onTap: () => controller.logout()),
                     _buildOptionTile('delete account',
                         onTap: () => controller.deleteAccount()),

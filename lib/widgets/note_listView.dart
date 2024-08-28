@@ -92,13 +92,17 @@ class NoteListView extends GetWidget<NoteTakingController> {
                       color: Colors.blue,
                       onTap: () => _showNoteBottomSheet(context, note),
                     ),
-                  if (!note.isCompleted) SizedBox(width: ScaleUtil.width(4)),
+                  if (!note.isCompleted)
+                    SizedBox(
+                      width: ScaleUtil.width(4),
+                    ),
                   _buildActionButton(
                     icon: Icons.delete,
                     label: 'Delete',
                     color: Colors.red,
                     onTap: () => controller.deleteNote(note.id ?? ""),
                   ),
+                  SizedBox(width: ScaleUtil.width(10)),
                 ],
               ),
               child: Card(

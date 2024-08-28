@@ -85,7 +85,7 @@ class NoteTakingController extends GetxController {
         _notes.where((note) => !note.isCompleted).length;
   }
 
- Future<void> toggleNoteCompletion(String noteId) async {
+  Future<void> toggleNoteCompletion(String noteId) async {
     try {
       int index = _notes.indexWhere((note) => note.id == noteId);
       if (index != -1) {
@@ -95,13 +95,14 @@ class NoteTakingController extends GetxController {
         );
 
         await notesCollection.doc(noteId).update(updatedNote.toMap());
+        
+        // Update the note in the list
         _notes[index] = updatedNote;
-        _notes.refresh();
-
-        if (updatedNote.isCompleted) {
-          await _playCompletionSound();
-          HapticFeedback.mediumImpact();
-        }
+        
+        // Update the note counts
+        _updateNoteCounts();
+        
+        update();
 
         Get.snackbar(
           "Note Updated",
@@ -115,7 +116,7 @@ class NoteTakingController extends GetxController {
       Get.snackbar('Error', 'Failed to update note status');
     }
   }
-
+  
   void _updateSubtaskLengths(List<Note> notes) {
     for (var note in notes) {
       _subtaskLengths[note.id ?? ''] = note.subTasks.length;

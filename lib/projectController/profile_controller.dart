@@ -46,12 +46,33 @@ class ProfileController extends GetxController {
   }
 
   //log out
-  void logout() async {
-    FirebaseAuth.instance.currentUser?.reload();
-    await FirebaseAuth.instance.signOut();
+  Future<void> logout() async {
+    bool? shouldLogout = await Get.dialog<bool>(
+      AlertDialog(
+        title: Text('Confirm Logout'),
+        content: Text('Are you sure you want to log out?'),
+        actions: [
+          TextButton(
+            child: Text('Cancel'),
+            onPressed: () => Get.back(result: false),
+          ),
+          TextButton(
+            child: Text('Logout'),
+            onPressed: () => Get.back(result: true),
+          ),
+        ],
+      ),
+    );
 
-    await Get.offAllNamed(AppRoutes.HOME);
-    print('Logged out');
+    if (shouldLogout == true) {
+      try {
+        await FirebaseAuth.instance.signOut();
+        await Get.offAllNamed(AppRoutes.HOME);
+        Get.snackbar('Success', 'You have been logged out');
+      } catch (error) {
+        Get.snackbar('Error', 'Failed to log out: $error');
+      }
+    }
   }
 
   Future<void> deleteAccount() async {
