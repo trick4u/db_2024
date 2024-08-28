@@ -146,8 +146,7 @@ class NoteBottomSheet extends GetView<NoteTakingController> {
                 borderRadius: ScaleUtil.circular(10),
                 child: TextField(
                   controller: controller.titleController,
-                  style: appTheme.bodyMedium
-                      .copyWith(fontSize: ScaleUtil.fontSize(16)),
+                  style: appTheme.bodyMedium,
                   decoration: InputDecoration(
                     labelText: 'Note Title',
                     filled: true,

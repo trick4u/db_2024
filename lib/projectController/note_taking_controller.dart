@@ -1,7 +1,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
+import 'package:just_audio/just_audio.dart';
 
 import '../models/note_model.dart';
 
@@ -36,6 +38,7 @@ class NoteTakingController extends GetxController {
   bool get canAddMoreNotes => _notes.length < maxNotes;
   DocumentSnapshot? _lastDocument;
   bool _hasMoreNotes = true;
+  late AudioPlayer _audioPlayer;
 
   int getSubtaskLength(String noteId) {
     final note = _notes.firstWhere((note) => note.id == noteId,
@@ -55,7 +58,8 @@ class NoteTakingController extends GetxController {
   @override
   void onInit() {
     super.onInit();
-     ever(_notes, (_) {
+    _audioPlayer = AudioPlayer();
+    ever(_notes, (_) {
       _updateSubtaskLengths(_);
       _updateNoteCounts();
     });
@@ -65,12 +69,23 @@ class NoteTakingController extends GetxController {
     fetchNotes();
   }
 
-   void _updateNoteCounts() {
-    _completedNotesCount.value = _notes.where((note) => note.isCompleted).length;
-    _incompleteNotesCount.value = _notes.where((note) => !note.isCompleted).length;
+  Future<void> _playCompletionSound() async {
+    try {
+      await _audioPlayer.setAsset('assets/success.mp3');
+      await _audioPlayer.play();
+    } catch (e) {
+      print('Error playing completion sound: $e');
+    }
   }
 
-  Future<void> toggleNoteCompletion(String noteId) async {
+  void _updateNoteCounts() {
+    _completedNotesCount.value =
+        _notes.where((note) => note.isCompleted).length;
+    _incompleteNotesCount.value =
+        _notes.where((note) => !note.isCompleted).length;
+  }
+
+ Future<void> toggleNoteCompletion(String noteId) async {
     try {
       int index = _notes.indexWhere((note) => note.id == noteId);
       if (index != -1) {
@@ -83,11 +98,14 @@ class NoteTakingController extends GetxController {
         _notes[index] = updatedNote;
         _notes.refresh();
 
+        if (updatedNote.isCompleted) {
+          await _playCompletionSound();
+          HapticFeedback.mediumImpact();
+        }
+
         Get.snackbar(
           "Note Updated",
-          updatedNote.isCompleted
-              ? "Note marked as completed"
-              : "Note marked as incomplete",
+          updatedNote.isCompleted ? "Note marked as completed" : "Note marked as incomplete",
           snackPosition: SnackPosition.BOTTOM,
           duration: Duration(seconds: 2),
         );
@@ -340,6 +358,7 @@ class NoteTakingController extends GetxController {
 
   @override
   void onClose() {
+    _audioPlayer.dispose();
     titleController.dispose();
     for (var controller in subTasks) {
       controller.dispose();
