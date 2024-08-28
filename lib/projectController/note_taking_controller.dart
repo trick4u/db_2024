@@ -16,6 +16,11 @@ class NoteTakingController extends GetxController {
   final _subtaskLengths = <String, int>{}.obs;
 
   final isLoadingMore = false.obs;
+  final _completedNotesCount = 0.obs;
+  final _incompleteNotesCount = 0.obs;
+
+  int get completedNotesCount => _completedNotesCount.value;
+  int get incompleteNotesCount => _incompleteNotesCount.value;
 
   bool get canAddSubTask => _canAddSubTask.value;
   bool get canSave => _canSave.value;
@@ -50,12 +55,20 @@ class NoteTakingController extends GetxController {
   @override
   void onInit() {
     super.onInit();
+     ever(_notes, (_) {
+      _updateSubtaskLengths(_);
+      _updateNoteCounts();
+    });
     ever(_notes, _updateSubtaskLengths);
     ever(subTasks, (_) => _updateState());
     titleController.addListener(_updateState);
     fetchNotes();
   }
 
+   void _updateNoteCounts() {
+    _completedNotesCount.value = _notes.where((note) => note.isCompleted).length;
+    _incompleteNotesCount.value = _notes.where((note) => !note.isCompleted).length;
+  }
 
   Future<void> toggleNoteCompletion(String noteId) async {
     try {
@@ -72,7 +85,9 @@ class NoteTakingController extends GetxController {
 
         Get.snackbar(
           "Note Updated",
-          updatedNote.isCompleted ? "Note marked as completed" : "Note marked as incomplete",
+          updatedNote.isCompleted
+              ? "Note marked as completed"
+              : "Note marked as incomplete",
           snackPosition: SnackPosition.BOTTOM,
           duration: Duration(seconds: 2),
         );

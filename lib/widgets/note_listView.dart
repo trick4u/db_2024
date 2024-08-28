@@ -39,138 +39,188 @@ class NoteListView extends GetWidget<NoteTakingController> {
         return Center(child: CircularProgressIndicator());
       }
 
-      return FadeIn(
-        child: NotificationListener<ScrollNotification>(
-          onNotification: (ScrollNotification scrollInfo) {
-            if (scrollInfo is ScrollEndNotification &&
-                scrollInfo.metrics.extentAfter == 0 &&
-                !controller.isLoadingMore.value) {
-              controller.fetchNotes(loadMore: true);
-            }
-            return false;
-          },
-          child: ListView.builder(
-            itemCount: controller.notes.length +
-                (controller.isLoadingMore.value ? 1 : 0),
-            itemBuilder: (context, index) {
-              if (index == controller.notes.length) {
-                return Center(child: CircularProgressIndicator());
-              }
+      return Column(
+        children: [
+          _buildNoteCounts(appTheme),
+          Expanded(
+            child: FadeIn(
+              child: NotificationListener<ScrollNotification>(
+                onNotification: (ScrollNotification scrollInfo) {
+                  if (scrollInfo is ScrollEndNotification &&
+                      scrollInfo.metrics.extentAfter == 0 &&
+                      !controller.isLoadingMore.value) {
+                    controller.fetchNotes(loadMore: true);
+                  }
+                  return false;
+                },
+                child: ListView.builder(
+                  itemCount: controller.notes.length +
+                      (controller.isLoadingMore.value ? 1 : 0),
+                  itemBuilder: (context, index) {
+                    if (index == controller.notes.length) {
+                      return Center(child: CircularProgressIndicator());
+                    }
 
-              Note note = controller.notes[index];
-              Color tileColor = _getTileColor(index, controller.notes.length);
-              Color textColor = tileColor.computeLuminance() > 0.5
-                  ? Colors.black
-                  : Colors.white;
-              TextStyle textStyle =
-                  _getTextStyle(textColor, note.isCompleted, appTheme);
+                    Note note = controller.notes[index];
+                    Color tileColor =
+                        _getTileColor(index, controller.notes.length);
+                    Color textColor = tileColor.computeLuminance() > 0.5
+                        ? Colors.black
+                        : Colors.white;
+                    TextStyle textStyle =
+                        _getTextStyle(textColor, note.isCompleted, appTheme);
 
-              return Slidable(
-                key: ValueKey(note.id),
-                endActionPane: ActionPane(
-                  motion: const BehindMotion(),
-                  extentRatio: 0.25,
-                  children: [
-                    _buildActionButton(
-                      icon: Icons.edit,
-                      label: '',
-                      color: Colors.blue,
-                      onTap: () => _showNoteBottomSheet(context, note),
-                    ),
-                    SizedBox(
-                      width: ScaleUtil.width(4),
-                    ),
-                    _buildActionButton(
-                      icon: Icons.delete,
-                      label: 'Delete',
-                      color: Colors.red,
-                      onTap: () => controller.deleteNote(note.id ?? ""),
-                    ),
-                  ],
-                ),
-                child: Card(
-                  elevation: 1,
-                  margin: EdgeInsets.symmetric(vertical: 8, horizontal: 16),
-                  color: tileColor,
-                  child: Theme(
-                    data: Theme.of(context)
-                        .copyWith(dividerColor: Colors.transparent),
-                    child: ExpansionTile(
-                      leading: Transform.scale(
-                        scale: 1.2,
-                        child: Checkbox(
-                          value: note.isCompleted,
-                          onChanged: (_) =>
-                              controller.toggleNoteCompletion(note.id!),
-                          activeColor: Colors.green,
-                          checkColor: textColor,
-                          side: BorderSide(color: textColor),
-                        ),
+                    return Slidable(
+                      key: ValueKey(note.id),
+                      endActionPane: ActionPane(
+                        motion: const BehindMotion(),
+                        extentRatio: 0.25,
+                        children: [
+                          _buildActionButton(
+                            icon: Icons.edit,
+                            label: '',
+                            color: Colors.blue,
+                            onTap: () => _showNoteBottomSheet(context, note),
+                          ),
+                          SizedBox(
+                            width: ScaleUtil.width(4),
+                          ),
+                          _buildActionButton(
+                            icon: Icons.delete,
+                            label: 'Delete',
+                            color: Colors.red,
+                            onTap: () => controller.deleteNote(note.id ?? ""),
+                          ),
+                        ],
                       ),
-                      title: Text(
-                        note.title,
-                        style: textStyle,
-                      ),
-                      trailing: SizedBox(
-                        width: 150,
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.end,
-                          children: [
-                            Text(
-                              DateFormat('MMM d, yyyy').format(note.date),
-                              style: textStyle.copyWith(
-                                color: textColor.withOpacity(0.7),
-                                decoration: TextDecoration.none,
+                      child: Card(
+                        elevation: 1,
+                        margin:
+                            EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+                        color: tileColor,
+                        child: Theme(
+                          data: Theme.of(context)
+                              .copyWith(dividerColor: Colors.transparent),
+                          child: ExpansionTile(
+                            leading: Transform.scale(
+                              scale: 1.2,
+                              child: Checkbox(
+                                value: note.isCompleted,
+                                onChanged: (_) =>
+                                    controller.toggleNoteCompletion(note.id!),
+                                activeColor: Colors.green,
+                                checkColor: textColor,
+                                side: BorderSide(color: textColor),
                               ),
                             ),
-                            SizedBox(width: 8),
-                            SizedBox(
-                              width: 24,
-                              child: note.subTasks.isNotEmpty
-                                  ? Icon(Icons.expand_more, color: textColor)
-                                  : null,
+                            title: Text(
+                              note.title,
+                              style: textStyle,
                             ),
-                          ],
-                        ),
-                      ),
-                      children: note.subTasks.isNotEmpty
-                          ? [
-                              ...note.subTasks.asMap().entries.map(
-                                (entry) {
-                                  int subTaskIndex = entry.key;
-                                  String subTask = entry.value;
-                                  return ListTile(
-                                    tileColor: tileColor,
-                                    leading: Icon(
-                                      Icons.subdirectory_arrow_right,
-                                      color: textColor,
+                            trailing: SizedBox(
+                              width: 150,
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.end,
+                                children: [
+                                  Text(
+                                    DateFormat('MMM d, yyyy').format(note.date),
+                                    style: textStyle.copyWith(
+                                      color: textColor.withOpacity(0.7),
+                                      decoration: TextDecoration.none,
                                     ),
-                                    title: Text(
-                                      subTask,
-                                      style: textStyle,
-                                    ),
-                                    trailing: IconButton(
-                                      icon: Icon(Icons.close,
-                                          color: textColor.withOpacity(0.7)),
-                                      onPressed: () async {
-                                        await controller.deleteSubTask(
-                                            note.id ?? "", subTaskIndex);
+                                  ),
+                                  SizedBox(width: 8),
+                                  SizedBox(
+                                    width: 24,
+                                    child: note.subTasks.isNotEmpty
+                                        ? Icon(Icons.expand_more,
+                                            color: textColor)
+                                        : null,
+                                  ),
+                                ],
+                              ),
+                            ),
+                            children: note.subTasks.isNotEmpty
+                                ? [
+                                    ...note.subTasks.asMap().entries.map(
+                                      (entry) {
+                                        int subTaskIndex = entry.key;
+                                        String subTask = entry.value;
+                                        return ListTile(
+                                          tileColor: tileColor,
+                                          leading: Icon(
+                                            Icons.subdirectory_arrow_right,
+                                            color: textColor,
+                                          ),
+                                          title: Text(
+                                            subTask,
+                                            style: textStyle,
+                                          ),
+                                          trailing: IconButton(
+                                            icon: Icon(Icons.close,
+                                                color:
+                                                    textColor.withOpacity(0.7)),
+                                            onPressed: () async {
+                                              await controller.deleteSubTask(
+                                                  note.id ?? "", subTaskIndex);
+                                            },
+                                          ),
+                                        );
                                       },
                                     ),
-                                  );
-                                },
-                              ),
-                            ]
-                          : [],
-                    ),
-                  ),
+                                  ]
+                                : [],
+                          ),
+                        ),
+                      ),
+                    );
+                  },
                 ),
-              );
-            },
+              ),
+            ),
           ),
-        ),
+        ],
       );
     });
+  }
+
+  Widget _buildNoteCounts(AppTheme appTheme) {
+    return Padding(
+      padding: ScaleUtil.symmetric(horizontal: 16, vertical: 8),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          _buildCountText('Completed', controller.completedNotesCount,
+              Colors.green, appTheme),
+          _buildCountText('Incomplete', controller.incompleteNotesCount,
+              Colors.orange, appTheme),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildCountText(
+      String label, int count, Color color, AppTheme appTheme) {
+    return Row(
+      children: [
+        Container(
+          width: ScaleUtil.width(12),
+          height: ScaleUtil.height(12),
+          decoration: BoxDecoration(
+            color: color,
+            shape: BoxShape.circle,
+          ),
+        ),
+        SizedBox(width: ScaleUtil.width(8)),
+        Text(
+          '$label: $count',
+          style: appTheme.bodyMedium.copyWith(
+            fontSize: ScaleUtil.fontSize(14),
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+      ],
+    );
   }
 
   Widget _buildActionButton({
