@@ -172,7 +172,7 @@ class _EventBottomSheetState extends State<EventBottomSheet> {
                       mainAxisAlignment: MainAxisAlignment.end,
                       children: [
                         _buildRepetitionButton(context, appTheme),
-                        SizedBox(width: 16),
+                        SizedBox(width: 10),
                         _buildDescriptionToggleButton(context, appTheme),
                         SizedBox(width: 16),
                         _buildColorIconButton(context, appTheme),
@@ -206,10 +206,10 @@ class _EventBottomSheetState extends State<EventBottomSheet> {
               color: _selectedRepetition != null ? Colors.white : Colors.black,
               size: 16,
             ),
-            SizedBox(width: 8),
+            SizedBox(width: 2),
             Text(
               _getRepetitionText(),
-              style: AppTextTheme.textTheme.titleSmall,
+              style: AppTextTheme.textTheme.bodySmall,
             ),
           ],
         ),
@@ -239,7 +239,7 @@ class _EventBottomSheetState extends State<EventBottomSheet> {
       case 'month':
         return 'This Month';
       default:
-        return 'Repeat';
+        return '';
     }
   }
 

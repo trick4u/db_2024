@@ -70,6 +70,7 @@ void main() async {
   if (Platform.isAndroid) {
     await Workmanager().initialize(callbackDispatcher, isInDebugMode: true);
   }
+   String soundSource = Platform.isIOS ? 'success.wav' : 'resource://raw/notification_sound';
   print('WorkManager initialized!');
 
   await AwesomeNotifications().initialize(
@@ -90,6 +91,8 @@ void main() async {
           ledColor: Colors.white,
           importance: NotificationImportance.High,
           channelShowBadge: true,
+          enableLights: true,
+          enableVibration: true,
         ),
         NotificationChannel(
           channelKey: 'event_reminders',
@@ -101,7 +104,10 @@ void main() async {
           importance: NotificationImportance.Max,
           channelShowBadge: false,
           playSound: true,
-          soundSource: 'notification_sound',
+          soundSource: soundSource,
+          enableLights: true,
+          enableVibration: true,
+          
         ),
       ],
       debug: true);
@@ -144,7 +150,7 @@ void main() async {
       print('Notification Allowed');
     }
   });
-   AwesomeNotifications().setGlobalBadgeCounter(0);
+  AwesomeNotifications().setGlobalBadgeCounter(0);
 
   runApp(const MyApp());
 }
