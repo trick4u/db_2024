@@ -43,7 +43,7 @@ class LoginController extends GetxController {
       }
 
       // If login is successful, navigate to home page
-      Get.offAllNamed(AppRoutes.MAIN, predicate: (route) => false);
+      Get.offAllNamed(AppRoutes.MAIN, );
     } catch (e) {
       Get.snackbar(
         'Login Error',

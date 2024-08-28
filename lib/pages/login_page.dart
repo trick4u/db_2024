@@ -14,12 +14,13 @@ class LoginPage extends GetWidget<LoginController> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Login Page'),
+        title: Text(
+          'login here',
+          style: AppTextTheme.textTheme.displaySmall,
+        ),
         leading: IconButton(
-          icon: Icon(Icons.arrow_back_ios_new),
-          onPressed: () {
-            Get.back();
-          },
+          icon: Icon(Icons.arrow_back),
+          onPressed: () => Get.offAllNamed(AppRoutes.HOME),
         ),
       ),
       body: SafeArea(
@@ -34,105 +35,43 @@ class LoginPage extends GetWidget<LoginController> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(
-                    'Hello Again!',
-                  ),
-                  SizedBox(height: ScaleUtil.height(10.0)),
-                  Text(
                     'Welcome back you\'ve been missed!',
-                    //
+                    style: AppTextTheme.textTheme.bodyLarge
+                        ?.copyWith(fontWeight: FontWeight.bold),
                   ),
-                  SizedBox(height: ScaleUtil.height(10.0)),
-                  TextField(
+                  SizedBox(height: ScaleUtil.height(20.0)),
+                  _buildTextField(
                     controller: controller.userInputController,
-                    style: appTheme.bodyMedium,
-                    decoration: InputDecoration(
-                      filled: true,
-                      hintText: 'Enter username or email',
-                      fillColor:
-                          Get.isDarkMode ? Colors.grey[800] : Colors.grey[200],
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        borderSide: BorderSide.none,
-                      ),
-                      enabledBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        borderSide: BorderSide.none,
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        borderSide: BorderSide(
-                          color:
-                              Get.isDarkMode ? Colors.white70 : Colors.black54,
-                          width: 1,
-                        ),
-                      ),
-                      labelStyle: AppTextTheme.textTheme.bodySmall!.copyWith(
-                        color: Get.isDarkMode ? Colors.white70 : Colors.black54,
-                      ),
-                      hintStyle: TextStyle(
-                        color: Get.isDarkMode ? Colors.white54 : Colors.black38,
-                      ),
-                      prefixIcon: Icon(
-                        Icons.person,
-                        color: Get.isDarkMode ? Colors.white70 : Colors.black54,
-                      ),
-                    ),
-                    keyboardType: TextInputType.emailAddress,
+                    hintText: 'Enter username or email',
+                    prefixIcon: Icons.person,
                   ),
                   SizedBox(height: ScaleUtil.height(10.0)),
                   Obx(
-                    () => TextField(
+                    () => _buildTextField(
                       controller: controller.passwordController,
-                      style: appTheme.bodyMedium,
-                      decoration: InputDecoration(
-                        filled: true,
-                        hintText: 'Enter password',
-                        fillColor: Get.isDarkMode
-                            ? Colors.grey[800]
-                            : Colors.grey[200],
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
-                          borderSide: BorderSide.none,
-                        ),
-                        enabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
-                          borderSide: BorderSide.none,
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
-                          borderSide: BorderSide.none,
-                        ),
-                        labelStyle: AppTextTheme.textTheme.bodySmall!.copyWith(
-                          color:
-                              Get.isDarkMode ? Colors.white70 : Colors.black54,
-                        ),
-                        hintStyle: TextStyle(
-                          color:
-                              Get.isDarkMode ? Colors.white54 : Colors.black38,
-                        ),
-                        suffixIcon: InkWell(
-                          onTap: controller.togglePasswordVisibility,
-                          child: Icon(
-                            controller.isPasswordVisible.value
-                                ? Icons.visibility
-                                : Icons.visibility_off,
-                            size: 20.0,
-                            color: Get.isDarkMode
-                                ? Colors.white70
-                                : Colors.black54,
-                          ),
-                        ),
-                      ),
+                      hintText: 'Enter password',
                       obscureText: !controller.isPasswordVisible.value,
+                      suffixIcon: IconButton(
+                        icon: Icon(
+                          controller.isPasswordVisible.value
+                              ? Icons.visibility
+                              : Icons.visibility_off,
+                          size: 20.0,
+                        ),
+                        onPressed: controller.togglePasswordVisibility,
+                      ),
                     ),
                   ),
                   SizedBox(height: ScaleUtil.height(10.0)),
                   Align(
-                    alignment: Alignment.centerLeft,
-                    child: TextButton(
-                      onPressed: () => _showForgotPasswordDialog(context),
+                    alignment: Alignment.centerRight,
+                    child: InkWell(
+                      onTap: () {
+                        _showForgotPasswordDialog(context);
+                      },
                       child: Text(
                         'Forgot Password',
+                        style: AppTextTheme.textTheme.bodySmall,
                       ),
                     ),
                   ),
@@ -141,18 +80,46 @@ class LoginPage extends GetWidget<LoginController> {
                         onPressed: controller.isLoading.value
                             ? null
                             : controller.login,
+                        style: ElevatedButton.styleFrom(
+                          foregroundColor: Colors.deepPurpleAccent,
+                          backgroundColor: Colors.deepPurpleAccent,
+                          padding:
+                              ScaleUtil.symmetric(horizontal: 30, vertical: 10),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: ScaleUtil.circular(10),
+                          ),
+                        ),
                         child: controller.isLoading.value
-                            ? CircularProgressIndicator()
-                            : Text('Login'),
+                            ? CircularProgressIndicator(color: Colors.white)
+                            : Text(
+                                'Login',
+                                style:
+                                    AppTextTheme.textTheme.bodyMedium?.copyWith(
+                                  fontWeight: FontWeight.w500,
+                                  color: Colors.white,
+                                ),
+                              ),
                       )),
                   SizedBox(height: ScaleUtil.height(10.0)),
                   TextButton(
                     onPressed: () {
-                      Get.toNamed(AppRoutes.REGISTER);
+                      Get.offAllNamed(AppRoutes.REGISTER);
                     },
+                    style: TextButton.styleFrom(
+                      padding:
+                          ScaleUtil.symmetric(horizontal: 30, vertical: 10),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: ScaleUtil.circular(10),
+                        side: BorderSide(color: Colors.deepPurpleAccent),
+                      ),
+                      backgroundColor: Colors.white,
+                    ),
                     child: Text(
                       'Register now',
-                      style: TextStyle(color: Colors.blueAccent),
+                      style: AppTextTheme.textTheme.bodyMedium?.copyWith(
+                        fontWeight: FontWeight.w500,
+                        color: Colors.deepPurpleAccent,
+                      ),
                     ),
                   ),
                 ],
@@ -160,6 +127,42 @@ class LoginPage extends GetWidget<LoginController> {
             ),
           ),
         ),
+      ),
+    );
+  }
+
+  Widget _buildTextField({
+    required TextEditingController controller,
+    required String hintText,
+    bool obscureText = false,
+    IconData? prefixIcon,
+    Widget? suffixIcon,
+  }) {
+    return TextField(
+      controller: controller,
+      style: appTheme.bodyMedium,
+      obscureText: obscureText,
+      decoration: InputDecoration(
+        filled: true,
+        fillColor: appTheme.textFieldFillColor,
+        hintText: hintText,
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide.none,
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide.none,
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide(
+            color: appTheme.colorScheme.primary,
+            width: 1,
+          ),
+        ),
+        prefixIcon: prefixIcon != null ? Icon(prefixIcon) : null,
+        suffixIcon: suffixIcon,
       ),
     );
   }

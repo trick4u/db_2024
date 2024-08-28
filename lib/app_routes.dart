@@ -121,6 +121,7 @@ class AppRoutes {
       name: REGISTER,
       page: () => RegisterPage(),
       binding: RegisterBinding(),
+      transition: Transition.noTransition,
     ),
     GetPage(
       name: VISIONBOARD,
@@ -131,6 +132,7 @@ class AppRoutes {
       name: LOGIN,
       page: () => LoginPage(),
       binding: LoginBinding(),
+      transition: Transition.noTransition,
     ),
     GetPage(
       name: NOTES,
@@ -167,6 +169,7 @@ class AppRoutes {
       name: HOME,
       page: () => MyHomePage(),
       binding: HomeBinding(),
+      transition: Transition.noTransition,
     ),
     GetPage(
       name: PHONEAUTH,
@@ -182,6 +185,7 @@ class AppRoutes {
       name: MAIN,
       page: () => MainScreen(),
       binding: MainScreenBinding(),
+       transition: Transition.noTransition,
     ),
 
     GetPage(
@@ -190,7 +194,7 @@ class AppRoutes {
       binding: AddTaskbinding(),
     ),
     //eat the frog
-   
+
     //three tasksscreen
     GetPage(
       name: THREETASKSSCREEN,
@@ -211,4 +215,7 @@ class AppRoutes {
       binding: NoteTakingBinding(),
     ),
   ];
+  
 }
+
+

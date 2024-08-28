@@ -30,7 +30,10 @@ class AuthWrapper extends StatelessWidget {
               );
             } else if (snapshot.data == true) {
               // User is in the database, navigate to MainScreen
-              return MainScreen();
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+                Get.offAll(() => MainScreen());
+              });
+              return Container();
             } else {
               // User is not in the database, they need to complete profile
               return   MyHomePage();

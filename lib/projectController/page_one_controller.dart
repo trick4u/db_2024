@@ -73,16 +73,18 @@ class PageOneController extends GetxController {
   final Color endColor = Color(0xFFF44336);
   late Timer _colorTimer;
   var backgroundColor = Color(0xFF2196F3).obs;
-  final player = AudioPlayer();
+
   var isPlaying = false.obs;
   var currentStreamIndex = 0.obs;
 
   var isLoading = true.obs;
-  final Dio dio = Dio();
+
+  late AudioPlayer _audioPlayer;
 
   @override
   void onInit() {
     //   getAllGoals();
+    _audioPlayer = AudioPlayer();
     fetchAllEvents();
     fetchAllReminders();
 
@@ -112,6 +114,11 @@ class PageOneController extends GetxController {
 
     super.dispose();
   }
+   @override
+  void onClose() {
+    _audioPlayer.dispose();
+    super.onClose();
+  }
 
   //for reminders
   Future<void> updateReminder(
@@ -136,50 +143,6 @@ class PageOneController extends GetxController {
       Get.snackbar('Error', 'Failed to update reminder');
     }
   }
-
-  // void showEditReminderDialog(ReminderModel reminder) {
-  //   final TextEditingController reminderController =
-  //       TextEditingController(text: reminder.reminder);
-  //   final TextEditingController timeController =
-  //       TextEditingController(text: reminder.time.toString());
-
-  //   Get.dialog(
-  //     AlertDialog(
-  //       title: Text('Edit Reminder'),
-  //       content: Column(
-  //         mainAxisSize: MainAxisSize.min,
-  //         children: [
-  //           TextField(
-  //             controller: reminderController,
-  //             decoration: InputDecoration(labelText: 'Reminder'),
-  //           ),
-  //           TextField(
-  //             controller: timeController,
-  //             decoration: InputDecoration(labelText: 'Time (minutes)'),
-  //             keyboardType: TextInputType.number,
-  //           ),
-  //         ],
-  //       ),
-  //       actions: [
-  //         TextButton(
-  //           child: Text('Cancel'),
-  //           onPressed: () => Get.back(),
-  //         ),
-  //         TextButton(
-  //           child: Text('Save'),
-  //           onPressed: () {
-  //             updateReminder(
-  //               reminder.id,
-  //               reminderController.text,
-  //               int.tryParse(timeController.text) ?? reminder.time,
-  //             );
-  //             Get.back();
-  //           },
-  //         ),
-  //       ],
-  //     ),
-  //   );
-  // }
 
   void fetchAllReminders() {
     if (currentUser == null) return;
@@ -329,11 +292,22 @@ class PageOneController extends GetxController {
     }
   }
 
-  void toggleEventCompletion(String eventId, bool isCompleted) {
-    updateEvent(eventId, {'isCompleted': isCompleted});
-    fetchAllEvents(); // Refresh all lists after toggling completion
+ void toggleEventCompletion(String eventId, bool isCompleted) async {
+    try {
+      await updateEvent(eventId, {'isCompleted': isCompleted});
+      
+      if (isCompleted) {
+        // Play sound when marking as complete
+        await _audioPlayer.setAsset('assets/success.mp3');
+        await _audioPlayer.play();
+      }
+      
+      fetchAllEvents(); // Refresh all lists after toggling completion
+    } catch (e) {
+      print('Error toggling event completion: $e');
+      Get.snackbar('Error', 'Failed to update event completion status');
+    }
   }
-
   void fetchPendingEvents() {
     if (currentUser == null) return;
 
@@ -444,11 +418,6 @@ class PageOneController extends GetxController {
     }
   }
 
-  @override
-  void onClose() {
-    player.dispose();
-    super.onClose();
-  }
 
   //increase volume
 
@@ -577,34 +546,34 @@ class PageOneController extends GetxController {
 
         String localTimeZone =
             await AwesomeNotifications().getLocalTimeZoneIdentifier();
-          DateTime now = DateTime.now();
-      DateTime scheduledDate = now.add(Duration(minutes: interval));
-      nextNotificationTime.value = scheduledDate;
+        DateTime now = DateTime.now();
+        DateTime scheduledDate = now.add(Duration(minutes: interval));
+        nextNotificationTime.value = scheduledDate;
 
-      await AwesomeNotifications().createNotification(
-        content: NotificationContent(
-          id: notificationId,
-          channelKey: 'quickschedule',
-          title: 'DoBoara Reminder 📅',
-          body: body,
-          category: NotificationCategory.Reminder,
-          notificationLayout: NotificationLayout.Default,
-          criticalAlert: true,
-          wakeUpScreen: true,
-        ),
-        schedule: NotificationCalendar(
-          year: scheduledDate.year,
-          month: scheduledDate.month,
-          day: scheduledDate.day,
-          hour: scheduledDate.hour,
-          minute: scheduledDate.minute,
-          second: 0,
-          millisecond: 0,
-          repeats: repeat,
-          allowWhileIdle: true,
-          preciseAlarm: true,
-        ),
-      );
+        await AwesomeNotifications().createNotification(
+          content: NotificationContent(
+            id: notificationId,
+            channelKey: 'quickschedule',
+            title: 'DoBoara Reminder 📅',
+            body: body,
+            category: NotificationCategory.Reminder,
+            notificationLayout: NotificationLayout.Default,
+            criticalAlert: true,
+            wakeUpScreen: true,
+          ),
+          schedule: NotificationCalendar(
+            year: scheduledDate.year,
+            month: scheduledDate.month,
+            day: scheduledDate.day,
+            hour: scheduledDate.hour,
+            minute: scheduledDate.minute,
+            second: 0,
+            millisecond: 0,
+            repeats: repeat,
+            allowWhileIdle: true,
+            preciseAlarm: true,
+          ),
+        );
         print('Next notification time: ${nextNotificationTime.value}');
       } catch (e) {
         print('Error scheduling notification: $e');
