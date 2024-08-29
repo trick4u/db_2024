@@ -15,11 +15,10 @@ class NetworkController extends GetxController {
   void onInit() {
     super.onInit();
     InternetConnection().onStatusChange.listen((event) {
-    
       switch (event) {
         case InternetStatus.connected:
           isOnline.value = true;
-       // Get.toNamed(AppRoutes.HOME);
+          // Get.offNamedUntil(AppRoutes.MAIN, (route) => false);
           break;
         case InternetStatus.disconnected:
           isOnline.value = false;

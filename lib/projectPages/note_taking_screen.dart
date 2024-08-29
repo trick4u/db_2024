@@ -29,7 +29,9 @@ class NoteTakingScreen extends GetWidget<NoteTakingController> {
           ),
         ],
       ),
-      body: NoteListView(),
+      body: SafeArea(
+        child: NoteListView(),
+      ),
       floatingActionButton: Obx(() {
         return controller.canAddMoreNotes
             ? FloatingActionButton(
@@ -40,7 +42,7 @@ class NoteTakingScreen extends GetWidget<NoteTakingController> {
                 child: Icon(
                   Icons.add,
                   color: Colors.deepPurpleAccent,
-                  size: ScaleUtil.iconSize(24),
+                  size: ScaleUtil.iconSize(20),
                 ),
               )
             : SizedBox.shrink();
@@ -95,4 +97,3 @@ class NoteTakingScreen extends GetWidget<NoteTakingController> {
     );
   }
 }
-

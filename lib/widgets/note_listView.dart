@@ -42,6 +42,7 @@ class NoteListView extends GetWidget<NoteTakingController> {
 
       return Column(
         children: [
+          
           _buildNoteCounts(appTheme),
           Expanded(
             child: controller.notes.isEmpty

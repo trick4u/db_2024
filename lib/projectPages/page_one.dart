@@ -1,5 +1,6 @@
 import 'package:animate_do/animate_do.dart';
 import 'package:animate_gradient/animate_gradient.dart';
+import 'package:dough/dough.dart';
 
 import 'package:flutter/material.dart';
 
@@ -49,8 +50,7 @@ class PageOneScreen extends GetWidget<PageOneController> {
   @override
   Widget build(BuildContext context) {
     ScaleUtil.init(context);
-    return Scaffold(
-      body: SafeArea(
+    return  SafeArea(
         child: Container(
           margin: ScaleUtil.symmetric(horizontal: 20, vertical: 10),
           child: Column(
@@ -62,24 +62,24 @@ class PageOneScreen extends GetWidget<PageOneController> {
                 children: [
                   Tooltip(
                     message: 'Tap for daily inspiration!',
-                    child: GestureDetector(
-                        onTap: () async {
-                          await _showQuoteDialog(context);
-                        },
-                        child: Row(
-                          children: [
-                            Icon(FontAwesomeIcons.handPointer, size: 20),
-                            SizedBox(width: 8),
-                            Text(
-                              controller.greeting.value.toLowerCase() + ".",
-                              style:
-                                  AppTextTheme.textTheme.displaySmall?.copyWith(
-                                fontSize: 20,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ],
-                        )),
+                    child: PressableDough(
+                      onReleased: (d) async {
+                        await _showQuoteDialog(context);
+                      },
+                      child: GestureDetector(
+                          onTap: () async {
+                            await _showQuoteDialog(context);
+                          },
+                          child: Row(
+                            children: [
+                              Icon(FontAwesomeIcons.handPointer, size: 20),
+                              SizedBox(width: 8),
+                              Obx(() => Text(
+                                  controller.greeting.value.toLowerCase() + ".",
+                                  style: AppTextTheme.textTheme.displaySmall)),
+                            ],
+                          )),
+                    ),
                   ),
                   InkWell(
                     onTap: () {
@@ -143,8 +143,9 @@ class PageOneScreen extends GetWidget<PageOneController> {
             ],
           ),
         ),
-      ),
-    );
+      );
+   
+    
   }
 
   String _getListTitle(String listType) {

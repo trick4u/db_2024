@@ -1,3 +1,4 @@
+import 'package:dough/dough.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:get/get.dart';
@@ -168,113 +169,115 @@ class EventCard extends StatelessWidget {
     return GetBuilder<CalendarController>(
       builder: (controller) => GestureDetector(
         onTap: () => controller.toggleEventExpansion(event.id),
-        child: Stack(
-          children: [
-            Card(
-              elevation: 0,
-              shape: RoundedRectangleBorder(
-                borderRadius: ScaleUtil.circular(10),
-              ),
-              child: IntrinsicHeight(
-                child: Row(
-                  children: [
-                    Container(
-                      width: ScaleUtil.width(10),
-                      decoration: BoxDecoration(
-                        color: event.color,
-                        borderRadius: BorderRadius.only(
-                          topLeft: ScaleUtil.radius(10),
-                          bottomLeft: ScaleUtil.radius(10),
-                        ),
-                      ),
-                    ),
-                    Expanded(
-                      child: Padding(
-                        padding: ScaleUtil.all(10.0),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Text(
-                              event.title,
-                              style:
-                                  AppTextTheme.textTheme.titleMedium!.copyWith(
-                                fontSize: ScaleUtil.fontSize(14),
-                                decoration: event.isCompleted == true
-                                    ? TextDecoration.lineThrough
-                                    : TextDecoration.none,
-                              ),
-                            ),
-                            if (event.description.isNotEmpty) ...[
-                              ScaleUtil.sizedBox(height: 4),
-                              AnimatedCrossFade(
-                                firstChild: Text(
-                                  event.description,
-                                  maxLines: 2,
-                                  overflow: TextOverflow.ellipsis,
-                                  style: AppTextTheme.textTheme.bodyMedium!
-                                      .copyWith(
-                                    fontSize: ScaleUtil.fontSize(14),
-                                    decoration: event.isCompleted == true
-                                        ? TextDecoration.lineThrough
-                                        : TextDecoration.none,
-                                  ),
-                                ),
-                                secondChild: Text(
-                                  event.description,
-                                  style: AppTextTheme.textTheme.bodyMedium!
-                                      .copyWith(
-                                    fontSize: ScaleUtil.fontSize(14),
-                                    decoration: event.isCompleted == true
-                                        ? TextDecoration.lineThrough
-                                        : TextDecoration.none,
-                                  ),
-                                ),
-                                crossFadeState:
-                                    controller.isEventExpanded(event.id)
-                                        ? CrossFadeState.showSecond
-                                        : CrossFadeState.showFirst,
-                                duration: Duration(milliseconds: 300),
-                              ),
-                            ],
-                          ],
-                        ),
-                      ),
-                    ),
-                    if (event.isCompleted == true)
+        child: PressableDough(
+          child: Stack(
+            children: [
+              Card(
+                elevation: 0,
+                shape: RoundedRectangleBorder(
+                  borderRadius: ScaleUtil.circular(10),
+                ),
+                child: IntrinsicHeight(
+                  child: Row(
+                    children: [
                       Container(
-                        width: ScaleUtil.width(20),
+                        width: ScaleUtil.width(10),
                         decoration: BoxDecoration(
-                          color: Colors.green,
+                          color: event.color,
                           borderRadius: BorderRadius.only(
-                            topRight: ScaleUtil.radius(10),
-                            bottomRight: ScaleUtil.radius(10),
+                            topLeft: ScaleUtil.radius(10),
+                            bottomLeft: ScaleUtil.radius(10),
                           ),
                         ),
                       ),
-                  ],
-                ),
-              ),
-            ),
-            if (event.hasReminder && _shouldShowNotificationInfo())
-              Positioned(
-                top: ScaleUtil.height(15),
-                right: event.isCompleted == true
-                    ? ScaleUtil.width(40)
-                    : ScaleUtil.width(20),
-                child: GestureDetector(
-                  onTap: () {
-                    final calendarController = Get.find<CalendarController>();
-                    calendarController.toggleEventReminder(event.id);
-                  },
-                  child: Icon(
-                    Icons.notifications_active,
-                    size: ScaleUtil.iconSize(14),
-                    color: Colors.blue,
+                      Expanded(
+                        child: Padding(
+                          padding: ScaleUtil.all(10.0),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Text(
+                                event.title,
+                                style: AppTextTheme.textTheme.titleMedium!
+                                    .copyWith(
+                                  fontSize: ScaleUtil.fontSize(14),
+                                  decoration: event.isCompleted == true
+                                      ? TextDecoration.lineThrough
+                                      : TextDecoration.none,
+                                ),
+                              ),
+                              if (event.description.isNotEmpty) ...[
+                                ScaleUtil.sizedBox(height: 4),
+                                AnimatedCrossFade(
+                                  firstChild: Text(
+                                    event.description,
+                                    maxLines: 2,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: AppTextTheme.textTheme.bodyMedium!
+                                        .copyWith(
+                                      fontSize: ScaleUtil.fontSize(14),
+                                      decoration: event.isCompleted == true
+                                          ? TextDecoration.lineThrough
+                                          : TextDecoration.none,
+                                    ),
+                                  ),
+                                  secondChild: Text(
+                                    event.description,
+                                    style: AppTextTheme.textTheme.bodyMedium!
+                                        .copyWith(
+                                      fontSize: ScaleUtil.fontSize(14),
+                                      decoration: event.isCompleted == true
+                                          ? TextDecoration.lineThrough
+                                          : TextDecoration.none,
+                                    ),
+                                  ),
+                                  crossFadeState:
+                                      controller.isEventExpanded(event.id)
+                                          ? CrossFadeState.showSecond
+                                          : CrossFadeState.showFirst,
+                                  duration: Duration(milliseconds: 300),
+                                ),
+                              ],
+                            ],
+                          ),
+                        ),
+                      ),
+                      if (event.isCompleted == true)
+                        Container(
+                          width: ScaleUtil.width(20),
+                          decoration: BoxDecoration(
+                            color: Colors.green,
+                            borderRadius: BorderRadius.only(
+                              topRight: ScaleUtil.radius(10),
+                              bottomRight: ScaleUtil.radius(10),
+                            ),
+                          ),
+                        ),
+                    ],
                   ),
                 ),
               ),
-          ],
+              if (event.hasReminder && _shouldShowNotificationInfo())
+                Positioned(
+                  top: ScaleUtil.height(15),
+                  right: event.isCompleted == true
+                      ? ScaleUtil.width(40)
+                      : ScaleUtil.width(20),
+                  child: GestureDetector(
+                    onTap: () {
+                      final calendarController = Get.find<CalendarController>();
+                      calendarController.toggleEventReminder(event.id);
+                    },
+                    child: Icon(
+                      Icons.notifications_active,
+                      size: ScaleUtil.iconSize(14),
+                      color: Colors.blue,
+                    ),
+                  ),
+                ),
+            ],
+          ),
         ),
       ),
     );
