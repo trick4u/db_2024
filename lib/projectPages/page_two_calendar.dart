@@ -30,8 +30,6 @@ class CalendarPage extends GetWidget<CalendarController> {
                 letterSpacing: 1.5,
               ),
             ),
-            backgroundColor: appTheme.colorScheme.surface,
-            foregroundColor: appTheme.colorScheme.onSurface,
             automaticallyImplyLeading: false,
           ),
           body: SafeArea(
@@ -44,7 +42,6 @@ class CalendarPage extends GetWidget<CalendarController> {
                     GestureDetector(
                       onVerticalDragEnd: (details) {
                         if (details.primaryVelocity! < 0) {
-                          // Swipe up detected
                           controller.toggleCalendarFormat();
                         }
                       },
@@ -53,8 +50,6 @@ class CalendarPage extends GetWidget<CalendarController> {
                           if (controller
                               .canAddEvent(controller.selectedDay.value)) {
                             controller.showEventBottomSheet(context);
-                          } else {
-                            return;
                           }
                         },
                         child: FadeInUp(
@@ -104,6 +99,14 @@ class CalendarPage extends GetWidget<CalendarController> {
                                         color: appTheme.textColor,
                                         fontSize: ScaleUtil.fontSize(14),
                                       ),
+                                      selectedDecoration: BoxDecoration(
+                                        color: Colors.blue,
+                                        shape: BoxShape.circle,
+                                      ),
+                                      todayDecoration: BoxDecoration(
+                                        color: Colors.blue.withOpacity(0.5),
+                                        shape: BoxShape.circle,
+                                      ),
                                     ),
                                     headerVisible: false,
                                     headerStyle: HeaderStyle(
@@ -111,7 +114,7 @@ class CalendarPage extends GetWidget<CalendarController> {
                                       titleCentered: false,
                                       rightChevronIcon: Icon(
                                         Icons.chevron_right,
-                                        color: appTheme.textColor,
+                                        color: Colors.blue,
                                         size: ScaleUtil.iconSize(24),
                                       ),
                                       rightChevronPadding:
@@ -119,6 +122,7 @@ class CalendarPage extends GetWidget<CalendarController> {
                                       titleTextStyle:
                                           appTheme.titleLarge.copyWith(
                                         fontSize: ScaleUtil.fontSize(18),
+                                        color: Colors.blue,
                                       ),
                                       leftChevronVisible: false,
                                       rightChevronVisible: true,
@@ -134,12 +138,12 @@ class CalendarPage extends GetWidget<CalendarController> {
                                     },
                                     daysOfWeekStyle: DaysOfWeekStyle(
                                       weekdayStyle: TextStyle(
-                                        color: appTheme.colorScheme.primary,
+                                        color: Colors.blue,
                                         fontWeight: FontWeight.w500,
                                         fontSize: ScaleUtil.fontSize(14),
                                       ),
                                       weekendStyle: TextStyle(
-                                        color: appTheme.colorScheme.secondary,
+                                        color: Colors.blue.withOpacity(0.7),
                                         fontWeight: FontWeight.w500,
                                         fontSize: ScaleUtil.fontSize(14),
                                       ),
@@ -159,8 +163,7 @@ class CalendarPage extends GetWidget<CalendarController> {
                                                 ScaleUtil.circular(8.0),
                                             border: hasEvents
                                                 ? Border.all(
-                                                    color: appTheme
-                                                        .colorScheme.primary,
+                                                    color: Colors.blue,
                                                     width: ScaleUtil.scale(1))
                                                 : null,
                                           ),
@@ -175,8 +178,7 @@ class CalendarPage extends GetWidget<CalendarController> {
                                                     fontSize:
                                                         ScaleUtil.fontSize(12),
                                                     color: hasEvents
-                                                        ? appTheme
-                                                            .colorScheme.primary
+                                                        ? Colors.blue
                                                         : appTheme.textColor,
                                                   ),
                                                 ),
@@ -188,8 +190,7 @@ class CalendarPage extends GetWidget<CalendarController> {
                                                   child: Container(
                                                     padding: ScaleUtil.all(2),
                                                     decoration: BoxDecoration(
-                                                      color: appTheme
-                                                          .colorScheme.primary,
+                                                      color: Colors.blue,
                                                       borderRadius:
                                                           ScaleUtil.circular(8),
                                                     ),
@@ -203,9 +204,7 @@ class CalendarPage extends GetWidget<CalendarController> {
                                                       child: Text(
                                                         eventCount.toString(),
                                                         style: TextStyle(
-                                                          color: appTheme
-                                                              .colorScheme
-                                                              .onPrimary,
+                                                          color: Colors.white,
                                                           fontSize: ScaleUtil
                                                               .fontSize(7),
                                                           fontFamily: 'Euclid',
@@ -226,13 +225,12 @@ class CalendarPage extends GetWidget<CalendarController> {
                                         return Container(
                                           margin: ScaleUtil.all(4.0),
                                           decoration: BoxDecoration(
-                                            color: appTheme.colorScheme.primary,
+                                            color: Colors.blue,
                                             borderRadius:
                                                 ScaleUtil.circular(8.0),
                                             border: hasEvents
                                                 ? Border.all(
-                                                    color: appTheme
-                                                        .colorScheme.onPrimary,
+                                                    color: Colors.white,
                                                     width: ScaleUtil.scale(1))
                                                 : null,
                                           ),
@@ -242,8 +240,7 @@ class CalendarPage extends GetWidget<CalendarController> {
                                                 child: Text(
                                                   date.day.toString(),
                                                   style: TextStyle(
-                                                    color: appTheme
-                                                        .colorScheme.onPrimary,
+                                                    color: Colors.white,
                                                     fontFamily: 'Euclid',
                                                     fontSize:
                                                         ScaleUtil.fontSize(14),
@@ -257,9 +254,7 @@ class CalendarPage extends GetWidget<CalendarController> {
                                                   child: Container(
                                                     padding: ScaleUtil.all(2),
                                                     decoration: BoxDecoration(
-                                                      color: appTheme
-                                                          .colorScheme
-                                                          .onPrimary,
+                                                      color: Colors.white,
                                                       borderRadius:
                                                           ScaleUtil.circular(
                                                               10),
@@ -274,9 +269,7 @@ class CalendarPage extends GetWidget<CalendarController> {
                                                       child: Text(
                                                         eventCount.toString(),
                                                         style: TextStyle(
-                                                          color: appTheme
-                                                              .colorScheme
-                                                              .primary,
+                                                          color: Colors.blue,
                                                           fontFamily: 'Euclid',
                                                           fontSize: ScaleUtil
                                                               .fontSize(9),
@@ -297,14 +290,12 @@ class CalendarPage extends GetWidget<CalendarController> {
                                         return Container(
                                           margin: ScaleUtil.all(4.0),
                                           decoration: BoxDecoration(
-                                            color: appTheme.colorScheme.primary
-                                                .withOpacity(0.3),
+                                            color: Colors.blue.withOpacity(0.3),
                                             borderRadius:
                                                 ScaleUtil.circular(8.0),
                                             border: hasEvents
                                                 ? Border.all(
-                                                    color: appTheme
-                                                        .colorScheme.primary,
+                                                    color: Colors.blue,
                                                     width: ScaleUtil.scale(1))
                                                 : null,
                                           ),
@@ -314,8 +305,7 @@ class CalendarPage extends GetWidget<CalendarController> {
                                                 child: Text(
                                                   date.day.toString(),
                                                   style: TextStyle(
-                                                    color: appTheme
-                                                        .colorScheme.primary,
+                                                    color: Colors.blue,
                                                     fontSize:
                                                         ScaleUtil.fontSize(14),
                                                   ),
@@ -328,8 +318,7 @@ class CalendarPage extends GetWidget<CalendarController> {
                                                   child: Container(
                                                     padding: ScaleUtil.all(2),
                                                     decoration: BoxDecoration(
-                                                      color: appTheme
-                                                          .colorScheme.primary,
+                                                      color: Colors.blue,
                                                       borderRadius:
                                                           ScaleUtil.circular(
                                                               10),
@@ -344,9 +333,7 @@ class CalendarPage extends GetWidget<CalendarController> {
                                                       child: Text(
                                                         eventCount.toString(),
                                                         style: TextStyle(
-                                                          color: appTheme
-                                                              .colorScheme
-                                                              .onPrimary,
+                                                          color: Colors.white,
                                                           fontSize: ScaleUtil
                                                               .fontSize(9),
                                                         ),

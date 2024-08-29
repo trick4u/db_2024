@@ -70,7 +70,8 @@ void main() async {
   if (Platform.isAndroid) {
     await Workmanager().initialize(callbackDispatcher, isInDebugMode: true);
   }
-   String soundSource = Platform.isIOS ? 'success.wav' : 'resource://raw/notification_sound';
+  String soundSource =
+      Platform.isIOS ? 'success.wav' : 'resource://raw/notification_sound';
   print('WorkManager initialized!');
 
   await AwesomeNotifications().initialize(
@@ -107,7 +108,6 @@ void main() async {
           soundSource: soundSource,
           enableLights: true,
           enableVibration: true,
-          
         ),
       ],
       debug: true);

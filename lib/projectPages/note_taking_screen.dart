@@ -183,8 +183,7 @@ class NoteBottomSheet extends GetView<NoteTakingController> {
                             Expanded(
                               child: TextField(
                                 controller: subTaskController,
-                                style: appTheme.bodyMedium
-                                    .copyWith(fontSize: ScaleUtil.fontSize(16)),
+                                style: appTheme.bodyMedium,
                                 maxLength: 70,
                                 decoration: InputDecoration(
                                   hintText: 'Input the sub-task',

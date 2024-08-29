@@ -16,13 +16,13 @@ class StatisticsScreen extends GetWidget<StatisticsController> {
   @override
   Widget build(BuildContext context) {
     final appTheme = Get.find<AppTheme>();
-    ScaleUtil.init(context); // Initialize ScaleUtil
+    ScaleUtil.init(context);
 
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: false,
         title: Text(
-          "Your Stats".toLowerCase(),
+          "your stats",
           style: appTheme.titleLarge.copyWith(fontSize: ScaleUtil.fontSize(20)),
         ),
         backgroundColor: appTheme.colorScheme.surface,
@@ -30,33 +30,30 @@ class StatisticsScreen extends GetWidget<StatisticsController> {
       ),
       body: SafeArea(
         child: Column(
-          mainAxisSize: MainAxisSize.min,
           children: [
-            Expanded(
-              flex: 2,
+            SingleChildScrollView(
               child: Padding(
                 padding: ScaleUtil.symmetric(horizontal: 8, vertical: 8),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     _buildTasksOverview(appTheme),
-                    ScaleUtil.sizedBox(height: 20),
+                    ScaleUtil.sizedBox(height: 16),
                     _buildWeeklyTaskChart(appTheme),
-                    ScaleUtil.sizedBox(height: 20),
+                    ScaleUtil.sizedBox(height: 16),
                     Padding(
-                      padding:
-                          ScaleUtil.symmetric(horizontal: 16.0, vertical: 0.0),
+                      padding: ScaleUtil.symmetric(horizontal: 8),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
                             'Tasks in Next 7 Days',
                             style: appTheme.titleLarge.copyWith(
-                              fontSize: ScaleUtil.fontSize(14),
+                              fontSize: ScaleUtil.fontSize(16),
                             ),
                           ),
                           Obx(() {
-                            if (controller.upcomingTasks.length > 0) {
+                            if (controller.upcomingTasks.isNotEmpty) {
                               return Text(
                                 'Total upcoming tasks: ${controller.upcomingTasks.length}',
                                 style: appTheme.bodyMedium.copyWith(
@@ -104,7 +101,7 @@ class StatisticsScreen extends GetWidget<StatisticsController> {
                 ),
               ),
             ),
-            ScaleUtil.sizedBox(width: 16),
+            ScaleUtil.sizedBox(width: 8),
             Expanded(
               child: GestureDetector(
                 onTap: () {
@@ -129,7 +126,7 @@ class StatisticsScreen extends GetWidget<StatisticsController> {
   Widget _buildOverviewCard(String title, String value,
       {bool isSelected = false, required AppTheme appTheme}) {
     return Container(
-      padding: ScaleUtil.all(16),
+      padding: ScaleUtil.all(10),
       decoration: BoxDecoration(
         borderRadius: ScaleUtil.circular(10),
         border: isSelected
@@ -146,17 +143,17 @@ class StatisticsScreen extends GetWidget<StatisticsController> {
           Text(
             value,
             style: appTheme.titleLarge.copyWith(
-              fontSize: ScaleUtil.fontSize(15),
+              fontSize: ScaleUtil.fontSize(24),
               color: isSelected
                   ? appTheme.colorScheme.primary
                   : appTheme.colorScheme.onPrimary,
             ),
           ),
-          ScaleUtil.sizedBox(height: 8),
+          ScaleUtil.sizedBox(height: 4),
           Text(
-            title,
+            title.toLowerCase(),
             style: appTheme.bodyMedium.copyWith(
-              fontSize: ScaleUtil.fontSize(14),
+              fontSize: ScaleUtil.fontSize(12),
               color: isSelected
                   ? appTheme.colorScheme.primary
                   : appTheme.colorScheme.onPrimary,
@@ -174,7 +171,7 @@ class StatisticsScreen extends GetWidget<StatisticsController> {
           controller.toggleTaskView();
         },
         child: Container(
-          padding: ScaleUtil.all(16),
+          padding: ScaleUtil.all(12),
           decoration: BoxDecoration(
             color: appTheme.cardColor,
             borderRadius: ScaleUtil.circular(12),
@@ -191,7 +188,7 @@ class StatisticsScreen extends GetWidget<StatisticsController> {
                             : 'Pending Daily Tasks',
                         style: appTheme.bodyMedium.copyWith(
                             fontWeight: FontWeight.bold,
-                            fontSize: ScaleUtil.fontSize(12)),
+                            fontSize: ScaleUtil.fontSize(14)),
                       )),
                   Row(
                     children: [
@@ -218,9 +215,9 @@ class StatisticsScreen extends GetWidget<StatisticsController> {
                   ),
                 ],
               ),
-              ScaleUtil.sizedBox(height: 14),
+              ScaleUtil.sizedBox(height: 16),
               SizedBox(
-                height: ScaleUtil.height(150),
+                height: ScaleUtil.height(180),
                 child: Obx(() {
                   List<int> currentData = controller.showCompletedTasks.value
                       ? controller.weeklyTaskCompletion
@@ -254,7 +251,7 @@ class StatisticsScreen extends GetWidget<StatisticsController> {
                                 'Mon',
                                 'Tue',
                                 'Wed',
-                                'Thu',
+                                'Thur',
                                 'Fri',
                                 'Sat'
                               ];
@@ -280,12 +277,12 @@ class StatisticsScreen extends GetWidget<StatisticsController> {
                                 value.toInt().toString(),
                                 style: TextStyle(
                                   color: appTheme.secondaryTextColor,
-                                  fontSize: ScaleUtil.fontSize(12),
+                                  fontSize: ScaleUtil.fontSize(10),
                                 ),
                                 textAlign: TextAlign.left,
                               );
                             },
-                            reservedSize: ScaleUtil.width(30),
+                            reservedSize: ScaleUtil.width(25),
                           ),
                         ),
                         topTitles: AxisTitles(
@@ -306,6 +303,10 @@ class StatisticsScreen extends GetWidget<StatisticsController> {
                                       : appTheme.colorScheme.error)
                                   : appTheme.secondaryTextColor
                                       .withOpacity(0.2),
+                              width: ScaleUtil.width(8),
+                              borderRadius: BorderRadius.vertical(
+                                top: ScaleUtil.radius(4),
+                              ),
                             )
                           ],
                         );
@@ -323,7 +324,7 @@ class StatisticsScreen extends GetWidget<StatisticsController> {
                               alignment: Alignment.center,
                               style: TextStyle(
                                 color: appTheme.secondaryTextColor,
-                                fontSize: ScaleUtil.fontSize(16),
+                                fontSize: ScaleUtil.fontSize(14),
                               ),
                               labelResolver: (line) => 'No data present',
                             ),
@@ -350,9 +351,13 @@ class StatisticsScreen extends GetWidget<StatisticsController> {
   Widget _buildUpcomingTasks(AppTheme appTheme) {
     return Obx(() {
       if (controller.upcomingTasks.isEmpty) {
-        return Text(
-          'No upcoming tasks in the next 7 days.',
-          style: appTheme.bodyMedium,
+        return Center(
+          child: Text(
+            'No upcoming tasks in the next 7 days.',
+            style: appTheme.bodyMedium.copyWith(
+              fontSize: ScaleUtil.fontSize(14),
+            ),
+          ),
         );
       }
       return ListView.builder(
@@ -361,22 +366,23 @@ class StatisticsScreen extends GetWidget<StatisticsController> {
         itemBuilder: (context, index) {
           final task = controller.upcomingTasks[index];
           return ListTile(
+            contentPadding: ScaleUtil.symmetric(horizontal: 16, vertical: 4),
             title: Text(
               task.title,
               style: appTheme.bodyMedium.copyWith(
-                fontSize: ScaleUtil.fontSize(12),
+                fontSize: ScaleUtil.fontSize(14),
               ),
             ),
             subtitle: Text(
               DateFormat('MMM dd, yyyy').format(task.date ?? DateTime.now()),
               style: appTheme.bodyMedium.copyWith(
                 color: appTheme.secondaryTextColor,
-                fontSize: ScaleUtil.fontSize(10),
+                fontSize: ScaleUtil.fontSize(12),
               ),
             ),
             leading: Icon(Icons.event,
                 color: appTheme.colorScheme.primary,
-                size: ScaleUtil.iconSize(14)),
+                size: ScaleUtil.iconSize(20)),
           );
         },
       );

@@ -27,8 +27,6 @@ import '../widgets/event_card.dart';
 import '../widgets/event_sheet.dart';
 import '../widgets/four_boxes.dart';
 
-
-
 import '../widgets/reminder_list.dart';
 import '../widgets/three_day.dart';
 import '../widgets/three_shaped_box.dart';
@@ -40,59 +38,63 @@ class PageOneScreen extends GetWidget<PageOneController> {
 
   @override
   Widget build(BuildContext context) {
+    ScaleUtil.init(context);
     return SafeArea(
       child: Container(
-        height: MediaQuery.of(context).size.height,
-        margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+        margin: ScaleUtil.symmetric(horizontal: 20, vertical: 10),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.start,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            //text page 1
-
             Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Obx(
                   () => Text(
                     controller.greeting.toLowerCase() + ".",
-                    style: AppTextTheme.textTheme.displayMedium,
+                    style: AppTextTheme.textTheme.displaySmall?.copyWith(
+                      fontSize: ScaleUtil.fontSize(24),
+                    ),
                   ),
                 ),
                 InkWell(
                   onTap: () {
                     Get.toNamed(AppRoutes.NOTIFICAION);
                   },
-                  child: Icon(FontAwesomeIcons.bell),
+                  child: Icon(
+                    FontAwesomeIcons.bell,
+                    size: ScaleUtil.iconSize(20),
+                  ),
                 ),
               ],
             ),
-            const SizedBox(height: 20),
+            ScaleUtil.sizedBox(height: 10),
             FadeIn(
               child: AllSixCards(
-                height: 300,
+                height: ScaleUtil.height(300),
                 useFixedHeight: true,
                 onListTypeSelected: (listType) {
                   controller.setSelectedListType(listType);
                 },
               ),
             ),
-
-            SizedBox(height: 20),
             Expanded(
               child: Obx(() => controller.selectedListType.value.isNotEmpty
                   ? Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 20),
+                          padding: ScaleUtil.symmetric(horizontal: 20),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
                                 _getListTitle(
                                     controller.selectedListType.value),
-                                style: AppTextTheme.textTheme.titleLarge,
+                                style:
+                                    AppTextTheme.textTheme.titleLarge?.copyWith(
+                                  fontSize: ScaleUtil.fontSize(18),
+                                ),
                               ),
                               Text(
                                 _getTaskCount(
@@ -106,7 +108,7 @@ class PageOneScreen extends GetWidget<PageOneController> {
                             ],
                           ),
                         ),
-                        const SizedBox(height: 10),
+                        ScaleUtil.sizedBox(height: 10),
                         Expanded(
                           child: _buildSelectedList(),
                         ),
@@ -163,6 +165,4 @@ class PageOneScreen extends GetWidget<PageOneController> {
         );
     }
   }
-
- 
 }

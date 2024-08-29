@@ -89,24 +89,32 @@ class NoteTakingController extends GetxController {
     try {
       int index = _notes.indexWhere((note) => note.id == noteId);
       if (index != -1) {
+        bool newCompletionStatus = !_notes[index].isCompleted;
         Note updatedNote = _notes[index].copyWith(
-          isCompleted: !_notes[index].isCompleted,
+          isCompleted: newCompletionStatus,
           updatedAt: DateTime.now(),
         );
 
         await notesCollection.doc(noteId).update(updatedNote.toMap());
-        
+
         // Update the note in the list
         _notes[index] = updatedNote;
-        
+
+        // Play sound only when the note is marked as complete
+        if (newCompletionStatus) {
+          await _playCompletionSound();
+        }
+
         // Update the note counts
         _updateNoteCounts();
-        
+
         update();
 
         Get.snackbar(
           "Note Updated",
-          updatedNote.isCompleted ? "Note marked as completed" : "Note marked as incomplete",
+          newCompletionStatus
+              ? "Note marked as completed"
+              : "Note marked as incomplete",
           snackPosition: SnackPosition.BOTTOM,
           duration: Duration(seconds: 2),
         );
@@ -116,7 +124,7 @@ class NoteTakingController extends GetxController {
       Get.snackbar('Error', 'Failed to update note status');
     }
   }
-  
+
   void _updateSubtaskLengths(List<Note> notes) {
     for (var note in notes) {
       _subtaskLengths[note.id ?? ''] = note.subTasks.length;
