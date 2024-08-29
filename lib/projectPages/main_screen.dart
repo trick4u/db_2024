@@ -35,14 +35,14 @@ class MainScreen extends GetWidget<MainScreenController> {
           child: Padding(
             padding: ScaleUtil.only(left: 10, right: 10, bottom: 15),
             child: PressableDough(
-              onReleased: (de){
+              onReleased: (de) {
                 controller.incrementIndex();
               },
               child: Container(
                 width: ScaleUtil.width(50),
                 decoration: BoxDecoration(
                   color: appTheme.isDarkMode ? Colors.black : Colors.black,
-                  borderRadius: BorderRadius.circular(20),
+                  borderRadius: BorderRadius.circular(10),
                 ),
                 height: ScaleUtil.height(60),
                 child: Padding(
@@ -51,7 +51,8 @@ class MainScreen extends GetWidget<MainScreenController> {
                     mainAxisAlignment: MainAxisAlignment.spaceAround,
                     children: [
                       _buildNavItem(FontAwesomeIcons.house, 0, appTheme),
-                      _buildNavItem(FontAwesomeIcons.calendarCheck, 1, appTheme),
+                      _buildNavItem(
+                          FontAwesomeIcons.calendarCheck, 1, appTheme),
                       _buildNavItem(FontAwesomeIcons.chartSimple, 2, appTheme),
                       _buildNavItem(FontAwesomeIcons.userGear, 3, appTheme),
                     ],

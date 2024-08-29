@@ -84,48 +84,56 @@ class _EventBottomSheetState extends State<EventBottomSheet> {
   Widget build(BuildContext context) {
     final appTheme = Get.find<AppTheme>();
     return Obx(() => Padding(
-          padding: const EdgeInsets.only(left: 10, right: 10, bottom: 10),
+          padding: ScaleUtil.only(left: 10, right: 10, bottom: 10),
           child: Card(
             elevation: 8,
             color: appTheme.cardColor,
             shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(20),
+              borderRadius: BorderRadius.circular(ScaleUtil.scale(20)),
             ),
             child: Container(
-              padding: EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+              padding: ScaleUtil.symmetric(horizontal: 20, vertical: 20),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
-                //  crossAxisAlignment: CrossAxisAlignment.stretch,
-
                 children: [
                   Row(
                     children: [
                       Text(
                         widget.event == null ? 'Add Event' : 'Edit Event',
-                        style: appTheme.titleLarge,
+                        style: appTheme.titleLarge.copyWith(
+                          fontSize:
+                              ScaleUtil.fontSize(appTheme.titleLarge.fontSize!),
+                        ),
                       ),
                       Spacer(),
                       _buildReminderWidget(context, appTheme),
                       IconButton(
-                        icon: Icon(Icons.close, color: appTheme.textColor),
+                        icon: Icon(Icons.close,
+                            color: appTheme.textColor,
+                            size: ScaleUtil.iconSize(24)),
                         onPressed: () {
                           Get.back();
                         },
                       ),
                     ],
                   ),
-                  SizedBox(height: 16),
+                  SizedBox(height: ScaleUtil.height(16)),
                   ClipRRect(
-                    borderRadius: BorderRadius.all(Radius.circular(10)),
+                    borderRadius: ScaleUtil.circular(10),
                     child: TextField(
                       controller: _titleController,
-                      style: appTheme.bodyMedium,
+                      style: appTheme.bodyMedium.copyWith(
+                        fontSize:
+                            ScaleUtil.fontSize(appTheme.bodyMedium.fontSize!),
+                      ),
                       decoration: InputDecoration(
                         labelText: 'Event Title',
                         filled: true,
                         fillColor: appTheme.textFieldFillColor,
                         labelStyle: appTheme.bodyMedium.copyWith(
                           color: appTheme.secondaryTextColor,
+                          fontSize:
+                              ScaleUtil.fontSize(appTheme.bodyMedium.fontSize!),
                         ),
                         border: InputBorder.none,
                         enabledBorder: InputBorder.none,
@@ -133,24 +141,24 @@ class _EventBottomSheetState extends State<EventBottomSheet> {
                         errorBorder: InputBorder.none,
                         disabledBorder: InputBorder.none,
                         contentPadding:
-                            EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                            ScaleUtil.symmetric(horizontal: 16, vertical: 12),
                       ),
                       onChanged: (value) => _updateTitleState(),
                     ),
                   ),
-                  SizedBox(height: 16),
+                  SizedBox(height: ScaleUtil.height(16)),
                   if (_isDescriptionVisible) ...[
-                    SizedBox(height: 8),
+                    SizedBox(height: ScaleUtil.height(8)),
                     ClipRRect(
-                      borderRadius: BorderRadius.all(
-                        Radius.circular(10),
-                      ),
+                      borderRadius: ScaleUtil.circular(10),
                       child: TextField(
                         controller: _descriptionController,
-                        style: appTheme.bodyMedium,
+                        style: appTheme.bodyMedium.copyWith(
+                          fontSize:
+                              ScaleUtil.fontSize(appTheme.bodyMedium.fontSize!),
+                        ),
                         decoration: InputDecoration(
                           labelText: 'Description',
-
                           filled: true,
                           fillColor: appTheme.textFieldFillColor,
                           border: InputBorder.none,
@@ -158,25 +166,23 @@ class _EventBottomSheetState extends State<EventBottomSheet> {
                           focusedBorder: InputBorder.none,
                           errorBorder: InputBorder.none,
                           disabledBorder: InputBorder.none,
-                          // ... (other decoration properties)
+                          contentPadding:
+                              ScaleUtil.symmetric(horizontal: 16, vertical: 12),
                         ),
                         maxLines: 3,
                       ),
                     ),
                   ],
-                  SizedBox(
-                    height: ScaleUtil.height(10),
-                  ),
+                  SizedBox(height: ScaleUtil.height(10)),
                   SlideInLeft(
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.end,
                       children: [
                         _buildRepetitionButton(context, appTheme),
-                        SizedBox(width: 10),
                         _buildDescriptionToggleButton(context, appTheme),
-                        SizedBox(width: 16),
+                        SizedBox(width: ScaleUtil.width(10)),
                         _buildColorIconButton(context, appTheme),
-                        SizedBox(width: 16),
+                        SizedBox(width: ScaleUtil.width(10)),
                         _buildSaveIconButton(context, appTheme),
                       ],
                     ),
@@ -195,21 +201,23 @@ class _EventBottomSheetState extends State<EventBottomSheet> {
           color: _selectedRepetition != null
               ? appTheme.colorScheme.primary
               : appTheme.colorScheme.surface,
-          borderRadius: BorderRadius.circular(20),
+          borderRadius: ScaleUtil.circular(20),
         ),
-        padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        padding: ScaleUtil.symmetric(horizontal: 12, vertical: 8),
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
             FaIcon(
               FontAwesomeIcons.repeat,
               color: _selectedRepetition != null ? Colors.white : Colors.black,
-              size: 16,
+              size: ScaleUtil.iconSize(10),
             ),
-            SizedBox(width: 2),
+            SizedBox(width: ScaleUtil.width(2)),
             Text(
               _getRepetitionText(),
-              style: AppTextTheme.textTheme.bodySmall,
+              style: AppTextTheme.textTheme.bodySmall!.copyWith(
+                fontSize: ScaleUtil.fontSize(10),
+              ),
             ),
           ],
         ),
@@ -256,20 +264,20 @@ class _EventBottomSheetState extends State<EventBottomSheet> {
         child: Material(
           color: Colors.transparent,
           child: InkWell(
-            borderRadius: BorderRadius.circular(20),
+            borderRadius: ScaleUtil.circular(20),
             onTap: () {
               setState(() {
                 _isDescriptionVisible = !_isDescriptionVisible;
               });
             },
             child: Padding(
-              padding: EdgeInsets.all(10),
+              padding: ScaleUtil.all(10),
               child: FaIcon(
                 _isDescriptionVisible
                     ? FontAwesomeIcons.listUl
                     : FontAwesomeIcons.list,
                 color: _isDescriptionVisible ? Colors.white : Colors.black,
-                size: 20,
+                size: ScaleUtil.iconSize(10),
               ),
             ),
           ),
@@ -287,16 +295,16 @@ class _EventBottomSheetState extends State<EventBottomSheet> {
       child: Material(
         color: Colors.transparent,
         child: InkWell(
-          borderRadius: BorderRadius.circular(20),
+          borderRadius: ScaleUtil.circular(20),
           onTap: () => showColorPickerDialog(context),
           child: Padding(
-            padding: EdgeInsets.all(10),
+            padding: ScaleUtil.all(10),
             child: FaIcon(
               FontAwesomeIcons.palette,
               color: _selectedColor.computeLuminance() > 0.5
                   ? Colors.black
                   : Colors.white,
-              size: 20,
+              size: ScaleUtil.iconSize(10),
             ),
           ),
         ),
@@ -313,7 +321,7 @@ class _EventBottomSheetState extends State<EventBottomSheet> {
       child: Material(
         color: Colors.transparent,
         child: InkWell(
-          borderRadius: BorderRadius.circular(20),
+          borderRadius: ScaleUtil.circular(20),
           onTap: _isTitleEmpty
               ? null
               : () {
@@ -333,11 +341,11 @@ class _EventBottomSheetState extends State<EventBottomSheet> {
                   Navigator.pop(context);
                 },
           child: Padding(
-            padding: EdgeInsets.all(10),
+            padding: ScaleUtil.all(10),
             child: Icon(
               FontAwesomeIcons.check,
               color: Colors.white,
-              size: 20,
+              size: ScaleUtil.iconSize(10),
             ),
           ),
         ),
@@ -442,26 +450,31 @@ class _EventBottomSheetState extends State<EventBottomSheet> {
 
   Widget _buildReminderInfo(AppTheme appTheme) {
     return Container(
-      padding: EdgeInsets.symmetric(vertical: 0, horizontal: 5),
+      padding: ScaleUtil.symmetric(vertical: 0, horizontal: 5),
       decoration: BoxDecoration(
         color: Colors.green,
-        borderRadius: BorderRadius.circular(8),
+        borderRadius: ScaleUtil.circular(8),
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Row(
             children: [
-              Icon(Icons.alarm_on, color: Colors.white),
-              SizedBox(width: 8),
+              Icon(Icons.alarm_on,
+                  color: Colors.white, size: ScaleUtil.iconSize(24)),
+              SizedBox(width: ScaleUtil.width(8)),
               Text(
                 ' ${_formatTime(_reminderTime!)}',
-                style: TextStyle(color: Colors.white),
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: ScaleUtil.fontSize(14),
+                ),
               ),
             ],
           ),
           IconButton(
-            icon: Icon(Icons.close, color: Colors.white),
+            icon: Icon(Icons.close,
+                color: Colors.white, size: ScaleUtil.iconSize(20)),
             onPressed: () {
               setState(() {
                 _isReminderSet = false;

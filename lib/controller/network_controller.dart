@@ -5,6 +5,8 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:internet_connection_checker_plus/internet_connection_checker_plus.dart';
 import 'package:tushar_db/app_routes.dart';
+import 'package:tushar_db/projectPages/main_screen.dart';
+import 'package:tushar_db/services/auth_wrapper.dart';
 
 class NetworkController extends GetxController {
   RxBool isOnline = true.obs;
@@ -18,7 +20,7 @@ class NetworkController extends GetxController {
       switch (event) {
         case InternetStatus.connected:
           isOnline.value = true;
-          // Get.offNamedUntil(AppRoutes.MAIN, (route) => false);
+       //    Get.offAll(() => MainScreen(),);
           break;
         case InternetStatus.disconnected:
           isOnline.value = false;
