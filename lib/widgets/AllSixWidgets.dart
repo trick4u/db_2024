@@ -13,7 +13,6 @@ import 'quick_bottomsheet.dart';
 import 'quick_reminder_chips.dart';
 
 class AllSixCards extends GetWidget<PageOneController> {
-  final appTheme = Get.find<AppTheme>();
   final double? height;
   final bool useFixedHeight;
   final Function(String) onListTypeSelected;
@@ -22,55 +21,12 @@ class AllSixCards extends GetWidget<PageOneController> {
     this.height,
     this.useFixedHeight = false,
     required this.onListTypeSelected,
-  }) {
-    _initializeSelectedTile();
-  }
-
-  final List<Map<String, dynamic>> items = [
-    {'title': 'Daily journal', 'icon': FontAwesomeIcons.book},
-    {'title': 'Take notes', 'icon': FontAwesomeIcons.noteSticky},
-    {'title': 'All reminders', 'icon': FontAwesomeIcons.listCheck},
-    {'title': 'Completed tasks', 'icon': FontAwesomeIcons.checkDouble},
-    {'title': 'Upcoming', 'icon': FontAwesomeIcons.calendarDay},
-    {'title': 'Vision', 'icon': FontAwesomeIcons.eye},
-    {'title': 'Pending', 'icon': FontAwesomeIcons.clock},
-    {'title': 'Add Reminders', 'icon': FontAwesomeIcons.plus},
-  ];
-  final RxString selectedTile = ''.obs;
-
-  void _initializeSelectedTile() {
-    if (selectedTile.value.isEmpty) {
-      final List<String> autoSelectTiles = [
-        'upcoming',
-        'pending',
-        'completed tasks'
-      ];
-      final random = Random();
-      selectedTile.value =
-          autoSelectTiles[random.nextInt(autoSelectTiles.length)];
-      onListTypeSelected(selectedTile.value);
-    }
-  }
-
-  void showQuickReminderBottomSheet() {
-    final reminderController = Get.find<PageOneController>();
-
-    showModalBottomSheet(
-      context: Get.context!,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (BuildContext context) {
-        return QuickReminderBottomSheet(
-          reminderController: reminderController,
-          appTheme: appTheme,
-        );
-      },
-    );
-  }
+  });
 
   @override
   Widget build(BuildContext context) {
     ScaleUtil.init(context);
+    final appTheme = Get.find<AppTheme>();
 
     Widget gridView = GridView.builder(
       shrinkWrap: true,
@@ -80,20 +36,20 @@ class AllSixCards extends GetWidget<PageOneController> {
         mainAxisSpacing: ScaleUtil.height(8.0),
         childAspectRatio: 3.0,
       ),
-      itemCount: items.length,
+      itemCount: controller.items.length,
       itemBuilder: (context, index) {
         return Obx(() => InkWell(
               splashColor: Colors.transparent,
               onTap: () {
-                String tileTitle = items[index]['title']!.toLowerCase();
-                selectedTile.value = tileTitle;
+                String tileTitle = controller.items[index]['title']!.toLowerCase();
+                controller.setSelectedTile(tileTitle);
                 if (tileTitle == 'pending' ||
                     tileTitle == 'upcoming' ||
                     tileTitle == 'completed tasks' ||
                     tileTitle == 'all reminders') {
                   onListTypeSelected(tileTitle);
                 } else if (tileTitle == 'add reminders') {
-                  showQuickReminderBottomSheet();
+                  controller.showQuickReminderBottomSheet(context);
                 } else if (tileTitle == 'daily journal') {
                   Get.toNamed(AppRoutes.JOURNAL);
                 } else if (tileTitle == 'take notes') {
@@ -104,13 +60,13 @@ class AllSixCards extends GetWidget<PageOneController> {
                 decoration: BoxDecoration(
                   borderRadius: ScaleUtil.circular(10),
                   border:
-                      selectedTile.value == items[index]['title']!.toLowerCase()
+                      controller.selectedTile.value == controller.items[index]['title']!.toLowerCase()
                           ? Border.all(
                               color: Colors.deepPurpleAccent,
                               width: ScaleUtil.scale(2))
                           : null,
                   color:
-                      selectedTile.value == items[index]['title']!.toLowerCase()
+                      controller.selectedTile.value == controller.items[index]['title']!.toLowerCase()
                           ? Colors.white
                           : Colors.deepPurpleAccent,
                 ),
@@ -119,24 +75,24 @@ class AllSixCards extends GetWidget<PageOneController> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Text(
-                      items[index]['title']!.toLowerCase(),
+                      controller.items[index]['title']!.toLowerCase(),
                       style: AppTextTheme.textTheme.bodyMedium?.copyWith(
                         fontWeight: FontWeight.w500,
                         fontSize: ScaleUtil.fontSize(14),
-                        color: selectedTile.value ==
-                                items[index]['title']!.toLowerCase()
+                        color: controller.selectedTile.value ==
+                                controller.items[index]['title']!.toLowerCase()
                             ? Colors.deepPurpleAccent
                             : Colors.white,
                       ),
                       textAlign: TextAlign.center,
                     ),
-                    if (items[index]['icon'] != null) ...[
+                    if (controller.items[index]['icon'] != null) ...[
                       ScaleUtil.sizedBox(width: 8),
                       FaIcon(
-                        items[index]['icon'],
+                        controller.items[index]['icon'],
                         size: ScaleUtil.iconSize(12),
-                        color: selectedTile.value ==
-                                items[index]['title']!.toLowerCase()
+                        color: controller.selectedTile.value ==
+                                controller.items[index]['title']!.toLowerCase()
                             ? Colors.deepPurpleAccent
                             : Colors.white,
                       ),
@@ -150,14 +106,11 @@ class AllSixCards extends GetWidget<PageOneController> {
 
     if (useFixedHeight) {
       return SizedBox(
-        height:
-            height ?? ScaleUtil.height(200), // Default height if not provided
+        height: height ?? ScaleUtil.height(200),
         child: gridView,
       );
     } else {
       return gridView;
     }
   }
-
-
 }

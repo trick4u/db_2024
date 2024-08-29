@@ -20,7 +20,8 @@ class QuickReminderBottomSheet extends StatefulWidget {
   }) : super(key: key);
 
   @override
-  _QuickReminderBottomSheetState createState() => _QuickReminderBottomSheetState();
+  _QuickReminderBottomSheetState createState() =>
+      _QuickReminderBottomSheetState();
 }
 
 class _QuickReminderBottomSheetState extends State<QuickReminderBottomSheet> {
@@ -31,32 +32,41 @@ class _QuickReminderBottomSheetState extends State<QuickReminderBottomSheet> {
   void initState() {
     super.initState();
     if (widget.reminderToEdit != null) {
-      widget.reminderController.reminderTextController.text = widget.reminderToEdit!.reminder;
-      widget.reminderController.timeSelected.value = _getValueFromMinutes(widget.reminderToEdit!.time);
+      widget.reminderController.reminderTextController.text =
+          widget.reminderToEdit!.reminder;
+      widget.reminderController.timeSelected.value =
+          _getValueFromMinutes(widget.reminderToEdit!.time);
       widget.reminderController.repeat.value = widget.reminderToEdit!.repeat;
-      widget.reminderController.nextNotificationTime.value = widget.reminderToEdit!.triggerTime;
+      widget.reminderController.nextNotificationTime.value =
+          widget.reminderToEdit!.triggerTime;
     } else {
       widget.reminderController.reminderTextController.clear();
       widget.reminderController.timeSelected.value = 1;
       widget.reminderController.repeat.value = false;
       widget.reminderController.calculateTriggerTime(15);
     }
-    
-    _isTitleEmpty = widget.reminderController.reminderTextController.text.isEmpty;
-    widget.reminderController.reminderTextController.addListener(_updateTitleState);
+
+    _isTitleEmpty =
+        widget.reminderController.reminderTextController.text.isEmpty;
+    widget.reminderController.reminderTextController
+        .addListener(_updateTitleState);
   }
 
   @override
   void dispose() {
-    widget.reminderController.reminderTextController.removeListener(_updateTitleState);
+    widget.reminderController.reminderTextController
+        .removeListener(_updateTitleState);
     super.dispose();
   }
- void _updateTitleState() {
+
+  void _updateTitleState() {
     setState(() {
-      _isTitleEmpty = widget.reminderController.reminderTextController.text.isEmpty;
+      _isTitleEmpty =
+          widget.reminderController.reminderTextController.text.isEmpty;
     });
   }
-   int _getValueFromMinutes(int minutes) {
+
+  int _getValueFromMinutes(int minutes) {
     switch (minutes) {
       case 15:
         return 1;
@@ -69,7 +79,7 @@ class _QuickReminderBottomSheetState extends State<QuickReminderBottomSheet> {
     }
   }
 
-   @override
+  @override
   Widget build(BuildContext context) {
     ScaleUtil.init(context);
     return Padding(
@@ -97,7 +107,6 @@ class _QuickReminderBottomSheetState extends State<QuickReminderBottomSheet> {
     );
   }
 
-
   Widget _buildHeader(BuildContext context) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -119,7 +128,8 @@ class _QuickReminderBottomSheetState extends State<QuickReminderBottomSheet> {
                 size: ScaleUtil.iconSize(18),
               ),
               onPressed: () {
-                widget.reminderController.toggleSwitch(!widget.reminderController.repeat.value);
+                widget.reminderController
+                    .toggleSwitch(!widget.reminderController.repeat.value);
               },
             )),
         _buildTimeSelectionPopup(context),
@@ -127,13 +137,11 @@ class _QuickReminderBottomSheetState extends State<QuickReminderBottomSheet> {
           icon: Icon(Icons.close,
               color: Theme.of(context).iconTheme.color,
               size: ScaleUtil.iconSize(18)),
-          onPressed: () => Navigator.of(context).pop(),
+          onPressed: () => Get.back(),
         ),
       ],
     );
   }
-
-
 
   Widget _buildTimeSelectionPopup(BuildContext context) {
     return Obx(() => PopupMenuButton<int>(
@@ -146,7 +154,8 @@ class _QuickReminderBottomSheetState extends State<QuickReminderBottomSheet> {
           ),
           onSelected: (int value) {
             widget.reminderController.timeSelected.value = value;
-            widget.reminderController.calculateTriggerTime(_getMinutesFromValue(value));
+            widget.reminderController
+                .calculateTriggerTime(_getMinutesFromValue(value));
           },
           itemBuilder: (BuildContext context) => <PopupMenuEntry<int>>[
             PopupMenuItem<int>(
@@ -216,7 +225,7 @@ class _QuickReminderBottomSheetState extends State<QuickReminderBottomSheet> {
     );
   }
 
-Widget _buildSaveButton(BuildContext context) {
+  Widget _buildSaveButton(BuildContext context) {
     return SlideInRight(
       child: Container(
         decoration: BoxDecoration(
@@ -255,7 +264,8 @@ Widget _buildSaveButton(BuildContext context) {
       return;
     }
 
-    int minutes = _getMinutesFromValue(widget.reminderController.timeSelected.value);
+    int minutes =
+        _getMinutesFromValue(widget.reminderController.timeSelected.value);
 
     if (widget.reminderToEdit != null) {
       widget.reminderController.updateReminder(
@@ -271,8 +281,8 @@ Widget _buildSaveButton(BuildContext context) {
         widget.reminderController.repeat.value,
       );
 
-      widget.reminderController.saveReminder(widget.reminderController.repeat.value);
+      widget.reminderController
+          .saveReminder(widget.reminderController.repeat.value);
     }
-
   }
 }

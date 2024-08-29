@@ -1,20 +1,25 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:math';
 
 import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:just_audio/just_audio.dart';
 
+import '../app_routes.dart';
 import '../models/goals_model.dart';
 import '../models/quick_event_model.dart';
 import '../models/reminder_model.dart';
 import '../projectPages/awesome_noti.dart';
+import '../services/app_theme.dart';
 import '../services/notification_service.dart';
+import '../widgets/quick_bottomsheet.dart';
 import 'add_task_controller.dart';
 import 'package:http/http.dart' as http;
 
@@ -29,17 +34,16 @@ class PageOneController extends GetxController {
   var text = "".obs;
 
   final FirebaseAuth _auth = FirebaseAuth.instance;
-  
 
   RxInt carouselPageIndex = 0.obs;
-final RxInt animationTrigger = 0.obs;
+  final RxInt animationTrigger = 0.obs;
 
   final RxList<GoalsModel> allGoals = RxList<GoalsModel>([]);
   RxList<ReminderModel> allReminders = <ReminderModel>[].obs;
   //rx status
   Rx<RxStatus> goalsStatus = RxStatus.loading().obs;
 
-   final greeting = RxString('');
+  final greeting = RxString('');
   RxList<QuickEventModel> upcomingEvents = <QuickEventModel>[].obs;
   RxList<QuickEventModel> pendingEvents = <QuickEventModel>[].obs;
   RxList<QuickEventModel> completedEvents = <QuickEventModel>[].obs;
@@ -80,11 +84,22 @@ final RxInt animationTrigger = 0.obs;
   var isLoading = true.obs;
 
   late AudioPlayer _audioPlayer;
+ final RxString selectedTile = ''.obs;
+  final List<Map<String, dynamic>> items = [
+    {'title': 'Daily journal', 'icon': FontAwesomeIcons.book},
+    {'title': 'Take notes', 'icon': FontAwesomeIcons.noteSticky},
+    {'title': 'All reminders', 'icon': FontAwesomeIcons.listCheck},
+    {'title': 'Completed tasks', 'icon': FontAwesomeIcons.checkDouble},
+    {'title': 'Upcoming', 'icon': FontAwesomeIcons.calendarDay},
+    {'title': 'Vision', 'icon': FontAwesomeIcons.eye},
+    {'title': 'Pending', 'icon': FontAwesomeIcons.clock},
+    {'title': 'Add Reminders', 'icon': FontAwesomeIcons.plus},
+  ];
 
   @override
   void onInit() {
     //   getAllGoals();
-  
+    _initializeSelectedTile();
 
     _audioPlayer = AudioPlayer();
     fetchAllEvents();
@@ -116,14 +131,72 @@ final RxInt animationTrigger = 0.obs;
 
     super.dispose();
   }
-   @override
+
+  @override
   void onClose() {
     _audioPlayer.dispose();
     super.onClose();
   }
+
+ void _initializeSelectedTile() {
+    if (selectedTile.value.isEmpty) {
+      final List<String> autoSelectTiles = [
+        'upcoming',
+        'pending',
+        'completed tasks'
+      ];
+      final random = Random();
+      selectedTile.value =
+          autoSelectTiles[random.nextInt(autoSelectTiles.length)];
+      setSelectedListType(selectedTile.value);
+    }
+  }
+  void setSelectedTile(String tileTitle) {
+    selectedTile.value = tileTitle;
+  }
+
+  void handleTileTap(int index, Function(String) onListTypeSelected, BuildContext context) {
+    String tileTitle = items[index]['title']!.toLowerCase();
+    selectedTile.value = tileTitle;
+    if (tileTitle == 'pending' ||
+        tileTitle == 'upcoming' ||
+        tileTitle == 'completed tasks' ||
+        tileTitle == 'all reminders') {
+      onListTypeSelected(tileTitle);
+    } else if (tileTitle == 'add reminders') {
+      showQuickReminderBottomSheet(context);
+    } else if (tileTitle == 'daily journal') {
+      Get.toNamed(AppRoutes.JOURNAL);
+    } else if (tileTitle == 'take notes') {
+      Get.toNamed(AppRoutes.NOTETAKING);
+    }
+  }
+
+    void showQuickReminderBottomSheet(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (BuildContext context) {
+        return Padding(
+          padding: EdgeInsets.only(
+            bottom: MediaQuery.of(context).viewInsets.bottom,
+          ),
+          child: QuickReminderBottomSheet(
+            reminderController: this,
+            appTheme: Get.find<AppTheme>(),
+          ),
+        );
+      },
+    ).then((_) {
+      // Ensure the widget rebuilds after the bottom sheet is closed
+      update();
+    });
+  }
+
   void triggerAnimation() {
-  animationTrigger.value++;
-}
+    animationTrigger.value++;
+  }
 
   //for reminders
   Future<void> updateReminder(
@@ -297,22 +370,23 @@ final RxInt animationTrigger = 0.obs;
     }
   }
 
- void toggleEventCompletion(String eventId, bool isCompleted) async {
+  void toggleEventCompletion(String eventId, bool isCompleted) async {
     try {
       await updateEvent(eventId, {'isCompleted': isCompleted});
-      
+
       if (isCompleted) {
         // Play sound when marking as complete
         await _audioPlayer.setAsset('assets/success.mp3');
         await _audioPlayer.play();
       }
-      
+
       fetchAllEvents(); // Refresh all lists after toggling completion
     } catch (e) {
       print('Error toggling event completion: $e');
       Get.snackbar('Error', 'Failed to update event completion status');
     }
   }
+
   void fetchPendingEvents() {
     if (currentUser == null) return;
 
@@ -422,7 +496,6 @@ final RxInt animationTrigger = 0.obs;
       print('Error deleting upcoming event: $e');
     }
   }
-
 
   //increase volume
 
