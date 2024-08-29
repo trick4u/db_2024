@@ -34,12 +34,13 @@ class EventCard extends StatelessWidget {
         motion: const BehindMotion(),
         extentRatio: 0.25,
         children: [
-          _buildActionButton(
-            icon: Icons.edit,
-            label: 'Edit',
-            color: Colors.blue,
-            onTap: () => onEdit(event),
-          ),
+          if (event.isCompleted == false)
+            _buildActionButton(
+              icon: Icons.edit,
+              label: 'Edit',
+              color: Colors.blue,
+              onTap: () => onEdit(event),
+            ),
           SizedBox(
             width: ScaleUtil.width(4),
           ),

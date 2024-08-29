@@ -1,38 +1,25 @@
 import 'package:animate_do/animate_do.dart';
 import 'package:animate_gradient/animate_gradient.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:dough/dough.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
-import 'package:google_fonts/google_fonts.dart';
-import 'package:shape_of_view_null_safe/shape_of_view_null_safe.dart';
+
 import 'package:tushar_db/app_routes.dart';
 import 'package:tushar_db/constants/colors.dart';
 import 'package:tushar_db/services/app_text_style.dart';
 import 'package:tushar_db/services/scale_util.dart';
 
-import '../controller/theme_controller.dart';
-import '../models/goals_model.dart';
-import '../models/quick_event_model.dart';
 import '../projectController/page_one_controller.dart';
-import '../projectController/pomodoro_controller.dart';
-import '../projectController/statistics_controller.dart';
+
 import '../services/app_theme.dart';
 import '../services/quotes_service.dart';
-import '../temp/music_view.dart';
+
 import '../widgets/AllSixWidgets.dart';
-import '../widgets/event_bottomSheet.dart';
-import '../widgets/event_card.dart';
+
 import '../widgets/event_sheet.dart';
-import '../widgets/four_boxes.dart';
 
 import '../widgets/reminder_list.dart';
-import '../widgets/three_day.dart';
-import '../widgets/three_shaped_box.dart';
-import 'main_screen.dart';
-import 'music_page.dart';
 
 class PageOneScreen extends GetWidget<PageOneController> {
   final appTheme = Get.find<AppTheme>();
