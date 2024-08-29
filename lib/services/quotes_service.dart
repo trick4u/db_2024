@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:math';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -14,6 +15,31 @@ class QuoteService {
     } else {
       throw Exception('Failed to load quotes');
     }
+  }
+
+   static Future<String> getRandomQuote() async {
+    List<String> allQuotes = await fetchQuotes();
+    List<String> displayedQuotes = await getDisplayedQuotes();
+
+    // Filter out displayed quotes
+    List<String> newQuotes = allQuotes.where((quote) => !displayedQuotes.contains(quote)).toList();
+
+    if (newQuotes.isEmpty) {
+      // If all quotes have been displayed, reset and use all quotes again
+      newQuotes = allQuotes;
+      await SharedPreferences.getInstance().then((prefs) {
+        prefs.remove(QUOTES_KEY);
+      });
+    }
+
+    // Get a random quote from the new quotes
+    Random random = Random();
+    String randomQuote = newQuotes[random.nextInt(newQuotes.length)];
+
+    // Save the displayed quote
+    await saveDisplayedQuote(randomQuote);
+
+    return randomQuote;
   }
 
   static Future<List<String>> getDisplayedQuotes() async {

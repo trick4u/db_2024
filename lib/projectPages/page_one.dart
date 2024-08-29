@@ -20,6 +20,7 @@ import '../projectController/page_one_controller.dart';
 import '../projectController/pomodoro_controller.dart';
 import '../projectController/statistics_controller.dart';
 import '../services/app_theme.dart';
+import '../services/quotes_service.dart';
 import '../temp/music_view.dart';
 import '../widgets/AllSixWidgets.dart';
 import '../widgets/event_bottomSheet.dart';
@@ -36,6 +37,27 @@ import 'music_page.dart';
 class PageOneScreen extends GetWidget<PageOneController> {
   final appTheme = Get.find<AppTheme>();
 
+  Future<void> _showQuoteDialog(BuildContext context) async {
+    String quote = await QuoteService.getRandomQuote();
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Daily Inspiration'),
+          content: Text(quote),
+          actions: <Widget>[
+            TextButton(
+              child: Text('Close'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     ScaleUtil.init(context);
@@ -49,11 +71,16 @@ class PageOneScreen extends GetWidget<PageOneController> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Obx(
-                  () => Text(
-                    controller.greeting.toLowerCase() + ".",
-                    style: AppTextTheme.textTheme.displaySmall?.copyWith(
-                      fontSize: ScaleUtil.fontSize(24),
+                GestureDetector(
+                  onTap: () async {
+                    await _showQuoteDialog(context);
+                  },
+                  child: Obx(
+                    () => Text(
+                      controller.greeting.toLowerCase() + ".",
+                      style: AppTextTheme.textTheme.displaySmall?.copyWith(
+                        fontSize: ScaleUtil.fontSize(24),
+                      ),
                     ),
                   ),
                 ),
@@ -63,7 +90,7 @@ class PageOneScreen extends GetWidget<PageOneController> {
                   },
                   child: Icon(
                     FontAwesomeIcons.bell,
-                    size: ScaleUtil.iconSize(20),
+                    size: ScaleUtil.iconSize(15),
                   ),
                 ),
               ],

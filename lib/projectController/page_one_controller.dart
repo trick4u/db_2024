@@ -29,7 +29,7 @@ class PageOneController extends GetxController {
   var text = "".obs;
 
   final FirebaseAuth _auth = FirebaseAuth.instance;
-  var goalsList = <Goals>[].obs;
+  
 
   RxInt carouselPageIndex = 0.obs;
   // Rx<GoalsModel> allGoals = GoalsModel().obs;
