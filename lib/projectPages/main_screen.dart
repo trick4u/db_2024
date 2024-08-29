@@ -33,7 +33,7 @@ class MainScreen extends GetWidget<MainScreenController> {
       bottomNavigationBar: Obx(() {
         return SlideInUp(
           child: Padding(
-            padding: ScaleUtil.only(left: 10, right: 10, bottom: 15),
+            padding: ScaleUtil.only(left: 10, right: 10, bottom: 20),
             child: PressableDough(
               onReleased: (de) {
                 controller.incrementIndex();
@@ -44,7 +44,7 @@ class MainScreen extends GetWidget<MainScreenController> {
                   color: appTheme.isDarkMode ? Colors.black : Colors.black,
                   borderRadius: BorderRadius.circular(10),
                 ),
-                height: ScaleUtil.height(60),
+                height: ScaleUtil.height(50),
                 child: Padding(
                   padding: ScaleUtil.symmetric(horizontal: 10, vertical: 10),
                   child: Row(
@@ -74,13 +74,13 @@ class MainScreen extends GetWidget<MainScreenController> {
         curve: Curves.easeOutCubic,
         padding: ScaleUtil.all(8),
         decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(10), shape: BoxShape.rectangle),
+            borderRadius: BorderRadius.circular(15), shape: BoxShape.rectangle),
         child: Icon(
           icon,
           color: controller.selectedIndex.value == index
               ? Colors.white
               : Colors.grey,
-          size: ScaleUtil.height(20),
+          size: ScaleUtil.height(15),
         ),
       ),
     );
