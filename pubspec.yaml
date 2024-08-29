@@ -64,8 +64,8 @@ dependencies:
   internet_connection_checker_plus: ^2.4.2
   workmanager:
     path: /Volumes/Tushar SSD/Flutter Products/flutter_workmanager-main/workmanager
-  flutter_carousel_slider: ^1.1.0
-  shape_of_view_null_safe: ^3.0.0
+  
+ 
   http: ^1.2.1
   shared_preferences: ^2.2.3
   just_audio: ^0.9.38
@@ -74,14 +74,15 @@ dependencies:
   get_storage: ^2.1.1
   glassmorphism_ui: ^0.3.0
   flex_color_picker: ^3.5.1
-  flutter_box_transform: ^0.4.4
+ 
   flutter_colorpicker: ^1.1.0
   flutter_slidable: ^3.0.0
   cached_network_image: ^3.3.1
-  dio: ^5.5.0+1
+  
   time_picker_spinner_pop_up: ^2.0.0
   fl_chart: ^0.68.0
   flutter_rating_bar: ^4.0.1
+
 
     
  

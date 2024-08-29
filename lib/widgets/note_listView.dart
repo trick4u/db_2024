@@ -10,6 +10,7 @@ import '../models/note_model.dart';
 import '../projectController/note_taking_controller.dart';
 import '../projectPages/note_taking_screen.dart';
 import '../services/app_theme.dart';
+import 'note_bottom_sheet.dart';
 
 class NoteListView extends GetWidget<NoteTakingController> {
   Color _getTileColor(int index, int totalItems) {

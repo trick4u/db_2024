@@ -3,7 +3,7 @@ import 'dart:convert';
 
 import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:dio/dio.dart';
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -32,14 +32,14 @@ class PageOneController extends GetxController {
   
 
   RxInt carouselPageIndex = 0.obs;
-  // Rx<GoalsModel> allGoals = GoalsModel().obs;
+final RxInt animationTrigger = 0.obs;
 
   final RxList<GoalsModel> allGoals = RxList<GoalsModel>([]);
   RxList<ReminderModel> allReminders = <ReminderModel>[].obs;
   //rx status
   Rx<RxStatus> goalsStatus = RxStatus.loading().obs;
 
-  var greeting = ''.obs;
+   final greeting = RxString('');
   RxList<QuickEventModel> upcomingEvents = <QuickEventModel>[].obs;
   RxList<QuickEventModel> pendingEvents = <QuickEventModel>[].obs;
   RxList<QuickEventModel> completedEvents = <QuickEventModel>[].obs;
@@ -84,6 +84,8 @@ class PageOneController extends GetxController {
   @override
   void onInit() {
     //   getAllGoals();
+  
+
     _audioPlayer = AudioPlayer();
     fetchAllEvents();
     fetchAllReminders();
@@ -103,7 +105,7 @@ class PageOneController extends GetxController {
   @override
   void onReady() {
     //getAllGoals();
-
+    triggerAnimation();
     updateGreeting();
   }
 
@@ -119,6 +121,9 @@ class PageOneController extends GetxController {
     _audioPlayer.dispose();
     super.onClose();
   }
+  void triggerAnimation() {
+  animationTrigger.value++;
+}
 
   //for reminders
   Future<void> updateReminder(

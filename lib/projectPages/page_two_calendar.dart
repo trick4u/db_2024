@@ -410,9 +410,11 @@ class CalendarPage extends GetWidget<CalendarController> {
                                     Padding(
                                       padding: ScaleUtil.symmetric(
                                           horizontal: 16.0, vertical: 8.0),
-                                      child: Row(
+                                      child: Column(
                                         mainAxisAlignment:
                                             MainAxisAlignment.spaceAround,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
                                         children: [
                                           Text(
                                             'Total events : $eventCount',

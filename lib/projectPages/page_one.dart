@@ -2,6 +2,7 @@ import 'package:animate_do/animate_do.dart';
 import 'package:animate_gradient/animate_gradient.dart';
 
 import 'package:flutter/material.dart';
+
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
 
@@ -36,7 +37,7 @@ class PageOneScreen extends GetWidget<PageOneController> {
             TextButton(
               child: Text('Close'),
               onPressed: () {
-                Navigator.of(context).pop();
+                Get.back();
               },
             ),
           ],
@@ -48,89 +49,99 @@ class PageOneScreen extends GetWidget<PageOneController> {
   @override
   Widget build(BuildContext context) {
     ScaleUtil.init(context);
-    return SafeArea(
-      child: Container(
-        margin: ScaleUtil.symmetric(horizontal: 20, vertical: 10),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.start,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                GestureDetector(
-                  onTap: () async {
-                    await _showQuoteDialog(context);
-                  },
-                  child: Obx(
-                    () => Text(
-                      controller.greeting.toLowerCase() + ".",
-                      style: AppTextTheme.textTheme.displaySmall?.copyWith(
-                        fontSize: ScaleUtil.fontSize(24),
-                      ),
+    return Scaffold(
+      body: SafeArea(
+        child: Container(
+          margin: ScaleUtil.symmetric(horizontal: 20, vertical: 10),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Tooltip(
+                    message: 'Tap for daily inspiration!',
+                    child: GestureDetector(
+                        onTap: () async {
+                          await _showQuoteDialog(context);
+                        },
+                        child: Row(
+                          children: [
+                            Icon(FontAwesomeIcons.handPointer, size: 20),
+                            SizedBox(width: 8),
+                            Text(
+                              controller.greeting.value.toLowerCase() + ".",
+                              style:
+                                  AppTextTheme.textTheme.displaySmall?.copyWith(
+                                fontSize: 20,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ],
+                        )),
+                  ),
+                  InkWell(
+                    onTap: () {
+                      Get.toNamed(AppRoutes.NOTIFICAION);
+                    },
+                    child: Icon(
+                      FontAwesomeIcons.bell,
+                      size: ScaleUtil.iconSize(15),
                     ),
                   ),
-                ),
-                InkWell(
-                  onTap: () {
-                    Get.toNamed(AppRoutes.NOTIFICAION);
-                  },
-                  child: Icon(
-                    FontAwesomeIcons.bell,
-                    size: ScaleUtil.iconSize(15),
-                  ),
-                ),
-              ],
-            ),
-            ScaleUtil.sizedBox(height: 10),
-            FadeIn(
-              child: AllSixCards(
-                height: ScaleUtil.height(300),
-                useFixedHeight: true,
-                onListTypeSelected: (listType) {
-                  controller.setSelectedListType(listType);
-                },
+                ],
               ),
-            ),
-            Expanded(
-              child: Obx(() => controller.selectedListType.value.isNotEmpty
-                  ? Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Padding(
-                          padding: ScaleUtil.symmetric(horizontal: 20),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                _getListTitle(
-                                    controller.selectedListType.value),
-                                style:
-                                    AppTextTheme.textTheme.titleLarge?.copyWith(
-                                  fontSize: ScaleUtil.fontSize(18),
+              ScaleUtil.sizedBox(height: 10),
+              FadeIn(
+                child: AllSixCards(
+                  height: ScaleUtil.height(300),
+                  useFixedHeight: true,
+                  onListTypeSelected: (listType) {
+                    controller.setSelectedListType(listType);
+                  },
+                ),
+              ),
+              Expanded(
+                child: Obx(() => controller.selectedListType.value.isNotEmpty
+                    ? Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Padding(
+                            padding: ScaleUtil.symmetric(horizontal: 20),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  _getListTitle(
+                                      controller.selectedListType.value),
+                                  style: AppTextTheme.textTheme.titleLarge
+                                      ?.copyWith(
+                                    fontSize: ScaleUtil.fontSize(18),
+                                  ),
                                 ),
-                              ),
-                              Text(
-                                _getTaskCount(
-                                    controller.selectedListType.value),
-                                style:
-                                    AppTextTheme.textTheme.bodyMedium?.copyWith(
-                                  color: appTheme.secondaryTextColor,
-                                  fontSize: ScaleUtil.fontSize(12),
+                                Text(
+                                  _getTaskCount(
+                                      controller.selectedListType.value),
+                                  style: AppTextTheme.textTheme.bodyMedium
+                                      ?.copyWith(
+                                    color: appTheme.secondaryTextColor,
+                                    fontSize: ScaleUtil.fontSize(12),
+                                  ),
                                 ),
-                              ),
-                            ],
+                              ],
+                            ),
                           ),
-                        ),
-                        ScaleUtil.sizedBox(height: 10),
-                        Expanded(
-                          child: _buildSelectedList(),
-                        ),
-                      ],
-                    )
-                  : SizedBox.shrink()),
-            ),
-          ],
+                          ScaleUtil.sizedBox(height: 10),
+                          Expanded(
+                            child: _buildSelectedList(),
+                          ),
+                        ],
+                      )
+                    : SizedBox.shrink()),
+              ),
+            ],
+          ),
         ),
       ),
     );

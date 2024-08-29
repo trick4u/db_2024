@@ -73,14 +73,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.1.1"
-  box_transform:
-    dependency: transitive
-    description:
-      name: box_transform
-      sha256: "99744e5f5edb2056128d3846894bfa6d4a02b5a4ef42657cf957a345731cff2c"
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.4.4"
   cached_network_image:
     dependency: "direct main"
     description:
@@ -193,22 +185,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.7.10"
-  dio:
-    dependency: "direct main"
-    description:
-      name: dio
-      sha256: e17f6b3097b8c51b72c74c9f071a605c47bcc8893839bd66732457a5ebe73714
-      url: "https://pub.dev"
-    source: hosted
-    version: "5.5.0+1"
-  dio_web_adapter:
-    dependency: transitive
-    description:
-      name: dio_web_adapter
-      sha256: "36c5b2d79eb17cdae41e974b7a8284fec631651d2a6f39a8a2ff22327e90aeac"
-      url: "https://pub.dev"
-    source: hosted
-    version: "1.0.1"
   dough:
     dependency: "direct main"
     description:
@@ -358,14 +334,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.8.2"
-  flutter_box_transform:
-    dependency: "direct main"
-    description:
-      name: flutter_box_transform
-      sha256: "2b844096d2cb14b7d9444abc972aa57233c0eeab92ca60c92b8211b49c103158"
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.4.4"
   flutter_cache_manager:
     dependency: transitive
     description:
@@ -374,14 +342,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "3.3.1"
-  flutter_carousel_slider:
-    dependency: "direct main"
-    description:
-      name: flutter_carousel_slider
-      sha256: "4cd0691b98ebbf8b40361e01779b3a211002c963d3709630e775fba699d3b821"
-      url: "https://pub.dev"
-    source: hosted
-    version: "1.1.0"
   flutter_colorpicker:
     dependency: "direct main"
     description:
@@ -840,14 +800,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.0.3"
-  shape_of_view_null_safe:
-    dependency: "direct main"
-    description:
-      name: shape_of_view_null_safe
-      sha256: "5ac76fe9ec3143006ebc29fd7b9dcd4389f01f4cc4c90ad58fc15b48803d40c1"
-      url: "https://pub.dev"
-    source: hosted
-    version: "3.0.0"
   shared_preferences:
     dependency: "direct main"
     description:
