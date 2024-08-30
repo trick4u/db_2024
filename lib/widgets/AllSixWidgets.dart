@@ -41,7 +41,8 @@ class AllSixCards extends GetWidget<PageOneController> {
         return Obx(() => InkWell(
               splashColor: Colors.transparent,
               onTap: () {
-                String tileTitle = controller.items[index]['title']!.toLowerCase();
+                String tileTitle =
+                    controller.items[index]['title']!.toLowerCase();
                 controller.setSelectedTile(tileTitle);
                 if (tileTitle == 'pending' ||
                     tileTitle == 'upcoming' ||
@@ -54,21 +55,23 @@ class AllSixCards extends GetWidget<PageOneController> {
                   Get.toNamed(AppRoutes.JOURNAL);
                 } else if (tileTitle == 'take notes') {
                   Get.toNamed(AppRoutes.NOTETAKING);
+                } else if (tileTitle == 'vision') {
+                  Get.toNamed(AppRoutes.VISIONBOARD);
                 }
               },
               child: Container(
                 decoration: BoxDecoration(
                   borderRadius: ScaleUtil.circular(10),
-                  border:
-                      controller.selectedTile.value == controller.items[index]['title']!.toLowerCase()
-                          ? Border.all(
-                              color: Colors.deepPurpleAccent,
-                              width: ScaleUtil.scale(2))
-                          : null,
-                  color:
-                      controller.selectedTile.value == controller.items[index]['title']!.toLowerCase()
-                          ? Colors.white
-                          : Colors.deepPurpleAccent,
+                  border: controller.selectedTile.value ==
+                          controller.items[index]['title']!.toLowerCase()
+                      ? Border.all(
+                          color: Colors.deepPurpleAccent,
+                          width: ScaleUtil.scale(2))
+                      : null,
+                  color: controller.selectedTile.value ==
+                          controller.items[index]['title']!.toLowerCase()
+                      ? Colors.white
+                      : Colors.deepPurpleAccent,
                 ),
                 alignment: Alignment.center,
                 child: Row(

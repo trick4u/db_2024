@@ -41,7 +41,7 @@ class MainScreen extends GetWidget<MainScreenController> {
               child: Container(
                 width: ScaleUtil.width(50),
                 decoration: BoxDecoration(
-                  color: Color.fromARGB(255, 37, 6, 123),
+                  color: Color.fromARGB(255, 0, 0, 0),
                   borderRadius: BorderRadius.circular(10),
                 ),
                 height: ScaleUtil.height(50),

@@ -84,6 +84,9 @@ dependencies:
   flutter_rating_bar: ^4.0.1
   flutter_floating_bottom_bar: ^1.2.1+1
   firebase_storage: ^12.2.0
+  image: ^4.2.0
+  path: ^1.9.0
+  image_picker: ^1.1.2
 
 
     

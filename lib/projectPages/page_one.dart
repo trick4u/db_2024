@@ -26,9 +26,14 @@ import '../widgets/reminder_list.dart';
 class PageOneScreen extends GetWidget<PageOneController> {
   final appTheme = Get.find<AppTheme>();
 
+  final RxBool _isDialogOpen = false.obs;
+
   Future<void> _showQuoteDialog(BuildContext context) async {
+    if (_isDialogOpen.value) return;
+
+    _isDialogOpen.value = true;
     String quote = await QuoteService.getRandomQuote();
-    showDialog(
+    await showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
@@ -45,8 +50,9 @@ class PageOneScreen extends GetWidget<PageOneController> {
         );
       },
     );
+    _isDialogOpen.value = false;
   }
-
+  
   @override
   Widget build(BuildContext context) {
     ScaleUtil.init(context);
