@@ -16,7 +16,7 @@ class LoginPage extends GetWidget<LoginController> {
       appBar: AppBar(
         title: Text(
           'login here',
-          style: AppTextTheme.textTheme.displaySmall,
+          style: AppTextTheme.textTheme.bodyMedium,
         ),
         leading: IconButton(
           icon: Icon(Icons.arrow_back),

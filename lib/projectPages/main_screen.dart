@@ -41,7 +41,7 @@ class MainScreen extends GetWidget<MainScreenController> {
               child: Container(
                 width: ScaleUtil.width(50),
                 decoration: BoxDecoration(
-                  color: appTheme.isDarkMode ? Colors.black : Colors.black,
+                  color: Color.fromARGB(255, 37, 6, 123),
                   borderRadius: BorderRadius.circular(10),
                 ),
                 height: ScaleUtil.height(50),
@@ -80,7 +80,9 @@ class MainScreen extends GetWidget<MainScreenController> {
           color: controller.selectedIndex.value == index
               ? Colors.white
               : Colors.grey,
-          size: ScaleUtil.height(15),
+          size: controller.selectedIndex.value == index
+              ? ScaleUtil.height(20)
+              : ScaleUtil.height(15),
         ),
       ),
     );
