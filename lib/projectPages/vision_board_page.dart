@@ -67,6 +67,7 @@ class VisionBoardItemCard extends StatefulWidget {
 
 class _VisionBoardItemCardState extends State<VisionBoardItemCard> {
   int _currentImageIndex = 0;
+  final VisionBoardController controller = Get.find<VisionBoardController>();
 
   @override
   Widget build(BuildContext context) {
@@ -75,30 +76,32 @@ class _VisionBoardItemCardState extends State<VisionBoardItemCard> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          CarouselSlider(
-            options: CarouselOptions(
-              aspectRatio: 1,
-              viewportFraction: 1,
-              onPageChanged: (index, reason) {
-                setState(() {
-                  _currentImageIndex = index;
-                });
-              },
-            ),
-            items: widget.item.imageUrls.map((imageUrl) {
-              return Builder(
-                builder: (BuildContext context) {
-                  return Container(
-                    width: MediaQuery.of(context).size.width,
-                    child: Image.network(
-                      imageUrl,
-                      fit: BoxFit.cover,
-                    ),
-                  );
+          if (widget.item.imageUrls.isNotEmpty)
+            CarouselSlider(
+              options: CarouselOptions(
+                aspectRatio: 1,
+                viewportFraction: 1,
+                enableInfiniteScroll: widget.item.imageUrls.length > 1,
+                onPageChanged: (index, reason) {
+                  setState(() {
+                    _currentImageIndex = index;
+                  });
                 },
-              );
-            }).toList(),
-          ),
+              ),
+              items: widget.item.imageUrls.map((imageUrl) {
+                return Builder(
+                  builder: (BuildContext context) {
+                    return Container(
+                      width: MediaQuery.of(context).size.width,
+                      child: Image.network(
+                        imageUrl,
+                        fit: BoxFit.cover,
+                      ),
+                    );
+                  },
+                );
+              }).toList(),
+            ),
           if (widget.item.imageUrls.length > 1)
             Padding(
               padding: ScaleUtil.all(8),
@@ -117,23 +120,34 @@ class _VisionBoardItemCardState extends State<VisionBoardItemCard> {
             ),
           Padding(
             padding: ScaleUtil.all(16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(
-                  widget.item.title,
-                  style: TextStyle(
-                    fontSize: ScaleUtil.fontSize(18),
-                    fontWeight: FontWeight.bold,
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        widget.item.title,
+                        style: TextStyle(
+                          fontSize: ScaleUtil.fontSize(18),
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      ScaleUtil.sizedBox(height: 8),
+                      Text(
+                        'Created on ${_formatDate(widget.item.date)}',
+                        style: TextStyle(
+                          fontSize: ScaleUtil.fontSize(14),
+                          color: Colors.grey[600],
+                        ),
+                      ),
+                    ],
                   ),
                 ),
-                ScaleUtil.sizedBox(height: 8),
-                Text(
-                  'Created on ${_formatDate(widget.item.date)}',
-                  style: TextStyle(
-                    fontSize: ScaleUtil.fontSize(14),
-                    color: Colors.grey[600],
-                  ),
+                IconButton(
+                  icon: Icon(Icons.delete, color: Colors.red),
+                  onPressed: () => _confirmDelete(context),
                 ),
               ],
             ),
@@ -146,8 +160,34 @@ class _VisionBoardItemCardState extends State<VisionBoardItemCard> {
   String _formatDate(DateTime date) {
     return '${date.day}/${date.month}/${date.year}';
   }
-}
 
+  void _confirmDelete(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Delete Vision Board Item'),
+          content: Text('Are you sure you want to delete this item?'),
+          actions: <Widget>[
+            TextButton(
+              child: Text('Cancel'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+            TextButton(
+              child: Text('Delete'),
+              onPressed: () {
+                controller.deleteItem(widget.item.id);
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+}
 class AddVisionBoardItemSheet extends GetWidget<VisionBoardController> {
   @override
   Widget build(BuildContext context) {
