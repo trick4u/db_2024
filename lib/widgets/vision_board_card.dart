@@ -2,8 +2,9 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:dots_indicator/dots_indicator.dart';
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
-import 'package:palette_generator/palette_generator.dart';
+
 import 'package:photo_view/photo_view.dart';
 import 'package:photo_view/photo_view_gallery.dart';
 import 'package:tushar_db/services/app_text_style.dart';
@@ -54,7 +55,7 @@ class VisionBoardItemCard extends StatelessWidget {
     );
   }
 
-Widget _buildImageCarousel() {
+  Widget _buildImageCarousel() {
     return CarouselSlider(
       options: CarouselOptions(
         aspectRatio: 1,
@@ -140,11 +141,17 @@ Widget _buildImageCarousel() {
                 ),
               ),
               IconButton(
-                icon: Icon(Icons.edit, color: appTheme.colorScheme.primary),
+                icon: Icon(
+                  FontAwesomeIcons.penToSquare,
+                  size: ScaleUtil.iconSize(15),
+                ),
                 onPressed: onEdit,
               ),
               IconButton(
-                icon: Icon(Icons.delete, color: appTheme.colorScheme.primary),
+                icon: Icon(
+                  FontAwesomeIcons.trashCan,
+                  color: appTheme.colorScheme.primary,
+                ),
                 onPressed: () => _confirmDelete(context, controller),
               ),
             ],
@@ -189,7 +196,6 @@ Widget _buildImageCarousel() {
     );
   }
 }
-
 
 class ZoomableImageWidget extends StatelessWidget {
   final List<String> imageUrls;

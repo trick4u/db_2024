@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:dots_indicator/dots_indicator.dart';
 import 'package:flutter/material.dart';
@@ -15,30 +17,10 @@ import '../widgets/vision_bottom_sheet.dart';
 class VisionBoardPage extends GetWidget<VisionBoardController> {
   @override
   Widget build(BuildContext context) {
-    ScaleUtil.init(context); // Initialize ScaleUtil
+    ScaleUtil.init(context);
     return Scaffold(
-      extendBody: true,
-      appBar: AppBar(
-        title: Text(
-          'vision',
-          style: AppTextTheme.textTheme.displaySmall,
-        ),
-        actions: [
-          Obx(() {
-            if (controller.visionBoardItems.length < 20) {
-              return IconButton(
-                onPressed: () {
-                  _showAddItemSheet(context);
-                },
-                icon: Icon(FontAwesomeIcons.plus),
-              );
-            } else {
-              return SizedBox
-                  .shrink(); // Return an empty widget when items >= 10
-            }
-          }),
-        ],
-      ),
+      extendBodyBehindAppBar: true,
+      appBar: _buildFrostedGlassAppBar(context),
       body: Obx(() {
         if (controller.isLoading.value) {
           return Center(child: CircularProgressIndicator());
@@ -51,6 +33,7 @@ class VisionBoardPage extends GetWidget<VisionBoardController> {
           );
         } else {
           return ListView.builder(
+            padding: EdgeInsets.only(top: kToolbarHeight + 20),
             itemCount: controller.visionBoardItems.length,
             itemBuilder: (context, index) {
               final item = controller.visionBoardItems[index];
@@ -63,6 +46,39 @@ class VisionBoardPage extends GetWidget<VisionBoardController> {
           );
         }
       }),
+    );
+  }
+
+  PreferredSizeWidget _buildFrostedGlassAppBar(BuildContext context) {
+    return PreferredSize(
+      preferredSize: Size.fromHeight(kToolbarHeight),
+      child: ClipRRect(
+        child: BackdropFilter(
+          filter: ImageFilter.blur(sigmaX: 0, sigmaY: 10),
+          child: AppBar(
+            backgroundColor: Colors.transparent,
+            elevation: 0,
+            title: Text(
+              'vision',
+              style: AppTextTheme.textTheme.displaySmall?.copyWith(
+                color: Colors.white,
+              ),
+            ),
+            actions: [
+              Obx(() {
+                if (controller.visionBoardItems.length < 20) {
+                  return IconButton(
+                    onPressed: () => _showAddItemSheet(context),
+                    icon: Icon(FontAwesomeIcons.plus, color: Colors.white),
+                  );
+                } else {
+                  return SizedBox.shrink();
+                }
+              }),
+            ],
+          ),
+        ),
+      ),
     );
   }
 
