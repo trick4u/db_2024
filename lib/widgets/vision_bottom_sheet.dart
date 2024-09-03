@@ -13,10 +13,10 @@ import '../services/scale_util.dart';
 
 class VisionBottomSheet extends GetWidget<VisionBoardController> {
   final AppTheme appTheme = Get.find<AppTheme>();
-  
+
   @override
   Widget build(BuildContext context) {
-        ScaleUtil.init(context);
+    ScaleUtil.init(context);
     return Padding(
       padding: ScaleUtil.only(left: 10, right: 10, bottom: 10),
       child: Card(
@@ -282,28 +282,38 @@ class VisionBottomSheet extends GetWidget<VisionBoardController> {
   }
 
   Widget _buildImagePickerButton() {
-    return Container(
-      decoration: BoxDecoration(
-        color: appTheme.colorScheme.primary,
-        shape: BoxShape.circle,
-      ),
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
-          borderRadius: ScaleUtil.circular(20),
-          onTap:
-              controller.isPickingImages.value ? null : controller.pickImages,
-          child: Padding(
-            padding: ScaleUtil.all(10),
-            child: Icon(
-              FontAwesomeIcons.image,
-              color: Colors.white,
-              size: ScaleUtil.iconSize(15),
+    return Obx(() {
+      int totalImages = controller.selectedNetworkImages.length +
+          controller.selectedImages.length;
+
+      if (totalImages >= 8) {
+        return SizedBox
+            .shrink(); // Return an empty widget when 8 images are selected
+      }
+
+      return Container(
+        decoration: BoxDecoration(
+          color: appTheme.colorScheme.primary,
+          shape: BoxShape.circle,
+        ),
+        child: Material(
+          color: Colors.transparent,
+          child: InkWell(
+            borderRadius: ScaleUtil.circular(20),
+            onTap:
+                controller.isPickingImages.value ? null : controller.pickImages,
+            child: Padding(
+              padding: ScaleUtil.all(10),
+              child: Icon(
+                FontAwesomeIcons.image,
+                color: Colors.white,
+                size: ScaleUtil.iconSize(15),
+              ),
             ),
           ),
         ),
-      ),
-    );
+      );
+    });
   }
 
   Widget _buildSaveIconButton() {

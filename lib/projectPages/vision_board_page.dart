@@ -3,20 +3,26 @@ import 'package:dots_indicator/dots_indicator.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:omni_datetime_picker/omni_datetime_picker.dart';
+import 'package:tushar_db/services/app_text_style.dart';
+import 'package:tushar_db/services/app_theme.dart';
 
 import '../projectController/vsion_board_controller.dart';
 import '../services/scale_util.dart';
 import '../widgets/vision_board_card.dart';
 import '../widgets/vision_bottom_sheet.dart';
 
+
 class VisionBoardPage extends GetWidget<VisionBoardController> {
   @override
   Widget build(BuildContext context) {
     ScaleUtil.init(context); // Initialize ScaleUtil
     return Scaffold(
+      extendBody: true,
       appBar: AppBar(
-        title: Text('Vision Board',
-            style: TextStyle(fontSize: ScaleUtil.fontSize(20))),
+        title: Text(
+          'vision',
+          style: AppTextTheme.textTheme.displaySmall,
+        ),
       ),
       body: Obx(() {
         if (controller.isLoading.value) {
@@ -24,10 +30,8 @@ class VisionBoardPage extends GetWidget<VisionBoardController> {
         } else if (controller.visionBoardItems.isEmpty) {
           return Center(
             child: Text(
-              'No vision board items yet',
-              style: TextStyle(
-                fontSize: ScaleUtil.fontSize(16),
-              ),
+              'Create your vision..',
+              style: AppTextTheme.textTheme.bodyMedium,
             ),
           );
         } else {
@@ -46,7 +50,11 @@ class VisionBoardPage extends GetWidget<VisionBoardController> {
       }),
       floatingActionButton: FloatingActionButton(
         onPressed: () => _showAddItemSheet(context),
-        child: Icon(Icons.add, size: ScaleUtil.iconSize(24)),
+        child: Icon(
+          Icons.add,
+          size: ScaleUtil.iconSize(24),
+          color: Colors.white,
+        ),
       ),
     );
   }

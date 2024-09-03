@@ -24,6 +24,7 @@ class VisionBoardController extends GetxController {
   final isEditing = false.obs;
   final editingItem = Rx<VisionBoardItem?>(null);
   final selectedNetworkImages = <String>[].obs;
+  final _imageHashes = <String>{};
 
    String? _originalTitle;
   DateTime? _originalDate;
@@ -70,7 +71,16 @@ class VisionBoardController extends GetxController {
     _originalDate = null;
     _originalImageUrls = null;
     _checkForChanges();
+       _imageHashes.clear();
   }
+   Future<String> computeImageHash(File image) async {
+    // Implement a simple hash function based on file path and modification time
+    // For a more robust solution, consider using a proper image hashing algorithm
+    String filePath = image.path;
+    DateTime lastModified = await image.lastModified();
+    return '$filePath|${lastModified.millisecondsSinceEpoch}';
+  }
+
 
   bool _haveImagesChanged() {
     if (_originalImageUrls == null) return false;
@@ -133,11 +143,14 @@ class VisionBoardController extends GetxController {
     selectedDate.value = item.date;
     selectedNetworkImages.value = List<String>.from(item.imageUrls);
     selectedImages.clear();
-
+       _imageHashes.clear();
     // Store original values
     _originalTitle = item.title.trim();
     _originalDate = item.date;
     _originalImageUrls = List<String>.from(item.imageUrls);
+     for (String url in item.imageUrls) {
+      _imageHashes.add(url); // Use URL as a simple hash for network images
+    }
 
     _checkForChanges();
     showAddEditBottomSheet(context, item: item);
@@ -194,34 +207,23 @@ class VisionBoardController extends GetxController {
     _updateCanSave();
   }
 
- void removeNetworkImage(int index) {
-    try {
-      if (index >= 0 && index < selectedNetworkImages.length) {
-        selectedNetworkImages.removeAt(index);
-        _updateCanSave();
-        update(); // Ensure the UI updates
-      }
-    } catch (e) {
-      print("Error removing network image: $e");
-      Get.snackbar('Error', 'Failed to remove image',
-          snackPosition: SnackPosition.BOTTOM);
+  void removeNetworkImage(int index) {
+    if (index >= 0 && index < selectedNetworkImages.length) {
+      String removedUrl = selectedNetworkImages.removeAt(index);
+      _imageHashes.remove(removedUrl);
+      _updateCanSave();
+      update();
     }
   }
 
   void removeImage(int index) {
-    try {
-      if (index >= 0 && index < selectedImages.length) {
-        selectedImages.removeAt(index);
-        _updateCanSave();
-        update(); // Ensure the UI updates
-      }
-    } catch (e) {
-      print("Error removing local image: $e");
-      Get.snackbar('Error', 'Failed to remove image',
-          snackPosition: SnackPosition.BOTTOM);
+    if (index >= 0 && index < selectedImages.length) {
+      File removedImage = selectedImages.removeAt(index);
+      _imageHashes.remove(computeImageHash(removedImage));
+      _updateCanSave();
+      update();
     }
   }
-
   void _updateCanSave() {
     _canSave.value = titleController.text.isNotEmpty && 
                      (selectedImages.isNotEmpty || selectedNetworkImages.isNotEmpty);
@@ -256,22 +258,20 @@ class VisionBoardController extends GetxController {
     selectedDate.value = date;
   }
 
-  Future<void> pickImages() async {
+    Future<void> pickImages() async {
     isPickingImages.value = true;
     try {
       final ImagePicker picker = ImagePicker();
       final List<XFile> images = await picker.pickMultiImage();
       if (images.isNotEmpty) {
-        final List<File> compressedImages = await Future.wait(
-          images.take(8).map(
-                (image) => compressImage(
-                  File(image.path),
-                ),
-              ),
-        );
-        selectedImages.addAll(compressedImages);
-        if (selectedImages.length > 8) {
-          selectedImages.removeRange(8, selectedImages.length);
+        for (var image in images.take(8 - selectedImages.length - selectedNetworkImages.length)) {
+          File compressedImage = await compressImage(File(image.path));
+          String imageHash = await computeImageHash(compressedImage);
+          
+          if (!_imageHashes.contains(imageHash)) {
+            selectedImages.add(compressedImage);
+            _imageHashes.add(imageHash);
+          }
         }
       }
     } catch (e) {

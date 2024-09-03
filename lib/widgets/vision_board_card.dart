@@ -18,6 +18,7 @@ import 'package:get/get.dart';
 
 import '../projectController/vsion_board_controller.dart';
 import '../services/scale_util.dart';
+import 'package:timeago/timeago.dart' as timeago;
 
 class VisionBoardItemCard extends StatelessWidget {
   final VisionBoardItem item;
@@ -118,8 +119,9 @@ class VisionBoardItemCard extends StatelessWidget {
                     ),
                     ScaleUtil.sizedBox(height: 4),
                     Text(
-                      'Created on ${_formatDate(item.date)}',
-                      style: appTheme.bodyMedium.copyWith(),
+                      _getTimeAgo(),
+                      style: appTheme.bodyMedium
+                          .copyWith(color: appTheme.secondaryTextColor),
                     ),
                   ],
                 ),
@@ -129,7 +131,7 @@ class VisionBoardItemCard extends StatelessWidget {
                 onPressed: onEdit,
               ),
               IconButton(
-                icon: Icon(Icons.delete, color: appTheme.colorScheme.error),
+                icon: Icon(Icons.delete, color: appTheme.colorScheme.primary),
                 onPressed: () => _confirmDelete(context, controller),
               ),
             ],
@@ -137,6 +139,10 @@ class VisionBoardItemCard extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  String _getTimeAgo() {
+    return timeago.format(item.date, allowFromNow: true);
   }
 
   String _formatDate(DateTime date) {
