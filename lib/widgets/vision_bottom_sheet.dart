@@ -20,7 +20,6 @@ class VisionBottomSheet extends GetWidget<VisionBoardController> {
     return Padding(
       padding: ScaleUtil.only(left: 10, right: 10, bottom: 10),
       child: Card(
-        elevation: ScaleUtil.scale(8),
         color: appTheme.cardColor,
         shape: RoundedRectangleBorder(
           borderRadius: ScaleUtil.circular(20),
@@ -316,11 +315,12 @@ class VisionBottomSheet extends GetWidget<VisionBoardController> {
     });
   }
 
-  Widget _buildSaveIconButton() {
+ Widget _buildSaveIconButton() {
     return Obx(() => Container(
           decoration: BoxDecoration(
-            color:
-                controller.canSave ? appTheme.colorScheme.primary : Colors.grey,
+            color: controller.canSave && controller.titleController.text.trim().isNotEmpty
+                ? appTheme.colorScheme.primary
+                : Colors.grey,
             shape: BoxShape.circle,
           ),
           child: Material(
@@ -328,6 +328,7 @@ class VisionBottomSheet extends GetWidget<VisionBoardController> {
             child: InkWell(
               borderRadius: ScaleUtil.circular(20),
               onTap: controller.canSave &&
+                      controller.titleController.text.trim().isNotEmpty &&
                       !controller.isPickingImages.value &&
                       !controller.isSaving.value
                   ? () {
@@ -343,8 +344,7 @@ class VisionBottomSheet extends GetWidget<VisionBoardController> {
                         height: ScaleUtil.height(15),
                         child: CircularProgressIndicator(
                           strokeWidth: 2,
-                          valueColor:
-                              AlwaysStoppedAnimation<Color>(Colors.white),
+                          valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
                         ),
                       )
                     : Icon(

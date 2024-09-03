@@ -4,6 +4,8 @@ import 'package:dots_indicator/dots_indicator.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:palette_generator/palette_generator.dart';
+import 'package:photo_view/photo_view.dart';
+import 'package:photo_view/photo_view_gallery.dart';
 import 'package:tushar_db/services/app_text_style.dart';
 
 import '../projectController/vsion_board_controller.dart';
@@ -38,7 +40,8 @@ class VisionBoardItemCard extends StatelessWidget {
     }
 
     return Card(
-      margin: ScaleUtil.all(8),
+      elevation: 0,
+      margin: ScaleUtil.only(top: 8, bottom: 8),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -51,7 +54,7 @@ class VisionBoardItemCard extends StatelessWidget {
     );
   }
 
-  Widget _buildImageCarousel() {
+Widget _buildImageCarousel() {
     return CarouselSlider(
       options: CarouselOptions(
         aspectRatio: 1,
@@ -64,11 +67,21 @@ class VisionBoardItemCard extends StatelessWidget {
       items: item.imageUrls.map((imageUrl) {
         return Builder(
           builder: (BuildContext context) {
-            return Container(
-              width: MediaQuery.of(context).size.width,
-              child: CachedNetworkImage(
-                imageUrl: imageUrl,
-                fit: BoxFit.cover,
+            return GestureDetector(
+              onTap: () {
+                Navigator.of(context).push(MaterialPageRoute(
+                  builder: (context) => ZoomableImageWidget(
+                    imageUrls: item.imageUrls,
+                    initialIndex: _currentImageIndex.value,
+                  ),
+                ));
+              },
+              child: Container(
+                width: MediaQuery.of(context).size.width,
+                child: CachedNetworkImage(
+                  imageUrl: imageUrl,
+                  fit: BoxFit.cover,
+                ),
               ),
             );
           },
@@ -173,6 +186,46 @@ class VisionBoardItemCard extends StatelessWidget {
           ],
         );
       },
+    );
+  }
+}
+
+
+class ZoomableImageWidget extends StatelessWidget {
+  final List<String> imageUrls;
+  final int initialIndex;
+
+  ZoomableImageWidget({required this.imageUrls, this.initialIndex = 0});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.black,
+      body: Stack(
+        children: [
+          PhotoViewGallery.builder(
+            itemCount: imageUrls.length,
+            builder: (context, index) {
+              return PhotoViewGalleryPageOptions(
+                imageProvider: CachedNetworkImageProvider(imageUrls[index]),
+                minScale: PhotoViewComputedScale.contained,
+                maxScale: PhotoViewComputedScale.covered * 2,
+              );
+            },
+            scrollPhysics: BouncingScrollPhysics(),
+            backgroundDecoration: BoxDecoration(color: Colors.black),
+            pageController: PageController(initialPage: initialIndex),
+          ),
+          Positioned(
+            top: 40,
+            left: 20,
+            child: IconButton(
+              icon: Icon(Icons.close, color: Colors.white),
+              onPressed: () => Navigator.of(context).pop(),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

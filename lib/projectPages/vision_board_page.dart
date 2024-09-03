@@ -1,6 +1,7 @@
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:dots_indicator/dots_indicator.dart';
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
 import 'package:omni_datetime_picker/omni_datetime_picker.dart';
 import 'package:tushar_db/services/app_text_style.dart';
@@ -10,7 +11,6 @@ import '../projectController/vsion_board_controller.dart';
 import '../services/scale_util.dart';
 import '../widgets/vision_board_card.dart';
 import '../widgets/vision_bottom_sheet.dart';
-
 
 class VisionBoardPage extends GetWidget<VisionBoardController> {
   @override
@@ -23,6 +23,21 @@ class VisionBoardPage extends GetWidget<VisionBoardController> {
           'vision',
           style: AppTextTheme.textTheme.displaySmall,
         ),
+        actions: [
+          Obx(() {
+            if (controller.visionBoardItems.length < 20) {
+              return IconButton(
+                onPressed: () {
+                  _showAddItemSheet(context);
+                },
+                icon: Icon(FontAwesomeIcons.plus),
+              );
+            } else {
+              return SizedBox
+                  .shrink(); // Return an empty widget when items >= 10
+            }
+          }),
+        ],
       ),
       body: Obx(() {
         if (controller.isLoading.value) {
@@ -48,14 +63,6 @@ class VisionBoardPage extends GetWidget<VisionBoardController> {
           );
         }
       }),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () => _showAddItemSheet(context),
-        child: Icon(
-          Icons.add,
-          size: ScaleUtil.iconSize(24),
-          color: Colors.white,
-        ),
-      ),
     );
   }
 

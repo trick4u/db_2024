@@ -26,16 +26,16 @@ class VisionBoardController extends GetxController {
   final selectedNetworkImages = <String>[].obs;
   final _imageHashes = <String>{};
 
-   String? _originalTitle;
+  String? _originalTitle;
   DateTime? _originalDate;
   List<String>? _originalImageUrls;
-
 
   final _canSave = false.obs;
   bool get canSave => _canSave.value;
 
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   User? currentUser = FirebaseAuth.instance.currentUser;
+  final RxList<String> itemOrder = <String>[].obs;
 
   CollectionReference get visionBoardCollection {
     return _firestore
@@ -53,14 +53,15 @@ class VisionBoardController extends GetxController {
     ever(selectedNetworkImages, (_) => _checkForChanges());
     fetchVisionBoardItems();
   }
-    @override
+
+  @override
   void onClose() {
     titleController.removeListener(_checkForChanges);
     titleController.dispose();
     super.onClose();
   }
 
- void resetForm() {
+  void resetForm() {
     titleController.clear();
     selectedImages.clear();
     selectedNetworkImages.clear();
@@ -71,16 +72,16 @@ class VisionBoardController extends GetxController {
     _originalDate = null;
     _originalImageUrls = null;
     _checkForChanges();
-       _imageHashes.clear();
+    _imageHashes.clear();
   }
-   Future<String> computeImageHash(File image) async {
+
+  Future<String> computeImageHash(File image) async {
     // Implement a simple hash function based on file path and modification time
     // For a more robust solution, consider using a proper image hashing algorithm
     String filePath = image.path;
     DateTime lastModified = await image.lastModified();
     return '$filePath|${lastModified.millisecondsSinceEpoch}';
   }
-
 
   bool _haveImagesChanged() {
     if (_originalImageUrls == null) return false;
@@ -91,20 +92,21 @@ class VisionBoardController extends GetxController {
     return selectedImages.isNotEmpty;
   }
 
-   void _checkForChanges() {
+  void _checkForChanges() {
     if (isEditing.value) {
       bool titleChanged = titleController.text.trim() != _originalTitle;
       bool dateChanged = selectedDate.value != _originalDate;
       bool imagesChanged = _haveImagesChanged();
 
-      _canSave.value = titleChanged || dateChanged || imagesChanged;
+      _canSave.value = (titleChanged || dateChanged || imagesChanged) &&
+          titleController.text.trim().isNotEmpty;
     } else {
       _canSave.value = titleController.text.trim().isNotEmpty &&
           (selectedImages.isNotEmpty || selectedNetworkImages.isNotEmpty);
     }
   }
 
- void showAddEditBottomSheet(BuildContext context, {VisionBoardItem? item}) {
+  void showAddEditBottomSheet(BuildContext context, {VisionBoardItem? item}) {
     if (item != null) {
       isEditing.value = true;
       editingItem.value = item;
@@ -143,12 +145,12 @@ class VisionBoardController extends GetxController {
     selectedDate.value = item.date;
     selectedNetworkImages.value = List<String>.from(item.imageUrls);
     selectedImages.clear();
-       _imageHashes.clear();
+    _imageHashes.clear();
     // Store original values
     _originalTitle = item.title.trim();
     _originalDate = item.date;
     _originalImageUrls = List<String>.from(item.imageUrls);
-     for (String url in item.imageUrls) {
+    for (String url in item.imageUrls) {
       _imageHashes.add(url); // Use URL as a simple hash for network images
     }
 
@@ -156,15 +158,15 @@ class VisionBoardController extends GetxController {
     showAddEditBottomSheet(context, item: item);
   }
 
- Future<void> updateEditedItem() async {
+  Future<void> updateEditedItem() async {
     if (editingItem.value == null) return;
 
     try {
       List<String> updatedImageUrls = [];
-      
+
       // Keep existing network images
       updatedImageUrls.addAll(selectedNetworkImages);
-      
+
       // Upload new local images
       for (File image in selectedImages) {
         String url = await uploadSingleImage(image);
@@ -182,15 +184,16 @@ class VisionBoardController extends GetxController {
       );
 
       await updateItem(updatedItem);
-      
-      // Update the local state immediately
-      int index = visionBoardItems.indexWhere((item) => item.id == updatedItem.id);
+
+      // Update the local state while maintaining the order
+      int index =
+          visionBoardItems.indexWhere((item) => item.id == updatedItem.id);
       if (index != -1) {
         visionBoardItems[index] = updatedItem;
-        visionBoardItems.refresh(); // This triggers a UI update
+        visionBoardItems.refresh();
       }
 
-      Get.back(); // Close the bottom sheet
+      Get.back();
       Get.snackbar('Success', 'Vision board item updated successfully',
           snackPosition: SnackPosition.TOP);
     } catch (e) {
@@ -224,25 +227,44 @@ class VisionBoardController extends GetxController {
       update();
     }
   }
+
   void _updateCanSave() {
-    _canSave.value = titleController.text.isNotEmpty && 
-                     (selectedImages.isNotEmpty || selectedNetworkImages.isNotEmpty);
+    _canSave.value = titleController.text.isNotEmpty &&
+        (selectedImages.isNotEmpty || selectedNetworkImages.isNotEmpty);
     update();
   }
+
   void fetchVisionBoardItems() {
     if (currentUser == null) return;
 
     isLoading.value = true;
-    visionBoardCollection
-        .orderBy('createdAt', descending: true)
-        .snapshots()
-        .listen((querySnapshot) {
+    visionBoardCollection.snapshots().listen((querySnapshot) {
       List<VisionBoardItem> newItems = [];
+      List<String> newOrder = [];
 
       for (var doc in querySnapshot.docs) {
         VisionBoardItem item = VisionBoardItem.fromFirestore(doc);
         newItems.add(item);
+        newOrder.add(item.id);
       }
+
+      // If itemOrder is empty (first fetch), initialize it
+      if (itemOrder.isEmpty) {
+        itemOrder.value = newOrder;
+      } else {
+        // Merge new items into the existing order
+        for (String id in newOrder) {
+          if (!itemOrder.contains(id)) {
+            itemOrder.add(id);
+          }
+        }
+        // Remove any items that no longer exist
+        itemOrder.removeWhere((id) => !newOrder.contains(id));
+      }
+
+      // Sort newItems based on itemOrder
+      newItems.sort(
+          (a, b) => itemOrder.indexOf(a.id).compareTo(itemOrder.indexOf(b.id)));
 
       visionBoardItems.value = newItems;
       isLoading.value = false;
@@ -258,16 +280,17 @@ class VisionBoardController extends GetxController {
     selectedDate.value = date;
   }
 
-    Future<void> pickImages() async {
+  Future<void> pickImages() async {
     isPickingImages.value = true;
     try {
       final ImagePicker picker = ImagePicker();
       final List<XFile> images = await picker.pickMultiImage();
       if (images.isNotEmpty) {
-        for (var image in images.take(8 - selectedImages.length - selectedNetworkImages.length)) {
+        for (var image in images
+            .take(8 - selectedImages.length - selectedNetworkImages.length)) {
           File compressedImage = await compressImage(File(image.path));
           String imageHash = await computeImageHash(compressedImage);
-          
+
           if (!_imageHashes.contains(imageHash)) {
             selectedImages.add(compressedImage);
             _imageHashes.add(imageHash);
@@ -291,10 +314,11 @@ class VisionBoardController extends GetxController {
     final String newPath =
         path.join(dir, 'compressed_${path.basename(file.path)}');
     final File result = File(newPath)
-      ..writeAsBytesSync(img.encodeJpg(compressedImage, quality: 70),);
+      ..writeAsBytesSync(
+        img.encodeJpg(compressedImage, quality: 70),
+      );
     return result;
   }
-
 
   Future<void> saveNote() async {
     if (!canSave) {
@@ -328,7 +352,7 @@ class VisionBoardController extends GetxController {
     }
   }
 
-Future<void> saveNewItem() async {
+  Future<void> saveNewItem() async {
     final user = FirebaseAuth.instance.currentUser;
     if (user == null) {
       throw Exception('You must be logged in to save a vision board item');
@@ -421,7 +445,7 @@ Future<void> saveNewItem() async {
     }
   }
 
-   Future<void> saveToFirestore(List<String> imageUrls, String userId) async {
+  Future<void> saveToFirestore(List<String> imageUrls, String userId) async {
     final newItem = VisionBoardItem(
       id: '',
       title: titleController.text.trim(), // Trim the title before saving
@@ -436,7 +460,7 @@ Future<void> saveNewItem() async {
     // Clear the form
     resetForm();
   }
-  
+
   Future<void> deleteItem(String itemId) async {
     if (currentUser == null) return;
     try {

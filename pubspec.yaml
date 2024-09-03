@@ -91,6 +91,8 @@ dependencies:
   dots_indicator: ^3.0.0
   palette_generator: ^0.3.3+4
   timeago: ^3.7.0
+  photo_view: ^0.15.0
+  animated_image_list: ^1.0.0
 
 
     
