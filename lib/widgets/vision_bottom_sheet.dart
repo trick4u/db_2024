@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:animate_do/animate_do.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:dough/dough.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
@@ -17,82 +18,89 @@ class VisionBottomSheet extends GetWidget<VisionBoardController> {
   @override
   Widget build(BuildContext context) {
     ScaleUtil.init(context);
-    return Padding(
-      padding: ScaleUtil.only(left: 10, right: 10, bottom: 10),
-      child: Card(
-        color: appTheme.cardColor,
-        shape: RoundedRectangleBorder(
-          borderRadius: ScaleUtil.circular(20),
-        ),
-        child: Container(
-          padding: ScaleUtil.symmetric(horizontal: 20, vertical: 10),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
+    return PressableDough(
+      onReleased: (d) {
+        Get.back();
+      },
+      child: SlideInUp(
+        child: Padding(
+          padding: ScaleUtil.only(left: 10, right: 10, bottom: 10),
+          child: Card(
+            color: appTheme.cardColor,
+            shape: RoundedRectangleBorder(
+              borderRadius: ScaleUtil.circular(20),
+            ),
+            child: Container(
+              padding: ScaleUtil.symmetric(horizontal: 20, vertical: 10),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Obx(() => Text(
-                        controller.isEditing.value
-                            ? 'Edit Vision'
-                            : 'Add Vision',
-                        style: appTheme.titleLarge.copyWith(
-                          fontSize: ScaleUtil.fontSize(15),
+                  Row(
+                    children: [
+                      Obx(() => Text(
+                            controller.isEditing.value
+                                ? 'Edit Vision'
+                                : 'Add Vision',
+                            style: appTheme.titleLarge.copyWith(
+                              fontSize: ScaleUtil.fontSize(15),
+                            ),
+                          )),
+                      Spacer(),
+                      _buildDatePicker(context),
+                      IconButton(
+                        icon: Icon(Icons.close,
+                            color: appTheme.textColor,
+                            size: ScaleUtil.iconSize(15)),
+                        onPressed: () => Get.back(),
+                      ),
+                    ],
+                  ),
+                  ScaleUtil.sizedBox(height: 10),
+                  ClipRRect(
+                    borderRadius: ScaleUtil.circular(10),
+                    child: TextField(
+                      controller: controller.titleController,
+                      style: appTheme.bodyMedium,
+                      decoration: InputDecoration(
+                        labelText: 'Vision Board Item Title',
+                        filled: true,
+                        fillColor: appTheme.textFieldFillColor,
+                        labelStyle: appTheme.bodyMedium.copyWith(
+                          color: appTheme.secondaryTextColor,
+                          fontSize: ScaleUtil.fontSize(12),
                         ),
-                      )),
-                  Spacer(),
-                  _buildDatePicker(context),
-                  IconButton(
-                    icon: Icon(Icons.close,
-                        color: appTheme.textColor,
-                        size: ScaleUtil.iconSize(15)),
-                    onPressed: () => Get.back(),
+                        border: InputBorder.none,
+                        enabledBorder: InputBorder.none,
+                        focusedBorder: InputBorder.none,
+                        errorBorder: InputBorder.none,
+                        disabledBorder: InputBorder.none,
+                        contentPadding:
+                            ScaleUtil.symmetric(horizontal: 16, vertical: 6),
+                      ),
+                      onChanged: (_) => controller.update(),
+                    ),
+                  ),
+                  ScaleUtil.sizedBox(height: 16),
+                  _buildImageList(),
+                  ScaleUtil.sizedBox(height: 16),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      SlideInRight(
+                        child: Row(
+                          children: [
+                            _buildImagePickerButton(),
+                            ScaleUtil.sizedBox(width: 16),
+                            _buildSaveIconButton(),
+                          ],
+                        ),
+                      ),
+                    ],
                   ),
                 ],
               ),
-              ScaleUtil.sizedBox(height: 10),
-              ClipRRect(
-                borderRadius: ScaleUtil.circular(10),
-                child: TextField(
-                  controller: controller.titleController,
-                  style: appTheme.bodyMedium,
-                  decoration: InputDecoration(
-                    labelText: 'Vision Board Item Title',
-                    filled: true,
-                    fillColor: appTheme.textFieldFillColor,
-                    labelStyle: appTheme.bodyMedium.copyWith(
-                      color: appTheme.secondaryTextColor,
-                      fontSize: ScaleUtil.fontSize(12),
-                    ),
-                    border: InputBorder.none,
-                    enabledBorder: InputBorder.none,
-                    focusedBorder: InputBorder.none,
-                    errorBorder: InputBorder.none,
-                    disabledBorder: InputBorder.none,
-                    contentPadding:
-                        ScaleUtil.symmetric(horizontal: 16, vertical: 6),
-                  ),
-                  onChanged: (_) => controller.update(),
-                ),
-              ),
-              ScaleUtil.sizedBox(height: 16),
-              _buildImageList(),
-              ScaleUtil.sizedBox(height: 16),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  SlideInRight(
-                    child: Row(
-                      children: [
-                        _buildImagePickerButton(),
-                        ScaleUtil.sizedBox(width: 16),
-                        _buildSaveIconButton(),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ],
+            ),
           ),
         ),
       ),
@@ -315,10 +323,11 @@ class VisionBottomSheet extends GetWidget<VisionBoardController> {
     });
   }
 
- Widget _buildSaveIconButton() {
+  Widget _buildSaveIconButton() {
     return Obx(() => Container(
           decoration: BoxDecoration(
-            color: controller.canSave && controller.titleController.text.trim().isNotEmpty
+            color: controller.canSave &&
+                    controller.titleController.text.trim().isNotEmpty
                 ? appTheme.colorScheme.primary
                 : Colors.grey,
             shape: BoxShape.circle,
@@ -344,7 +353,8 @@ class VisionBottomSheet extends GetWidget<VisionBoardController> {
                         height: ScaleUtil.height(15),
                         child: CircularProgressIndicator(
                           strokeWidth: 2,
-                          valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                          valueColor:
+                              AlwaysStoppedAnimation<Color>(Colors.white),
                         ),
                       )
                     : Icon(

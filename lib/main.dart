@@ -109,6 +109,19 @@ void main() async {
           enableLights: true,
           enableVibration: true,
         ),
+         NotificationChannel(
+          channelKey: 'vision_board_reminders',
+          channelName: 'Vision Board Reminders',
+          channelDescription: 'Notification channel for vision board item reminders',
+          defaultColor: Color(0xFF9D50DD),
+          ledColor: Colors.purple,
+          importance: NotificationImportance.High,
+          channelShowBadge: true,
+          playSound: true,
+          soundSource: soundSource,
+          enableLights: true,
+          enableVibration: true,
+        ),
       ],
       debug: true);
 

@@ -1,5 +1,6 @@
 import 'dart:ui';
 
+import 'package:animate_do/animate_do.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:dots_indicator/dots_indicator.dart';
 import 'package:flutter/material.dart';
@@ -17,7 +18,6 @@ import '../widgets/vision_bottom_sheet.dart';
 class VisionBoardPage extends GetWidget<VisionBoardController> {
   @override
   Widget build(BuildContext context) {
-    ScaleUtil.init(context);
     return Scaffold(
       extendBodyBehindAppBar: true,
       appBar: _buildFrostedGlassAppBar(context),
@@ -32,17 +32,42 @@ class VisionBoardPage extends GetWidget<VisionBoardController> {
             ),
           );
         } else {
-          return ListView.builder(
-            padding: EdgeInsets.only(top: kToolbarHeight + 20),
-            itemCount: controller.visionBoardItems.length,
-            itemBuilder: (context, index) {
-              final item = controller.visionBoardItems[index];
-              return VisionBoardItemCard(
-                item: item,
-                onEdit: () =>
-                    controller.showAddEditBottomSheet(context, item: item),
-              );
-            },
+          return Stack(
+            children: [
+              ListView.builder(
+                padding: EdgeInsets.zero, // Remove any padding
+                itemCount: controller.visionBoardItems.length,
+                itemBuilder: (context, index) {
+                  final item = controller.visionBoardItems[index];
+                  return FadeInUp(
+                    child: VisionBoardItemCard(
+                      item: item,
+                      onEdit: () => controller.showAddEditBottomSheet(context,
+                          item: item),
+                    ),
+                  );
+                },
+              ),
+              // Add a top gradient to ensure text readability when scrolling
+              Positioned(
+                top: 0,
+                left: 0,
+                right: 0,
+                height: kToolbarHeight + MediaQuery.of(context).padding.top,
+                child: Container(
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                      colors: [
+                        Colors.black.withOpacity(0.7),
+                        Colors.transparent,
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ],
           );
         }
       }),
@@ -54,7 +79,7 @@ class VisionBoardPage extends GetWidget<VisionBoardController> {
       preferredSize: Size.fromHeight(kToolbarHeight),
       child: ClipRRect(
         child: BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: 0, sigmaY: 10),
+          filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
           child: AppBar(
             backgroundColor: Colors.transparent,
             elevation: 0,
@@ -64,12 +89,16 @@ class VisionBoardPage extends GetWidget<VisionBoardController> {
                 color: Colors.white,
               ),
             ),
+            leading: _buildAppBarIcon(
+              icon: Icons.arrow_back,
+              onPressed: () => Navigator.of(context).pop(),
+            ),
             actions: [
               Obx(() {
                 if (controller.visionBoardItems.length < 20) {
-                  return IconButton(
+                  return _buildAppBarIcon(
+                    icon: FontAwesomeIcons.plus,
                     onPressed: () => _showAddItemSheet(context),
-                    icon: Icon(FontAwesomeIcons.plus, color: Colors.white),
                   );
                 } else {
                   return SizedBox.shrink();
@@ -77,6 +106,29 @@ class VisionBoardPage extends GetWidget<VisionBoardController> {
               }),
             ],
           ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildAppBarIcon({
+    required IconData icon,
+    required VoidCallback onPressed,
+  }) {
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: Container(
+        decoration: BoxDecoration(
+          color: Colors.white.withOpacity(0.3),
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: IconButton(
+          icon: Icon(
+            icon,
+            color: Colors.white,
+            size: ScaleUtil.iconSize(15),
+          ),
+          onPressed: onPressed,
         ),
       ),
     );

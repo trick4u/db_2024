@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
@@ -25,6 +26,7 @@ class VisionBoardController extends GetxController {
   final editingItem = Rx<VisionBoardItem?>(null);
   final selectedNetworkImages = <String>[].obs;
   final _imageHashes = <String>{};
+    final RxMap<String, bool> _scheduledNotifications = <String, bool>{}.obs;
 
   String? _originalTitle;
   DateTime? _originalDate;
@@ -52,6 +54,7 @@ class VisionBoardController extends GetxController {
     ever(selectedImages, (_) => _checkForChanges());
     ever(selectedNetworkImages, (_) => _checkForChanges());
     fetchVisionBoardItems();
+        _loadScheduledNotifications();
   }
 
   @override
@@ -60,7 +63,92 @@ class VisionBoardController extends GetxController {
     titleController.dispose();
     super.onClose();
   }
+    void _loadScheduledNotifications() async {
+    List<NotificationModel> notifications = await AwesomeNotifications().listScheduledNotifications();
+    for (var notification in notifications) {
+      _scheduledNotifications[notification.content!.id.toString()] = true;
+    }
+  }
+    bool hasScheduledNotification(String itemId) {
+    return _scheduledNotifications[itemId] ?? false;
+  }
 
+ Future<void> scheduleNotification(VisionBoardItem item, bool isMorning) async {
+    int notificationId = item.id.hashCode;
+    String title = 'Vision Board Reminder';
+    String body = item.title;
+    String imageUrl = item.imageUrls.isNotEmpty ? item.imageUrls[0] : '';
+
+    DateTime scheduledTime = isMorning ? _getNextMorningTime() : _getNextNightTime();
+
+    await AwesomeNotifications().createNotification(
+      content: NotificationContent(
+        id: notificationId,
+        channelKey: 'vision_board_reminders',
+        title: title,
+        body: body,
+        bigPicture: imageUrl,
+        notificationLayout: NotificationLayout.BigPicture,
+      ),
+      schedule: NotificationCalendar(
+        year: scheduledTime.year,
+        month: scheduledTime.month,
+        day: scheduledTime.day,
+        hour: scheduledTime.hour,
+        minute: scheduledTime.minute,
+        second: 0,
+        millisecond: 0,
+        repeats: true,
+        allowWhileIdle: true,
+      ),
+    );
+
+    // Update the item's notification state in Firestore
+    await visionBoardCollection.doc(item.id).update({
+      'hasNotification': true,
+      'notificationTime': isMorning ? 'morning' : 'night',
+    });
+
+    Get.snackbar(
+      'Notification Scheduled',
+      'You will be reminded ${isMorning ? 'at 8 AM' : 'at 10 PM'}',
+      snackPosition: SnackPosition.BOTTOM,
+    );
+  }
+
+  Future<void> cancelNotification(String itemId) async {
+    await AwesomeNotifications().cancel(itemId.hashCode);
+
+    // Update the item's notification state in Firestore
+    await visionBoardCollection.doc(itemId).update({
+      'hasNotification': false,
+      'notificationTime': null,
+    });
+
+    Get.snackbar(
+      'Notification Cancelled',
+      'The reminder for this item has been cancelled',
+      snackPosition: SnackPosition.BOTTOM,
+    );
+  }
+
+  DateTime _getNextMorningTime() {
+    DateTime now = DateTime.now();
+    DateTime scheduledTime = DateTime(now.year, now.month, now.day, 8, 0);
+    if (scheduledTime.isBefore(now)) {
+      scheduledTime = scheduledTime.add(Duration(days: 1));
+    }
+    return scheduledTime;
+  }
+
+  DateTime _getNextNightTime() {
+    DateTime now = DateTime.now();
+    DateTime scheduledTime = DateTime(now.year, now.month, now.day, 22, 0);
+    if (scheduledTime.isBefore(now)) {
+      scheduledTime = scheduledTime.add(Duration(days: 1));
+    }
+    return scheduledTime;
+  }
   void resetForm() {
     titleController.clear();
     selectedImages.clear();
@@ -499,6 +587,8 @@ class VisionBoardItem {
   final DateTime date;
   final List<String> imageUrls;
   final String userId;
+  bool hasNotification;
+  String? notificationTime;
 
   VisionBoardItem({
     required this.id,
@@ -506,6 +596,8 @@ class VisionBoardItem {
     required this.date,
     required this.imageUrls,
     required this.userId,
+    this.hasNotification = false,
+    this.notificationTime,
   });
 
   Map<String, dynamic> toMap() {
@@ -514,6 +606,8 @@ class VisionBoardItem {
       'date': Timestamp.fromDate(date),
       'imageUrls': imageUrls,
       'userId': userId,
+      'hasNotification': hasNotification,
+      'notificationTime': notificationTime,
       'createdAt': FieldValue.serverTimestamp(),
     };
   }
@@ -526,6 +620,8 @@ class VisionBoardItem {
       date: (data['date'] as Timestamp).toDate(),
       imageUrls: List<String>.from(data['imageUrls'] ?? []),
       userId: data['userId'] ?? '',
+      hasNotification: data['hasNotification'] ?? false,
+      notificationTime: data['notificationTime'],
     );
   }
 }
