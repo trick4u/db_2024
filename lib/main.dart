@@ -66,6 +66,8 @@ void main() async {
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   FirebaseFirestore.instance.settings = Settings(persistenceEnabled: true);
   Get.put(AuthService());
+  final appTheme = Get.put(AppTheme());
+  appTheme.updateStatusBarColor();
   await initializeTimeZone();
   if (Platform.isAndroid) {
     await Workmanager().initialize(callbackDispatcher, isInDebugMode: true);
@@ -182,39 +184,24 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final appTheme = Get.put(AppTheme());
+    final appTheme = Get.find<AppTheme>();
 
     return Obx(() => GetMaterialApp(
-          title: 'DoBoard Demo',
-          debugShowCheckedModeBanner: false,
-          theme: ThemeData(
-            colorScheme: AppTheme.lightColorScheme,
-            textTheme: TextTheme(
-              titleLarge: appTheme.titleLarge,
-              bodyMedium: appTheme.bodyMedium,
-            ),
-          ),
-          darkTheme: ThemeData(
-            colorScheme: AppTheme.darkColorScheme,
-            textTheme: TextTheme(
-              titleLarge: appTheme.titleLarge,
-              bodyMedium: appTheme.bodyMedium,
-            ),
-          ),
-          themeMode: appTheme.isDarkMode ? ThemeMode.dark : ThemeMode.light,
-          initialBinding: InitialBinding(),
-          initialRoute: AppRoutes.AUTHWRAPPER,
-          home: MyHomePage(),
-          getPages: AppRoutes.routes,
-          builder: (context, child) {
-            ScaleUtil();
-
-            return MediaQuery(
-              data: MediaQuery.of(context)
-                  .copyWith(textScaler: TextScaler.linear(1.0)),
-              child: child!,
-            );
-          },
-        ));
+      title: 'DoBoard Demo',
+      debugShowCheckedModeBanner: false,
+      theme: appTheme.themeData,
+      darkTheme: appTheme.themeData,
+      themeMode: appTheme.isDarkMode ? ThemeMode.dark : ThemeMode.light,
+      initialBinding: InitialBinding(),
+      initialRoute: AppRoutes.AUTHWRAPPER,
+      getPages: AppRoutes.routes,
+      builder: (context, child) {
+        ScaleUtil.init(context);
+        return MediaQuery(
+          data: MediaQuery.of(context).copyWith(textScaler: TextScaler.linear(1.0)),
+          child: child!,
+        );
+      },
+    ));
   }
 }

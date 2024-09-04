@@ -12,7 +12,7 @@ class ProfileScreen extends GetWidget<ProfileController> {
   @override
   Widget build(BuildContext context) {
     ScaleUtil.init(context); // Initialize ScaleUtil
-
+        appTheme.updateStatusBarColor();
     return Scaffold(
       resizeToAvoidBottomInset: false,
       appBar: AppBar(
@@ -88,7 +88,10 @@ class ProfileScreen extends GetWidget<ProfileController> {
                     ScaleUtil.sizedBox(height: 20),
                     InkWell(
                       splashColor: Colors.transparent,
-                      onTap: () => appTheme.toggleTheme(),
+                      onTap: () {
+                        appTheme.toggleTheme();
+                        appTheme.updateStatusBarColor(); // Add this line
+                      },
                       child: Obx(() => Container(
                             padding: ScaleUtil.symmetric(
                                 vertical: 12, horizontal: 16),
@@ -124,7 +127,7 @@ class ProfileScreen extends GetWidget<ProfileController> {
                     ),
                     _buildOptionTile('change password',
                         onTap: () => _showChangePasswordDialog(context)),
-                       _buildOptionTile('logout',
+                    _buildOptionTile('logout',
                         onTap: () => controller.logout()),
                     _buildOptionTile('delete account',
                         onTap: () => controller.deleteAccount()),

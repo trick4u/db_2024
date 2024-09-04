@@ -16,8 +16,10 @@ import '../widgets/vision_board_card.dart';
 import '../widgets/vision_bottom_sheet.dart';
 
 class VisionBoardPage extends GetWidget<VisionBoardController> {
+   final appTheme = Get.find<AppTheme>();
   @override
   Widget build(BuildContext context) {
+      appTheme.updateStatusBarColor();
     return Scaffold(
       extendBodyBehindAppBar: true,
       appBar: _buildFrostedGlassAppBar(context),
@@ -39,7 +41,7 @@ class VisionBoardPage extends GetWidget<VisionBoardController> {
                 itemCount: controller.visionBoardItems.length,
                 itemBuilder: (context, index) {
                   final item = controller.visionBoardItems[index];
-                  return FadeInUp(
+                  return SlideInUp(
                     child: VisionBoardItemCard(
                       item: item,
                       onEdit: () => controller.showAddEditBottomSheet(context,
