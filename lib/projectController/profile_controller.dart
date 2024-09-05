@@ -222,21 +222,7 @@ class ProfileController extends GetxController {
     }
   }
 
-  Future<void> updateEmail(String newEmail) async {
-    try {
-      User? user = _auth.currentUser;
-      if (user != null) {
-        await user.verifyBeforeUpdateEmail(newEmail);
-        await _firestore.collection('users').doc(user.uid).update({
-          'email': newEmail,
-        });
-        email.value = newEmail; // Update the observable
-        Get.snackbar('Success', 'Email updated successfully');
-      }
-    } catch (error) {
-      Get.snackbar('Error', 'Failed to update email: $error');
-    }
-  }
+
 
   Future<void> updateUsername(String newUsername) async {
     try {

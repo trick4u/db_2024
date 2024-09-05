@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:tushar_db/app_routes.dart';
+import 'package:tushar_db/services/app_text_style.dart';
 import 'package:tushar_db/services/scale_util.dart';
 
 import '../projectController/profile_controller.dart';
@@ -11,127 +12,95 @@ class ProfileScreen extends GetWidget<ProfileController> {
 
   @override
   Widget build(BuildContext context) {
-    ScaleUtil.init(context); // Initialize ScaleUtil
-        appTheme.updateStatusBarColor();
+    ScaleUtil.init(context);
+    appTheme.updateStatusBarColor();
     return Scaffold(
       resizeToAvoidBottomInset: false,
-      appBar: AppBar(
-        title: Obx(() => Text(controller.username.value,
-            style: TextStyle(fontSize: ScaleUtil.fontSize(18)))),
-        automaticallyImplyLeading: false,
-        actions: [
-          TextButton(
-            child: Text('Edit',
-                style: TextStyle(fontSize: ScaleUtil.fontSize(16))),
-            onPressed: () => _showEditDialog(context),
-          ),
-        ],
-      ),
       body: SafeArea(
-        child: Column(
-          children: [
-            // Static blue container
-            Column(
-              children: [
-                Padding(
-                  padding: ScaleUtil.symmetric(vertical: 15),
-                  child: Container(
-                    height: ScaleUtil.height(200),
-                    width: ScaleUtil.width(200),
-                    decoration: BoxDecoration(
-                      borderRadius: ScaleUtil.circular(20),
-                      boxShadow: [
-                        BoxShadow(
-                          color: appTheme.colorScheme.primary.withOpacity(0.3),
-                          blurRadius: ScaleUtil.scale(10),
-                          spreadRadius: ScaleUtil.scale(1),
-                          offset: Offset(0, ScaleUtil.scale(5)),
-                        ),
+        child: CustomScrollView(
+          slivers: [
+            SliverAppBar(
+              expandedHeight: ScaleUtil.height(100),
+              floating: false,
+              pinned: true,
+              flexibleSpace: FlexibleSpaceBar(
+                background: Container(
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                      colors: [
+                        appTheme.colorScheme.primary,
+                        Colors.deepPurpleAccent,
                       ],
-                      color: Colors.blue,
-                      shape: BoxShape.rectangle,
                     ),
                   ),
                 ),
-                ScaleUtil.sizedBox(height: 16),
-                Obx(
-                  () => Text(
-                    controller.name.value,
-                    style: TextStyle(
-                        fontSize: ScaleUtil.fontSize(20),
-                        fontWeight: FontWeight.bold),
-                    textAlign: TextAlign.center,
-                  ),
-                ),
-                Obx(() => Text(controller.email.value ?? '',
-                    style: TextStyle(fontSize: ScaleUtil.fontSize(12)),
-                    textAlign: TextAlign.center)),
-                TextButton(
-                  child: Text(
-                    'Edit',
-                    style: TextStyle(
-                      color: Colors.blue,
-                      fontSize: ScaleUtil.fontSize(12),
-                    ),
+                title: Obx(() => Text(
+                      controller.name.value,
+                      style: TextStyle(
+                        fontSize: ScaleUtil.fontSize(15),
+                      ),
+                    )),
+                centerTitle: true,
+              ),
+              actions: [
+                IconButton(
+                  icon: Icon(
+                    Icons.edit,
+                    size: ScaleUtil.iconSize(15),
                   ),
                   onPressed: () => _showEditDialog(context),
                 ),
               ],
             ),
-            // Remaining items in ListView
-            Expanded(
-              child: RefreshIndicator(
-                onRefresh: controller.fetchNotifications,
-                child: ListView(
-                  padding: ScaleUtil.symmetric(horizontal: 16),
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: ScaleUtil.all(16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    ScaleUtil.sizedBox(height: 20),
-                    InkWell(
-                      splashColor: Colors.transparent,
-                      onTap: () {
-                        appTheme.toggleTheme();
-                        appTheme.updateStatusBarColor(); // Add this line
-                      },
-                      child: Obx(() => Container(
-                            padding: ScaleUtil.symmetric(
-                                vertical: 12, horizontal: 16),
-                            margin: ScaleUtil.only(bottom: 8),
-                            decoration: BoxDecoration(
-                              color: appTheme.isDarkMode
-                                  ? Colors.white
-                                  : Colors.black,
-                              borderRadius: ScaleUtil.circular(8),
-                            ),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Text(
-                                  'theme',
-                                  style: TextStyle(
-                                    fontSize: ScaleUtil.fontSize(12),
-                                    color: appTheme.isDarkMode
-                                        ? Colors.black
-                                        : Colors.white,
-                                  ),
-                                ),
-                                Icon(
-                                  Icons.arrow_forward_ios,
-                                  size: ScaleUtil.iconSize(16),
-                                  color: appTheme.isDarkMode
-                                      ? Colors.black
-                                      : Colors.white,
-                                ),
-                              ],
-                            ),
-                          )),
+                    Card(
+                      elevation: 4,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: ScaleUtil.circular(12),
+                      ),
+                      child: Padding(
+                        padding: ScaleUtil.all(16),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text('Profile Info',
+                                style: TextStyle(
+                                    fontSize: ScaleUtil.fontSize(18),
+                                    fontWeight: FontWeight.bold)),
+                            ScaleUtil.sizedBox(height: 12),
+                            _buildSettingTile('Username', Icons.person,
+                                valueBuilder: () => controller.username.value),
+                            _buildSettingTile('Email', Icons.email,
+                                valueBuilder: () =>
+                                    controller.email.value ?? ''),
+                          ],
+                        ),
+                      ),
                     ),
-                    _buildOptionTile('change password',
+                    ScaleUtil.sizedBox(height: 24),
+                    Text('Settings',
+                        style: TextStyle(
+                            fontSize: ScaleUtil.fontSize(18),
+                            fontWeight: FontWeight.bold)),
+                    ScaleUtil.sizedBox(height: 12),
+                    _buildSettingTile('Theme', Icons.brightness_6, onTap: () {
+                      appTheme.toggleTheme();
+                      appTheme.updateStatusBarColor();
+                    }),
+                    _buildSettingTile('Change Password', Icons.lock,
                         onTap: () => _showChangePasswordDialog(context)),
-                    _buildOptionTile('logout',
+                    _buildSettingTile('Logout', Icons.exit_to_app,
                         onTap: () => controller.logout()),
-                    _buildOptionTile('delete account',
-                        onTap: () => controller.deleteAccount()),
-                    ScaleUtil.sizedBox(height: 20),
+                    _buildSettingTile('Delete Account', Icons.delete_forever,
+                        onTap: () => controller.deleteAccount(),
+                        color: Colors.red),
                   ],
                 ),
               ),
@@ -142,38 +111,21 @@ class ProfileScreen extends GetWidget<ProfileController> {
     );
   }
 
-  Widget _buildOptionTile(String title,
-      {bool isSwitch = false, VoidCallback? onTap}) {
-    return InkWell(
-      onTap: onTap,
-      child: Container(
-        padding: ScaleUtil.symmetric(vertical: 12, horizontal: 16),
-        margin: ScaleUtil.only(bottom: 8),
-        decoration: BoxDecoration(
-          borderRadius: ScaleUtil.circular(8),
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text(
-              title,
-              style: TextStyle(
-                fontSize: ScaleUtil.fontSize(12),
-              ),
+  Widget _buildSettingTile(String title, IconData icon,
+      {VoidCallback? onTap, Color? color, String Function()? valueBuilder}) {
+    return ListTile(
+      leading: Icon(icon, size: ScaleUtil.iconSize(15)),
+      title: Text(title, style: AppTextTheme.textTheme.bodySmall),
+      trailing: valueBuilder != null
+          ? Obx(
+              () =>
+                  Text(valueBuilder(), style: AppTextTheme.textTheme.bodySmall),
+            )
+          : Icon(
+              Icons.chevron_right,
+              size: ScaleUtil.iconSize(15),
             ),
-            if (isSwitch)
-              Switch(
-                value: false,
-                onChanged: (value) {
-                  // Handle switch change
-                },
-                activeColor: Colors.blue,
-              )
-            else
-              Icon(Icons.arrow_forward_ios, size: ScaleUtil.iconSize(16)),
-          ],
-        ),
-      ),
+      onTap: onTap,
     );
   }
 
@@ -201,17 +153,6 @@ class ProfileScreen extends GetWidget<ProfileController> {
                   style: TextStyle(fontSize: ScaleUtil.fontSize(16)),
                   onChanged: (value) => newName = value,
                   controller: TextEditingController(text: newName),
-                ),
-                ScaleUtil.sizedBox(height: 16),
-                TextField(
-                  decoration: InputDecoration(
-                    labelText: 'Email',
-                    labelStyle: TextStyle(fontSize: ScaleUtil.fontSize(16)),
-                    border: OutlineInputBorder(),
-                  ),
-                  style: TextStyle(fontSize: ScaleUtil.fontSize(16)),
-                  onChanged: (value) => newEmail = value,
-                  controller: TextEditingController(text: newEmail),
                 ),
                 ScaleUtil.sizedBox(height: 16),
                 TextField(
@@ -244,11 +185,6 @@ class ProfileScreen extends GetWidget<ProfileController> {
 
                 if (newName != controller.name.value) {
                   await controller.updateName(newName);
-                  anyChanges = true;
-                }
-
-                if (newEmail != controller.email.value) {
-                  await controller.updateEmail(newEmail);
                   anyChanges = true;
                 }
 

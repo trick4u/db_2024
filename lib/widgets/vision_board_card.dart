@@ -163,34 +163,40 @@ class VisionBoardItemCard extends StatelessWidget {
     );
   }
 
-   Widget _buildNotificationButton(BuildContext context, VisionBoardController controller, AppTheme appTheme) {
-    return PopupMenuButton<String>(
-      icon: Icon(
-        item.hasNotification ? FontAwesomeIcons.solidBell : FontAwesomeIcons.bell,
-        size: ScaleUtil.iconSize(15),
-        color: item.hasNotification ? appTheme.colorScheme.primary : null,
-      ),
-      onSelected: (String value) => _handleNotificationAction(value, controller),
-      itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
-        PopupMenuItem<String>(
-          value: 'morning',
-          child: Text('At Morning'),
-        ),
-        PopupMenuItem<String>(
-          value: 'night',
-          child: Text('At Night'),
-        ),
-        if (item.hasNotification)
-          PopupMenuItem<String>(
-            value: 'cancel',
-            child: Text('Cancel Notification'),
+  Widget _buildNotificationButton(BuildContext context,
+      VisionBoardController controller, AppTheme appTheme) {
+    return Obx(() => PopupMenuButton<String>(
+          icon: Icon(
+            controller.isNotificationActive(item.id)
+                ? FontAwesomeIcons.solidBell
+                : FontAwesomeIcons.bell,
+            size: ScaleUtil.iconSize(15),
+            color: controller.isNotificationActive(item.id)
+                ? appTheme.colorScheme.primary
+                : null,
           ),
-      ],
-    );
+          onSelected: (String value) =>
+              _handleNotificationAction(value, controller),
+          itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
+            PopupMenuItem<String>(
+              value: 'morning',
+              child: Text('At Morning'),
+            ),
+            PopupMenuItem<String>(
+              value: 'night',
+              child: Text('At Night'),
+            ),
+            if (controller.isNotificationActive(item.id))
+              PopupMenuItem<String>(
+                value: 'cancel',
+                child: Text('Cancel Notification'),
+              ),
+          ],
+        ));
   }
 
-
- void _handleNotificationAction(String action, VisionBoardController controller) {
+  void _handleNotificationAction(
+      String action, VisionBoardController controller) {
     switch (action) {
       case 'morning':
         controller.scheduleNotification(item, true);
@@ -204,72 +210,8 @@ class VisionBoardItemCard extends StatelessWidget {
     }
   }
 
-  void _scheduleNotification(String timeOfDay) async {
-    int notificationId = item.id.hashCode;
-    String title = 'Vision Board Reminder';
-    String body = item.title;
-    String imageUrl = item.imageUrls.isNotEmpty ? item.imageUrls[0] : '';
-
-    DateTime scheduledTime;
-    if (timeOfDay == 'morning') {
-      scheduledTime = _getNextMorningTime();
-    } else {
-      scheduledTime = _getNextNightTime();
-    }
-
-    await AwesomeNotifications().createNotification(
-      content: NotificationContent(
-        id: notificationId,
-        channelKey: 'vision_board_reminders',
-        title: title,
-        body: body,
-        bigPicture: imageUrl,
-        notificationLayout: NotificationLayout.BigPicture,
-      ),
-      schedule: NotificationCalendar(
-        year: scheduledTime.year,
-        month: scheduledTime.month,
-        day: scheduledTime.day,
-        hour: scheduledTime.hour,
-        minute: scheduledTime.minute,
-        second: 0,
-        millisecond: 0,
-        repeats: true,
-        allowWhileIdle: true,
-      ),
-    );
-
-    Get.snackbar(
-      'Notification Scheduled',
-      'You will be reminded ${timeOfDay == 'morning' ? 'at 8 AM' : 'at 10 PM'}',
-      snackPosition: SnackPosition.BOTTOM,
-    );
-  }
-
-  DateTime _getNextMorningTime() {
-    DateTime now = DateTime.now();
-    DateTime scheduledTime = DateTime(now.year, now.month, now.day, 8, 0);
-    if (scheduledTime.isBefore(now)) {
-      scheduledTime = scheduledTime.add(Duration(days: 1));
-    }
-    return scheduledTime;
-  }
-
-  DateTime _getNextNightTime() {
-    DateTime now = DateTime.now();
-    DateTime scheduledTime = DateTime(now.year, now.month, now.day, 22, 0);
-    if (scheduledTime.isBefore(now)) {
-      scheduledTime = scheduledTime.add(Duration(days: 1));
-    }
-    return scheduledTime;
-  }
-
   String _getTimeAgo() {
     return timeago.format(item.date, allowFromNow: true);
-  }
-
-  String _formatDate(DateTime date) {
-    return '${date.day}/${date.month}/${date.year}';
   }
 
   void _confirmDelete(BuildContext context, VisionBoardController controller) {

@@ -198,11 +198,15 @@ class StatisticsScreen extends GetWidget<StatisticsController> {
                               onPressed: controller.goToPreviousWeek,
                             )
                           : SizedBox.shrink()),
-                      Obx(() => Text(controller.getDateRangeText(),
+                      Obx(
+                        () => Text(
+                          controller.getDateRangeText(),
                           style: TextStyle(
                             color: appTheme.secondaryTextColor,
                             fontSize: ScaleUtil.fontSize(10),
-                          ))),
+                          ),
+                        ),
+                      ),
                       IconButton(
                         icon: Icon(Icons.arrow_forward_ios,
                             size: ScaleUtil.iconSize(12),

@@ -3,6 +3,7 @@ import 'dart:ui';
 import 'package:animate_do/animate_do.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:dots_indicator/dots_indicator.dart';
+import 'package:dough/dough.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
@@ -16,17 +17,19 @@ import '../widgets/vision_board_card.dart';
 import '../widgets/vision_bottom_sheet.dart';
 
 class VisionBoardPage extends GetWidget<VisionBoardController> {
-   final appTheme = Get.find<AppTheme>();
+  final appTheme = Get.find<AppTheme>();
+  final ScrollController _scrollController = ScrollController();
+
   @override
   Widget build(BuildContext context) {
-      appTheme.updateStatusBarColor();
+    appTheme.updateStatusBarColor();
     return Scaffold(
       extendBodyBehindAppBar: true,
       appBar: _buildFrostedGlassAppBar(context),
       body: Obx(() {
         if (controller.isLoading.value) {
           return Center(child: CircularProgressIndicator());
-        } else if (controller.visionBoardItems.isEmpty) {
+        } else if (controller.displayedItems.isEmpty) {
           return Center(
             child: Text(
               'Create your vision..',
@@ -36,19 +39,29 @@ class VisionBoardPage extends GetWidget<VisionBoardController> {
         } else {
           return Stack(
             children: [
-              ListView.builder(
-                padding: EdgeInsets.zero, // Remove any padding
-                itemCount: controller.visionBoardItems.length,
-                itemBuilder: (context, index) {
-                  final item = controller.visionBoardItems[index];
-                  return SlideInUp(
-                    child: VisionBoardItemCard(
-                      item: item,
-                      onEdit: () => controller.showAddEditBottomSheet(context,
-                          item: item),
-                    ),
-                  );
-                },
+              NotificationListener<ScrollNotification>(
+                onNotification: _handleScrollNotification,
+                child: ListView.builder(
+                  controller: _scrollController,
+                  padding: EdgeInsets.zero, // Remove any padding
+                  itemCount: controller.displayedItems.length + 1,
+                  itemBuilder: (context, index) {
+                    if (index < controller.displayedItems.length) {
+                      final item = controller.displayedItems[index];
+                      return SlideInUp(
+                        child: VisionBoardItemCard(
+                          item: item,
+                          onEdit: () => controller
+                              .showAddEditBottomSheet(context, item: item),
+                        ),
+                      );
+                    } else if (controller.hasMoreItems) {
+                      return _buildLoadingIndicator();
+                    } else {
+                      return SizedBox.shrink();
+                    }
+                  },
+                ),
               ),
               // Add a top gradient to ensure text readability when scrolling
               Positioned(
@@ -76,37 +89,59 @@ class VisionBoardPage extends GetWidget<VisionBoardController> {
     );
   }
 
+  bool _handleScrollNotification(ScrollNotification scrollInfo) {
+    if (scrollInfo.metrics.pixels == scrollInfo.metrics.maxScrollExtent) {
+      if (controller.hasMoreItems && !controller.isLoadingMore.value) {
+        controller.loadMoreItems();
+      }
+    }
+    return true;
+  }
+
+  Widget _buildLoadingIndicator() {
+    return Container(
+      padding: EdgeInsets.all(16.0),
+      alignment: Alignment.center,
+      child: CircularProgressIndicator(),
+    );
+  }
+
   PreferredSizeWidget _buildFrostedGlassAppBar(BuildContext context) {
     return PreferredSize(
       preferredSize: Size.fromHeight(kToolbarHeight),
-      child: ClipRRect(
-        child: BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-          child: AppBar(
-            backgroundColor: Colors.transparent,
-            elevation: 0,
-            title: Text(
-              'vision',
-              style: AppTextTheme.textTheme.displaySmall?.copyWith(
-                color: Colors.white,
+      child: PressableDough(
+        onReleased: (d){
+          controller.reverseOrder();
+        },
+        child: ClipRRect(
+          child: BackdropFilter(
+            filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+            child: AppBar(
+              backgroundColor: Colors.transparent,
+              elevation: 0,
+              title: Text(
+                'vision',
+                style: AppTextTheme.textTheme.displaySmall?.copyWith(
+                  color: Colors.white,
+                ),
               ),
+              leading: _buildAppBarIcon(
+                icon: Icons.arrow_back_ios_new,
+                onPressed: () => Navigator.of(context).pop(),
+              ),
+              actions: [
+                Obx(() {
+                  if (controller.visionBoardItems.length < 20) {
+                    return _buildAppBarIcon(
+                      icon: FontAwesomeIcons.plus,
+                      onPressed: () => _showAddItemSheet(context),
+                    );
+                  } else {
+                    return SizedBox.shrink();
+                  }
+                }),
+              ],
             ),
-            leading: _buildAppBarIcon(
-              icon: Icons.arrow_back,
-              onPressed: () => Navigator.of(context).pop(),
-            ),
-            actions: [
-              Obx(() {
-                if (controller.visionBoardItems.length < 20) {
-                  return _buildAppBarIcon(
-                    icon: FontAwesomeIcons.plus,
-                    onPressed: () => _showAddItemSheet(context),
-                  );
-                } else {
-                  return SizedBox.shrink();
-                }
-              }),
-            ],
           ),
         ),
       ),

@@ -20,13 +20,23 @@ class VisionBoardController extends GetxController {
   final selectedImages = <File>[].obs;
   final isSaving = false.obs;
   final isPickingImages = false.obs;
-  final visionBoardItems = <VisionBoardItem>[].obs;
-  final isLoading = true.obs;
+
   final isEditing = false.obs;
   final editingItem = Rx<VisionBoardItem?>(null);
   final selectedNetworkImages = <String>[].obs;
   final _imageHashes = <String>{};
-    final RxMap<String, bool> _scheduledNotifications = <String, bool>{}.obs;
+  final RxMap<String, bool> _scheduledNotifications = <String, bool>{}.obs;
+  final RxList<VisionBoardItem> visionBoardItems = <VisionBoardItem>[].obs;
+  final RxBool isLoading = true.obs;
+  final RxMap<String, bool> _notificationActiveStates = <String, bool>{}.obs;
+
+  DocumentSnapshot? lastDocument;
+
+  final RxList<VisionBoardItem> displayedItems = <VisionBoardItem>[].obs;
+  final RxBool isLoadingMore = false.obs;
+  final int pageSize = 5;
+  int currentPage = 0;
+  bool hasMoreItems = true;
 
   String? _originalTitle;
   DateTime? _originalDate;
@@ -38,6 +48,7 @@ class VisionBoardController extends GetxController {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   User? currentUser = FirebaseAuth.instance.currentUser;
   final RxList<String> itemOrder = <String>[].obs;
+  final RxBool isReversed = false.obs;
 
   CollectionReference get visionBoardCollection {
     return _firestore
@@ -54,7 +65,7 @@ class VisionBoardController extends GetxController {
     ever(selectedImages, (_) => _checkForChanges());
     ever(selectedNetworkImages, (_) => _checkForChanges());
     fetchVisionBoardItems();
-        _loadScheduledNotifications();
+    _loadScheduledNotifications();
   }
 
   @override
@@ -63,13 +74,34 @@ class VisionBoardController extends GetxController {
     titleController.dispose();
     super.onClose();
   }
-    void _loadScheduledNotifications() async {
-    List<NotificationModel> notifications = await AwesomeNotifications().listScheduledNotifications();
+    bool isNotificationActive(String itemId) {
+    return _notificationActiveStates[itemId] ?? false;
+  }
+
+  void reverseOrder() {
+    isReversed.value = !isReversed.value;
+    visionBoardItems.value = visionBoardItems.reversed.toList();
+    _updateDisplayedItems();
+  }
+
+  void _updateDisplayedItems() {
+    int endIndex = (currentPage + 1) * pageSize;
+    if (endIndex > visionBoardItems.length) {
+      endIndex = visionBoardItems.length;
+    }
+    displayedItems.value = visionBoardItems.sublist(0, endIndex);
+    hasMoreItems = endIndex < visionBoardItems.length;
+  }
+
+  void _loadScheduledNotifications() async {
+    List<NotificationModel> notifications =
+        await AwesomeNotifications().listScheduledNotifications();
     for (var notification in notifications) {
       _scheduledNotifications[notification.content!.id.toString()] = true;
     }
   }
-    bool hasScheduledNotification(String itemId) {
+
+  bool hasScheduledNotification(String itemId) {
     return _scheduledNotifications[itemId] ?? false;
   }
 
@@ -103,6 +135,14 @@ class VisionBoardController extends GetxController {
       ),
     );
 
+    // Set the notification state to active
+    _notificationActiveStates[item.id] = true;
+
+    // Schedule a function to revert the icon state after the notification fires
+    Future.delayed(scheduledTime.difference(DateTime.now()), () {
+      _notificationActiveStates[item.id] = false;
+    });
+
     // Update the item's notification state in Firestore
     await visionBoardCollection.doc(item.id).update({
       'hasNotification': true,
@@ -119,6 +159,9 @@ class VisionBoardController extends GetxController {
   Future<void> cancelNotification(String itemId) async {
     await AwesomeNotifications().cancel(itemId.hashCode);
 
+    // Update the local state
+    _notificationActiveStates[itemId] = false;
+
     // Update the item's notification state in Firestore
     await visionBoardCollection.doc(itemId).update({
       'hasNotification': false,
@@ -131,6 +174,7 @@ class VisionBoardController extends GetxController {
       snackPosition: SnackPosition.BOTTOM,
     );
   }
+
 
   DateTime _getNextMorningTime() {
     DateTime now = DateTime.now();
@@ -149,6 +193,7 @@ class VisionBoardController extends GetxController {
     }
     return scheduledTime;
   }
+
   void resetForm() {
     titleController.clear();
     selectedImages.clear();
@@ -242,6 +287,9 @@ class VisionBoardController extends GetxController {
       _imageHashes.add(url); // Use URL as a simple hash for network images
     }
 
+    // Preserve notification state
+    _scheduledNotifications[item.id] = item.hasNotification;
+
     _checkForChanges();
     showAddEditBottomSheet(context, item: item);
   }
@@ -269,6 +317,9 @@ class VisionBoardController extends GetxController {
         date: selectedDate.value,
         imageUrls: updatedImageUrls,
         userId: editingItem.value!.userId,
+        hasNotification: hasScheduledNotification(editingItem.value!.id),
+        notificationTime: editingItem.value!.notificationTime,
+        createdAt: editingItem.value!.createdAt,
       );
 
       await updateItem(updatedItem);
@@ -322,39 +373,23 @@ class VisionBoardController extends GetxController {
     update();
   }
 
-  void fetchVisionBoardItems() {
+ void fetchVisionBoardItems() {
     if (currentUser == null) return;
 
     isLoading.value = true;
-    visionBoardCollection.snapshots().listen((querySnapshot) {
-      List<VisionBoardItem> newItems = [];
-      List<String> newOrder = [];
+    visionBoardCollection
+        .orderBy('createdAt', descending: !isReversed.value)
+        .snapshots()
+        .listen((querySnapshot) {
+      List<VisionBoardItem> allItems = [];
 
       for (var doc in querySnapshot.docs) {
         VisionBoardItem item = VisionBoardItem.fromFirestore(doc);
-        newItems.add(item);
-        newOrder.add(item.id);
+        allItems.add(item);
       }
 
-      // If itemOrder is empty (first fetch), initialize it
-      if (itemOrder.isEmpty) {
-        itemOrder.value = newOrder;
-      } else {
-        // Merge new items into the existing order
-        for (String id in newOrder) {
-          if (!itemOrder.contains(id)) {
-            itemOrder.add(id);
-          }
-        }
-        // Remove any items that no longer exist
-        itemOrder.removeWhere((id) => !newOrder.contains(id));
-      }
-
-      // Sort newItems based on itemOrder
-      newItems.sort(
-          (a, b) => itemOrder.indexOf(a.id).compareTo(itemOrder.indexOf(b.id)));
-
-      visionBoardItems.value = newItems;
+      visionBoardItems.value = allItems;
+      _updateDisplayedItems();
       isLoading.value = false;
       update();
     }, onError: (error) {
@@ -362,6 +397,26 @@ class VisionBoardController extends GetxController {
       isLoading.value = false;
       update();
     });
+  }
+
+
+
+  Future<void> saveNewItem() async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) {
+      throw Exception('You must be logged in to save a vision board item');
+    }
+    final List<String> imageUrls = await uploadImages();
+    await saveToFirestore(imageUrls, user.uid);
+  }
+
+  void loadMoreItems() {
+    if (isLoadingMore.value || !hasMoreItems) return;
+
+    isLoadingMore.value = true;
+    currentPage++;
+    _updateDisplayedItems();
+    isLoadingMore.value = false;
   }
 
   void updateSelectedDate(DateTime date) {
@@ -438,15 +493,6 @@ class VisionBoardController extends GetxController {
       editingItem.value = null;
       resetForm();
     }
-  }
-
-  Future<void> saveNewItem() async {
-    final user = FirebaseAuth.instance.currentUser;
-    if (user == null) {
-      throw Exception('You must be logged in to save a vision board item');
-    }
-    final List<String> imageUrls = await uploadImages();
-    await saveToFirestore(imageUrls, user.uid);
   }
 
   Future<List<String>> updateImages(List<String> oldImageUrls) async {
@@ -536,12 +582,12 @@ class VisionBoardController extends GetxController {
   Future<void> saveToFirestore(List<String> imageUrls, String userId) async {
     final newItem = VisionBoardItem(
       id: '',
-      title: titleController.text.trim(), // Trim the title before saving
+      title: titleController.text.trim(),
       date: selectedDate.value,
       imageUrls: imageUrls,
       userId: userId,
+      createdAt: DateTime.now(),
     );
-
     final docRef = await visionBoardCollection.add(newItem.toMap());
     newItem.id = docRef.id;
 
@@ -589,6 +635,7 @@ class VisionBoardItem {
   final String userId;
   bool hasNotification;
   String? notificationTime;
+  final DateTime createdAt;
 
   VisionBoardItem({
     required this.id,
@@ -598,6 +645,7 @@ class VisionBoardItem {
     required this.userId,
     this.hasNotification = false,
     this.notificationTime,
+    required this.createdAt,
   });
 
   Map<String, dynamic> toMap() {
@@ -608,7 +656,7 @@ class VisionBoardItem {
       'userId': userId,
       'hasNotification': hasNotification,
       'notificationTime': notificationTime,
-      'createdAt': FieldValue.serverTimestamp(),
+      'createdAt': Timestamp.fromDate(createdAt),
     };
   }
 
@@ -622,6 +670,7 @@ class VisionBoardItem {
       userId: data['userId'] ?? '',
       hasNotification: data['hasNotification'] ?? false,
       notificationTime: data['notificationTime'],
+      createdAt: (data['createdAt'] as Timestamp).toDate(),
     );
   }
 }
