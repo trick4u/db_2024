@@ -6,7 +6,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+
 import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:workmanager/workmanager.dart';
@@ -327,27 +327,18 @@ class _AwesomeNotiState extends State<AwesomeNoti> {
 
 
 class NotificationController extends GetxController {
-  final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
-      FlutterLocalNotificationsPlugin();
+ 
   static const platform = MethodChannel('com.example.tushar_db/background_fetch');
  @override
   void onInit() {
     super.onInit();
-    initializeNotifications();
+
     if (Platform.isIOS) {
       _setupBackgroundChannel();
     }
   }
 
-  Future<void> initializeNotifications() async {
-    final AndroidInitializationSettings initializationSettingsAndroid =
-        AndroidInitializationSettings('@mipmap/ic_launcher');
-    final DarwinInitializationSettings initializationSettingsIOS =
-        DarwinInitializationSettings();
-    final InitializationSettings initializationSettings = InitializationSettings(
-        android: initializationSettingsAndroid, iOS: initializationSettingsIOS);
-    await flutterLocalNotificationsPlugin.initialize(initializationSettings);
-  }
+  
 
   void _setupBackgroundChannel() {
     platform.setMethodCallHandler((call) async {
@@ -381,27 +372,10 @@ class NotificationController extends GetxController {
 
   Future<void> fetchAndDisplayQuote() async {
     String quote = await fetchUniqueRandomQuote();
-    await showNotification(quote);
+   // await showNotification(quote);
   }
 
-  Future<void> showNotification(String quote) async {
-    const AndroidNotificationDetails androidPlatformChannelSpecifics =
-        AndroidNotificationDetails(
-      'quote_channel',
-      'Daily Quotes',
-      channelDescription: 'Daily motivational quotes',
-      importance: Importance.max,
-      priority: Priority.high,
-    );
-    const NotificationDetails platformChannelSpecifics =
-        NotificationDetails(android: androidPlatformChannelSpecifics);
-    await flutterLocalNotificationsPlugin.show(
-      0,
-      'Daily Motivation',
-      quote,
-      platformChannelSpecifics,
-    );
-  }
+
 
   Future<String> fetchUniqueRandomQuote() async {
     // Implement your logic to fetch a unique random quote

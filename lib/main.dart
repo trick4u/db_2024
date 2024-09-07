@@ -4,9 +4,10 @@ import 'dart:io';
 import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
-import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+
 import 'package:flutter_native_timezone_updated_gradle/flutter_native_timezone.dart';
 import 'package:get/get.dart';
 import 'package:get/route_manager.dart';
@@ -22,14 +23,10 @@ import 'package:tushar_db/services/auth_wrapper.dart';
 
 import 'app_routes.dart';
 import 'bindings/initial_binding.dart';
-import 'controller/home_controller.dart';
-import 'controller/work_manager_controller.dart';
-import 'loading_screen.dart';
-import 'pages/home_page.dart';
-import 'projectController/calendar_controller.dart';
+
 
 import 'projectPages/awesome_noti.dart';
-import 'projectPages/page_three.dart';
+
 import 'package:timezone/timezone.dart' as tz;
 import 'package:workmanager/workmanager.dart';
 
@@ -40,8 +37,6 @@ import 'services/notification_service.dart';
 import 'services/notification_tracking_service.dart';
 import 'services/scale_util.dart';
 
-FlutterLocalNotificationsPlugin notificationsPlugin =
-    FlutterLocalNotificationsPlugin();
 
 void callbackDispatcher() {
   Workmanager().executeTask((task, inputData) async {
@@ -60,6 +55,14 @@ void callbackDispatcher() {
 }
 
 void main() async {
+    await NotificationService.initialize();
+  if (kDebugMode) {
+    FlutterError.onError = (FlutterErrorDetails details) {
+      if (!details.toString().contains('awesome_notifications')) {
+        FlutterError.presentError(details);
+      }
+    };
+  }
   await GetStorage.init();
 
   WidgetsFlutterBinding.ensureInitialized();
@@ -96,6 +99,7 @@ void main() async {
           channelShowBadge: true,
           enableLights: true,
           enableVibration: true,
+          
         ),
         NotificationChannel(
           channelKey: 'event_reminders',
@@ -105,9 +109,10 @@ void main() async {
           defaultColor: Color(0xFF9D50DD),
           ledColor: Colors.white,
           importance: NotificationImportance.Max,
+          defaultRingtoneType:  DefaultRingtoneType.Notification,
           channelShowBadge: false,
           playSound: true,
-          soundSource: soundSource,
+          // soundSource: soundSource,
           enableLights: true,
           enableVibration: true,
         ),
@@ -130,24 +135,24 @@ void main() async {
   // Initialize NotificationTrackingService
   await Get.putAsync(() => NotificationTrackingService().init());
 
-  AndroidInitializationSettings androidSettings =
-      AndroidInitializationSettings("@mipmap/ic_launcher");
+  // AndroidInitializationSettings androidSettings =
+  //     AndroidInitializationSettings("@mipmap/ic_launcher");
 
-  DarwinInitializationSettings iosSettings = DarwinInitializationSettings(
-      requestAlertPermission: true,
-      requestBadgePermission: true,
-      requestCriticalPermission: true,
-      requestSoundPermission: true);
+  // DarwinInitializationSettings iosSettings = DarwinInitializationSettings(
+  //     requestAlertPermission: true,
+  //     requestBadgePermission: true,
+  //     requestCriticalPermission: true,
+  //     requestSoundPermission: true);
 
-  InitializationSettings initializationSettings =
-      InitializationSettings(android: androidSettings, iOS: iosSettings);
+  // InitializationSettings initializationSettings =
+  //     InitializationSettings(android: androidSettings, iOS: iosSettings);
 
-  bool? initialized = await notificationsPlugin.initialize(
-      initializationSettings, onDidReceiveNotificationResponse: (response) {
-    log(response.payload.toString());
-  });
+  // bool? initialized = await notificationsPlugin.initialize(
+  //     initializationSettings, onDidReceiveNotificationResponse: (response) {
+  //   log(response.payload.toString());
+  // });
 
-  log("Notifications: $initialized");
+
   AwesomeNotifications().setListeners(
     onActionReceivedMethod: NotificationService.onActionReceivedMethod,
     onNotificationCreatedMethod:

@@ -74,7 +74,8 @@ class VisionBoardController extends GetxController {
     titleController.dispose();
     super.onClose();
   }
-    bool isNotificationActive(String itemId) {
+
+  bool isNotificationActive(String itemId) {
     return _notificationActiveStates[itemId] ?? false;
   }
 
@@ -105,55 +106,98 @@ class VisionBoardController extends GetxController {
     return _scheduledNotifications[itemId] ?? false;
   }
 
- Future<void> scheduleNotification(VisionBoardItem item, bool isMorning) async {
+  Future<void> scheduleNotification(
+      VisionBoardItem item, bool isMorning) async {
     int notificationId = item.id.hashCode;
     String title = 'Vision Board Reminder';
     String body = item.title;
     String imageUrl = item.imageUrls.isNotEmpty ? item.imageUrls[0] : '';
 
-    DateTime scheduledTime = isMorning ? _getNextMorningTime() : _getNextNightTime();
+    DateTime scheduledTime =
+        isMorning ? _getNextMorningTime() : _getNextNightTime();
 
-    await AwesomeNotifications().createNotification(
-      content: NotificationContent(
-        id: notificationId,
-        channelKey: 'vision_board_reminders',
-        title: title,
-        body: body,
-        bigPicture: imageUrl,
-        notificationLayout: NotificationLayout.BigPicture,
-      ),
-      schedule: NotificationCalendar(
-        year: scheduledTime.year,
-        month: scheduledTime.month,
-        day: scheduledTime.day,
-        hour: scheduledTime.hour,
-        minute: scheduledTime.minute,
-        second: 0,
-        millisecond: 0,
-        repeats: true,
-        allowWhileIdle: true,
-      ),
-    );
-
-    // Set the notification state to active
-    _notificationActiveStates[item.id] = true;
-
-    // Schedule a function to revert the icon state after the notification fires
-    Future.delayed(scheduledTime.difference(DateTime.now()), () {
-      _notificationActiveStates[item.id] = false;
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      await AwesomeNotifications().createNotification(
+        content: NotificationContent(
+          id: notificationId,
+          channelKey: 'vision_board_reminders',
+          title: title,
+          body: body,
+          bigPicture: imageUrl,
+          notificationLayout: NotificationLayout.BigPicture,
+        ),
+        schedule: NotificationCalendar(
+          year: scheduledTime.year,
+          month: scheduledTime.month,
+          day: scheduledTime.day,
+          hour: scheduledTime.hour,
+          minute: scheduledTime.minute,
+          second: 0,
+          millisecond: 0,
+          repeats: false, // Changed to false to fire only once
+          allowWhileIdle: true,
+        ),
+      );
     });
+
+    // Update the local state
+    _notificationActiveStates[item.id] = true;
 
     // Update the item's notification state in Firestore
     await visionBoardCollection.doc(item.id).update({
       'hasNotification': true,
       'notificationTime': isMorning ? 'morning' : 'night',
+      'scheduledNotificationTime': Timestamp.fromDate(scheduledTime),
     });
+
+    // Update the local item
+    int index = visionBoardItems.indexWhere((i) => i.id == item.id);
+    if (index != -1) {
+      visionBoardItems[index] = visionBoardItems[index].copyWith(
+        hasNotification: true,
+        notificationTime: isMorning ? 'morning' : 'night',
+        scheduledNotificationTime: scheduledTime,
+      );
+      visionBoardItems.refresh();
+    }
+
+    // Schedule a task to update the notification state after it fires
+    _scheduleNotificationStateUpdate(item.id, scheduledTime);
 
     Get.snackbar(
       'Notification Scheduled',
       'You will be reminded ${isMorning ? 'at 8 AM' : 'at 10 PM'}',
       snackPosition: SnackPosition.BOTTOM,
     );
+  }
+
+  void _scheduleNotificationStateUpdate(String itemId, DateTime scheduledTime) {
+    Future.delayed(scheduledTime.difference(DateTime.now()), () {
+      _updateNotificationStateAfterFiring(itemId);
+    });
+  }
+
+  Future<void> _updateNotificationStateAfterFiring(String itemId) async {
+    // Update the local state
+    _notificationActiveStates[itemId] = false;
+
+    // Update the item's notification state in Firestore
+    await visionBoardCollection.doc(itemId).update({
+      'hasNotification': false,
+      'notificationTime': null,
+      'scheduledNotificationTime': null,
+    });
+
+    // Update the local item
+    int index = visionBoardItems.indexWhere((i) => i.id == itemId);
+    if (index != -1) {
+      visionBoardItems[index] = visionBoardItems[index].copyWith(
+        hasNotification: false,
+        notificationTime: null,
+        scheduledNotificationTime: null,
+      );
+      visionBoardItems.refresh();
+    }
   }
 
   Future<void> cancelNotification(String itemId) async {
@@ -168,13 +212,22 @@ class VisionBoardController extends GetxController {
       'notificationTime': null,
     });
 
+    // Update the local item
+    int index = visionBoardItems.indexWhere((i) => i.id == itemId);
+    if (index != -1) {
+      visionBoardItems[index] = visionBoardItems[index].copyWith(
+        hasNotification: false,
+        notificationTime: null,
+      );
+      visionBoardItems.refresh();
+    }
+
     Get.snackbar(
       'Notification Cancelled',
       'The reminder for this item has been cancelled',
       snackPosition: SnackPosition.BOTTOM,
     );
   }
-
 
   DateTime _getNextMorningTime() {
     DateTime now = DateTime.now();
@@ -373,7 +426,7 @@ class VisionBoardController extends GetxController {
     update();
   }
 
- void fetchVisionBoardItems() {
+  void fetchVisionBoardItems() {
     if (currentUser == null) return;
 
     isLoading.value = true;
@@ -386,6 +439,18 @@ class VisionBoardController extends GetxController {
       for (var doc in querySnapshot.docs) {
         VisionBoardItem item = VisionBoardItem.fromFirestore(doc);
         allItems.add(item);
+        _notificationActiveStates[item.id] = item.hasNotification;
+
+        // Schedule state update for future notifications
+        if (item.hasNotification && item.scheduledNotificationTime != null) {
+          if (item.scheduledNotificationTime!.isAfter(DateTime.now())) {
+            _scheduleNotificationStateUpdate(
+                item.id, item.scheduledNotificationTime!);
+          } else {
+            // If the scheduled time has passed, update the state immediately
+            _updateNotificationStateAfterFiring(item.id);
+          }
+        }
       }
 
       visionBoardItems.value = allItems;
@@ -398,8 +463,6 @@ class VisionBoardController extends GetxController {
       update();
     });
   }
-
-
 
   Future<void> saveNewItem() async {
     final user = FirebaseAuth.instance.currentUser;
@@ -636,6 +699,7 @@ class VisionBoardItem {
   bool hasNotification;
   String? notificationTime;
   final DateTime createdAt;
+  final DateTime? scheduledNotificationTime;
 
   VisionBoardItem({
     required this.id,
@@ -646,6 +710,7 @@ class VisionBoardItem {
     this.hasNotification = false,
     this.notificationTime,
     required this.createdAt,
+    this.scheduledNotificationTime,
   });
 
   Map<String, dynamic> toMap() {
@@ -657,6 +722,9 @@ class VisionBoardItem {
       'hasNotification': hasNotification,
       'notificationTime': notificationTime,
       'createdAt': Timestamp.fromDate(createdAt),
+      'scheduledNotificationTime': scheduledNotificationTime != null
+          ? Timestamp.fromDate(scheduledNotificationTime!)
+          : null,
     };
   }
 
@@ -671,6 +739,33 @@ class VisionBoardItem {
       hasNotification: data['hasNotification'] ?? false,
       notificationTime: data['notificationTime'],
       createdAt: (data['createdAt'] as Timestamp).toDate(),
+      scheduledNotificationTime:
+          (data['scheduledNotificationTime'] as Timestamp?)?.toDate(),
+    );
+  }
+
+  VisionBoardItem copyWith({
+    String? id,
+    String? title,
+    DateTime? date,
+    List<String>? imageUrls,
+    String? userId,
+    bool? hasNotification,
+    String? notificationTime,
+    DateTime? createdAt,
+    DateTime? scheduledNotificationTime,
+  }) {
+    return VisionBoardItem(
+      id: id ?? this.id,
+      title: title ?? this.title,
+      date: date ?? this.date,
+      imageUrls: imageUrls ?? this.imageUrls,
+      userId: userId ?? this.userId,
+      hasNotification: hasNotification ?? this.hasNotification,
+      notificationTime: notificationTime ?? this.notificationTime,
+      createdAt: createdAt ?? this.createdAt,
+      scheduledNotificationTime:
+          scheduledNotificationTime ?? this.scheduledNotificationTime,
     );
   }
 }

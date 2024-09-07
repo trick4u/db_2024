@@ -25,12 +25,18 @@ class QuickReminderBottomSheet extends StatefulWidget {
 }
 
 class _QuickReminderBottomSheetState extends State<QuickReminderBottomSheet> {
-  bool _isDescriptionVisible = false;
   bool _isTitleEmpty = true;
+  final _formKey = GlobalKey<FormState>();
 
   @override
   void initState() {
     super.initState();
+    _initializeFields();
+    widget.reminderController.reminderTextController
+        .addListener(_updateTitleState);
+  }
+
+  void _initializeFields() {
     if (widget.reminderToEdit != null) {
       widget.reminderController.reminderTextController.text =
           widget.reminderToEdit!.reminder;
@@ -48,8 +54,6 @@ class _QuickReminderBottomSheetState extends State<QuickReminderBottomSheet> {
 
     _isTitleEmpty =
         widget.reminderController.reminderTextController.text.isEmpty;
-    widget.reminderController.reminderTextController
-        .addListener(_updateTitleState);
   }
 
   @override
@@ -90,17 +94,20 @@ class _QuickReminderBottomSheetState extends State<QuickReminderBottomSheet> {
         shape: RoundedRectangleBorder(
           borderRadius: ScaleUtil.circular(20),
         ),
-        child: Container(
-          padding: ScaleUtil.symmetric(horizontal: 20, vertical: 20),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              _buildHeader(context),
-              ScaleUtil.sizedBox(height: 16),
-              _buildTextField(context),
-              ScaleUtil.sizedBox(height: 16),
-              _buildActionButtons(context),
-            ],
+        child: Form(
+          key: _formKey,
+          child: Container(
+            padding: ScaleUtil.symmetric(horizontal: 20, vertical: 20),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                _buildHeader(context),
+                ScaleUtil.sizedBox(height: 16),
+                _buildTextField(context),
+                ScaleUtil.sizedBox(height: 16),
+                _buildActionButtons(context),
+              ],
+            ),
           ),
         ),
       ),
@@ -109,7 +116,7 @@ class _QuickReminderBottomSheetState extends State<QuickReminderBottomSheet> {
 
   Widget _buildHeader(BuildContext context) {
     return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Text(
           widget.reminderToEdit != null ? 'Edit Reminder' : 'Add Reminder',
@@ -117,27 +124,33 @@ class _QuickReminderBottomSheetState extends State<QuickReminderBottomSheet> {
                 fontSize: ScaleUtil.fontSize(15),
               ),
         ),
-        Obx(() => IconButton(
-              icon: Icon(
-                widget.reminderController.repeat.value
-                    ? Icons.repeat_one_outlined
-                    : Icons.repeat,
-                color: widget.reminderController.repeat.value
-                    ? widget.appTheme.colorScheme.primary
-                    : widget.appTheme.colorScheme.onSurface.withOpacity(0.5),
-                size: ScaleUtil.iconSize(18),
-              ),
-              onPressed: () {
-                widget.reminderController
-                    .toggleSwitch(!widget.reminderController.repeat.value);
-              },
-            )),
-        _buildTimeSelectionPopup(context),
-        IconButton(
-          icon: Icon(Icons.close,
-              color: Theme.of(context).iconTheme.color,
-              size: ScaleUtil.iconSize(18)),
-          onPressed: () => Get.back(),
+        Row(
+          children: [
+            Obx(() => IconButton(
+                  icon: Icon(
+                    widget.reminderController.repeat.value
+                        ? Icons.repeat_one_outlined
+                        : Icons.repeat,
+                    color: widget.reminderController.repeat.value
+                        ? widget.appTheme.colorScheme.primary
+                        : widget.appTheme.colorScheme.onSurface.withOpacity(0.5),
+                    size: ScaleUtil.iconSize(18),
+                  ),
+                  onPressed: () {
+                    widget.reminderController
+                        .toggleSwitch(!widget.reminderController.repeat.value);
+                  },
+                  tooltip: 'Toggle repeat',
+                )),
+            _buildTimeSelectionPopup(context),
+            IconButton(
+              icon: Icon(Icons.close,
+                  color: Theme.of(context).iconTheme.color,
+                  size: ScaleUtil.iconSize(18)),
+              onPressed: () => Get.back(),
+              tooltip: 'Close',
+            ),
+          ],
         ),
       ],
     );
@@ -174,6 +187,7 @@ class _QuickReminderBottomSheetState extends State<QuickReminderBottomSheet> {
                   style: TextStyle(fontSize: ScaleUtil.fontSize(12))),
             ),
           ],
+          tooltip: 'Select reminder time',
         ));
   }
 
@@ -186,7 +200,7 @@ class _QuickReminderBottomSheetState extends State<QuickReminderBottomSheet> {
       case 3:
         return 60;
       default:
-        return 15; // Default to 15 minutes if an invalid value is somehow set
+        return 15;
     }
   }
 
@@ -194,7 +208,7 @@ class _QuickReminderBottomSheetState extends State<QuickReminderBottomSheet> {
     return FadeIn(
       child: ClipRRect(
         borderRadius: ScaleUtil.circular(10),
-        child: TextField(
+        child: TextFormField(
           controller: widget.reminderController.reminderTextController,
           style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                 fontSize: ScaleUtil.fontSize(12),
@@ -210,6 +224,12 @@ class _QuickReminderBottomSheetState extends State<QuickReminderBottomSheet> {
             focusedBorder: InputBorder.none,
             contentPadding: ScaleUtil.symmetric(horizontal: 16, vertical: 12),
           ),
+          validator: (value) {
+            if (value == null || value.isEmpty) {
+              return 'Please enter a reminder title';
+            }
+            return null;
+          },
         ),
       ),
     );
@@ -217,9 +237,12 @@ class _QuickReminderBottomSheetState extends State<QuickReminderBottomSheet> {
 
   Widget _buildActionButtons(BuildContext context) {
     return Row(
-      mainAxisAlignment: MainAxisAlignment.end,
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        ScaleUtil.sizedBox(width: 16),
+        Obx(() => Text(
+              'Next reminder: ${widget.reminderController.getFormattedNextNotificationTime()}',
+              style: TextStyle(fontSize: ScaleUtil.fontSize(12)),
+            )),
         _buildSaveButton(context),
       ],
     );
@@ -251,38 +274,39 @@ class _QuickReminderBottomSheetState extends State<QuickReminderBottomSheet> {
   }
 
   void _handleSave() {
-    if (widget.reminderController.reminderTextController.text.isEmpty) {
+    if (_formKey.currentState!.validate()) {
+      int minutes =
+          _getMinutesFromValue(widget.reminderController.timeSelected.value);
+
+      if (widget.reminderToEdit != null) {
+        widget.reminderController.updateReminder(
+          widget.reminderToEdit!.id, // This should now be a string
+          widget.reminderController.reminderTextController.text,
+          minutes,
+          widget.reminderController.repeat.value,
+        );
+      } else {
+        widget.reminderController.schedulePeriodicNotifications(
+          widget.reminderController.reminderTextController.text,
+          minutes,
+          widget.reminderController.repeat.value,
+        );
+
+        widget.reminderController
+            .saveReminder(widget.reminderController.repeat.value);
+      }
+
+      Get.back();
       Get.snackbar(
-        'Error',
-        'Reminder text cannot be empty',
+        'Success',
+        widget.reminderToEdit != null
+            ? 'Reminder updated successfully'
+            : 'Reminder added successfully',
         snackPosition: SnackPosition.BOTTOM,
-        margin: ScaleUtil.symmetric(horizontal: 10, vertical: 10),
-        padding: ScaleUtil.symmetric(horizontal: 20, vertical: 15),
-        borderRadius: ScaleUtil.scale(10),
-        duration: Duration(seconds: 3),
+        backgroundColor: Colors.green,
+        colorText: Colors.white,
+        duration: Duration(seconds: 2),
       );
-      return;
-    }
-
-    int minutes =
-        _getMinutesFromValue(widget.reminderController.timeSelected.value);
-
-    if (widget.reminderToEdit != null) {
-      widget.reminderController.updateReminder(
-        widget.reminderToEdit!.id,
-        widget.reminderController.reminderTextController.text,
-        minutes,
-        widget.reminderController.repeat.value,
-      );
-    } else {
-      widget.reminderController.schedulePeriodicNotifications(
-        widget.reminderController.reminderTextController.text,
-        minutes,
-        widget.reminderController.repeat.value,
-      );
-
-      widget.reminderController
-          .saveReminder(widget.reminderController.repeat.value);
     }
   }
 }

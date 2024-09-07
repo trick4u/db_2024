@@ -42,8 +42,8 @@ dependencies:
   animate_do: 
   google_fonts: ^6.2.1
   dough: ^2.0.0
-  popover: ^0.3.0+1
-  flutter_local_notifications: ^12.0.4
+ 
+  
   timezone: ^0.9.3
   permission_handler: ^11.3.1
   table_calendar: ^3.1.2

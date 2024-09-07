@@ -17,8 +17,7 @@ import '../controller/network_controller.dart';
 import '../services/app_theme.dart';
 
 class MainScreen extends GetWidget<MainScreenController> {
-   final appTheme = Get.find<AppTheme>();
-
+  final appTheme = Get.find<AppTheme>();
 
   @override
   Widget build(BuildContext context) {
@@ -26,18 +25,18 @@ class MainScreen extends GetWidget<MainScreenController> {
 
     // Add this to update status bar color when the screen builds
 
-     final appTheme = Get.find<AppTheme>();
-  appTheme.updateStatusBarColor();
+    final appTheme = Get.find<AppTheme>();
+    appTheme.updateStatusBarColor();
 
     return Obx(
       () => Scaffold(
-          extendBodyBehindAppBar: true,
-          resizeToAvoidBottomInset: false,
-          body: SafeArea(
-            child: controller.pages[controller.selectedIndex.value],
-          ),
-          bottomNavigationBar: _buildBottomNavigationBar(),
+        extendBodyBehindAppBar: true,
+        resizeToAvoidBottomInset: false,
+        body: SafeArea(
+          child: controller.pages[controller.selectedIndex.value],
         ),
+        bottomNavigationBar: _buildBottomNavigationBar(),
+      ),
     );
   }
 
@@ -89,7 +88,7 @@ class MainScreen extends GetWidget<MainScreenController> {
       child: AnimatedContainer(
         duration: Duration(milliseconds: 300),
         curve: Curves.easeOutCubic,
-        padding: ScaleUtil.all(8),
+        padding: ScaleUtil.only(bottom: 6, top: 4),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(15),
           shape: BoxShape.rectangle,

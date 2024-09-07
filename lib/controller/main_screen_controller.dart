@@ -1,6 +1,12 @@
+import 'dart:io';
+
+import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
+import 'package:flutter/services.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
 import 'package:tushar_db/constants/colors.dart';
@@ -10,15 +16,15 @@ import 'package:tushar_db/projectPages/statistics_screen.dart';
 
 import '../models/quick_event_model.dart';
 import '../projectController/page_one_controller.dart';
-import '../projectController/page_threeController.dart';
+
 import '../projectController/statistics_controller.dart';
 import '../projectPages/awesome_noti.dart';
 import '../projectPages/main_screen.dart';
 
-import 'package:popover/popover.dart';
+
 
 import '../projectPages/page_one.dart';
-import '../projectPages/page_three.dart';
+
 import '../projectPages/page_two_calendar.dart';
 import '../projectPages/profile_screen.dart';
 
@@ -27,22 +33,19 @@ class MainScreenController extends GetxController
   //variables
   final RxInt currentIndex = 0.obs;
   var selectedIndex = 0.obs;
+  static const platform =
+      MethodChannel('com.example.tushar_db/background_fetch');
+  final Rx<DateTime> lastBackgroundFetchTime = Rx<DateTime>(DateTime.now());
 
   void changeIndex(int index) {
     selectedIndex.value = index;
-    if (selectedIndex.value == 0) {
-    } else if (selectedIndex.value == 1) {
-    } else if (selectedIndex.value == 2) {
+    if (selectedIndex.value == 2) {
       Get.find<StatisticsController>().updateStatistics();
-    } else if (selectedIndex.value == 3) {}
+    }
   }
 
-   void incrementIndex() {
-    if (selectedIndex.value < 3) {
-      selectedIndex.value++;
-    } else {
-      selectedIndex.value = 0;
-    }
+  void incrementIndex() {
+    selectedIndex.value = (selectedIndex.value + 1) % 4;
   }
 
   final List<Widget> pages = [
@@ -54,57 +57,76 @@ class MainScreenController extends GetxController
 
   @override
   void onInit() {
+    super.onInit();
     Get.lazyPut(() => ProfileController());
     Get.lazyPut(() => StatisticsController());
-    Get.lazyPut(() => ProfileController());
     Get.lazyPut<CalendarController>(() => CalendarController());
-    super.onInit();
-  }
-
-  Color scaffoldBackgroundColor() {
-    switch (selectedIndex.value) {
-      case 0:
-        return ColorsConstants().lightPurple;
-      case 1:
-        return ColorsConstants().lightPink;
-      case 2:
-        return ColorsConstants().lightOrange;
-      case 3:
-        return Colors.grey[200]!;
-      default:
-        return Colors.black;
+     scheduleDailyNotification();
+    if (Platform.isIOS) {
+      _setupBackgroundChannel();
+      _scheduleAndroidNotification();
     }
   }
 
-  // if page index ==2 then show dialog
-  void showDialog(BuildContext context) {
-    showMenu(
-        context: context,
-        position: RelativeRect.fromLTRB(200, 700, 20, 0),
-        popUpAnimationStyle: AnimationStyle(
-          curve: Curves.bounceInOut,
-          duration: Duration(milliseconds: 500),
-          reverseCurve: Curves.linear,
-          reverseDuration: Duration(milliseconds: 500),
-        ),
-        items: [
-          PopupMenuItem(
-            child: Text('Settings'),
-          ),
-          PopupMenuItem(
-            child: Text('Log Out'),
-          ),
-        ]);
+  void _setupBackgroundChannel() {
+    platform.setMethodCallHandler((call) async {
+      if (call.method == 'triggerDailyNotification') {
+        // Ensure we're on the main thread
+        await _showNotificationOnMainThread();
+      }
+      return null;
+    });
   }
 
-  //persistent bottom navigation bar
 
+  Future<void> scheduleDailyNotification() async {
+    if (Platform.isAndroid) {
+      await _scheduleAndroidNotification();
+    } else if (Platform.isIOS) {
+      print("Daily notification scheduled for iOS via background fetch");
+    }
+  }
+
+  Future<void> _scheduleAndroidNotification() async {
+    await AwesomeNotifications().cancelSchedule(10);
+    
+    await AwesomeNotifications().createNotification(
+      content: NotificationContent(
+        id: 10,
+        channelKey: 'basic_channel',
+        title: 'Daily Reminder',
+        body: 'Start your day with purpose!',
+        notificationLayout: NotificationLayout.Default,
+      ),
+      schedule: NotificationCalendar(
+        hour: 7, // 7 AM
+        minute: 0,
+        second: 0,
+        millisecond: 0,
+        repeats: true,
+        timeZone: await AwesomeNotifications().getLocalTimeZoneIdentifier(),
+        preciseAlarm: true,
+      ),
+    );
+    print("Daily notification scheduled for Android");
+  }
+  Future<void> _showNotificationOnMainThread() async {
+    // Use compute to run the notification creation on a separate isolate
+    await compute(_isolateNotification, null);
+  }
+
+   static Future<void> _isolateNotification(_) async {
+    // Ensure we're on the main thread before creating the notification
+    SchedulerBinding.instance.addPostFrameCallback((_) async {
+      await AwesomeNotifications().createNotification(
+        content: NotificationContent(
+          id: 10,
+          channelKey: 'basic_channel',
+          title: 'Daily Reminder',
+          body: 'Start your day with purpose!',
+          notificationLayout: NotificationLayout.Default,
+        ),
+      );
+    });
+  }
 }
-
-
-
-//
-
-
-
-

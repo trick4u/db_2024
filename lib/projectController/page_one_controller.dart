@@ -199,7 +199,7 @@ class PageOneController extends GetxController {
   }
 
   //for reminders
-  Future<void> updateReminder(
+ Future<void> updateReminder(
       String reminderId, String newReminder, int newTime, bool repeat) async {
     try {
       DateTime newTriggerTime = DateTime.now().add(Duration(minutes: newTime));
@@ -211,28 +211,45 @@ class PageOneController extends GetxController {
       });
 
       // Reschedule the notification
-      await AwesomeNotifications().cancel(int.parse(reminderId));
+      await AwesomeNotifications().cancel(reminderId.hashCode);
       await schedulePeriodicNotifications(newReminder, newTime, repeat);
 
-      Get.back();
       fetchAllReminders(); // Refresh the list
     } catch (e) {
       print('Error updating reminder: $e');
       Get.snackbar('Error', 'Failed to update reminder');
     }
   }
+void fetchAllReminders() {
+  if (currentUser == null) return;
 
-  void fetchAllReminders() {
-    if (currentUser == null) return;
-
-    remindersCollection.snapshots().listen((querySnapshot) {
-      allReminders.value = querySnapshot.docs
-          .map((doc) => ReminderModel.fromFirestore(doc))
-          .toList();
-      allReminders.sort((a, b) => b.createdAt.compareTo(a.createdAt));
-      update();
+  remindersCollection.snapshots().listen((querySnapshot) {
+    allReminders.value = querySnapshot.docs
+        .map((doc) => ReminderModel.fromFirestore(doc))
+        .toList();
+    
+    allReminders.sort((a, b) {
+      // If both have createdAt, compare them
+      if (a.createdAt != null && b.createdAt != null) {
+        return b.createdAt!.compareTo(a.createdAt!);
+      }
+      // If only a has createdAt, it should come first
+      else if (a.createdAt != null) {
+        return -1;
+      }
+      // If only b has createdAt, it should come first
+      else if (b.createdAt != null) {
+        return 1;
+      }
+      // If neither has createdAt, maintain their original order
+      else {
+        return 0;
+      }
     });
-  }
+
+    update();
+  });
+}
 
   void deleteReminder(String reminderId) async {
     if (currentUser == null) return;
@@ -617,46 +634,40 @@ class PageOneController extends GetxController {
     // Use WidgetsBinding to ensure we're on the main thread
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       try {
-        await AwesomeNotifications().requestPermissionToSendNotifications();
+         String localTimeZone =
+          await AwesomeNotifications().getLocalTimeZoneIdentifier();
+      DateTime now = DateTime.now();
+      DateTime scheduledDate = now.add(Duration(minutes: interval));
+      nextNotificationTime.value = scheduledDate;
 
-        int notificationId =
-            DateTime.now().millisecondsSinceEpoch.remainder(100000);
-
-        String localTimeZone =
-            await AwesomeNotifications().getLocalTimeZoneIdentifier();
-        DateTime now = DateTime.now();
-        DateTime scheduledDate = now.add(Duration(minutes: interval));
-        nextNotificationTime.value = scheduledDate;
-
-        await AwesomeNotifications().createNotification(
-          content: NotificationContent(
-            id: notificationId,
-            channelKey: 'quickschedule',
-            title: 'DoBoara Reminder 📅',
-            body: body,
-            category: NotificationCategory.Reminder,
-            notificationLayout: NotificationLayout.Default,
-            criticalAlert: true,
-            wakeUpScreen: true,
-          ),
-          schedule: NotificationCalendar(
-            year: scheduledDate.year,
-            month: scheduledDate.month,
-            day: scheduledDate.day,
-            hour: scheduledDate.hour,
-            minute: scheduledDate.minute,
-            second: 0,
-            millisecond: 0,
-            repeats: repeat,
-            allowWhileIdle: true,
-            preciseAlarm: true,
-          ),
-        );
-        print('Next notification time: ${nextNotificationTime.value}');
-      } catch (e) {
-        print('Error scheduling notification: $e');
-        // You might want to show an error message to the user here
-      }
+      await AwesomeNotifications().createNotification(
+        content: NotificationContent(
+          id: body.hashCode, // Use a hash of the body as the ID
+          channelKey: 'quickschedule',
+          title: 'DoBoara Reminder 📅',
+          body: body,
+          category: NotificationCategory.Reminder,
+          notificationLayout: NotificationLayout.Default,
+          criticalAlert: true,
+          wakeUpScreen: true,
+        ),
+        schedule: NotificationCalendar(
+          year: scheduledDate.year,
+          month: scheduledDate.month,
+          day: scheduledDate.day,
+          hour: scheduledDate.hour,
+          minute: scheduledDate.minute,
+          second: 0,
+          millisecond: 0,
+          repeats: repeat,
+          allowWhileIdle: true,
+          preciseAlarm: true,
+        ),
+      );
+      print('Next notification time: ${nextNotificationTime.value}');
+    } catch (e) {
+      print('Error scheduling notification: $e');
+    }
     });
   }
 

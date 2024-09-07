@@ -4,21 +4,17 @@ class ReminderModel {
   final String id;
   final String reminder;
   final int time;
-  final bool isCompleted;
-  final DateTime createdAt;
   final bool repeat;
   final DateTime? triggerTime;
-  final int? notificationId;
+  final DateTime? createdAt;
 
   ReminderModel({
     required this.id,
     required this.reminder,
     required this.time,
-    required this.isCompleted,
-    required this.createdAt,
     required this.repeat,
-    required this.triggerTime,
-    this.notificationId,
+    this.triggerTime,
+    this.createdAt,
   });
 
   factory ReminderModel.fromFirestore(DocumentSnapshot doc) {
@@ -27,13 +23,23 @@ class ReminderModel {
       id: doc.id,
       reminder: data['reminder'] ?? '',
       time: data['time'] ?? 0,
-      isCompleted: data['isCompleted'] ?? false,
-      createdAt: (data['createdAt'] as Timestamp?)?.toDate() ?? DateTime.now(),
       repeat: data['repeat'] ?? false,
       triggerTime: data['triggerTime'] != null
           ? (data['triggerTime'] as Timestamp).toDate()
           : null,
-      notificationId: data['notificationId'],
+      createdAt: data['createdAt'] != null
+          ? (data['createdAt'] as Timestamp).toDate()
+          : null,
     );
+  }
+
+  Map<String, dynamic> toFirestore() {
+    return {
+      'reminder': reminder,
+      'time': time,
+      'repeat': repeat,
+      'triggerTime': triggerTime != null ? Timestamp.fromDate(triggerTime!) : null,
+      'createdAt': createdAt != null ? Timestamp.fromDate(createdAt!) : null,
+    };
   }
 }

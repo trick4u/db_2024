@@ -545,13 +545,14 @@ class CalendarController extends GetxController {
     bool success = await AwesomeNotifications().createNotification(
       content: NotificationContent(
         id: notificationId,
-        channelKey: 'event_reminders',
+        channelKey: 'quickschedule',
         title: event.title,
         body: event.description,
         notificationLayout: NotificationLayout.Default,
         wakeUpScreen: true,
         category: NotificationCategory.Reminder,
-        customSound: 'notification_sound',
+     
+        criticalAlert: true,
       ),
       schedule: NotificationCalendar(
         year: scheduledDate.year,
@@ -563,6 +564,7 @@ class CalendarController extends GetxController {
         millisecond: 0,
         repeats: false,
         allowWhileIdle: true,
+        preciseAlarm: true
       ),
     );
     try {

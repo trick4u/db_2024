@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -27,6 +29,13 @@ class ProfileController extends GetxController {
   final Rx<String> name = ''.obs;
   final Rx<String> email = ''.obs;
   final Rx<String> username = ''.obs;
+  RxBool isUsernameAvailable = false.obs;
+  RxBool isCheckingUsername = false.obs;
+  RxBool hasCheckedUsername = false.obs;
+  Timer? _debounce;
+
+  static const int MAX_USERNAME_LENGTH = 20; // Including "@" symbol
+  static const int MIN_USERNAME_LENGTH = 4;
 
   RxList<NotificationModel> notifications = <NotificationModel>[].obs;
   RxBool isLoading = true.obs;
@@ -43,6 +52,11 @@ class ProfileController extends GetxController {
     ever(notifications, (_) => isLoading.value = false);
     fetchNotifications();
     super.onReady();
+  }
+   @override
+  void onClose() {
+    _debounce?.cancel();
+    super.onClose();
   }
 
   //log out
@@ -216,6 +230,7 @@ class ProfileController extends GetxController {
         });
         name.value = newName; // Update the observable
         Get.snackbar('Success', 'Name updated successfully');
+        Get.back();
       }
     } catch (error) {
       Get.snackbar('Error', 'Failed to update name: $error');
@@ -224,11 +239,91 @@ class ProfileController extends GetxController {
 
 
 
+  
+   bool isValidUsername(String username) {
+    if (!username.startsWith('@')) {
+      return false;
+    }
+    String usernameWithoutAt = username.substring(1);
+    return usernameWithoutAt.length >= MIN_USERNAME_LENGTH && 
+           username.length <= MAX_USERNAME_LENGTH &&
+           RegExp(r'^@[a-zA-Z0-9_]+$').hasMatch(username);
+  }
+
+  void onUsernameChanged(String value) {
+    if (_debounce?.isActive ?? false) _debounce!.cancel();
+    _debounce = Timer(const Duration(milliseconds: 500), () {
+      String formattedUsername = formatUsername(value);
+      if (isValidUsername(formattedUsername)) {
+        checkUsernameAvailability(formattedUsername);
+      } else {
+        isUsernameAvailable.value = false;
+        hasCheckedUsername.value = false;
+      }
+    });
+  }
+
+  String formatUsername(String username) {
+    if (!username.startsWith('@')) {
+      username = '@' + username;
+    }
+    return username.length > MAX_USERNAME_LENGTH 
+        ? username.substring(0, MAX_USERNAME_LENGTH) 
+        : username;
+  }
+
+  Future<void> checkUsernameAvailability(String username) async {
+    if (!isValidUsername(username)) {
+      isUsernameAvailable.value = false;
+      hasCheckedUsername.value = false;
+      Get.snackbar('Error', 'Invalid username format or length');
+      return;
+    }
+
+    isCheckingUsername.value = true;
+    try {
+      final querySnapshot = await FirebaseFirestore.instance
+          .collection('users')
+          .where('username', isEqualTo: username)
+          .get();
+
+      isUsernameAvailable.value = querySnapshot.docs.isEmpty;
+      hasCheckedUsername.value = true;
+
+      if (isUsernameAvailable.value) {
+        Get.snackbar('Success', 'Username is available');
+      } else {
+        Get.snackbar('Error', 'Username is already taken');
+      }
+    } catch (e) {
+      Get.snackbar('Error', 'Failed to check username availability');
+      isUsernameAvailable.value = false;
+      hasCheckedUsername.value = false;
+    } finally {
+      isCheckingUsername.value = false;
+    }
+  }
+
   Future<void> updateUsername(String newUsername) async {
+    newUsername = formatUsername(newUsername);
+    if (!isValidUsername(newUsername)) {
+      Get.snackbar('Error', 'Invalid username format or length');
+      return;
+    }
+
+    // If username hasn't been checked, check it now
+    if (!hasCheckedUsername.value) {
+      await checkUsernameAvailability(newUsername);
+    }
+
+    if (!isUsernameAvailable.value) {
+      Get.snackbar('Error', 'Please choose a unique username');
+      return;
+    }
+
     try {
       User? user = _auth.currentUser;
       if (user != null) {
-        // Check if username is unique (implement this check)
         await _firestore.collection('users').doc(user.uid).update({
           'username': newUsername,
         });
@@ -239,16 +334,6 @@ class ProfileController extends GetxController {
       Get.snackbar('Error', 'Failed to update username: $error');
     }
   }
-
-  bool isValidUsername(String username) {
-    // Add your validation logic here
-    // For example:
-    // - Minimum 3 characters, maximum 20
-    // - Only alphanumeric characters and underscores
-    final RegExp usernameRegex = RegExp(r'^[a-z0-9_]{3,20}$');
-    return usernameRegex.hasMatch(username);
-  }
-
   Future<void> changePassword(
       String currentPassword, String newPassword) async {
     try {
