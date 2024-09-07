@@ -51,6 +51,7 @@ class AllSixCards extends GetWidget<PageOneController> {
                   onListTypeSelected(tileTitle);
                 } else if (tileTitle == 'add reminders') {
                   controller.showQuickReminderBottomSheet(context);
+                  // We're not setting 'all reminders' as selected here anymore
                 } else if (tileTitle == 'daily journal') {
                   Get.toNamed(AppRoutes.JOURNAL);
                 } else if (tileTitle == 'take notes') {

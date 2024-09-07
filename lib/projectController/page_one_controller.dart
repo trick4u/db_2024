@@ -697,7 +697,7 @@ void fetchAllReminders() {
   }
 
   //save data into firestore
-  Future saveReminder(bool repeat) async {
+    Future saveReminder(bool repeat) async {
     await remindersCollection.add({
       "reminder": reminderTextController.text,
       "time": timeSelected.value,
@@ -707,6 +707,9 @@ void fetchAllReminders() {
       "triggerTime": nextNotificationTime.value,
     }).then((_) {
       Get.back();
+      // After successfully saving the reminder, select 'all reminders'
+      setSelectedTile('all reminders');
+      setSelectedListType('all reminders');
     });
   }
 

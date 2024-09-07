@@ -20,7 +20,7 @@ class ProfileScreen extends GetWidget<ProfileController> {
         child: CustomScrollView(
           slivers: [
             SliverAppBar(
-              expandedHeight: ScaleUtil.height(100),
+              expandedHeight: ScaleUtil.height(80),
               floating: false,
               pinned: true,
               flexibleSpace: FlexibleSpaceBar(
