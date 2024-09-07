@@ -31,9 +31,14 @@ class VisionBoardPage extends GetWidget<VisionBoardController> {
           return Center(child: CircularProgressIndicator());
         } else if (controller.displayedItems.isEmpty) {
           return Center(
-            child: Text(
-              'Create your vision..',
-              style: AppTextTheme.textTheme.bodyMedium,
+            child: InkWell(
+              onTap: () {
+                _showAddItemSheet(context);
+              },
+              child: Text(
+                'Create your vision..',
+                style: AppTextTheme.textTheme.bodyMedium,
+              ),
             ),
           );
         } else {
@@ -110,7 +115,7 @@ class VisionBoardPage extends GetWidget<VisionBoardController> {
     return PreferredSize(
       preferredSize: Size.fromHeight(kToolbarHeight),
       child: PressableDough(
-        onReleased: (d){
+        onReleased: (d) {
           controller.reverseOrder();
         },
         child: ClipRRect(
@@ -121,9 +126,7 @@ class VisionBoardPage extends GetWidget<VisionBoardController> {
               elevation: 0,
               title: Text(
                 'vision',
-                style: AppTextTheme.textTheme.displaySmall?.copyWith(
-                  color: Colors.white,
-                ),
+                style: AppTextTheme.textTheme.displaySmall?.copyWith(),
               ),
               leading: _buildAppBarIcon(
                 icon: Icons.arrow_back_ios_new,
@@ -156,13 +159,11 @@ class VisionBoardPage extends GetWidget<VisionBoardController> {
       padding: const EdgeInsets.all(8.0),
       child: Container(
         decoration: BoxDecoration(
-          color: Colors.white.withOpacity(0.3),
           borderRadius: BorderRadius.circular(12),
         ),
         child: IconButton(
           icon: Icon(
             icon,
-            color: Colors.white,
             size: ScaleUtil.iconSize(15),
           ),
           onPressed: onPressed,

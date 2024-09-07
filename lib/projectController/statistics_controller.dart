@@ -16,6 +16,7 @@ class StatisticsController extends GetxController {
   RxList<int> weeklyPendingTasks = List.generate(7, (_) => 0).obs;
   RxList<QuickEventModel> upcomingTasks = <QuickEventModel>[].obs;
   RxMap<String, int> pendingTaskCategories = <String, int>{}.obs;
+    final RxBool isGradientReversed = false.obs;
 
   Rx<DateTime> currentWeekStart = DateTime.now().obs;
   RxBool hasDataForWeek = true.obs;
@@ -34,6 +35,11 @@ class StatisticsController extends GetxController {
     ever(pageOneController.completedEvents, (_) => updateStatistics());
 
     updateStatistics();
+  }
+
+    void toggleTaskView() {
+    showCompletedTasks.toggle();
+    isGradientReversed.toggle();
   }
 
   bool hasDataForCurrentWeek() {
@@ -128,10 +134,7 @@ class StatisticsController extends GetxController {
         date1.day == date2.day;
   }
 
-  void toggleTaskView() {
-    showCompletedTasks.toggle();
-  }
-
+ 
   void updateUpcomingTasks() {
     DateTime now = DateTime.now();
     DateTime sevenDaysLater = now.add(Duration(days: 7));

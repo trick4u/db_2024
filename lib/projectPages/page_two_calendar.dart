@@ -151,7 +151,16 @@ class CalendarPage extends GetWidget<CalendarController> {
                                 return Container(
                                   margin: ScaleUtil.all(4.0),
                                   decoration: BoxDecoration(
-                                    color: Colors.transparent,
+                                    gradient: LinearGradient(
+                                      begin: Alignment.topLeft,
+                                      end: Alignment.bottomRight,
+                                      colors: [
+                                        appTheme.colorScheme.primary
+                                            .withOpacity(0.1),
+                                        Colors.deepPurpleAccent
+                                            .withOpacity(0.1),
+                                      ],
+                                    ),
                                     borderRadius: ScaleUtil.circular(8.0),
                                     border: hasEvents
                                         ? Border.all(
@@ -214,7 +223,14 @@ class CalendarPage extends GetWidget<CalendarController> {
                                 return Container(
                                   margin: ScaleUtil.all(4.0),
                                   decoration: BoxDecoration(
-                                    color: Colors.blue,
+                                    gradient: LinearGradient(
+                                      begin: Alignment.topLeft,
+                                      end: Alignment.bottomRight,
+                                      colors: [
+                                        appTheme.colorScheme.primary,
+                                        Colors.deepPurpleAccent,
+                                      ],
+                                    ),
                                     borderRadius: ScaleUtil.circular(8.0),
                                     border: hasEvents
                                         ? Border.all(
@@ -274,7 +290,16 @@ class CalendarPage extends GetWidget<CalendarController> {
                                 return Container(
                                   margin: ScaleUtil.all(4.0),
                                   decoration: BoxDecoration(
-                                    color: Colors.blue.withOpacity(0.3),
+                                    gradient: LinearGradient(
+                                      begin: Alignment.topLeft,
+                                      end: Alignment.bottomRight,
+                                      colors: [
+                                        appTheme.colorScheme.primary
+                                            .withOpacity(0.3),
+                                        Colors.deepPurpleAccent
+                                            .withOpacity(0.3),
+                                      ],
+                                    ),
                                     borderRadius: ScaleUtil.circular(8.0),
                                     border: hasEvents
                                         ? Border.all(

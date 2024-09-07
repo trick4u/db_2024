@@ -82,9 +82,10 @@ class PageOneController extends GetxController {
   var currentStreamIndex = 0.obs;
 
   var isLoading = true.obs;
+  final RxBool isGradientReversed = false.obs;
 
   late AudioPlayer _audioPlayer;
- final RxString selectedTile = ''.obs;
+  final RxString selectedTile = ''.obs;
   final List<Map<String, dynamic>> items = [
     {'title': 'Coming soon..', 'icon': FontAwesomeIcons.question},
     {'title': 'Take notes', 'icon': FontAwesomeIcons.noteSticky},
@@ -138,7 +139,12 @@ class PageOneController extends GetxController {
     super.onClose();
   }
 
- void _initializeSelectedTile() {
+  void toggleGradientDirection() {
+    isGradientReversed.toggle();
+  }
+   
+
+  void _initializeSelectedTile() {
     if (selectedTile.value.isEmpty) {
       final List<String> autoSelectTiles = [
         'upcoming',
@@ -151,11 +157,13 @@ class PageOneController extends GetxController {
       setSelectedListType(selectedTile.value);
     }
   }
+
   void setSelectedTile(String tileTitle) {
     selectedTile.value = tileTitle;
   }
 
-  void handleTileTap(int index, Function(String) onListTypeSelected, BuildContext context) {
+  void handleTileTap(
+      int index, Function(String) onListTypeSelected, BuildContext context) {
     String tileTitle = items[index]['title']!.toLowerCase();
     selectedTile.value = tileTitle;
     if (tileTitle == 'pending' ||
@@ -172,7 +180,7 @@ class PageOneController extends GetxController {
     }
   }
 
-    void showQuickReminderBottomSheet(BuildContext context) {
+  void showQuickReminderBottomSheet(BuildContext context) {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -199,7 +207,7 @@ class PageOneController extends GetxController {
   }
 
   //for reminders
- Future<void> updateReminder(
+  Future<void> updateReminder(
       String reminderId, String newReminder, int newTime, bool repeat) async {
     try {
       DateTime newTriggerTime = DateTime.now().add(Duration(minutes: newTime));
@@ -220,36 +228,37 @@ class PageOneController extends GetxController {
       Get.snackbar('Error', 'Failed to update reminder');
     }
   }
-void fetchAllReminders() {
-  if (currentUser == null) return;
 
-  remindersCollection.snapshots().listen((querySnapshot) {
-    allReminders.value = querySnapshot.docs
-        .map((doc) => ReminderModel.fromFirestore(doc))
-        .toList();
-    
-    allReminders.sort((a, b) {
-      // If both have createdAt, compare them
-      if (a.createdAt != null && b.createdAt != null) {
-        return b.createdAt!.compareTo(a.createdAt!);
-      }
-      // If only a has createdAt, it should come first
-      else if (a.createdAt != null) {
-        return -1;
-      }
-      // If only b has createdAt, it should come first
-      else if (b.createdAt != null) {
-        return 1;
-      }
-      // If neither has createdAt, maintain their original order
-      else {
-        return 0;
-      }
+  void fetchAllReminders() {
+    if (currentUser == null) return;
+
+    remindersCollection.snapshots().listen((querySnapshot) {
+      allReminders.value = querySnapshot.docs
+          .map((doc) => ReminderModel.fromFirestore(doc))
+          .toList();
+
+      allReminders.sort((a, b) {
+        // If both have createdAt, compare them
+        if (a.createdAt != null && b.createdAt != null) {
+          return b.createdAt!.compareTo(a.createdAt!);
+        }
+        // If only a has createdAt, it should come first
+        else if (a.createdAt != null) {
+          return -1;
+        }
+        // If only b has createdAt, it should come first
+        else if (b.createdAt != null) {
+          return 1;
+        }
+        // If neither has createdAt, maintain their original order
+        else {
+          return 0;
+        }
+      });
+
+      update();
     });
-
-    update();
-  });
-}
+  }
 
   void deleteReminder(String reminderId) async {
     if (currentUser == null) return;
@@ -634,40 +643,40 @@ void fetchAllReminders() {
     // Use WidgetsBinding to ensure we're on the main thread
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       try {
-         String localTimeZone =
-          await AwesomeNotifications().getLocalTimeZoneIdentifier();
-      DateTime now = DateTime.now();
-      DateTime scheduledDate = now.add(Duration(minutes: interval));
-      nextNotificationTime.value = scheduledDate;
+        String localTimeZone =
+            await AwesomeNotifications().getLocalTimeZoneIdentifier();
+        DateTime now = DateTime.now();
+        DateTime scheduledDate = now.add(Duration(minutes: interval));
+        nextNotificationTime.value = scheduledDate;
 
-      await AwesomeNotifications().createNotification(
-        content: NotificationContent(
-          id: body.hashCode, // Use a hash of the body as the ID
-          channelKey: 'quickschedule',
-          title: 'DoBoara Reminder 📅',
-          body: body,
-          category: NotificationCategory.Reminder,
-          notificationLayout: NotificationLayout.Default,
-          criticalAlert: true,
-          wakeUpScreen: true,
-        ),
-        schedule: NotificationCalendar(
-          year: scheduledDate.year,
-          month: scheduledDate.month,
-          day: scheduledDate.day,
-          hour: scheduledDate.hour,
-          minute: scheduledDate.minute,
-          second: 0,
-          millisecond: 0,
-          repeats: repeat,
-          allowWhileIdle: true,
-          preciseAlarm: true,
-        ),
-      );
-      print('Next notification time: ${nextNotificationTime.value}');
-    } catch (e) {
-      print('Error scheduling notification: $e');
-    }
+        await AwesomeNotifications().createNotification(
+          content: NotificationContent(
+            id: body.hashCode, // Use a hash of the body as the ID
+            channelKey: 'quickschedule',
+            title: 'DoBoara Reminder 📅',
+            body: body,
+            category: NotificationCategory.Reminder,
+            notificationLayout: NotificationLayout.Default,
+            criticalAlert: true,
+            wakeUpScreen: true,
+          ),
+          schedule: NotificationCalendar(
+            year: scheduledDate.year,
+            month: scheduledDate.month,
+            day: scheduledDate.day,
+            hour: scheduledDate.hour,
+            minute: scheduledDate.minute,
+            second: 0,
+            millisecond: 0,
+            repeats: repeat,
+            allowWhileIdle: true,
+            preciseAlarm: true,
+          ),
+        );
+        print('Next notification time: ${nextNotificationTime.value}');
+      } catch (e) {
+        print('Error scheduling notification: $e');
+      }
     });
   }
 
@@ -697,7 +706,7 @@ void fetchAllReminders() {
   }
 
   //save data into firestore
-    Future saveReminder(bool repeat) async {
+  Future saveReminder(bool repeat) async {
     await remindersCollection.add({
       "reminder": reminderTextController.text,
       "time": timeSelected.value,

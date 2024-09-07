@@ -1,3 +1,4 @@
+import 'package:dough/dough.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:tushar_db/app_routes.dart';
@@ -23,26 +24,38 @@ class ProfileScreen extends GetWidget<ProfileController> {
               expandedHeight: ScaleUtil.height(80),
               floating: false,
               pinned: true,
-              flexibleSpace: FlexibleSpaceBar(
-                background: Container(
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                      colors: [
-                        appTheme.colorScheme.primary,
-                        Colors.deepPurpleAccent,
-                      ],
-                    ),
-                  ),
-                ),
-                title: Obx(() => Text(
-                      controller.name.value,
-                      style: TextStyle(
-                        fontSize: ScaleUtil.fontSize(15),
+              flexibleSpace: PressableDough(
+                onReleased: (d) {
+                  controller.toggleGradientDirection();
+                },
+                child: Obx(() => FlexibleSpaceBar(
+                      background: AnimatedContainer(
+                        duration: Duration(milliseconds: 500),
+                        curve: Curves.easeIn,
+                        decoration: BoxDecoration(
+                          
+                          gradient: LinearGradient(
+                            begin: controller.isGradientReversed.value
+                                ? Alignment.bottomRight
+                                : Alignment.topLeft,
+                            end: controller.isGradientReversed.value
+                                ? Alignment.topLeft
+                                : Alignment.bottomRight,
+                            colors: [
+                              appTheme.colorScheme.primary,
+                              Colors.deepPurpleAccent,
+                            ],
+                          ),
+                        ),
                       ),
+                      title: Obx(() => Text(
+                            controller.name.value,
+                            style: TextStyle(
+                              fontSize: ScaleUtil.fontSize(15),
+                            ),
+                          )),
+                      centerTitle: true,
                     )),
-                centerTitle: true,
               ),
               actions: [
                 IconButton(
@@ -95,7 +108,7 @@ class ProfileScreen extends GetWidget<ProfileController> {
                       appTheme.updateStatusBarColor();
                     }),
                     _buildSettingTile('Change Password', Icons.lock,
-                        onTap: () => _showChangePasswordDialog(context)),
+                        onTap: () => _showChangePasswordBottomSheet(context)),
                     _buildSettingTile('Logout', Icons.exit_to_app,
                         onTap: () => controller.logout()),
                     _buildSettingTile('Delete Account', Icons.delete_forever,
@@ -145,74 +158,17 @@ class ProfileScreen extends GetWidget<ProfileController> {
     );
   }
 
-  void _showEditDialog(BuildContext context) {
-    showDialog(
+  void _showChangePasswordBottomSheet(BuildContext context) {
+    showModalBottomSheet(
       context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
       builder: (BuildContext context) {
-        String newName = controller.name.value;
-        String newEmail = controller.email.value;
-        String newUsername = controller.username.value;
-
-        return AlertDialog(
-          title: Text('Edit Profile',
-              style: TextStyle(fontSize: ScaleUtil.fontSize(15))),
-          content: SingleChildScrollView(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                TextField(
-                  decoration: InputDecoration(
-                    labelText: 'Name',
-                    labelStyle: TextStyle(fontSize: ScaleUtil.fontSize(12)),
-                    border: OutlineInputBorder(),
-                  ),
-                  style: TextStyle(fontSize: ScaleUtil.fontSize(16)),
-                  onChanged: (value) => newName = value,
-                  controller: TextEditingController(text: newName),
-                ),
-                ScaleUtil.sizedBox(height: 16),
-                TextField(
-                  decoration: InputDecoration(
-                    labelText: 'Username',
-                    labelStyle: TextStyle(fontSize: ScaleUtil.fontSize(16)),
-                    border: OutlineInputBorder(),
-                  ),
-                  style: TextStyle(fontSize: ScaleUtil.fontSize(16)),
-                  onChanged: (value) => newUsername = value,
-                  controller: TextEditingController(text: newUsername),
-                ),
-              ],
-            ),
+        return Padding(
+          padding: EdgeInsets.only(
+            bottom: MediaQuery.of(context).viewInsets.bottom,
           ),
-          actions: [
-            TextButton(
-                child: Text('Cancel',
-                    style: TextStyle(fontSize: ScaleUtil.fontSize(16))),
-                onPressed: () => Get.back()),
-            TextButton(
-              child: Text('Save',
-                  style: TextStyle(
-                    fontSize: ScaleUtil.fontSize(16),
-                    color: Theme.of(context).colorScheme.primary,
-                  )),
-              onPressed: () async {
-                Navigator.of(context).pop();
-                bool anyChanges = false;
-
-                if (newName != controller.name.value) {
-                  await controller.updateName(newName);
-                  anyChanges = true;
-                }
-
-                if (newUsername != controller.username.value) {
-                  await controller.updateUsername(newUsername);
-                  anyChanges = true;
-                }
-
-                if (!anyChanges) {}
-              },
-            ),
-          ],
+          child: ChangePasswordBottomSheet(),
         );
       },
     );
@@ -432,5 +388,155 @@ class EditProfileBottomSheet extends GetWidget<ProfileController> {
         usernameController.text.trim().isNotEmpty &&
         (nameController.text != controller.name.value ||
             usernameController.text != controller.username.value);
+  }
+}
+
+class ChangePasswordBottomSheet extends GetWidget<ProfileController> {
+  final AppTheme appTheme = Get.find<AppTheme>();
+  final RxBool canSave = false.obs;
+  final TextEditingController currentPasswordController =
+      TextEditingController();
+  final TextEditingController newPasswordController = TextEditingController();
+  final TextEditingController confirmNewPasswordController =
+      TextEditingController();
+
+  @override
+  Widget build(BuildContext context) {
+    ScaleUtil.init(context);
+    return Padding(
+      padding: ScaleUtil.only(left: 20, right: 20, bottom: 50),
+      child: Container(
+        padding: EdgeInsets.only(
+          bottom: MediaQuery.of(context).viewInsets.bottom,
+        ),
+        decoration: BoxDecoration(
+          color: appTheme.cardColor,
+          borderRadius: BorderRadius.circular(
+            ScaleUtil.width(20),
+          ),
+        ),
+        child: Padding(
+          padding: ScaleUtil.symmetric(horizontal: 20, vertical: 10),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Text(
+                    'Change Password',
+                    style: appTheme.titleLarge.copyWith(
+                      fontSize: ScaleUtil.fontSize(15),
+                    ),
+                  ),
+                  Spacer(),
+                  IconButton(
+                    icon: Icon(Icons.close,
+                        color: appTheme.textColor,
+                        size: ScaleUtil.iconSize(15)),
+                    onPressed: () => Get.back(),
+                  ),
+                ],
+              ),
+              ScaleUtil.sizedBox(height: 16),
+              _buildTextField('Current Password', currentPasswordController,
+                  _updateCanSave),
+              ScaleUtil.sizedBox(height: 16),
+              _buildTextField(
+                  'New Password', newPasswordController, _updateCanSave),
+              ScaleUtil.sizedBox(height: 16),
+              _buildTextField('Confirm New Password',
+                  confirmNewPasswordController, _updateCanSave),
+              ScaleUtil.sizedBox(height: 24),
+              Align(
+                alignment: Alignment.centerRight,
+                child: _buildSaveButton(context),
+              ),
+              ScaleUtil.sizedBox(height: 16),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildTextField(String label, TextEditingController textController,
+      VoidCallback onChanged) {
+    return ClipRRect(
+      borderRadius: ScaleUtil.circular(10),
+      child: TextField(
+        controller: textController,
+        style: appTheme.bodyMedium,
+        obscureText: true,
+        decoration: InputDecoration(
+          labelText: label,
+          filled: true,
+          fillColor: appTheme.textFieldFillColor,
+          labelStyle: appTheme.bodyMedium.copyWith(
+            color: appTheme.secondaryTextColor,
+            fontSize: ScaleUtil.fontSize(12),
+          ),
+          border: InputBorder.none,
+          enabledBorder: InputBorder.none,
+          focusedBorder: InputBorder.none,
+          errorBorder: InputBorder.none,
+          disabledBorder: InputBorder.none,
+          contentPadding: ScaleUtil.symmetric(horizontal: 16, vertical: 6),
+        ),
+        onChanged: (_) => onChanged(),
+      ),
+    );
+  }
+
+  Widget _buildSaveButton(BuildContext context) {
+    return Obx(() => Container(
+          decoration: BoxDecoration(
+            color: canSave.value ? appTheme.colorScheme.primary : Colors.grey,
+            shape: BoxShape.circle,
+          ),
+          child: Material(
+            color: Colors.transparent,
+            child: InkWell(
+              borderRadius: ScaleUtil.circular(20),
+              onTap: canSave.value
+                  ? () async {
+                      try {
+                        if (newPasswordController.text !=
+                            confirmNewPasswordController.text) {
+                          Get.snackbar('Error', 'New passwords do not match');
+                          return;
+                        }
+                        await controller.changePassword(
+                          currentPasswordController.text,
+                          newPasswordController.text,
+                        );
+                        Navigator.of(context).pop(); // Close the bottom sheet
+                      } catch (e) {
+                        Get.snackbar(
+                          'Error',
+                          'Failed to change password: ${e.toString()}',
+                          snackPosition: SnackPosition.BOTTOM,
+                        );
+                      }
+                    }
+                  : null,
+              child: Padding(
+                padding: ScaleUtil.all(10),
+                child: Icon(
+                  Icons.check,
+                  color: Colors.white,
+                  size: ScaleUtil.iconSize(15),
+                ),
+              ),
+            ),
+          ),
+        ));
+  }
+
+  void _updateCanSave() {
+    canSave.value = currentPasswordController.text.isNotEmpty &&
+        newPasswordController.text.isNotEmpty &&
+        confirmNewPasswordController.text.isNotEmpty &&
+        newPasswordController.text == confirmNewPasswordController.text;
   }
 }

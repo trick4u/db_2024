@@ -123,41 +123,62 @@ class StatisticsScreen extends GetWidget<StatisticsController> {
 
   Widget _buildOverviewCard(String title, String value,
       {bool isSelected = false, required AppTheme appTheme}) {
-    return Container(
-      padding: ScaleUtil.all(10),
+    return AnimatedContainer(
+      duration: Duration(microseconds: 100),
+      padding: ScaleUtil.all(1),
       decoration: BoxDecoration(
         borderRadius: ScaleUtil.circular(10),
-        border: isSelected
-            ? Border.all(
-                color: appTheme.colorScheme.primary, width: ScaleUtil.scale(2))
-            : null,
-        color: isSelected
-            ? appTheme.colorScheme.surface
-            : appTheme.colorScheme.primary,
+        gradient: LinearGradient(
+          begin: isSelected ? Alignment.topLeft : Alignment.bottomRight,
+          end: isSelected ? Alignment.bottomRight : Alignment.topLeft,
+          colors: [
+            appTheme.colorScheme.primary,
+            Colors.deepPurpleAccent,
+          ],
+        ),
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            value,
-            style: appTheme.titleLarge.copyWith(
-              fontSize: ScaleUtil.fontSize(24),
-              color: isSelected
-                  ? appTheme.colorScheme.primary
-                  : appTheme.colorScheme.onPrimary,
-            ),
+      child: Container(
+        decoration: BoxDecoration(
+          borderRadius: ScaleUtil.circular(8),
+          color: isSelected ? appTheme.colorScheme.surface : null,
+          gradient: isSelected
+              ? null
+              : LinearGradient(
+                  begin: isSelected ? Alignment.topLeft : Alignment.bottomRight,
+                  end: isSelected ? Alignment.bottomRight : Alignment.topLeft,
+                  colors: [
+                    appTheme.colorScheme.primary,
+                    Colors.deepPurpleAccent,
+                  ],
+                ),
+        ),
+        child: Padding(
+          padding: ScaleUtil.all(8),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                value,
+                style: appTheme.titleLarge.copyWith(
+                  fontSize: ScaleUtil.fontSize(24),
+                  color: isSelected
+                      ? appTheme.colorScheme.primary
+                      : appTheme.colorScheme.onPrimary,
+                ),
+              ),
+              ScaleUtil.sizedBox(height: 4),
+              Text(
+                title.toLowerCase(),
+                style: appTheme.bodyMedium.copyWith(
+                  fontSize: ScaleUtil.fontSize(12),
+                  color: isSelected
+                      ? appTheme.colorScheme.primary
+                      : appTheme.colorScheme.onPrimary,
+                ),
+              ),
+            ],
           ),
-          ScaleUtil.sizedBox(height: 4),
-          Text(
-            title.toLowerCase(),
-            style: appTheme.bodyMedium.copyWith(
-              fontSize: ScaleUtil.fontSize(12),
-              color: isSelected
-                  ? appTheme.colorScheme.primary
-                  : appTheme.colorScheme.onPrimary,
-            ),
-          ),
-        ],
+        ),
       ),
     );
   }
@@ -299,12 +320,19 @@ class StatisticsScreen extends GetWidget<StatisticsController> {
                           barRods: [
                             BarChartRodData(
                               toY: currentData[index].toDouble(),
-                              color: hasData
-                                  ? (controller.showCompletedTasks.value
-                                      ? appTheme.colorScheme.primary
-                                      : appTheme.colorScheme.error)
-                                  : appTheme.secondaryTextColor
-                                      .withOpacity(0.2),
+                              gradient: controller.showCompletedTasks.value
+                                  ? LinearGradient(
+                                      begin: Alignment.topCenter,
+                                      end: Alignment.bottomCenter,
+                                      colors: [
+                                        appTheme.colorScheme.primary,
+                                        Colors.deepPurpleAccent,
+                                      ],
+                                    )
+                                  : null,
+                              color: controller.showCompletedTasks.value
+                                  ? null
+                                  : appTheme.colorScheme.error,
                               width: ScaleUtil.width(8),
                               borderRadius: BorderRadius.vertical(
                                 top: ScaleUtil.radius(4),

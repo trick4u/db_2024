@@ -75,6 +75,7 @@ class PageOneScreen extends GetWidget<PageOneController> {
                     child: GestureDetector(
                         onTap: () async {
                           await _showQuoteDialog(context);
+                            controller.toggleGradientDirection();
                         },
                         child: Row(
                           children: [

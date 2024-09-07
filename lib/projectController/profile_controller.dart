@@ -33,6 +33,7 @@ class ProfileController extends GetxController {
   RxBool isCheckingUsername = false.obs;
   RxBool hasCheckedUsername = false.obs;
   Timer? _debounce;
+  final RxBool isGradientReversed = false.obs;
 
   static const int MAX_USERNAME_LENGTH = 20; // Including "@" symbol
   static const int MIN_USERNAME_LENGTH = 4;
@@ -50,13 +51,17 @@ class ProfileController extends GetxController {
   void onReady() {
     // TODO: implement onReady
     ever(notifications, (_) => isLoading.value = false);
-    fetchNotifications();
+
     super.onReady();
   }
-   @override
+
+  @override
   void onClose() {
     _debounce?.cancel();
     super.onClose();
+  }
+   void toggleGradientDirection() {
+    isGradientReversed.toggle();
   }
 
   //log out
@@ -237,17 +242,14 @@ class ProfileController extends GetxController {
     }
   }
 
-
-
-  
-   bool isValidUsername(String username) {
+  bool isValidUsername(String username) {
     if (!username.startsWith('@')) {
       return false;
     }
     String usernameWithoutAt = username.substring(1);
-    return usernameWithoutAt.length >= MIN_USERNAME_LENGTH && 
-           username.length <= MAX_USERNAME_LENGTH &&
-           RegExp(r'^@[a-zA-Z0-9_]+$').hasMatch(username);
+    return usernameWithoutAt.length >= MIN_USERNAME_LENGTH &&
+        username.length <= MAX_USERNAME_LENGTH &&
+        RegExp(r'^@[a-zA-Z0-9_]+$').hasMatch(username);
   }
 
   void onUsernameChanged(String value) {
@@ -267,8 +269,8 @@ class ProfileController extends GetxController {
     if (!username.startsWith('@')) {
       username = '@' + username;
     }
-    return username.length > MAX_USERNAME_LENGTH 
-        ? username.substring(0, MAX_USERNAME_LENGTH) 
+    return username.length > MAX_USERNAME_LENGTH
+        ? username.substring(0, MAX_USERNAME_LENGTH)
         : username;
   }
 
@@ -334,6 +336,7 @@ class ProfileController extends GetxController {
       Get.snackbar('Error', 'Failed to update username: $error');
     }
   }
+
   Future<void> changePassword(
       String currentPassword, String newPassword) async {
     try {
@@ -349,45 +352,13 @@ class ProfileController extends GetxController {
         // Change the password
         await user.updatePassword(newPassword);
         logout();
+        Get.back();
+        await Get.offAllNamed(AppRoutes.HOME);
 
         Get.snackbar('Success', 'Password changed successfully');
       }
     } catch (error) {
       Get.snackbar('Error', 'Failed to change password: $error');
-    }
-  }
-
-  Future<void> cancelAllNotifications() async {
-    try {
-      await AwesomeNotifications().cancelAll();
-      Get.snackbar('Success', 'All notifications have been cancelled');
-      fetchNotifications();
-    } catch (error) {
-      Get.snackbar('Error', 'Failed to cancel notifications: $error');
-    }
-  }
-
-  Future<void> fetchNotifications() async {
-    try {
-      isLoading.value = true;
-      List<NotificationModel> fetchedNotifications =
-          await AwesomeNotifications().listScheduledNotifications();
-      notifications.assignAll(fetchedNotifications);
-    } catch (error) {
-      print('Error fetching notifications: $error');
-      Get.snackbar('Error', 'Failed to fetch notifications: $error');
-    } finally {
-      isLoading.value = false;
-    }
-  }
-
-  Future<void> cancelNotification(int id) async {
-    try {
-      await AwesomeNotifications().cancel(id);
-      await fetchNotifications(); // Refresh the list
-      Get.snackbar('Success', 'Notification cancelled');
-    } catch (error) {
-      Get.snackbar('Error', 'Failed to cancel notification: $error');
     }
   }
 }
