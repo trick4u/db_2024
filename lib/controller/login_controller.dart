@@ -5,19 +5,49 @@ import 'package:get/get.dart';
 import 'package:tushar_db/app_routes.dart';
 
 class LoginController extends GetxController {
-  var isPasswordVisible = false.obs;
-
   var username = ''.obs;
   var password = ''.obs;
 
   // textediting controller
   final TextEditingController userInputController = TextEditingController();
-  var passwordController = TextEditingController();
-  var emailController = TextEditingController();
+
+  var isPasswordVisible = false.obs;
+  var isLoginButtonActive = false.obs;
+  final TextEditingController passwordController = TextEditingController();
   var formKey = GlobalKey<FormState>();
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   RxBool isLoading = false.obs;
+  @override
+  void onInit() {
+    super.onInit();
+    userInputController.addListener(updateLoginButtonState);
+    passwordController.addListener(updateLoginButtonState);
+  }
+
+  @override
+  void onClose() {
+    userInputController.removeListener(updateLoginButtonState);
+    passwordController.removeListener(updateLoginButtonState);
+    userInputController.dispose();
+    passwordController.dispose();
+    super.onClose();
+  }
+
+  void updateLoginButtonState() {
+    isLoginButtonActive.value = isValidInput(userInputController.text.trim()) &&
+        passwordController.text.isNotEmpty;
+  }
+
+  bool isValidInput(String input) {
+    return isEmail(input) || isValidUsername(input);
+  }
+
+  bool isValidUsername(String input) {
+    // Add your username validation logic here
+    // For example, username should be at least 3 characters long
+    return input.length >= 3;
+  }
 
   void togglePasswordVisibility() {
     isPasswordVisible.value = !isPasswordVisible.value;
@@ -29,21 +59,20 @@ class LoginController extends GetxController {
   }
 
   Future<void> login() async {
+    if (!isLoginButtonActive.value) return;
+
     isLoading.value = true;
     try {
       String userInput = userInputController.text.trim();
       String password = passwordController.text;
 
       if (isEmail(userInput)) {
-        // Login with email
         await loginWithEmail(userInput, password);
       } else {
-        // Login with username
         await loginWithUsername(userInput, password);
       }
 
-      // If login is successful, navigate to home page
-      Get.offAllNamed(AppRoutes.MAIN, );
+      Get.offAllNamed(AppRoutes.MAIN);
     } catch (e) {
       Get.snackbar(
         'Login Error',
@@ -81,7 +110,7 @@ class LoginController extends GetxController {
     await loginWithEmail(email, password);
   }
 
-   Future<void> forgotPassword(String email) async {
+  Future<void> forgotPassword(String email) async {
     isLoading.value = true;
     try {
       await FirebaseAuth.instance.sendPasswordResetEmail(email: email);
@@ -100,5 +129,4 @@ class LoginController extends GetxController {
       isLoading.value = false;
     }
   }
-
 }

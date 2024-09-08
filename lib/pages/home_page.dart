@@ -48,66 +48,8 @@ class MyHomePage extends StatelessWidget {
     );
   }
 
-  Widget _buildCircularIcons() {
-    return Center(
-      child: Container(
-        width: 300,
-        height: 300,
-        child: Stack(
-          children: [
-            for (int i = 0; i < 6; i++)
-              Positioned(
-                left: 150 + 120 * cos(i * pi / 3),
-                top: 150 + 120 * sin(i * pi / 3),
-                child: _buildIcon(i),
-              ),
-            Center(
-              child: Container(
-                width: 50,
-                height: 50,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  gradient: LinearGradient(
-                    colors: [Colors.orange, Colors.pink],
-                  ),
-                ),
-                child: Icon(Icons.star, color: Colors.white),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
 
-  Widget _buildIcon(int index) {
-    List<IconData> icons = [
-      Icons.thumb_up,
-      Icons.person,
-      Icons.location_on,
-      Icons.calendar_today,
-      Icons.person_outline,
-      Icons.person,
-    ];
-    List<Color> colors = [
-      Colors.blue,
-      Colors.orange,
-      Colors.purple,
-      Colors.blue,
-      Colors.green,
-      Colors.yellow,
-    ];
 
-    return Container(
-      width: 40,
-      height: 40,
-      decoration: BoxDecoration(
-        shape: BoxShape.circle,
-        color: colors[index],
-      ),
-      child: Icon(icons[index], color: Colors.white),
-    );
-  }
 
   Widget _buildGetStartedWidget(BuildContext context) {
     final appTheme = Get.find<AppTheme>();

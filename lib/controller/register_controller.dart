@@ -47,7 +47,7 @@ class RegisterController extends GetxController {
     super.onClose();
   }
 
- void onUsernameEditingComplete() {
+void onUsernameEditingComplete() {
     final username = usernameController.text.trim();
     if (isValidUsername(username)) {
       checkUsernameAvailability();
@@ -69,7 +69,7 @@ class RegisterController extends GetxController {
       }
     });
   }
-
+  
   void _checkUsernameEmpty() {
     isUsernameEmpty.value = usernameController.text.trim().isEmpty;
     if (isUsernameEmpty.value) {

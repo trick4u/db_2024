@@ -10,6 +10,7 @@ import '../services/app_theme.dart';
 
 class LoginPage extends GetWidget<LoginController> {
   final appTheme = Get.find<AppTheme>();
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -51,6 +52,7 @@ class LoginPage extends GetWidget<LoginController> {
                       controller: controller.passwordController,
                       hintText: 'Enter password',
                       obscureText: !controller.isPasswordVisible.value,
+                      prefixIcon: Icons.lock,
                       suffixIcon: IconButton(
                         icon: Icon(
                           controller.isPasswordVisible.value
@@ -67,7 +69,7 @@ class LoginPage extends GetWidget<LoginController> {
                     alignment: Alignment.centerRight,
                     child: InkWell(
                       onTap: () {
-                        _showForgotPasswordDialog(context);
+                        _showForgotPasswordBottomSheet(context);
                       },
                       child: Text(
                         'Forgot Password',
@@ -77,12 +79,17 @@ class LoginPage extends GetWidget<LoginController> {
                   ),
                   SizedBox(height: ScaleUtil.height(10.0)),
                   Obx(() => ElevatedButton(
-                        onPressed: controller.isLoading.value
-                            ? null
-                            : controller.login,
+                        onPressed: (controller.isLoginButtonActive.value &&
+                                !controller.isLoading.value)
+                            ? controller.login
+                            : null,
                         style: ElevatedButton.styleFrom(
                           foregroundColor: Colors.deepPurpleAccent,
-                          backgroundColor: Colors.deepPurpleAccent,
+                          backgroundColor:
+                              (controller.isLoginButtonActive.value &&
+                                      !controller.isLoading.value)
+                                  ? Colors.deepPurpleAccent
+                                  : Colors.grey,
                           padding:
                               ScaleUtil.symmetric(horizontal: 30, vertical: 10),
                           shape: RoundedRectangleBorder(
@@ -138,70 +145,178 @@ class LoginPage extends GetWidget<LoginController> {
     IconData? prefixIcon,
     Widget? suffixIcon,
   }) {
-    return TextField(
-      controller: controller,
-      style: appTheme.bodyMedium,
-      obscureText: obscureText,
-      decoration: InputDecoration(
-        filled: true,
-        fillColor: appTheme.textFieldFillColor,
-        hintText: hintText,
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide.none,
-        ),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide.none,
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(
-            color: appTheme.colorScheme.primary,
-            width: 1,
+    return ClipRRect(
+      borderRadius: ScaleUtil.circular(10),
+      child: TextField(
+        controller: controller,
+        style: appTheme.bodyMedium,
+        obscureText: obscureText,
+        decoration: InputDecoration(
+          filled: true,
+          fillColor: appTheme.textFieldFillColor,
+          hintText: hintText,
+          hintStyle: appTheme.bodyMedium.copyWith(
+            color: appTheme.secondaryTextColor,
+            fontSize: ScaleUtil.fontSize(12),
           ),
+          border: InputBorder.none,
+          enabledBorder: InputBorder.none,
+          focusedBorder: InputBorder.none,
+          errorBorder: InputBorder.none,
+          disabledBorder: InputBorder.none,
+          contentPadding: ScaleUtil.symmetric(horizontal: 16, vertical: 6),
+          prefixIcon: prefixIcon != null ? Icon(prefixIcon) : null,
+          suffixIcon: suffixIcon,
         ),
-        prefixIcon: prefixIcon != null ? Icon(prefixIcon) : null,
-        suffixIcon: suffixIcon,
       ),
     );
   }
 
-  void _showForgotPasswordDialog(BuildContext context) {
-    final TextEditingController emailController = TextEditingController();
+  void _showForgotPasswordBottomSheet(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (BuildContext context) {
+        return Padding(
+          padding: EdgeInsets.only(
+            bottom: MediaQuery.of(context).viewInsets.bottom,
+          ),
+          child: ForgotPasswordBottomSheet(),
+        );
+      },
+    );
+  }
+}
 
-    Get.dialog(
-      AlertDialog(
-        title: Text('Forgot Password'),
-        content: TextField(
-          controller: emailController,
-          decoration: InputDecoration(
-            hintText: 'Enter your email',
-          ),
-          keyboardType: TextInputType.emailAddress,
+class ForgotPasswordBottomSheet extends GetWidget<LoginController> {
+  final AppTheme appTheme = Get.find<AppTheme>();
+  final RxBool canSave = false.obs;
+  final TextEditingController emailController = TextEditingController();
+
+  @override
+  Widget build(BuildContext context) {
+    ScaleUtil.init(context);
+    return Padding(
+      padding: ScaleUtil.only(left: 20, right: 20, bottom: 50),
+      child: Container(
+        padding: EdgeInsets.only(
+          bottom: MediaQuery.of(context).viewInsets.bottom,
         ),
-        actions: [
-          TextButton(
-            child: Text('Cancel'),
-            onPressed: () => Get.back(),
+        decoration: BoxDecoration(
+          color: appTheme.cardColor,
+          borderRadius: BorderRadius.circular(
+            ScaleUtil.width(20),
           ),
-          TextButton(
-            child: Text('Reset Password'),
-            onPressed: () {
-              if (emailController.text.isNotEmpty) {
-                controller.forgotPassword(emailController.text.trim());
-                Get.back();
-              } else {
-                Get.snackbar(
-                  'Error',
-                  'Please enter your email',
-                  snackPosition: SnackPosition.BOTTOM,
-                );
-              }
-            },
+        ),
+        child: Padding(
+          padding: ScaleUtil.symmetric(horizontal: 20, vertical: 10),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Text(
+                    'Forgot Password',
+                    style: appTheme.titleLarge.copyWith(
+                      fontSize: ScaleUtil.fontSize(15),
+                    ),
+                  ),
+                  Spacer(),
+                  IconButton(
+                    icon: Icon(Icons.close,
+                        color: appTheme.textColor,
+                        size: ScaleUtil.iconSize(15)),
+                    onPressed: () => Get.back(),
+                  ),
+                ],
+              ),
+              ScaleUtil.sizedBox(height: 16),
+              _buildTextField('Email', emailController, _updateCanSave),
+              ScaleUtil.sizedBox(height: 24),
+              Align(
+                alignment: Alignment.centerRight,
+                child: _buildSaveButton(context),
+              ),
+              ScaleUtil.sizedBox(height: 16),
+            ],
           ),
-        ],
+        ),
       ),
     );
+  }
+
+  Widget _buildTextField(String label, TextEditingController textController,
+      VoidCallback onChanged) {
+    return ClipRRect(
+      borderRadius: ScaleUtil.circular(10),
+      child: TextField(
+        controller: textController,
+        style: appTheme.bodyMedium,
+        decoration: InputDecoration(
+          labelText: label,
+          filled: true,
+          fillColor: appTheme.textFieldFillColor,
+          labelStyle: appTheme.bodyMedium.copyWith(
+            color: appTheme.secondaryTextColor,
+            fontSize: ScaleUtil.fontSize(12),
+          ),
+          border: InputBorder.none,
+          enabledBorder: InputBorder.none,
+          focusedBorder: InputBorder.none,
+          errorBorder: InputBorder.none,
+          disabledBorder: InputBorder.none,
+          contentPadding: ScaleUtil.symmetric(horizontal: 16, vertical: 6),
+        ),
+        onChanged: (_) => onChanged(),
+      ),
+    );
+  }
+
+  Widget _buildSaveButton(BuildContext context) {
+    return Obx(() => Container(
+          decoration: BoxDecoration(
+            color: canSave.value ? appTheme.colorScheme.primary : Colors.grey,
+            shape: BoxShape.circle,
+          ),
+          child: Material(
+            color: Colors.transparent,
+            child: InkWell(
+              borderRadius: ScaleUtil.circular(20),
+              onTap: canSave.value
+                  ? () async {
+                      try {
+                        await controller
+                            .forgotPassword(emailController.text.trim());
+                        Navigator.of(context).pop(); // Close the bottom sheet
+                      } catch (e) {
+                        Get.snackbar(
+                          'Error',
+                          'Failed to reset password: ${e.toString()}',
+                          snackPosition: SnackPosition.BOTTOM,
+                        );
+                      }
+                    }
+                  : null,
+              child: Padding(
+                padding: ScaleUtil.all(10),
+                child: Icon(
+                  Icons.check,
+                  color: Colors.white,
+                  size: ScaleUtil.iconSize(15),
+                ),
+              ),
+            ),
+          ),
+        ));
+  }
+
+  void _updateCanSave() {
+    canSave.value = isValidEmail(emailController.text.trim());
+  }
+
+  bool isValidEmail(String email) {
+    return RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(email);
   }
 }

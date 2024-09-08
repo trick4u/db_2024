@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
 import 'package:tushar_db/controller/register_controller.dart';
@@ -41,6 +42,7 @@ class RegisterPage extends GetView<RegisterController> {
                   children: [
                     Obx(() => _buildTextField(
                           controller: controller.usernameController,
+                          labelText: 'Username',
                           hintText: 'Enter username (5-15 characters)',
                           prefixIcon: Icons.person,
                           suffixIcon: controller.isUsernameEmpty.value
@@ -58,16 +60,21 @@ class RegisterPage extends GetView<RegisterController> {
                               : null,
                           onEditingComplete:
                               controller.onUsernameEditingComplete,
+                          inputFormatters: [
+                            LengthLimitingTextInputFormatter(15),
+                          ],
                         )),
                     SizedBox(height: ScaleUtil.height(10.0)),
                     _buildTextField(
                       controller: controller.nameController,
+                      labelText: 'Name',
                       hintText: 'Enter name',
                       prefixIcon: FontAwesomeIcons.user,
                     ),
                     SizedBox(height: ScaleUtil.height(10.0)),
                     Obx(() => _buildTextField(
                           controller: controller.emailController,
+                          labelText: 'Email',
                           hintText: 'Enter email',
                           prefixIcon: Icons.email,
                           keyboardType: TextInputType.emailAddress,
@@ -78,6 +85,7 @@ class RegisterPage extends GetView<RegisterController> {
                     SizedBox(height: ScaleUtil.height(10.0)),
                     Obx(() => _buildTextField(
                           controller: controller.passwordController,
+                          labelText: 'Password',
                           hintText: 'Enter password',
                           prefixIcon: Icons.lock,
                           obscureText: !controller.isPasswordVisible.value,
@@ -94,6 +102,7 @@ class RegisterPage extends GetView<RegisterController> {
                     SizedBox(height: ScaleUtil.height(10.0)),
                     Obx(() => _buildTextField(
                           controller: controller.confirmPasswordController,
+                          labelText: 'Confirm Password',
                           hintText: 'Confirm password',
                           prefixIcon: Icons.lock,
                           obscureText:
@@ -166,6 +175,7 @@ class RegisterPage extends GetView<RegisterController> {
 
   Widget _buildTextField({
     required TextEditingController controller,
+    required String labelText,
     required String hintText,
     IconData? prefixIcon,
     bool obscureText = false,
@@ -174,37 +184,42 @@ class RegisterPage extends GetView<RegisterController> {
     String? errorText,
     void Function(String)? onChanged,
     VoidCallback? onEditingComplete,
+    List<TextInputFormatter>? inputFormatters,
   }) {
-    return TextField(
-      controller: controller,
-      style: appTheme.bodyMedium,
-      obscureText: obscureText,
-      keyboardType: keyboardType,
-      onChanged: onChanged,
-      onEditingComplete: onEditingComplete,
-      decoration: InputDecoration(
-        filled: true,
-        fillColor: appTheme.textFieldFillColor,
-        hintText: hintText,
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide.none,
-        ),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide.none,
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(
-            color: Colors.deepPurpleAccent,
-            width: 1,
+    return ClipRRect(
+      borderRadius: ScaleUtil.circular(10),
+      child: TextField(
+        controller: controller,
+        style: appTheme.bodyMedium,
+        obscureText: obscureText,
+        keyboardType: keyboardType,
+        onChanged: onChanged,
+        onEditingComplete: onEditingComplete,
+        inputFormatters: inputFormatters,
+        decoration: InputDecoration(
+          labelText: labelText,
+          hintText: hintText,
+          filled: true,
+          fillColor: appTheme.textFieldFillColor,
+          labelStyle: appTheme.bodyMedium.copyWith(
+            color: appTheme.secondaryTextColor,
+            fontSize: ScaleUtil.fontSize(12),
           ),
+          hintStyle: appTheme.bodyMedium.copyWith(
+            color: appTheme.secondaryTextColor,
+            fontSize: ScaleUtil.fontSize(10),
+          ),
+          border: InputBorder.none,
+          enabledBorder: InputBorder.none,
+          focusedBorder: InputBorder.none,
+          errorBorder: InputBorder.none,
+          disabledBorder: InputBorder.none,
+          contentPadding: ScaleUtil.symmetric(horizontal: 16, vertical: 6),
+          prefixIcon: prefixIcon != null ? Icon(prefixIcon) : null,
+          suffixIcon: suffixIcon,
+          errorText: errorText,
+          errorStyle: TextStyle(color: Colors.red),
         ),
-        prefixIcon: prefixIcon != null ? Icon(prefixIcon) : null,
-        suffixIcon: suffixIcon,
-        errorText: errorText,
-        errorStyle: TextStyle(color: Colors.red),
       ),
     );
   }
