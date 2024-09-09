@@ -164,7 +164,7 @@ class LoginPage extends GetWidget<LoginController> {
           focusedBorder: InputBorder.none,
           errorBorder: InputBorder.none,
           disabledBorder: InputBorder.none,
-          contentPadding: ScaleUtil.symmetric(horizontal: 16, vertical: 6),
+          contentPadding: ScaleUtil.symmetric(horizontal: 16, vertical: 10),
           prefixIcon: prefixIcon != null ? Icon(prefixIcon) : null,
           suffixIcon: suffixIcon,
         ),

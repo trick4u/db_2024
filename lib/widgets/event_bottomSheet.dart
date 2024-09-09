@@ -101,8 +101,7 @@ class _EventBottomSheetState extends State<EventBottomSheet> {
                       Text(
                         widget.event == null ? 'Add Event' : 'Edit Event',
                         style: appTheme.titleLarge.copyWith(
-                          fontSize:
-                              ScaleUtil.fontSize(appTheme.titleLarge.fontSize!),
+                          fontSize: ScaleUtil.fontSize(15),
                         ),
                       ),
                       Spacer(),
@@ -132,8 +131,7 @@ class _EventBottomSheetState extends State<EventBottomSheet> {
                         fillColor: appTheme.textFieldFillColor,
                         labelStyle: appTheme.bodyMedium.copyWith(
                           color: appTheme.secondaryTextColor,
-                          fontSize:
-                              ScaleUtil.fontSize(appTheme.bodyMedium.fontSize!),
+                          fontSize: ScaleUtil.fontSize(12),
                         ),
                         border: InputBorder.none,
                         enabledBorder: InputBorder.none,
@@ -141,7 +139,7 @@ class _EventBottomSheetState extends State<EventBottomSheet> {
                         errorBorder: InputBorder.none,
                         disabledBorder: InputBorder.none,
                         contentPadding:
-                            ScaleUtil.symmetric(horizontal: 16, vertical: 12),
+                            ScaleUtil.symmetric(horizontal: 16, vertical: 6),
                       ),
                       onChanged: (value) => _updateTitleState(),
                     ),

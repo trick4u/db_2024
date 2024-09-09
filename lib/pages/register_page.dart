@@ -42,7 +42,6 @@ class RegisterPage extends GetView<RegisterController> {
                   children: [
                     Obx(() => _buildTextField(
                           controller: controller.usernameController,
-                          labelText: 'Username',
                           hintText: 'Enter username (5-15 characters)',
                           prefixIcon: Icons.person,
                           suffixIcon: controller.isUsernameEmpty.value
@@ -58,23 +57,22 @@ class RegisterPage extends GetView<RegisterController> {
                                   !controller.isUsernameAvailable.value
                               ? 'Username unavailable'
                               : null,
-                          onEditingComplete:
-                              controller.onUsernameEditingComplete,
                           inputFormatters: [
                             LengthLimitingTextInputFormatter(15),
                           ],
                         )),
                     SizedBox(height: ScaleUtil.height(10.0)),
-                    _buildTextField(
-                      controller: controller.nameController,
-                      labelText: 'Name',
-                      hintText: 'Enter name',
-                      prefixIcon: FontAwesomeIcons.user,
-                    ),
+                    Obx(() => _buildTextField(
+                          controller: controller.nameController,
+                          hintText: 'Enter name (5-20 characters)',
+                          prefixIcon: FontAwesomeIcons.user,
+                          inputFormatters: [
+                            LengthLimitingTextInputFormatter(20),
+                          ],
+                        )),
                     SizedBox(height: ScaleUtil.height(10.0)),
                     Obx(() => _buildTextField(
                           controller: controller.emailController,
-                          labelText: 'Email',
                           hintText: 'Enter email',
                           prefixIcon: Icons.email,
                           keyboardType: TextInputType.emailAddress,
@@ -85,8 +83,7 @@ class RegisterPage extends GetView<RegisterController> {
                     SizedBox(height: ScaleUtil.height(10.0)),
                     Obx(() => _buildTextField(
                           controller: controller.passwordController,
-                          labelText: 'Password',
-                          hintText: 'Enter password',
+                          hintText: 'Enter password (7-30 characters)',
                           prefixIcon: Icons.lock,
                           obscureText: !controller.isPasswordVisible.value,
                           suffixIcon: IconButton(
@@ -94,15 +91,18 @@ class RegisterPage extends GetView<RegisterController> {
                               controller.isPasswordVisible.value
                                   ? Icons.visibility
                                   : Icons.visibility_off,
-                              size: 20.0,
+                              size: ScaleUtil.iconSize(15),
+                              color: appTheme.secondaryTextColor,
                             ),
                             onPressed: controller.togglePasswordVisibility,
                           ),
+                          inputFormatters: [
+                            LengthLimitingTextInputFormatter(30),
+                          ],
                         )),
                     SizedBox(height: ScaleUtil.height(10.0)),
                     Obx(() => _buildTextField(
                           controller: controller.confirmPasswordController,
-                          labelText: 'Confirm Password',
                           hintText: 'Confirm password',
                           prefixIcon: Icons.lock,
                           obscureText:
@@ -112,20 +112,29 @@ class RegisterPage extends GetView<RegisterController> {
                               controller.isConfirmPasswordVisible.value
                                   ? Icons.visibility
                                   : Icons.visibility_off,
-                              size: 20.0,
+                              size: ScaleUtil.iconSize(15),
+                              color: appTheme.secondaryTextColor,
                             ),
                             onPressed:
                                 controller.toggleConfirmPasswordVisibility,
                           ),
+                          errorText: controller.doPasswordsMatch.value
+                              ? null
+                              : 'Passwords do not match',
                         )),
                     SizedBox(height: ScaleUtil.height(20.0)),
                     Obx(() => ElevatedButton(
-                          onPressed: controller.isLoading.value
-                              ? null
-                              : controller.register,
+                          onPressed: (controller.isRegisterButtonActive.value &&
+                                  !controller.isLoading.value)
+                              ? controller.register
+                              : null,
                           style: ElevatedButton.styleFrom(
                             foregroundColor: Colors.deepPurpleAccent,
-                            backgroundColor: Colors.deepPurpleAccent,
+                            backgroundColor:
+                                (controller.isRegisterButtonActive.value &&
+                                        !controller.isLoading.value)
+                                    ? Colors.deepPurpleAccent
+                                    : Colors.grey,
                             padding: ScaleUtil.symmetric(
                                 horizontal: 30, vertical: 10),
                             shape: RoundedRectangleBorder(
@@ -175,7 +184,6 @@ class RegisterPage extends GetView<RegisterController> {
 
   Widget _buildTextField({
     required TextEditingController controller,
-    required String labelText,
     required String hintText,
     IconData? prefixIcon,
     bool obscureText = false,
@@ -187,7 +195,9 @@ class RegisterPage extends GetView<RegisterController> {
     List<TextInputFormatter>? inputFormatters,
   }) {
     return ClipRRect(
-      borderRadius: ScaleUtil.circular(10),
+      borderRadius: BorderRadius.all(
+        Radius.circular(10),
+      ),
       child: TextField(
         controller: controller,
         style: appTheme.bodyMedium,
@@ -197,7 +207,6 @@ class RegisterPage extends GetView<RegisterController> {
         onEditingComplete: onEditingComplete,
         inputFormatters: inputFormatters,
         decoration: InputDecoration(
-          labelText: labelText,
           hintText: hintText,
           filled: true,
           fillColor: appTheme.textFieldFillColor,
@@ -214,11 +223,17 @@ class RegisterPage extends GetView<RegisterController> {
           focusedBorder: InputBorder.none,
           errorBorder: InputBorder.none,
           disabledBorder: InputBorder.none,
-          contentPadding: ScaleUtil.symmetric(horizontal: 16, vertical: 6),
-          prefixIcon: prefixIcon != null ? Icon(prefixIcon) : null,
+          contentPadding: ScaleUtil.symmetric(horizontal: 16, vertical: 10),
+          prefixIcon: prefixIcon != null
+              ? Icon(prefixIcon,
+                  color: appTheme.secondaryTextColor,
+                  size: ScaleUtil.iconSize(20))
+              : null,
           suffixIcon: suffixIcon,
           errorText: errorText,
-          errorStyle: TextStyle(color: Colors.red),
+          errorStyle: appTheme.bodyMedium.copyWith(
+            fontSize: ScaleUtil.fontSize(10),
+          ),
         ),
       ),
     );

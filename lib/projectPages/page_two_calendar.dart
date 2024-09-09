@@ -399,7 +399,7 @@ class CalendarPage extends GetWidget<CalendarController> {
                               }
                             },
                             child: Text(
-                              'No events for ${DateFormat('MMMM dd yyyy').format(controller.selectedDay.value)} ',
+                              'No tasks for ${DateFormat('MMMM dd yyyy').format(controller.selectedDay.value)} ',
                               style: appTheme.bodyMedium,
                             ),
                           ),

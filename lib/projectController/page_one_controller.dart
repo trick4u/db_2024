@@ -121,7 +121,7 @@ class PageOneController extends GetxController {
   @override
   void onReady() {
     //getAllGoals();
-    triggerAnimation();
+   
     updateGreeting();
   }
 
@@ -202,9 +202,7 @@ class PageOneController extends GetxController {
     });
   }
 
-  void triggerAnimation() {
-    animationTrigger.value++;
-  }
+ 
 
   //for reminders
   Future<void> updateReminder(

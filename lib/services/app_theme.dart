@@ -15,7 +15,7 @@ class AppTheme extends GetxController {
   }
 
   final _storage = GetStorage();
-  final _isDarkMode = false.obs;
+  final _isDarkMode = true.obs;
   bool get isDarkMode => _isDarkMode.value;
 
   void _loadTheme() {

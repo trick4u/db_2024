@@ -24,13 +24,13 @@ class CustomCalendarHeader extends GetView<CalendarController> {
               String headerText;
 
               if (isSameDay(focusedDate, today)) {
-                headerText = 'Today, ${DateFormat.yMMMM().format(focusedDate)}';
+                headerText = 'today, ${DateFormat.yMMMM().format(focusedDate)}';
               } else if (isSameDay(focusedDate, tomorrow)) {
                 headerText =
-                    'Tomorrow, ${DateFormat.yMMMM().format(focusedDate)}';
+                    'tomorrow, ${DateFormat.yMMMM().format(focusedDate)}';
               } else if (isSameDay(focusedDate, yesterday)) {
                 headerText =
-                    'Yesterday, ${DateFormat.yMMMM().format(focusedDate)}';
+                    'yesterday, ${DateFormat.yMMMM().format(focusedDate)}';
               } else {
                 headerText = DateFormat('MMMM d, yyyy').format(focusedDate);
               }

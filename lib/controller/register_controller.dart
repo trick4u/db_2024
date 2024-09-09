@@ -13,115 +13,136 @@ class RegisterController extends GetxController {
   final TextEditingController nameController = TextEditingController();
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
-  final TextEditingController confirmPasswordController =
-      TextEditingController();
+  final TextEditingController confirmPasswordController = TextEditingController();
 
   RxBool isPasswordVisible = false.obs;
   RxBool isConfirmPasswordVisible = false.obs;
   RxBool isLoading = false.obs;
   RxBool isEmailValid = true.obs;
+  RxBool isUsernameValid = false.obs;
+  RxBool isNameValid = false.obs;
+  RxBool isPasswordValid = false.obs;
+  RxBool doPasswordsMatch = false.obs;
 
   RxBool isUsernameAvailable = false.obs;
   RxBool isCheckingUsername = false.obs;
   RxBool hasCheckedUsername = false.obs;
   RxBool isUsernameEmpty = true.obs;
 
+  RxBool isRegisterButtonActive = false.obs;
+
   Timer? _debounce;
 
   @override
   void onInit() {
     super.onInit();
+    usernameController.addListener(_validateUsername);
+    nameController.addListener(_validateName);
     emailController.addListener(_validateEmail);
-    usernameController.addListener(_checkUsernameEmpty);
+    passwordController.addListener(_validatePassword);
+    confirmPasswordController.addListener(_validateConfirmPassword);
   }
 
   @override
   void onClose() {
     _debounce?.cancel();
+    usernameController.removeListener(_validateUsername);
+    nameController.removeListener(_validateName);
     emailController.removeListener(_validateEmail);
-    usernameController.removeListener(_checkUsernameEmpty);
-    emailController.dispose();
+    passwordController.removeListener(_validatePassword);
+    confirmPasswordController.removeListener(_validateConfirmPassword);
     usernameController.dispose();
+    nameController.dispose();
+    emailController.dispose();
     passwordController.dispose();
     confirmPasswordController.dispose();
     super.onClose();
   }
 
-void onUsernameEditingComplete() {
+  void _validateUsername() {
     final username = usernameController.text.trim();
-    if (isValidUsername(username)) {
+    isUsernameValid.value = isValidUsername(username);
+    isUsernameEmpty.value = username.isEmpty;
+    if (isUsernameValid.value) {
       checkUsernameAvailability();
     } else {
       isUsernameAvailable.value = false;
       hasCheckedUsername.value = false;
-      Get.snackbar('Error', 'Username must be between 5 and 15 characters');
     }
+    _updateRegisterButtonState();
   }
 
-  void onUsernameChanged(String value) {
-    if (_debounce?.isActive ?? false) _debounce!.cancel();
-    _debounce = Timer(const Duration(milliseconds: 500), () {
-      if (isValidUsername(value)) {
-        checkUsernameAvailability();
-      } else {
-        isUsernameAvailable.value = false;
-        hasCheckedUsername.value = false;
-      }
-    });
+  void _validateName() {
+    final name = nameController.text.trim();
+    isNameValid.value = name.length >= 5 && name.length <= 20;
+    _updateRegisterButtonState();
   }
-  
-  void _checkUsernameEmpty() {
-    isUsernameEmpty.value = usernameController.text.trim().isEmpty;
-    if (isUsernameEmpty.value) {
-      hasCheckedUsername.value = false;
-      isUsernameAvailable.value = false;
-    }
+
+  void _validateEmail() {
+    isEmailValid.value = isValidEmail(emailController.text.trim());
+    _updateRegisterButtonState();
+  }
+
+  void _validatePassword() {
+    final password = passwordController.text;
+    isPasswordValid.value = password.length >= 7 && password.length <= 30;
+    _validateConfirmPassword();
+    _updateRegisterButtonState();
+  }
+
+  void _validateConfirmPassword() {
+    doPasswordsMatch.value = passwordController.text == confirmPasswordController.text;
+    _updateRegisterButtonState();
+  }
+
+  void _updateRegisterButtonState() {
+    isRegisterButtonActive.value = 
+        isUsernameValid.value &&
+        isUsernameAvailable.value &&
+        isNameValid.value &&
+        isEmailValid.value &&
+        isPasswordValid.value &&
+        doPasswordsMatch.value;
   }
 
   bool isValidUsername(String username) {
     return username.length >= 5 && username.length <= 15;
   }
 
-   Future<void> checkUsernameAvailability() async {
-    final username = usernameController.text.trim();
-    if (!isValidUsername(username)) {
-      isUsernameAvailable.value = false;
-      hasCheckedUsername.value = false;
-      Get.snackbar('Error', 'Username must be between 5 and 15 characters');
-      return;
-    }
-
-    isCheckingUsername.value = true;
-    try {
-      final querySnapshot = await FirebaseFirestore.instance
-          .collection('users')
-          .where('username', isEqualTo: username)
-          .get();
-
-      isUsernameAvailable.value = querySnapshot.docs.isEmpty;
-      hasCheckedUsername.value = true;
-
-      if (isUsernameAvailable.value) {
-        Get.snackbar('Success', 'Username is available');
-      } else {
-        Get.snackbar('Error', 'Username is already taken');
-      }
-    } catch (e) {
-      Get.snackbar('Error', 'Failed to check username availability');
-      isUsernameAvailable.value = false;
-      hasCheckedUsername.value = false;
-    } finally {
-      isCheckingUsername.value = false;
-    }
-  }
-
   bool isValidEmail(String email) {
-    // This regex pattern checks for a basic email format
     return RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(email);
   }
 
-  void _validateEmail() {
-    isEmailValid.value = isValidEmail(emailController.text.trim());
+  Future<void> checkUsernameAvailability() async {
+    if (_debounce?.isActive ?? false) _debounce!.cancel();
+    _debounce = Timer(const Duration(milliseconds: 500), () async {
+      final username = usernameController.text.trim();
+      if (!isValidUsername(username)) return;
+
+      isCheckingUsername.value = true;
+      try {
+        final querySnapshot = await FirebaseFirestore.instance
+            .collection('users')
+            .where('username', isEqualTo: username)
+            .get();
+
+        isUsernameAvailable.value = querySnapshot.docs.isEmpty;
+        hasCheckedUsername.value = true;
+
+        if (isUsernameAvailable.value) {
+          Get.snackbar('Success', 'Username is available');
+        } else {
+          Get.snackbar('Error', 'Username is already taken');
+        }
+      } catch (e) {
+        Get.snackbar('Error', 'Failed to check username availability');
+        isUsernameAvailable.value = false;
+        hasCheckedUsername.value = false;
+      } finally {
+        isCheckingUsername.value = false;
+        _updateRegisterButtonState();
+      }
+    });
   }
 
   void togglePasswordVisibility() {
@@ -132,62 +153,31 @@ void onUsernameEditingComplete() {
     isConfirmPasswordVisible.value = !isConfirmPasswordVisible.value;
   }
 
-Future<void> register() async {
-    if (!isValidEmail(emailController.text.trim())) {
-      Get.snackbar('Error', 'Please enter a valid email address');
-      return;
-    }
-
-    if (passwordController.text != confirmPasswordController.text) {
-      Get.snackbar('Error', 'Passwords do not match');
-      return;
-    }
-
-    final username = usernameController.text.trim();
-    if (!isValidUsername(username)) {
-      Get.snackbar('Error', 'Username must be between 5 and 15 characters');
-      return;
-    }
-
-    // If username hasn't been checked, check it now
-    if (!hasCheckedUsername.value) {
-      await checkUsernameAvailability();
-    }
-
-    if (!isUsernameAvailable.value) {
-      Get.snackbar('Error', 'Please choose a unique username');
-      return;
-    }
+  Future<void> register() async {
+    if (!isRegisterButtonActive.value) return;
 
     isLoading.value = true;
     try {
-      // Create user with email and password
       UserCredential userCredential = await FirebaseAuth.instance.createUserWithEmailAndPassword(
         email: emailController.text.trim(),
         password: passwordController.text,
       );
 
-      // Send email verification
       await userCredential.user!.sendEmailVerification();
 
-      // Create UserModel
       UserModel newUser = UserModel(
         uid: userCredential.user!.uid,
-        username: username,
+        username: usernameController.text.trim(),
         email: emailController.text.trim(),
         name: nameController.text.trim(),
       );
 
-      // Add user to Firestore
       await FirebaseFirestore.instance
           .collection('users')
           .doc(newUser.uid)
           .set(newUser.toMap());
 
-      // Show success message
       Get.snackbar('Registration Successful', 'Please check your email to verify your account');
-
-      // Navigate to email verification page
       Get.offAllNamed(AppRoutes.EMAILVERIFICATION);
     } catch (e) {
       Get.snackbar('Registration Error', e.toString());

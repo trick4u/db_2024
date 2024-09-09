@@ -41,7 +41,7 @@ import 'projectPages/main_screen.dart';
 import 'pages/otp_screen.dart';
 import 'pages/phone_auth.dart';
 import 'pages/splash_screen.dart';
-import 'projectPages/notes_page.dart';
+
 import 'projectPages/notification_screen.dart';
 import 'projectPages/page_one.dart';
 import 'projectPages/profile_screen.dart';
@@ -134,11 +134,7 @@ class AppRoutes {
       binding: LoginBinding(),
       transition: Transition.noTransition,
     ),
-    GetPage(
-      name: NOTES,
-      page: () => NotesPage(),
-      binding: NotesBinding(),
-    ),
+   
     GetPage(
       name: ADDEVERYTHING,
       page: () => AddEveryting(),
