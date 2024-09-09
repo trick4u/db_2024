@@ -92,7 +92,7 @@ class _EventBottomSheetState extends State<EventBottomSheet> {
               borderRadius: BorderRadius.circular(ScaleUtil.scale(20)),
             ),
             child: Container(
-              padding: ScaleUtil.symmetric(horizontal: 20, vertical: 20),
+              padding: ScaleUtil.symmetric(horizontal: 20, vertical: 10),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
@@ -107,9 +107,11 @@ class _EventBottomSheetState extends State<EventBottomSheet> {
                       Spacer(),
                       _buildReminderWidget(context, appTheme),
                       IconButton(
-                        icon: Icon(Icons.close,
-                            color: appTheme.textColor,
-                            size: ScaleUtil.iconSize(24)),
+                        icon: Icon(
+                          Icons.close,
+                          color: appTheme.textColor,
+                          size: ScaleUtil.iconSize(15),
+                        ),
                         onPressed: () {
                           Get.back();
                         },
@@ -254,27 +256,27 @@ class _EventBottomSheetState extends State<EventBottomSheet> {
     return FadeIn(
       child: Container(
         decoration: BoxDecoration(
-          color: _isDescriptionVisible
-              ? appTheme.colorScheme.primary
-              : appTheme.colorScheme.surface,
+          color: _isTitleEmpty ? Colors.grey : appTheme.colorScheme.primary,
           shape: BoxShape.circle,
         ),
         child: Material(
           color: Colors.transparent,
           child: InkWell(
             borderRadius: ScaleUtil.circular(20),
-            onTap: () {
-              setState(() {
-                _isDescriptionVisible = !_isDescriptionVisible;
-              });
-            },
+            onTap: _isTitleEmpty
+                ? null
+                : () {
+                    setState(() {
+                      _isDescriptionVisible = !_isDescriptionVisible;
+                    });
+                  },
             child: Padding(
               padding: ScaleUtil.all(10),
               child: FaIcon(
                 _isDescriptionVisible
                     ? FontAwesomeIcons.listUl
                     : FontAwesomeIcons.list,
-                color: _isDescriptionVisible ? Colors.white : Colors.black,
+                color: Colors.white,
                 size: ScaleUtil.iconSize(10),
               ),
             ),

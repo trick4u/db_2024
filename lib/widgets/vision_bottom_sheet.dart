@@ -51,7 +51,7 @@ class VisionBottomSheet extends GetWidget<VisionBoardController> {
                       IconButton(
                         icon: Icon(Icons.close,
                             color: appTheme.textColor,
-                            size: ScaleUtil.iconSize(15)),
+                            size: ScaleUtil.iconSize(15),),
                         onPressed: () => Get.back(),
                       ),
                     ],
