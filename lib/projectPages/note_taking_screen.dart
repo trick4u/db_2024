@@ -19,45 +19,50 @@ class NoteTakingScreen extends GetWidget<NoteTakingController> {
   @override
   Widget build(BuildContext context) {
     ScaleUtil.init(context);
-        appTheme.updateStatusBarColor();
-    
+    appTheme.updateStatusBarColor();
+
     return Obx(() => AnnotatedRegion<SystemUiOverlayStyle>(
-      value: SystemUiOverlayStyle(
-        statusBarColor: Colors.transparent,
-        statusBarIconBrightness: appTheme.isDarkMode ? Brightness.light : Brightness.dark,
-      ),
-      child: Scaffold(
-        appBar: AppBar(
-       
-          elevation: 0,
-          title: Text('your notes',
-              style: TextStyle(fontSize: ScaleUtil.fontSize(20))),
-          actions: [
-            IconButton(
-              icon: Icon(Icons.delete_forever, size: ScaleUtil.iconSize(24)),
-              onPressed: () => _showDeleteAllConfirmation(context),
+          value: SystemUiOverlayStyle(
+            statusBarColor: Colors.transparent,
+            statusBarIconBrightness:
+                appTheme.isDarkMode ? Brightness.light : Brightness.dark,
+          ),
+          child: Scaffold(
+            appBar: AppBar(
+              elevation: 0,
+              title: Text('your notes',
+                  style: TextStyle(fontSize: ScaleUtil.fontSize(20))),
+              actions: [
+                if (controller.notes.isNotEmpty)
+                  IconButton(
+                    icon: Icon(Icons.delete_forever,
+                        size: ScaleUtil.iconSize(24)),
+                    onPressed: () => _showDeleteAllConfirmation(context),
+                  ),
+              ],
             ),
-          ],
-        ),
-        body: SafeArea(
-          child: NoteListView(),
-        ),
-        floatingActionButton: _buildFloatingActionButton(),
-      ),
-    ));
+            body: SafeArea(
+              child: NoteListView(),
+            ),
+            floatingActionButton: _buildFloatingActionButton(),
+          ),
+        ));
   }
 
   Widget _buildFloatingActionButton() {
     return Obx(() {
       return controller.canAddMoreNotes
           ? FloatingActionButton(
-              backgroundColor: appTheme.isDarkMode ? Colors.white : Colors.deepPurpleAccent,
+              backgroundColor:
+                  appTheme.isDarkMode ? Colors.white : Colors.deepPurpleAccent,
               onPressed: () {
                 _showNoteBottomSheet(Get.context!);
               },
               child: Icon(
                 Icons.add,
-                color: appTheme.isDarkMode ? Colors.deepPurpleAccent : Colors.white,
+                color: appTheme.isDarkMode
+                    ? Colors.deepPurpleAccent
+                    : Colors.white,
                 size: ScaleUtil.iconSize(20),
               ),
             )
@@ -70,24 +75,31 @@ class NoteTakingScreen extends GetWidget<NoteTakingController> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          backgroundColor: appTheme.isDarkMode ? Colors.grey[900] : Colors.white,
-          title: Text('Delete All Notes',
-              style: TextStyle(fontSize: ScaleUtil.fontSize(18), color: appTheme.isDarkMode ? Colors.white : Colors.black)),
+          backgroundColor:
+              appTheme.isDarkMode ? Colors.grey[900] : Colors.white,
+          title: Text(
+            'Delete all notes',
+            style: TextStyle(
+                color: appTheme.isDarkMode ? Colors.white : Colors.black),
+          ),
           content: Text(
             'Are you sure you want to delete all notes? This action cannot be undone.',
-            style: TextStyle(fontSize: ScaleUtil.fontSize(16), color: appTheme.isDarkMode ? Colors.white70 : Colors.black87),
+            style: TextStyle(
+                color: appTheme.isDarkMode ? Colors.white70 : Colors.black87),
           ),
           actions: <Widget>[
             TextButton(
               child: Text('Cancel',
-                  style: TextStyle(fontSize: ScaleUtil.fontSize(16), color: appTheme.isDarkMode ? Colors.white70 : Colors.black87)),
+                  style: TextStyle(
+                      color: appTheme.isDarkMode
+                          ? Colors.white70
+                          : Colors.black87)),
               onPressed: () {
                 Navigator.of(context).pop();
               },
             ),
             TextButton(
-              child: Text('Delete All',
-                  style: TextStyle(fontSize: ScaleUtil.fontSize(16), color: Colors.red)),
+              child: Text('Delete All', style: TextStyle(color: Colors.red)),
               onPressed: () {
                 controller.deleteAllNotes();
                 Navigator.of(context).pop();

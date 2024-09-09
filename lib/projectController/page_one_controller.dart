@@ -51,6 +51,7 @@ class PageOneController extends GetxController {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final RxString selectedListType = ''.obs;
   Rx<DateTime?> nextNotificationTime = Rx<DateTime?>(null);
+  final RxBool isGradientReversedReminder = false.obs;
 
   CollectionReference get eventsCollection {
     return _firestore
@@ -138,6 +139,10 @@ class PageOneController extends GetxController {
     _audioPlayer.dispose();
     super.onClose();
   }
+   void toggleGradientDirectionReminder() {
+    isGradientReversedReminder.toggle();
+  }
+
 
   void toggleGradientDirection() {
     isGradientReversed.toggle();
@@ -258,16 +263,33 @@ class PageOneController extends GetxController {
     });
   }
 
-  void deleteReminder(String reminderId) async {
+   void deleteReminder(String reminderId) async {
     if (currentUser == null) return;
     try {
+      // Cancel the notification
+      await cancelNotificationForReminder(reminderId);
+
+      // Delete the reminder from Firestore
       await remindersCollection.doc(reminderId).delete();
+      
       Get.snackbar('Success', 'Reminder deleted successfully');
+      fetchAllReminders(); // Refresh the list
     } catch (e) {
       print('Error deleting reminder: $e');
       Get.snackbar('Error', 'Failed to delete reminder');
     }
   }
+  
+    Future<void> cancelNotificationForReminder(String reminderId) async {
+    try {
+      // Cancel the notification using the reminder's ID as the notification ID
+      await AwesomeNotifications().cancel(reminderId.hashCode);
+      print('Notification canceled for reminder: $reminderId');
+    } catch (e) {
+      print('Error canceling notification: $e');
+    }
+  }
+
 
   void toggleReminderCompletion(String reminderId, bool isCompleted) {
     remindersCollection.doc(reminderId).update({'isCompleted': isCompleted});
@@ -547,31 +569,7 @@ class PageOneController extends GetxController {
 
   //get all goals
 
-  void scheduleNotifications(String body, int interval, bool repeat) {
-    AwesomeNotifications().cancelAll(); // Clear all existing notifications
-
-    for (String day in selectedDays) {
-      int weekday = _dayToWeekday(day);
-
-      AwesomeNotifications().createNotification(
-        content: NotificationContent(
-          id: weekday, // Unique id for each notification
-          channelKey: 'quick_reminder',
-          title: 'Scheduled Notification',
-          body: body,
-          notificationLayout: NotificationLayout.Default,
-        ),
-        schedule: NotificationCalendar(
-          weekday: weekday,
-          hour: 21, // Example time, adjust as needed
-          minute: 0,
-          second: 0,
-          millisecond: 0,
-          repeats: repeat,
-        ),
-      );
-    }
-  }
+ 
 
   int _dayToWeekday(String day) {
     switch (day) {

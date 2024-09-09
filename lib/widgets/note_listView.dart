@@ -13,6 +13,7 @@ import '../services/app_theme.dart';
 import 'note_bottom_sheet.dart';
 
 class NoteListView extends GetWidget<NoteTakingController> {
+  
   Color _getTileColor(int index, int totalItems) {
     if (totalItems == 1) return Colors.white;
 
