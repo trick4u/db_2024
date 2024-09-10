@@ -263,33 +263,46 @@ class PageOneController extends GetxController {
     });
   }
 
-   void deleteReminder(String reminderId) async {
-    if (currentUser == null) return;
-    try {
-      // Cancel the notification
-      await cancelNotificationForReminder(reminderId);
+void deleteReminder(String reminderId) async {
+  if (currentUser == null) return;
+  try {
+    // Fetch the reminder document
+    DocumentSnapshot reminderDoc = await remindersCollection.doc(reminderId).get();
+    ReminderModel reminder = ReminderModel.fromFirestore(reminderDoc);
 
-      // Delete the reminder from Firestore
-      await remindersCollection.doc(reminderId).delete();
-      
-      Get.snackbar('Success', 'Reminder deleted successfully');
-      fetchAllReminders(); // Refresh the list
+    // Attempt to cancel the notification
+    try {
+      await cancelNotificationForReminder(reminder.notificationId);
+      print('Notification canceled successfully for reminder: $reminderId');
     } catch (e) {
-      print('Error deleting reminder: $e');
-      Get.snackbar('Error', 'Failed to delete reminder');
+      print('Warning: Failed to cancel notification for reminder: $reminderId. Error: $e');
+      // Continue with deletion even if notification cancellation fails
     }
+
+    // Delete the reminder from Firestore
+    await remindersCollection.doc(reminderId).delete();
+    
+    Get.snackbar('Success', 'Reminder deleted successfully');
+    fetchAllReminders(); // Refresh the list
+  } catch (e) {
+    print('Error deleting reminder: $e');
+    Get.snackbar('Error', 'Failed to delete reminder');
   }
+}
   
-    Future<void> cancelNotificationForReminder(String reminderId) async {
-    try {
-      // Cancel the notification using the reminder's ID as the notification ID
-      await AwesomeNotifications().cancel(reminderId.hashCode);
-      print('Notification canceled for reminder: $reminderId');
-    } catch (e) {
-      print('Error canceling notification: $e');
-    }
+Future<void> cancelNotificationForReminder(int? notificationId) async {
+  if (notificationId == null) {
+    print('No notification ID provided');
+    return;
   }
-
+  try {
+    await AwesomeNotifications().cancel(notificationId);
+    print('Notification cancellation requested for ID: $notificationId');
+  } catch (e) {
+    print('Error canceling notification: $e');
+    throw e; // Re-throw the error to be caught in deleteReminder
+  }
+}
 
   void toggleReminderCompletion(String reminderId, bool isCompleted) {
     remindersCollection.doc(reminderId).update({'isCompleted': isCompleted});
@@ -634,47 +647,46 @@ class PageOneController extends GetxController {
     }
   }
 
-  Future<void> schedulePeriodicNotifications(
-      String body, int interval, bool repeat) async {
-    // Use WidgetsBinding to ensure we're on the main thread
-    WidgetsBinding.instance.addPostFrameCallback((_) async {
-      try {
-        String localTimeZone =
-            await AwesomeNotifications().getLocalTimeZoneIdentifier();
-        DateTime now = DateTime.now();
-        DateTime scheduledDate = now.add(Duration(minutes: interval));
-        nextNotificationTime.value = scheduledDate;
+Future<void> schedulePeriodicNotifications(String body, int interval, bool repeat) async {
+  WidgetsBinding.instance.addPostFrameCallback((_) async {
+    try {
+      String localTimeZone = await AwesomeNotifications().getLocalTimeZoneIdentifier();
+      DateTime now = DateTime.now();
+      DateTime scheduledDate = now.add(Duration(minutes: interval));
+      nextNotificationTime.value = scheduledDate;
 
-        await AwesomeNotifications().createNotification(
-          content: NotificationContent(
-            id: body.hashCode, // Use a hash of the body as the ID
-            channelKey: 'quickschedule',
-            title: 'DoBoara Reminder 📅',
-            body: body,
-            category: NotificationCategory.Reminder,
-            notificationLayout: NotificationLayout.Default,
-            criticalAlert: true,
-            wakeUpScreen: true,
-          ),
-          schedule: NotificationCalendar(
-            year: scheduledDate.year,
-            month: scheduledDate.month,
-            day: scheduledDate.day,
-            hour: scheduledDate.hour,
-            minute: scheduledDate.minute,
-            second: 0,
-            millisecond: 0,
-            repeats: repeat,
-            allowWhileIdle: true,
-            preciseAlarm: true,
-          ),
-        );
-        print('Next notification time: ${nextNotificationTime.value}');
-      } catch (e) {
-        print('Error scheduling notification: $e');
-      }
-    });
-  }
+      int notificationId = body.hashCode;
+
+      await AwesomeNotifications().createNotification(
+        content: NotificationContent(
+          id: notificationId,
+          channelKey: 'quickschedule',
+          title: 'DoBoara Reminder 📅',
+          body: body,
+          category: NotificationCategory.Reminder,
+          notificationLayout: NotificationLayout.Default,
+          criticalAlert: true,
+          wakeUpScreen: true,
+        ),
+        schedule: NotificationCalendar(
+          year: scheduledDate.year,
+          month: scheduledDate.month,
+          day: scheduledDate.day,
+          hour: scheduledDate.hour,
+          minute: scheduledDate.minute,
+          second: 0,
+          millisecond: 0,
+          repeats: repeat,
+          allowWhileIdle: true,
+          preciseAlarm: true,
+        ),
+      );
+      print('Scheduled notification with ID: $notificationId for time: ${nextNotificationTime.value}');
+    } catch (e) {
+      print('Error scheduling notification: $e');
+    }
+  });
+}
 
   void calculateTriggerTime(int minutes) {
     DateTime now = DateTime.now();
@@ -702,21 +714,22 @@ class PageOneController extends GetxController {
   }
 
   //save data into firestore
-  Future saveReminder(bool repeat) async {
-    await remindersCollection.add({
-      "reminder": reminderTextController.text,
-      "time": timeSelected.value,
-      "isReminderSet": true,
-      "createdAt": FieldValue.serverTimestamp(),
-      "repeat": repeat,
-      "triggerTime": nextNotificationTime.value,
-    }).then((_) {
-      Get.back();
-      // After successfully saving the reminder, select 'all reminders'
-      setSelectedTile('all reminders');
-      setSelectedListType('all reminders');
-    });
-  }
+ Future saveReminder(bool repeat) async {
+  int notificationId = reminderTextController.text.hashCode;
+  await remindersCollection.add({
+    "reminder": reminderTextController.text,
+    "time": timeSelected.value,
+    "isReminderSet": true,
+    "createdAt": FieldValue.serverTimestamp(),
+    "repeat": repeat,
+    "triggerTime": nextNotificationTime.value,
+    "notificationId": notificationId,
+  }).then((_) {
+    Get.back();
+    setSelectedTile('all reminders');
+    setSelectedListType('all reminders');
+  });
+}
 
   //get goals from firestore
 

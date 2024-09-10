@@ -7,6 +7,7 @@ class ReminderModel {
   final bool repeat;
   final DateTime? triggerTime;
   final DateTime? createdAt;
+  final int? notificationId;
 
   ReminderModel({
     required this.id,
@@ -15,6 +16,7 @@ class ReminderModel {
     required this.repeat,
     this.triggerTime,
     this.createdAt,
+    this.notificationId,
   });
 
   factory ReminderModel.fromFirestore(DocumentSnapshot doc) {
@@ -30,6 +32,7 @@ class ReminderModel {
       createdAt: data['createdAt'] != null
           ? (data['createdAt'] as Timestamp).toDate()
           : null,
+      notificationId: data['notificationId'],
     );
   }
 

@@ -1,3 +1,4 @@
+import 'package:animate_do/animate_do.dart';
 import 'package:dough/dough.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
@@ -25,10 +26,12 @@ class RemindersList extends GetWidget<PageOneController> {
         itemCount: controller.allReminders.length,
         itemBuilder: (context, index) {
           final reminder = controller.allReminders[index];
-          return ReminderCard(
-            reminder: reminder,
-            onDelete: () => controller.deleteReminder(reminder.id),
-            onEdit: () => _openEditBottomSheet(context, reminder),
+          return FadeIn(
+            child: ReminderCard(
+              reminder: reminder,
+              onDelete: () => controller.deleteReminder(reminder.id),
+              onEdit: () => _openEditBottomSheet(context, reminder),
+            ),
           );
         },
       );
