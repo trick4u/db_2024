@@ -4,6 +4,7 @@ import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
@@ -29,6 +30,10 @@ class VisionBoardController extends GetxController {
   final RxList<VisionBoardItem> visionBoardItems = <VisionBoardItem>[].obs;
   final RxBool isLoading = true.obs;
   final RxMap<String, bool> _notificationActiveStates = <String, bool>{}.obs;
+  final RxInt activeMorningNotificationsCount = 0.obs;
+  final RxInt activeNightNotificationsCount = 0.obs;
+  final int maxNotificationsPerTime = 5;
+  static const int maxEditCount = 4;
 
   DocumentSnapshot? lastDocument;
 
@@ -66,6 +71,7 @@ class VisionBoardController extends GetxController {
     ever(selectedNetworkImages, (_) => _checkForChanges());
     fetchVisionBoardItems();
     _loadScheduledNotifications();
+    _loadActiveNotificationsCount();
   }
 
   @override
@@ -73,6 +79,34 @@ class VisionBoardController extends GetxController {
     titleController.removeListener(_checkForChanges);
     titleController.dispose();
     super.onClose();
+  }
+  
+
+  void _loadActiveNotificationsCount() async {
+    List<NotificationModel> notifications =
+        await AwesomeNotifications().listScheduledNotifications();
+    activeMorningNotificationsCount.value = 0;
+    activeNightNotificationsCount.value = 0;
+
+    for (var notification in notifications) {
+      if (notification.content?.payload?['time'] == 'morning') {
+        activeMorningNotificationsCount.value++;
+      } else if (notification.content?.payload?['time'] == 'night') {
+        activeNightNotificationsCount.value++;
+      }
+    }
+  }
+
+  bool canScheduleMorningNotification() {
+    return activeMorningNotificationsCount.value < maxNotificationsPerTime;
+  }
+
+  bool canScheduleNightNotification() {
+    return activeNightNotificationsCount.value < maxNotificationsPerTime;
+  }
+
+  bool canScheduleAnyNotification() {
+    return canScheduleMorningNotification() || canScheduleNightNotification();
   }
 
   bool isNotificationActive(String itemId) {
@@ -108,49 +142,68 @@ class VisionBoardController extends GetxController {
 
   Future<void> scheduleNotification(
       VisionBoardItem item, bool isMorning) async {
+    if (isMorning && !canScheduleMorningNotification()) {
+      Get.snackbar(
+        'Morning Notification Limit Reached',
+        'You can only have 5 active morning notifications. Please cancel an existing morning notification to schedule a new one.',
+        snackPosition: SnackPosition.BOTTOM,
+      );
+      return;
+    }
+    if (!isMorning && !canScheduleNightNotification()) {
+      Get.snackbar(
+        'Night Notification Limit Reached',
+        'You can only have 5 active night notifications. Please cancel an existing night notification to schedule a new one.',
+        snackPosition: SnackPosition.BOTTOM,
+      );
+      return;
+    }
+
     int notificationId = item.id.hashCode;
     String title = 'Vision Board Reminder';
     String body = item.title;
     String imageUrl = item.imageUrls.isNotEmpty ? item.imageUrls[0] : '';
 
-    DateTime scheduledTime =
-        isMorning ? _getNextMorningTime() : _getNextNightTime();
+    DateTime scheduledTime = _getNextAvailableTime(isMorning);
 
-    WidgetsBinding.instance.addPostFrameCallback((_) async {
-      await AwesomeNotifications().createNotification(
-        content: NotificationContent(
-          id: notificationId,
-          channelKey: 'vision_board_reminders',
-          title: title,
-          body: body,
-          bigPicture: imageUrl,
-          notificationLayout: NotificationLayout.BigPicture,
-        ),
-        schedule: NotificationCalendar(
-          year: scheduledTime.year,
-          month: scheduledTime.month,
-          day: scheduledTime.day,
-          hour: scheduledTime.hour,
-          minute: scheduledTime.minute,
-          second: 0,
-          millisecond: 0,
-          repeats: false, // Changed to false to fire only once
-          allowWhileIdle: true,
-        ),
-      );
-    });
+    await AwesomeNotifications().createNotification(
+      content: NotificationContent(
+        id: notificationId,
+        channelKey: 'vision_board_reminders',
+        title: title,
+        body: body,
+        bigPicture: imageUrl,
+        notificationLayout: NotificationLayout.BigPicture,
+        payload: {'time': isMorning ? 'morning' : 'night'},
+      ),
+      schedule: NotificationCalendar(
+        year: scheduledTime.year,
+        month: scheduledTime.month,
+        day: scheduledTime.day,
+        hour: scheduledTime.hour,
+        minute: scheduledTime.minute,
+        second: 0,
+        millisecond: 0,
+        repeats: false,
+        allowWhileIdle: true,
+      ),
+    );
 
-    // Update the local state
+    // Update local state and Firestore
     _notificationActiveStates[item.id] = true;
+    if (isMorning) {
+      activeMorningNotificationsCount.value++;
+    } else {
+      activeNightNotificationsCount.value++;
+    }
 
-    // Update the item's notification state in Firestore
     await visionBoardCollection.doc(item.id).update({
       'hasNotification': true,
       'notificationTime': isMorning ? 'morning' : 'night',
       'scheduledNotificationTime': Timestamp.fromDate(scheduledTime),
     });
 
-    // Update the local item
+    // Update local item
     int index = visionBoardItems.indexWhere((i) => i.id == item.id);
     if (index != -1) {
       visionBoardItems[index] = visionBoardItems[index].copyWith(
@@ -161,14 +214,38 @@ class VisionBoardController extends GetxController {
       visionBoardItems.refresh();
     }
 
-    // Schedule a task to update the notification state after it fires
     _scheduleNotificationStateUpdate(item.id, scheduledTime);
 
     Get.snackbar(
       'Notification Scheduled',
-      'You will be reminded ${isMorning ? 'at 8 AM' : 'at 10 PM'}',
+      'You will be reminded at ${scheduledTime.hour}:${scheduledTime.minute.toString().padLeft(2, '0')}',
       snackPosition: SnackPosition.BOTTOM,
     );
+  }
+
+  DateTime _getNextAvailableTime(bool isMorning) {
+    DateTime now = DateTime.now();
+    DateTime baseTime = isMorning
+        ? DateTime(now.year, now.month, now.day, 8, 0)
+        : DateTime(now.year, now.month, now.day, 22, 0);
+
+    if (baseTime.isBefore(now)) {
+      baseTime = baseTime.add(Duration(days: 1));
+    }
+
+    // Check for existing notifications and adjust time if necessary
+    List<DateTime> existingTimes = visionBoardItems
+        .where((item) =>
+            item.hasNotification && item.scheduledNotificationTime != null)
+        .map((item) => item.scheduledNotificationTime!)
+        .toList();
+
+    while (existingTimes
+        .any((time) => time.difference(baseTime).inMinutes.abs() < 10)) {
+      baseTime = baseTime.add(Duration(minutes: 10));
+    }
+
+    return baseTime;
   }
 
   void _scheduleNotificationStateUpdate(String itemId, DateTime scheduledTime) {
@@ -201,23 +278,28 @@ class VisionBoardController extends GetxController {
   }
 
   Future<void> cancelNotification(String itemId) async {
+    VisionBoardItem? item = visionBoardItems.firstWhere((i) => i.id == itemId);
     await AwesomeNotifications().cancel(itemId.hashCode);
 
-    // Update the local state
     _notificationActiveStates[itemId] = false;
+    if (item.notificationTime == 'morning') {
+      activeMorningNotificationsCount.value--;
+    } else if (item.notificationTime == 'night') {
+      activeNightNotificationsCount.value--;
+    }
 
-    // Update the item's notification state in Firestore
     await visionBoardCollection.doc(itemId).update({
       'hasNotification': false,
       'notificationTime': null,
+      'scheduledNotificationTime': null,
     });
 
-    // Update the local item
     int index = visionBoardItems.indexWhere((i) => i.id == itemId);
     if (index != -1) {
       visionBoardItems[index] = visionBoardItems[index].copyWith(
         hasNotification: false,
         notificationTime: null,
+        scheduledNotificationTime: null,
       );
       visionBoardItems.refresh();
     }
@@ -364,6 +446,9 @@ class VisionBoardController extends GetxController {
         }
       }
 
+      bool imagesChanged = !listEquals(updatedImageUrls, editingItem.value!.imageUrls);
+      int newEditCount = imagesChanged ? editingItem.value!.editCount + 1 : editingItem.value!.editCount;
+
       final updatedItem = VisionBoardItem(
         id: editingItem.value!.id,
         title: titleController.text,
@@ -373,13 +458,13 @@ class VisionBoardController extends GetxController {
         hasNotification: hasScheduledNotification(editingItem.value!.id),
         notificationTime: editingItem.value!.notificationTime,
         createdAt: editingItem.value!.createdAt,
+        editCount: newEditCount,
       );
 
       await updateItem(updatedItem);
 
       // Update the local state while maintaining the order
-      int index =
-          visionBoardItems.indexWhere((item) => item.id == updatedItem.id);
+      int index = visionBoardItems.indexWhere((item) => item.id == updatedItem.id);
       if (index != -1) {
         visionBoardItems[index] = updatedItem;
         visionBoardItems.refresh();
@@ -394,7 +479,10 @@ class VisionBoardController extends GetxController {
           snackPosition: SnackPosition.BOTTOM);
     }
   }
-
+  bool canEditItem(String itemId) {
+    VisionBoardItem item = visionBoardItems.firstWhere((i) => i.id == itemId);
+    return item.editCount < maxEditCount;
+  }
   void clearForm() {
     titleController.clear();
     selectedImages.clear();
@@ -462,6 +550,15 @@ class VisionBoardController extends GetxController {
       isLoading.value = false;
       update();
     });
+    _updateNotificationIcons();
+  }
+
+  void _updateNotificationIcons() {
+    for (var item in visionBoardItems) {
+      bool canNotify = canScheduleAnyNotification() || item.hasNotification;
+      _notificationActiveStates[item.id] = canNotify;
+    }
+    update();
   }
 
   Future<void> saveNewItem() async {
@@ -700,6 +797,7 @@ class VisionBoardItem {
   String? notificationTime;
   final DateTime createdAt;
   final DateTime? scheduledNotificationTime;
+  final int editCount;
 
   VisionBoardItem({
     required this.id,
@@ -711,6 +809,7 @@ class VisionBoardItem {
     this.notificationTime,
     required this.createdAt,
     this.scheduledNotificationTime,
+    this.editCount = 0,
   });
 
   Map<String, dynamic> toMap() {
@@ -725,6 +824,7 @@ class VisionBoardItem {
       'scheduledNotificationTime': scheduledNotificationTime != null
           ? Timestamp.fromDate(scheduledNotificationTime!)
           : null,
+      'editCount': editCount,
     };
   }
 
@@ -741,6 +841,7 @@ class VisionBoardItem {
       createdAt: (data['createdAt'] as Timestamp).toDate(),
       scheduledNotificationTime:
           (data['scheduledNotificationTime'] as Timestamp?)?.toDate(),
+      editCount: data['editCount'] ?? 0,
     );
   }
 
@@ -754,6 +855,7 @@ class VisionBoardItem {
     String? notificationTime,
     DateTime? createdAt,
     DateTime? scheduledNotificationTime,
+    int? editCount,
   }) {
     return VisionBoardItem(
       id: id ?? this.id,
@@ -766,6 +868,7 @@ class VisionBoardItem {
       createdAt: createdAt ?? this.createdAt,
       scheduledNotificationTime:
           scheduledNotificationTime ?? this.scheduledNotificationTime,
+      editCount: editCount ?? this.editCount,
     );
   }
 }

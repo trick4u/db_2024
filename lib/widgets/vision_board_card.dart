@@ -142,13 +142,14 @@ class VisionBoardItemCard extends StatelessWidget {
                 ),
               ),
               _buildNotificationButton(context, controller, appTheme),
-              IconButton(
-                icon: Icon(
-                  FontAwesomeIcons.penToSquare,
-                  size: ScaleUtil.iconSize(15),
+              if (controller.canEditItem(item.id))
+                IconButton(
+                  icon: Icon(
+                    FontAwesomeIcons.penToSquare,
+                    size: ScaleUtil.iconSize(15),
+                  ),
+                  onPressed: onEdit,
                 ),
-                onPressed: onEdit,
-              ),
               IconButton(
                 icon: Icon(
                   FontAwesomeIcons.trashCan,
@@ -165,34 +166,87 @@ class VisionBoardItemCard extends StatelessWidget {
 
   Widget _buildNotificationButton(BuildContext context,
       VisionBoardController controller, AppTheme appTheme) {
-    return Obx(() => PopupMenuButton<String>(
-          icon: Icon(
-            controller.isNotificationActive(item.id)
-                ? FontAwesomeIcons.solidBell
-                : FontAwesomeIcons.bell,
+    return Obx(() {
+      if (!controller.canScheduleAnyNotification() &&
+          !controller.isNotificationActive(item.id)) {
+        return SizedBox
+            .shrink(); // Hide the button if both limits reached and not active
+      }
+
+      Widget notificationIcon;
+      if (controller.isNotificationActive(item.id)) {
+        if (item.notificationTime == 'morning') {
+          notificationIcon = Icon(
+            Icons.wb_sunny,
             size: ScaleUtil.iconSize(15),
-            color: controller.isNotificationActive(item.id)
-                ? appTheme.colorScheme.primary
-                : null,
-          ),
-          onSelected: (String value) =>
-              _handleNotificationAction(value, controller),
-          itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
-            PopupMenuItem<String>(
+            color: Colors.orange,
+          );
+        } else {
+          notificationIcon = Icon(
+            Icons.nightlight_round,
+            size: ScaleUtil.iconSize(15),
+            color: Colors.indigo,
+          );
+        }
+      } else {
+        notificationIcon = Icon(
+          FontAwesomeIcons.bell,
+          size: ScaleUtil.iconSize(15),
+        );
+      }
+
+      return PopupMenuButton<String>(
+        icon: notificationIcon,
+        onSelected: (String value) =>
+            _handleNotificationAction(value, controller),
+        itemBuilder: (BuildContext context) {
+          List<PopupMenuEntry<String>> menuItems = [];
+
+          if (controller.canScheduleMorningNotification() ||
+              item.notificationTime == 'morning') {
+            menuItems.add(PopupMenuItem<String>(
               value: 'morning',
-              child: Text('At Morning'),
-            ),
-            PopupMenuItem<String>(
-              value: 'night',
-              child: Text('At Night'),
-            ),
-            if (controller.isNotificationActive(item.id))
-              PopupMenuItem<String>(
-                value: 'cancel',
-                child: Text('Cancel Notification'),
+              child: Row(
+                children: [
+                  Icon(Icons.wb_sunny, color: Colors.orange),
+                  SizedBox(width: 8),
+                  Text('At Morning'),
+                ],
               ),
-          ],
-        ));
+            ));
+          }
+
+          if (controller.canScheduleNightNotification() ||
+              item.notificationTime == 'night') {
+            menuItems.add(PopupMenuItem<String>(
+              value: 'night',
+              child: Row(
+                children: [
+                  Icon(Icons.nightlight_round, color: Colors.indigo),
+                  SizedBox(width: 8),
+                  Text('At Night'),
+                ],
+              ),
+            ));
+          }
+
+          if (controller.isNotificationActive(item.id)) {
+            menuItems.add(PopupMenuItem<String>(
+              value: 'cancel',
+              child: Row(
+                children: [
+                  Icon(Icons.cancel, color: Colors.red),
+                  SizedBox(width: 8),
+                  Text('Cancel Notification'),
+                ],
+              ),
+            ));
+          }
+
+          return menuItems;
+        },
+      );
+    });
   }
 
   void _handleNotificationAction(
