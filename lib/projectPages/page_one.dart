@@ -3,6 +3,7 @@ import 'package:animate_gradient/animate_gradient.dart';
 import 'package:dough/dough.dart';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_bouncing_text/flutter_bouncing_text.dart';
 
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
@@ -33,6 +34,7 @@ class PageOneScreen extends GetWidget<PageOneController> {
     if (_isDialogOpen.value) return;
 
     _isDialogOpen.value = true;
+    final RxBool _isAnimating = true.obs;
     String quote = await QuoteService.getRandomQuote();
     await showDialog(
       context: context,
@@ -86,13 +88,14 @@ class PageOneScreen extends GetWidget<PageOneController> {
                           children: [
                             Icon(FontAwesomeIcons.handPeace, size: 25),
                             SizedBox(width: 8),
-                            Text(
-                              'doBoard',
-                              style: TextStyle(
+                            AnimatedBouncingText(
+                              text: 'doBoard',
+                              textStyle: TextStyle(
                                 fontFamily: GoogleFonts.pacifico().fontFamily,
                                 fontSize: 30,
-                                fontWeight: FontWeight.w500,
+                                fontWeight: FontWeight.w300,
                               ),
+                              onEnd: (e) {},
                             ),
                             // Obx(
                             //   () => Text(
@@ -179,13 +182,13 @@ class PageOneScreen extends GetWidget<PageOneController> {
   String _getTaskCount(String listType) {
     switch (listType) {
       case 'upcoming':
-        return 'Total upcoming tasks: ${controller.upcomingEvents.length}';
+        return 'total upcoming tasks: ${controller.upcomingEvents.length}';
       case 'pending':
-        return 'Total pending tasks: ${controller.pendingEvents.length}';
+        return 'total pending tasks: ${controller.pendingEvents.length}';
       case 'completed tasks':
-        return 'Total completed tasks: ${controller.completedEvents.length}';
+        return 'total completed tasks: ${controller.completedEvents.length}';
       case 'all reminders':
-        return 'Total reminders: ${controller.allReminders.length}';
+        return 'total reminders: ${controller.allReminders.length}';
       default:
         return '';
     }

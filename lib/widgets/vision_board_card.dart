@@ -59,6 +59,7 @@ class VisionBoardItemCard extends StatelessWidget {
   Widget _buildImageCarousel() {
     return CarouselSlider(
       options: CarouselOptions(
+        enlargeCenterPage: true,
         aspectRatio: 1,
         viewportFraction: 1,
         enableInfiniteScroll: false,

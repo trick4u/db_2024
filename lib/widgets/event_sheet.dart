@@ -20,7 +20,7 @@ class EventsList extends StatelessWidget {
   Widget build(BuildContext context) {
     final PageOneController controller = Get.find<PageOneController>();
     return Obx(() => events.isEmpty
-        ? Center(child: Text('No $eventType events'))
+        ? Center(child: Text('no $eventType events'))
         : ListView.builder(
             itemCount: events.length,
             itemBuilder: (context, index) {
@@ -30,7 +30,8 @@ class EventsList extends StatelessWidget {
                 onDelete: (event) => controller.deleteEvent(event.id),
                 onEdit: (event) => _showEventBottomSheet(context, event),
                 onArchive: (event) => controller.archiveEvent(event.id),
-                onComplete: (event) => controller.toggleEventCompletion(event.id, event.isCompleted != true),
+                onComplete: (event) => controller.toggleEventCompletion(
+                    event.id, event.isCompleted != true),
               );
             },
           ));
@@ -60,13 +61,16 @@ class EventsList extends StatelessWidget {
               'hasReminder': hasReminder,
               'isCompleted': event.isCompleted,
               'startTime': startTime != null
-                  ? DateTime(date.year, date.month, date.day, startTime.hour, startTime.minute)
+                  ? DateTime(date.year, date.month, date.day, startTime.hour,
+                      startTime.minute)
                   : null,
               'endTime': endTime != null
-                  ? DateTime(date.year, date.month, date.day, endTime.hour, endTime.minute)
+                  ? DateTime(date.year, date.month, date.day, endTime.hour,
+                      endTime.minute)
                   : null,
               'reminderTime': reminderTime,
-              'repetition': repetition, // Add this line to include the repetition
+              'repetition':
+                  repetition, // Add this line to include the repetition
             };
 
             pageOneController.updateEvent(event.id, updatedData);
