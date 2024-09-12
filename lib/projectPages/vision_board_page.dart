@@ -107,7 +107,9 @@ class VisionBoardPage extends GetWidget<VisionBoardController> {
     return Container(
       padding: EdgeInsets.all(16.0),
       alignment: Alignment.center,
-      child: CircularProgressIndicator(),
+      child: CircularProgressIndicator(
+        color: Colors.deepPurpleAccent,
+      ),
     );
   }
 
@@ -159,12 +161,14 @@ class VisionBoardPage extends GetWidget<VisionBoardController> {
       padding: const EdgeInsets.all(8.0),
       child: Container(
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(12),
+          // borderRadius: BorderRadius.circular(20),
+          color: Colors.white.withOpacity(0.5),
+          shape: BoxShape.circle,
         ),
         child: IconButton(
           icon: Icon(
             icon,
-            size: ScaleUtil.iconSize(15),
+            size: ScaleUtil.iconSize(12),
           ),
           onPressed: onPressed,
         ),

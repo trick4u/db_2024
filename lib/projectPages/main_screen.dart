@@ -83,24 +83,26 @@ class MainScreen extends GetWidget<MainScreenController> {
   }
 
   Widget _buildNavItem(IconData icon, int index) {
-    return GestureDetector(
-      onTap: () => controller.changeIndex(index),
-      child: AnimatedContainer(
-        duration: Duration(milliseconds: 300),
-        curve: Curves.easeOutCubic,
-        padding: ScaleUtil.only(bottom: 6, top: 4),
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(15),
-          shape: BoxShape.rectangle,
-        ),
-        child: Icon(
-          icon,
-          color: controller.selectedIndex.value == index
-              ? (appTheme.isDarkMode ? Colors.white : Colors.black)
-              : Colors.grey,
-          size: controller.selectedIndex.value == index
-              ? ScaleUtil.height(20)
-              : ScaleUtil.height(15),
+    return SlideInDown(
+      child: GestureDetector(
+        onTap: () => controller.changeIndex(index),
+        child: AnimatedContainer(
+          duration: Duration(milliseconds: 300),
+          curve: Curves.easeOutCubic,
+          padding: ScaleUtil.only(bottom: 6, top: 4),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(15),
+            shape: BoxShape.rectangle,
+          ),
+          child: Icon(
+            icon,
+            color: controller.selectedIndex.value == index
+                ? (appTheme.isDarkMode ? Colors.white : Colors.black)
+                : Colors.grey,
+            size: controller.selectedIndex.value == index
+                ? ScaleUtil.height(20)
+                : ScaleUtil.height(15),
+          ),
         ),
       ),
     );

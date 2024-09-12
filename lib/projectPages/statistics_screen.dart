@@ -383,7 +383,7 @@ class StatisticsScreen extends GetWidget<StatisticsController> {
       if (controller.upcomingTasks.isEmpty) {
         return Center(
           child: Text(
-            'No upcoming tasks in the next 7 days.',
+            'no upcoming tasks in the next 7 days',
             style: appTheme.bodyMedium.copyWith(
               fontSize: ScaleUtil.fontSize(14),
             ),

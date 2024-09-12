@@ -13,7 +13,6 @@ import '../services/app_theme.dart';
 import 'note_bottom_sheet.dart';
 
 class NoteListView extends GetWidget<NoteTakingController> {
-  
   Color _getTileColor(int index, int totalItems) {
     if (totalItems == 1) return Colors.white;
 
@@ -43,7 +42,6 @@ class NoteListView extends GetWidget<NoteTakingController> {
 
       return Column(
         children: [
-          
           _buildNoteCounts(appTheme),
           Expanded(
             child: controller.notes.isEmpty
@@ -71,7 +69,11 @@ class NoteListView extends GetWidget<NoteTakingController> {
               (controller.isLoadingMore.value ? 1 : 0),
           itemBuilder: (context, index) {
             if (index == controller.notes.length) {
-              return Center(child: CircularProgressIndicator());
+              return Center(
+                child: CircularProgressIndicator(
+                  color: Colors.deepPurpleAccent,
+                ),
+              );
             }
 
             Note note = controller.notes[index];

@@ -173,7 +173,7 @@ class EventCard extends StatelessWidget {
           child: Stack(
             children: [
               Card(
-                elevation: 0,
+                elevation: 2,
                 shape: RoundedRectangleBorder(
                   borderRadius: ScaleUtil.circular(10),
                 ),

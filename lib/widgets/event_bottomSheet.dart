@@ -123,10 +123,7 @@ class _EventBottomSheetState extends State<EventBottomSheet> {
                     borderRadius: ScaleUtil.circular(10),
                     child: TextField(
                       controller: _titleController,
-                      style: appTheme.bodyMedium.copyWith(
-                        fontSize:
-                            ScaleUtil.fontSize(appTheme.bodyMedium.fontSize!),
-                      ),
+                      style: appTheme.bodyMedium,
                       decoration: InputDecoration(
                         labelText: 'Event Title',
                         filled: true,
@@ -179,6 +176,7 @@ class _EventBottomSheetState extends State<EventBottomSheet> {
                       mainAxisAlignment: MainAxisAlignment.end,
                       children: [
                         _buildRepetitionButton(context, appTheme),
+                        SizedBox(width: ScaleUtil.width(10)),
                         _buildDescriptionToggleButton(context, appTheme),
                         SizedBox(width: ScaleUtil.width(10)),
                         _buildColorIconButton(context, appTheme),

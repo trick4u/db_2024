@@ -34,7 +34,7 @@ class PageOneScreen extends GetWidget<PageOneController> {
     if (_isDialogOpen.value) return;
 
     _isDialogOpen.value = true;
-    final RxBool _isAnimating = true.obs;
+  
     String quote = await QuoteService.getRandomQuote();
     await showDialog(
       context: context,
@@ -95,7 +95,7 @@ class PageOneScreen extends GetWidget<PageOneController> {
                                 fontSize: 30,
                                 fontWeight: FontWeight.w300,
                               ),
-                              onEnd: (e) {},
+                            
                             ),
                             // Obx(
                             //   () => Text(
