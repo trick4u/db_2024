@@ -34,7 +34,7 @@ class AuthWrapper extends StatelessWidget {
                 Get.offAll(() => MainScreen(),);
               });
               return Container(
-                color: Colors.white,
+              
               );
             } else {
               // User is not in the database, they need to complete profile

@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 
 import '../app_routes.dart';
 import '../pages/home_page.dart';
+import '../projectPages/main_screen.dart';
 
 class SplashController extends GetxController
     with GetSingleTickerProviderStateMixin {
@@ -15,12 +16,11 @@ class SplashController extends GetxController
 
   @override
   void onReady() {
-    // Future.delayed(Duration(seconds: 2), () {
-    //   Get.offNamedUntil(
-    //     AppRoutes.MAIN,
-    //     (route) => false,
-    //   );
-    // });
+    Future.delayed(Duration(seconds: 2), () {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+                Get.offAll(() => MainScreen(),);
+              });
+    });
     super.onReady();
   }
 

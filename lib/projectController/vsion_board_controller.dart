@@ -168,6 +168,7 @@ class VisionBoardController extends GetxController {
 
     await AwesomeNotifications().createNotification(
       content: NotificationContent(
+        autoDismissible: false,
         id: notificationId,
         channelKey: 'vision_board_reminders',
         title: title,
@@ -186,6 +187,7 @@ class VisionBoardController extends GetxController {
         millisecond: 0,
         repeats: false,
         allowWhileIdle: true,
+        
       ),
     );
 
@@ -226,7 +228,7 @@ class VisionBoardController extends GetxController {
   DateTime _getNextAvailableTime(bool isMorning) {
     DateTime now = DateTime.now();
     DateTime baseTime = isMorning
-        ? DateTime(now.year, now.month, now.day, 8, 0)
+        ? DateTime(now.year, now.month, now.day, 08, 00)
         : DateTime(now.year, now.month, now.day, 22, 0);
 
     if (baseTime.isBefore(now)) {

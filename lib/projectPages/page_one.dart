@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 import 'package:tushar_db/app_routes.dart';
 import 'package:tushar_db/constants/colors.dart';
@@ -64,7 +65,6 @@ class PageOneScreen extends GetWidget<PageOneController> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Tooltip(
                   message: 'Tap for daily inspiration!',
@@ -73,28 +73,36 @@ class PageOneScreen extends GetWidget<PageOneController> {
                       await _showQuoteDialog(context);
                     },
                     child: GestureDetector(
-                        onTap: () async {
+                      onTap: () async {
+                        await _showQuoteDialog(context);
+                        controller.toggleGradientDirection();
+                      },
+                      child: PressableDough(
+                        onReleased: (s) async {
                           await _showQuoteDialog(context);
-                            controller.toggleGradientDirection();
+                          controller.toggleGradientDirection();
                         },
                         child: Row(
                           children: [
-                            Icon(FontAwesomeIcons.handPointer, size: 20),
+                            Icon(FontAwesomeIcons.handPeace, size: 25),
                             SizedBox(width: 8),
-                            Obx(() => Text(
-                                controller.greeting.value.toLowerCase() + ".",
-                                style: AppTextTheme.textTheme.displaySmall)),
+                            Text(
+                              'doBoard',
+                              style: TextStyle(
+                                fontFamily: GoogleFonts.pacifico().fontFamily,
+                                fontSize: 30,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                            // Obx(
+                            //   () => Text(
+                            //       controller.greeting.value.toLowerCase() + ".",
+                            //       style: AppTextTheme.textTheme.bodySmall),
+                            // ),
                           ],
-                        )),
-                  ),
-                ),
-                InkWell(
-                  onTap: () {
-                    Get.toNamed(AppRoutes.NOTIFICAION);
-                  },
-                  child: Icon(
-                    FontAwesomeIcons.bell,
-                    size: ScaleUtil.iconSize(15),
+                        ),
+                      ),
+                    ),
                   ),
                 ),
               ],

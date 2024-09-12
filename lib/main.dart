@@ -122,12 +122,14 @@ void main() async {
           channelDescription: 'Notification channel for vision board item reminders',
           defaultColor: Color(0xFF9D50DD),
           ledColor: Colors.purple,
-          importance: NotificationImportance.High,
+          importance: NotificationImportance.Max,
+          defaultPrivacy: NotificationPrivacy.Private,
           channelShowBadge: true,
           playSound: true,
-          soundSource: soundSource,
+          // soundSource: soundSource,
           enableLights: true,
           enableVibration: true,
+          
         ),
       ],
       debug: true);
@@ -191,15 +193,18 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     final appTheme = Get.find<AppTheme>();
 
-    return Obx(() => GetMaterialApp(
+return Obx(() => GetMaterialApp(
       title: 'DoBoard Demo',
       debugShowCheckedModeBanner: false,
       theme: appTheme.themeData,
       darkTheme: appTheme.themeData,
       themeMode: appTheme.isDarkMode ? ThemeMode.dark : ThemeMode.light,
       initialBinding: InitialBinding(),
-      initialRoute: AppRoutes.AUTHWRAPPER,
-      getPages: AppRoutes.routes,
+      initialRoute: '/splash', // Change this line
+      getPages: [
+        GetPage(name: '/splash', page: () => SplashScreen()),
+        ...AppRoutes.routes,
+      ],
       builder: (context, child) {
         ScaleUtil.init(context);
         return MediaQuery(
