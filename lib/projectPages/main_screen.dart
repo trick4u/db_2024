@@ -1,6 +1,6 @@
 import 'package:animate_do/animate_do.dart';
 import 'package:dough/dough.dart';
-import 'package:dough_sensors/dough_sensors.dart';
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';

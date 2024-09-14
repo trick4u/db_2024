@@ -225,14 +225,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.0.0"
-  dough_sensors:
-    dependency: "direct main"
-    description:
-      name: dough_sensors
-      sha256: "3300438c916d7fced8c5a281d5a43afa408d990f2ae1d360c49cc634de2ac395"
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.0.2"
   equatable:
     dependency: transitive
     description:
@@ -462,14 +454,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "3.0.2"
-  flutter_native_timezone_updated_gradle:
-    dependency: "direct main"
-    description:
-      name: flutter_native_timezone_updated_gradle
-      sha256: ed5f04e348b86be0564db848ad29cd7ad0d53c7949ce1ff56b3dd35fd09df0e5
-      url: "https://pub.dev"
-    source: hosted
-    version: "2.0.3"
   flutter_plugin_android_lifecycle:
     dependency: transitive
     description:
@@ -672,14 +656,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.19.0"
-  js:
-    dependency: transitive
-    description:
-      name: js
-      sha256: c1b2e9b5ea78c45e1a0788d29606ba27dc5f71f019f32ca5140f61ef071838cf
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.7.1"
   just_audio:
     dependency: "direct main"
     description:
@@ -960,14 +936,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.27.7"
-  sensors:
-    dependency: transitive
-    description:
-      name: sensors
-      sha256: "69c10fe94a63dd7c6f5e6557366e5329a713bf6c45d885d95a56642dd8722e35"
-      url: "https://pub.dev"
-    source: hosted
-    version: "2.0.3"
   shared_preferences:
     dependency: "direct main"
     description:
