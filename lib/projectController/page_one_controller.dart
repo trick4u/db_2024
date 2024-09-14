@@ -101,6 +101,7 @@ class PageOneController extends GetxController {
   @override
   void onInit() {
     //   getAllGoals();
+    updateAllReminders();
     _initializeSelectedTile();
 
     _audioPlayer = AudioPlayer();
@@ -108,12 +109,7 @@ class PageOneController extends GetxController {
     fetchAllReminders();
 
     reminderTextController = TextEditingController();
-    originalFontColor.value = chips[0].fontColor!;
-
-    originalBackgroundColor = chips[0].backgroundColor as MaterialColor;
-
-    chips[0].fontColor = Colors.black;
-    chips[0].backgroundColor = Colors.blue;
+  
 
     super.onInit();
   }
@@ -584,26 +580,7 @@ Future<void> cancelNotificationForReminder(int? notificationId) async {
 
  
 
-  int _dayToWeekday(String day) {
-    switch (day) {
-      case 'Monday':
-        return DateTime.monday;
-      case 'Tuesday':
-        return DateTime.tuesday;
-      case 'Wednesday':
-        return DateTime.wednesday;
-      case 'Thursday':
-        return DateTime.thursday;
-      case 'Friday':
-        return DateTime.friday;
-      case 'Saturday':
-        return DateTime.saturday;
-      case 'Sunday':
-        return DateTime.sunday;
-      default:
-        return DateTime.monday;
-    }
-  }
+
 
   var chips = <ChipProperties>[
     ChipProperties(
@@ -646,47 +623,89 @@ Future<void> cancelNotificationForReminder(int? notificationId) async {
       chips.refresh(); // Notify listeners
     }
   }
+  
 
-Future<void> schedulePeriodicNotifications(String body, int interval, bool repeat) async {
-  WidgetsBinding.instance.addPostFrameCallback((_) async {
+ Future<void> updateNextTriggerTime(String reminderId) async {
     try {
-      String localTimeZone = await AwesomeNotifications().getLocalTimeZoneIdentifier();
-      DateTime now = DateTime.now();
-      DateTime scheduledDate = now.add(Duration(minutes: interval));
-      nextNotificationTime.value = scheduledDate;
+      DocumentSnapshot reminderDoc = await remindersCollection.doc(reminderId).get();
+      ReminderModel reminder = ReminderModel.fromFirestore(reminderDoc);
 
-      int notificationId = body.hashCode;
+      if (reminder.repeat && reminder.triggerTime != null && reminder.triggerTime!.isBefore(DateTime.now())) {
+        DateTime nextTriggerTime = reminder.triggerTime!;
+        int intervalMinutes = reminder.time;
+        while (nextTriggerTime.isBefore(DateTime.now())) {
+          nextTriggerTime = nextTriggerTime.add(Duration(minutes: intervalMinutes));
+        }
 
-      await AwesomeNotifications().createNotification(
-        content: NotificationContent(
-          id: notificationId,
-          channelKey: 'quickschedule',
-          title: 'DoBoara Reminder 📅',
-          body: body,
-          category: NotificationCategory.Reminder,
-          notificationLayout: NotificationLayout.Default,
-          criticalAlert: true,
-          wakeUpScreen: true,
-        ),
-        schedule: NotificationCalendar(
-          year: scheduledDate.year,
-          month: scheduledDate.month,
-          day: scheduledDate.day,
-          hour: scheduledDate.hour,
-          minute: scheduledDate.minute,
-          second: 0,
-          millisecond: 0,
-          repeats: repeat,
-          allowWhileIdle: true,
-          preciseAlarm: true,
-        ),
-      );
-      print('Scheduled notification with ID: $notificationId for time: ${nextNotificationTime.value}');
+        await remindersCollection.doc(reminderId).update({
+          'triggerTime': nextTriggerTime,
+        });
+
+        await AwesomeNotifications().cancel(reminder.notificationId ?? 0);
+        await schedulePeriodicNotifications(
+          reminder.reminder,
+          intervalMinutes,
+          reminder.repeat,
+          notificationId: reminder.notificationId ?? reminder.reminder.hashCode,
+          initialTriggerTime: nextTriggerTime,
+        );
+      }
     } catch (e) {
-      print('Error scheduling notification: $e');
+      print('Error updating next trigger time: $e');
     }
-  });
+  }
+
+Future<void> schedulePeriodicNotifications(
+  String body,
+  int interval,
+  bool repeat, {
+  int? notificationId,
+  DateTime? initialTriggerTime,
+}) async {
+  try {
+    notificationId ??= body.hashCode;
+    DateTime scheduledDate = initialTriggerTime ?? DateTime.now().add(Duration(minutes: interval));
+
+    await AwesomeNotifications().createNotification(
+      content: NotificationContent(
+        id: notificationId,
+        channelKey: 'quickschedule',
+        title: 'DoBoard Reminder 📅',
+        body: body,
+        category: NotificationCategory.Reminder,
+        notificationLayout: NotificationLayout.Default,
+        criticalAlert: true,
+        wakeUpScreen: true,
+        payload: {
+          'repeat': repeat.toString(),
+          'interval': interval.toString(),
+        },
+      ),
+      schedule: NotificationCalendar(
+        year: scheduledDate.year,
+        month: scheduledDate.month,
+        day: scheduledDate.day,
+        hour: scheduledDate.hour,
+        minute: scheduledDate.minute,
+        second: 0,
+        millisecond: 0,
+        repeats: repeat,
+        preciseAlarm: true,
+        allowWhileIdle: true,
+      ),
+    );
+
+    print('Scheduled notification with ID: $notificationId for time: $scheduledDate, Repeat: $repeat');
+  } catch (e) {
+    print('Error scheduling notification: $e');
+  }
 }
+
+  void updateAllReminders() {
+    for (var reminder in allReminders) {
+      updateNextTriggerTime(reminder.id ?? "");
+    }
+  }
 
   void calculateTriggerTime(int minutes) {
     DateTime now = DateTime.now();
@@ -714,22 +733,32 @@ Future<void> schedulePeriodicNotifications(String body, int interval, bool repea
   }
 
   //save data into firestore
- Future saveReminder(bool repeat) async {
-  int notificationId = reminderTextController.text.hashCode;
-  await remindersCollection.add({
-    "reminder": reminderTextController.text,
-    "time": timeSelected.value,
-    "isReminderSet": true,
-    "createdAt": FieldValue.serverTimestamp(),
-    "repeat": repeat,
-    "triggerTime": nextNotificationTime.value,
-    "notificationId": notificationId,
-  }).then((_) {
+ Future<void> saveReminder(bool repeat) async {
+    int notificationId = reminderTextController.text.hashCode;
+    DateTime triggerTime = nextNotificationTime.value ?? DateTime.now().add(Duration(minutes: timeSelected.value));
+    
+    DocumentReference docRef = await remindersCollection.add({
+      "reminder": reminderTextController.text,
+      "time": timeSelected.value,
+      "isReminderSet": true,
+      "createdAt": FieldValue.serverTimestamp(),
+      "repeat": repeat,
+      "triggerTime": triggerTime,
+      "notificationId": notificationId,
+    });
+
+    await schedulePeriodicNotifications(
+      reminderTextController.text,
+      timeSelected.value,
+      repeat,
+      notificationId: notificationId,
+      initialTriggerTime: triggerTime,
+    );
+
     Get.back();
     setSelectedTile('all reminders');
     setSelectedListType('all reminders');
-  });
-}
+  }
 
   //get goals from firestore
 

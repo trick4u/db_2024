@@ -25,16 +25,12 @@ class _SplashScreenState extends State<SplashScreen> {
   }
 
   _navigateToNextScreen() async {
-    await Future.delayed(
-      Duration(seconds: 1),
-    ); // Adjust the duration as needed
-    await Get.offNamed(AppRoutes.AUTHWRAPPER);
+    await Future.delayed(Duration(seconds: 3)); // Adjust duration as needed
+    Get.offNamed(AppRoutes.AUTHWRAPPER);
   }
 
   @override
   Widget build(BuildContext context) {
-    final appTheme = Get.find<AppTheme>();
-
     return Scaffold(
       body: Container(
         decoration: BoxDecoration(
@@ -57,10 +53,11 @@ class _SplashScreenState extends State<SplashScreen> {
               Text(
                 'DoBoard',
                 style: TextStyle(
-                    fontFamily: GoogleFonts.pacifico().fontFamily,
-                    fontSize: 30,
-                    fontWeight: FontWeight.w500,
-                    color: Colors.white),
+                  fontFamily: GoogleFonts.pacifico().fontFamily,
+                  fontSize: 30,
+                  fontWeight: FontWeight.w500,
+                  color: Colors.white,
+                ),
               ),
             ],
           ),

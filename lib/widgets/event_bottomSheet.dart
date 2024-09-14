@@ -448,7 +448,8 @@ class _EventBottomSheetState extends State<EventBottomSheet> {
 
   Widget _buildReminderInfo(AppTheme appTheme) {
     return Container(
-      padding: ScaleUtil.symmetric(vertical: 0, horizontal: 5),
+      width: ScaleUtil.width(125),
+      padding: ScaleUtil.symmetric(vertical: 0, horizontal: 0),
       decoration: BoxDecoration(
         color: Colors.green,
         borderRadius: ScaleUtil.circular(8),

@@ -29,7 +29,7 @@ class RemindersList extends GetWidget<PageOneController> {
           return FadeIn(
             child: ReminderCard(
               reminder: reminder,
-              onDelete: () => controller.deleteReminder(reminder.id),
+              onDelete: () => controller.deleteReminder(reminder.id ?? ""),
               onEdit: () => _openEditBottomSheet(context, reminder),
             ),
           );
@@ -289,6 +289,15 @@ class ReminderCard extends GetView<PageOneController> {
             color: Colors.grey,
           ),
         ),
+        if (reminder.repeat)
+          Text(
+            reminder.triggerTime!.isBefore(DateTime.now()) ? 'Updating...' : 'Next reminder',
+            style: TextStyle(
+              fontStyle: FontStyle.italic,
+              fontSize: ScaleUtil.fontSize(8),
+              color: Colors.grey,
+            ),
+          ),
       ],
     );
   }

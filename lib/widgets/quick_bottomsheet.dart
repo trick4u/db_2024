@@ -280,7 +280,7 @@ class _QuickReminderBottomSheetState extends State<QuickReminderBottomSheet> {
 
       if (widget.reminderToEdit != null) {
         widget.reminderController.updateReminder(
-          widget.reminderToEdit!.id, // This should now be a string
+          widget.reminderToEdit!.id ?? "", // This should now be a string
           widget.reminderController.reminderTextController.text,
           minutes,
           widget.reminderController.repeat.value,

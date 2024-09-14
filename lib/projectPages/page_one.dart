@@ -34,7 +34,7 @@ class PageOneScreen extends GetWidget<PageOneController> {
     if (_isDialogOpen.value) return;
 
     _isDialogOpen.value = true;
-  
+
     String quote = await QuoteService.getRandomQuote();
     await showDialog(
       context: context,
@@ -95,13 +95,17 @@ class PageOneScreen extends GetWidget<PageOneController> {
                                 fontSize: 30,
                                 fontWeight: FontWeight.w300,
                               ),
-                            
                             ),
-                            // Obx(
-                            //   () => Text(
-                            //       controller.greeting.value.toLowerCase() + ".",
-                            //       style: AppTextTheme.textTheme.bodySmall),
-                            // ),
+                            SizedBox(
+                              width: 50,
+                            ),
+                            GestureDetector(
+                              onTap: () {
+                                Get.toNamed(AppRoutes.NOTIFICAION);
+                              },
+                              child: Text("Noti",
+                                  style: AppTextTheme.textTheme.bodySmall),
+                            ),
                           ],
                         ),
                       ),

@@ -30,6 +30,7 @@ class VisionBoardItemCard extends StatelessWidget {
   final RxInt _currentImageIndex = 0.obs;
 
   VisionBoardItemCard({required this.item, required this.onEdit});
+  final RxBool _isExpanded = false.obs;
 
   @override
   Widget build(BuildContext context) {
@@ -129,15 +130,29 @@ class VisionBoardItemCard extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      item.title,
-                      style: appTheme.bodyMedium.copyWith(),
+                    GestureDetector(
+                      onTap: () => controller.toggleItemExpansion(item.id),
+                      child: Obx(() => AnimatedCrossFade(
+                        firstChild: Text(
+                          item.title,
+                          style: appTheme.bodyMedium,
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        secondChild: Text(
+                          item.title,
+                          style: appTheme.bodyMedium,
+                        ),
+                        crossFadeState: controller.isItemExpanded(item.id)
+                            ? CrossFadeState.showSecond
+                            : CrossFadeState.showFirst,
+                        duration: Duration(milliseconds: 300),
+                      )),
                     ),
                     ScaleUtil.sizedBox(height: 4),
                     Text(
                       _getTimeAgo(),
-                      style: appTheme.bodyMedium
-                          .copyWith(color: appTheme.secondaryTextColor),
+                      style: appTheme.bodyMedium.copyWith(color: appTheme.secondaryTextColor),
                     ),
                   ],
                 ),
@@ -164,7 +179,7 @@ class VisionBoardItemCard extends StatelessWidget {
       ),
     );
   }
-
+  
   Widget _buildNotificationButton(BuildContext context,
       VisionBoardController controller, AppTheme appTheme) {
     return Obx(() {

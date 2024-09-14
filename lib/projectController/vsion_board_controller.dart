@@ -34,6 +34,7 @@ class VisionBoardController extends GetxController {
   final RxInt activeNightNotificationsCount = 0.obs;
   final int maxNotificationsPerTime = 5;
   static const int maxEditCount = 4;
+  final RxMap<String, bool> _expandedStates = <String, bool>{}.obs;
 
   DocumentSnapshot? lastDocument;
 
@@ -80,7 +81,6 @@ class VisionBoardController extends GetxController {
     titleController.dispose();
     super.onClose();
   }
-  
 
   void _loadActiveNotificationsCount() async {
     List<NotificationModel> notifications =
@@ -95,6 +95,14 @@ class VisionBoardController extends GetxController {
         activeNightNotificationsCount.value++;
       }
     }
+  }
+   bool isItemExpanded(String itemId) {
+    return _expandedStates[itemId] ?? false;
+  }
+
+  void toggleItemExpansion(String itemId) {
+    _expandedStates[itemId] = !(_expandedStates[itemId] ?? false);
+    update();
   }
 
   bool canScheduleMorningNotification() {
@@ -187,7 +195,6 @@ class VisionBoardController extends GetxController {
         millisecond: 0,
         repeats: false,
         allowWhileIdle: true,
-        
       ),
     );
 
@@ -448,8 +455,11 @@ class VisionBoardController extends GetxController {
         }
       }
 
-      bool imagesChanged = !listEquals(updatedImageUrls, editingItem.value!.imageUrls);
-      int newEditCount = imagesChanged ? editingItem.value!.editCount + 1 : editingItem.value!.editCount;
+      bool imagesChanged =
+          !listEquals(updatedImageUrls, editingItem.value!.imageUrls);
+      int newEditCount = imagesChanged
+          ? editingItem.value!.editCount + 1
+          : editingItem.value!.editCount;
 
       final updatedItem = VisionBoardItem(
         id: editingItem.value!.id,
@@ -466,7 +476,8 @@ class VisionBoardController extends GetxController {
       await updateItem(updatedItem);
 
       // Update the local state while maintaining the order
-      int index = visionBoardItems.indexWhere((item) => item.id == updatedItem.id);
+      int index =
+          visionBoardItems.indexWhere((item) => item.id == updatedItem.id);
       if (index != -1) {
         visionBoardItems[index] = updatedItem;
         visionBoardItems.refresh();
@@ -481,10 +492,12 @@ class VisionBoardController extends GetxController {
           snackPosition: SnackPosition.BOTTOM);
     }
   }
+
   bool canEditItem(String itemId) {
     VisionBoardItem item = visionBoardItems.firstWhere((i) => i.id == itemId);
     return item.editCount < maxEditCount;
   }
+
   void clearForm() {
     titleController.clear();
     selectedImages.clear();
@@ -530,6 +543,9 @@ class VisionBoardController extends GetxController {
         VisionBoardItem item = VisionBoardItem.fromFirestore(doc);
         allItems.add(item);
         _notificationActiveStates[item.id] = item.hasNotification;
+          if (!_expandedStates.containsKey(item.id)) {
+          _expandedStates[item.id] = false;
+        }
 
         // Schedule state update for future notifications
         if (item.hasNotification && item.scheduledNotificationTime != null) {
