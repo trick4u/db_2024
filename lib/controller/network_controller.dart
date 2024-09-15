@@ -10,32 +10,43 @@ import 'package:tushar_db/services/auth_wrapper.dart';
 
 class NetworkController extends GetxController {
   RxBool isOnline = true.obs;
-
   StreamSubscription? connectionStream;
+  bool isInitialCheck = true;
 
   @override
   void onInit() {
     super.onInit();
-    InternetConnection().onStatusChange.listen((event) {
+    checkInitialConnection();
+    listenToConnectionChanges();
+  }
+
+  Future<void> checkInitialConnection() async {
+    isOnline.value = await InternetConnection().hasInternetAccess;
+    if (!isOnline.value) {
+      Get.offNamedUntil(AppRoutes.NETWORK, (route) => false);
+    }
+    isInitialCheck = false;
+  }
+
+  void listenToConnectionChanges() {
+    connectionStream = InternetConnection().onStatusChange.listen((event) {
       switch (event) {
         case InternetStatus.connected:
-          isOnline.value = true;
-       //    Get.offAll(() => MainScreen(),);
+          if (!isInitialCheck && !isOnline.value) {
+            isOnline.value = true;
+            Get.offAll(() => MainScreen());
+          }
           break;
         case InternetStatus.disconnected:
           isOnline.value = false;
-          Get.snackbar('No Internet', 'Please check your internet connection',
-              snackPosition: SnackPosition.BOTTOM);
-          Get.offNamedUntil(AppRoutes.NETWORK, (route) => false);
+          if (!isInitialCheck) {
+            Get.snackbar('No Internet', 'Please check your internet connection',
+                snackPosition: SnackPosition.BOTTOM);
+            Get.offNamedUntil(AppRoutes.NETWORK, (route) => false);
+          }
           break;
-        default:
       }
     });
-  }
-
-  // update the connection status
-  void updateConnectionStatus(bool status) {
-    isOnline.value = status;
   }
 
   @override

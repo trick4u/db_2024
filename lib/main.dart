@@ -7,13 +7,13 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
-
-
 
 import 'package:get/get.dart';
 import 'package:get/route_manager.dart';
 import 'package:get_storage/get_storage.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:timezone/data/latest_10y.dart';
 import 'package:tushar_db/controller/network_controller.dart';
@@ -34,29 +34,29 @@ import 'package:workmanager/workmanager.dart';
 import 'services/app_text_style.dart';
 import 'services/app_theme.dart';
 import 'services/auth_service.dart';
+
 import 'services/notification_service.dart';
 import 'services/notification_tracking_service.dart';
-import 'services/reminder_service.dart';
+
 import 'services/scale_util.dart';
 
 void callbackDispatcher() {
-  Workmanager().executeTask((task, inputData) async {
-    if (task == 'fetchAndDisplayQuote') {
-      final now = DateTime.now();
-      final scheduledHour = inputData?['hour'] as int? ?? 9;
-      final scheduledMinute = inputData?['minute'] as int? ?? 30;
+  // Workmanager().executeTask((task, inputData) async {
+  //   if (task == 'fetchAndDisplayQuote') {
+  //     final now = DateTime.now();
+  //     final scheduledHour = inputData?['hour'] as int? ?? 9;
+  //     final scheduledMinute = inputData?['minute'] as int? ?? 30;
 
-      if (now.hour == scheduledHour && now.minute == scheduledMinute) {
-        final controller = Get.put(NotificationController());
-        await controller.fetchAndDisplayQuote();
-      }
-    }
-    return Future.value(true);
-  });
+  //     if (now.hour == scheduledHour && now.minute == scheduledMinute) {
+  //       final controller = Get.put(NotificationController());
+  //       await controller.fetchAndDisplayQuote();
+  //     }
+  //   }
+  //   return Future.value(true);
+  // });
 }
 
 void main() async {
-  await NotificationService.initialize();
   if (kDebugMode) {
     FlutterError.onError = (FlutterErrorDetails details) {
       if (!details.toString().contains('awesome_notifications')) {
@@ -64,13 +64,22 @@ void main() async {
       }
     };
   }
-  await GetStorage.init();
 
   WidgetsFlutterBinding.ensureInitialized();
+  await SystemChrome.setPreferredOrientations([
+    DeviceOrientation.portraitUp,
+    DeviceOrientation.portraitDown,
+  ]);
+  await SharedPreferences.getInstance();
+
+  // Initialize NotificationService
+
+  await GetStorage.init();
 
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
   FirebaseFirestore.instance.settings = Settings(persistenceEnabled: true);
+
   Get.put(AuthService());
   final appTheme = Get.put(AppTheme());
   appTheme.updateStatusBarColor();
@@ -92,17 +101,17 @@ void main() async {
             defaultColor: const Color(0xFF9D50DD),
             ledColor: Colors.blue),
         NotificationChannel(
-          channelKey: 'quickschedule',
-          channelName: 'Reminder Notifications',
-          channelDescription:
-              'Notification channel for daily motivational quotes',
-          defaultColor: Color(0xFF9D50DD),
-          ledColor: Colors.white,
-          importance: NotificationImportance.High,
-          channelShowBadge: true,
-          enableLights: true,
-          enableVibration: true,
-        ),
+        channelKey: 'quickschedule',
+        channelName: 'Reminder Notifications',
+        channelDescription: 'Notification channel for reminders and events',
+        defaultColor: Color(0xFF9D50DD),
+        ledColor: Colors.white,
+        importance: NotificationImportance.High,
+        enableLights: true,
+        enableVibration: true,
+        playSound: true,
+        criticalAlerts: true,
+      ),
         NotificationChannel(
           channelKey: 'event_reminders',
           channelName: 'Reminder Notifications',
@@ -112,7 +121,7 @@ void main() async {
           ledColor: Colors.white,
           importance: NotificationImportance.Max,
           defaultRingtoneType: DefaultRingtoneType.Notification,
-          channelShowBadge: false,
+          // channelShowBadge: false,
           playSound: true,
           // soundSource: soundSource,
           enableLights: true,
@@ -127,14 +136,14 @@ void main() async {
           ledColor: Colors.purple,
           importance: NotificationImportance.Max,
           defaultPrivacy: NotificationPrivacy.Private,
-          channelShowBadge: true,
+          // channelShowBadge: true,
           playSound: true,
           // soundSource: soundSource,
           enableLights: true,
           enableVibration: true,
         ),
       ],
-      debug: true);
+    );
 
   // Initialize NotificationTrackingService
   await Get.putAsync(() => NotificationTrackingService().init());
@@ -177,8 +186,6 @@ void main() async {
 
   runApp(const MyApp());
 }
-
-
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});

@@ -44,6 +44,7 @@ class StatisticsScreen extends GetWidget<StatisticsController> {
                     padding: ScaleUtil.symmetric(horizontal: 8),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Text(
                           'Tasks in Next 7 Days',
@@ -53,11 +54,13 @@ class StatisticsScreen extends GetWidget<StatisticsController> {
                         ),
                         Obx(() {
                           if (controller.upcomingTasks.isNotEmpty) {
-                            return Text(
-                              'Total upcoming tasks: ${controller.upcomingTasks.length}',
-                              style: appTheme.bodyMedium.copyWith(
-                                fontSize: ScaleUtil.fontSize(12),
-                                color: appTheme.secondaryTextColor,
+                            return Center(
+                              child: Text(
+                                'Total upcoming tasks: ${controller.upcomingTasks.length}',
+                                style: appTheme.bodyMedium.copyWith(
+                                  fontSize: ScaleUtil.fontSize(12),
+                                  color: appTheme.secondaryTextColor,
+                                ),
                               ),
                             );
                           } else {
@@ -382,10 +385,13 @@ class StatisticsScreen extends GetWidget<StatisticsController> {
     return Obx(() {
       if (controller.upcomingTasks.isEmpty) {
         return Center(
-          child: Text(
-            'no upcoming tasks in the next 7 days',
-            style: appTheme.bodyMedium.copyWith(
-              fontSize: ScaleUtil.fontSize(14),
+          child: Padding(
+            padding: ScaleUtil.only(top: 30),
+            child: Text(
+              'no upcoming tasks in the next 7 days',
+              style: appTheme.bodyMedium.copyWith(
+                fontSize: ScaleUtil.fontSize(14),
+              ),
             ),
           ),
         );

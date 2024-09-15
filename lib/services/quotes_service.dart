@@ -1,10 +1,12 @@
 import 'dart:convert';
 import 'dart:math';
+import 'package:get_storage/get_storage.dart';
 import 'package:http/http.dart' as http;
-import 'package:shared_preferences/shared_preferences.dart';
+
 
 class QuoteService {
   static const String QUOTES_KEY = 'displayed_quotes';
+  static final GetStorage _storage = GetStorage();
 
   static Future<List<String>> fetchQuotes() async {
     final response = await http.get(Uri.parse('https://zenquotes.io/api/quotes'));
@@ -17,9 +19,9 @@ class QuoteService {
     }
   }
 
-   static Future<String> getRandomQuote() async {
+  static Future<String> getRandomQuote() async {
     List<String> allQuotes = await fetchQuotes();
-    List<String> displayedQuotes = await getDisplayedQuotes();
+    List<String> displayedQuotes = getDisplayedQuotes();
 
     // Filter out displayed quotes
     List<String> newQuotes = allQuotes.where((quote) => !displayedQuotes.contains(quote)).toList();
@@ -27,9 +29,7 @@ class QuoteService {
     if (newQuotes.isEmpty) {
       // If all quotes have been displayed, reset and use all quotes again
       newQuotes = allQuotes;
-      await SharedPreferences.getInstance().then((prefs) {
-        prefs.remove(QUOTES_KEY);
-      });
+      _storage.remove(QUOTES_KEY);
     }
 
     // Get a random quote from the new quotes
@@ -42,15 +42,13 @@ class QuoteService {
     return randomQuote;
   }
 
-  static Future<List<String>> getDisplayedQuotes() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    return prefs.getStringList(QUOTES_KEY) ?? [];
+  static List<String> getDisplayedQuotes() {
+    return _storage.read<List<String>>(QUOTES_KEY) ?? [];
   }
 
   static Future<void> saveDisplayedQuote(String quote) async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    List<String> displayedQuotes = prefs.getStringList(QUOTES_KEY) ?? [];
+    List<String> displayedQuotes = getDisplayedQuotes();
     displayedQuotes.add(quote);
-    await prefs.setStringList(QUOTES_KEY, displayedQuotes);
+    await _storage.write(QUOTES_KEY, displayedQuotes);
   }
 }

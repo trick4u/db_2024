@@ -17,7 +17,7 @@ class QuickEventModel {
   final DateTime? completedAt;
   DateTime? lastNotificationDisplayed;
   final String? repetition;
-  
+  int? notificationId;  // New field
 
   QuickEventModel({
     required this.id,
@@ -35,6 +35,7 @@ class QuickEventModel {
     this.completedAt,
     this.lastNotificationDisplayed,
     this.repetition,
+    this.notificationId,  // Added to constructor
   });
 
   factory QuickEventModel.fromFirestore(DocumentSnapshot doc) {
@@ -65,6 +66,7 @@ class QuickEventModel {
           ? (data['lastNotificationDisplayed'] as Timestamp).toDate()
           : null,
       repetition: data['repetition'],
+      notificationId: data['notificationId'],  // Added to factory method
     );
   }
 
@@ -87,6 +89,8 @@ class QuickEventModel {
       'lastNotificationDisplayed': lastNotificationDisplayed != null
           ? Timestamp.fromDate(lastNotificationDisplayed!)
           : null,
+      'repetition': repetition,
+      'notificationId': notificationId,  // Added to toFirestore method
     };
   }
 
@@ -105,6 +109,8 @@ class QuickEventModel {
     bool? editedAfterCompletion,
     DateTime? completedAt,
     DateTime? lastNotificationDisplayed,
+    String? repetition,
+    int? notificationId,  // Added to copyWith method
   }) {
     return QuickEventModel(
       id: id ?? this.id,
@@ -123,7 +129,8 @@ class QuickEventModel {
       completedAt: completedAt ?? this.completedAt,
       lastNotificationDisplayed:
           lastNotificationDisplayed ?? this.lastNotificationDisplayed,
-      repetition: repetition ?? repetition,
+      repetition: repetition ?? this.repetition,
+      notificationId: notificationId ?? this.notificationId,  // Added to copyWith
     );
   }
 }
