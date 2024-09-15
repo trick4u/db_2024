@@ -1,12 +1,10 @@
 import 'dart:convert';
 import 'dart:math';
-import 'package:get_storage/get_storage.dart';
 import 'package:http/http.dart' as http;
-
+import 'package:shared_preferences/shared_preferences.dart';
 
 class QuoteService {
   static const String QUOTES_KEY = 'displayed_quotes';
-  static final GetStorage _storage = GetStorage();
 
   static Future<List<String>> fetchQuotes() async {
     final response = await http.get(Uri.parse('https://zenquotes.io/api/quotes'));
@@ -21,7 +19,7 @@ class QuoteService {
 
   static Future<String> getRandomQuote() async {
     List<String> allQuotes = await fetchQuotes();
-    List<String> displayedQuotes = getDisplayedQuotes();
+    List<String> displayedQuotes = await getDisplayedQuotes();
 
     // Filter out displayed quotes
     List<String> newQuotes = allQuotes.where((quote) => !displayedQuotes.contains(quote)).toList();
@@ -29,7 +27,7 @@ class QuoteService {
     if (newQuotes.isEmpty) {
       // If all quotes have been displayed, reset and use all quotes again
       newQuotes = allQuotes;
-      _storage.remove(QUOTES_KEY);
+      await clearDisplayedQuotes();
     }
 
     // Get a random quote from the new quotes
@@ -42,13 +40,20 @@ class QuoteService {
     return randomQuote;
   }
 
-  static List<String> getDisplayedQuotes() {
-    return _storage.read<List<String>>(QUOTES_KEY) ?? [];
+  static Future<List<String>> getDisplayedQuotes() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getStringList(QUOTES_KEY) ?? [];
   }
 
   static Future<void> saveDisplayedQuote(String quote) async {
-    List<String> displayedQuotes = getDisplayedQuotes();
+    final prefs = await SharedPreferences.getInstance();
+    List<String> displayedQuotes = await getDisplayedQuotes();
     displayedQuotes.add(quote);
-    await _storage.write(QUOTES_KEY, displayedQuotes);
+    await prefs.setStringList(QUOTES_KEY, displayedQuotes);
+  }
+
+  static Future<void> clearDisplayedQuotes() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove(QUOTES_KEY);
   }
 }
