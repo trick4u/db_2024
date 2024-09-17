@@ -53,7 +53,7 @@ class NoteListView extends GetWidget<NoteTakingController> {
     });
   }
 
-  Widget _buildNotesList(BuildContext context, AppTheme appTheme) {
+ Widget _buildNotesList(BuildContext context, AppTheme appTheme) {
     return FadeIn(
       child: NotificationListener<ScrollNotification>(
         onNotification: (ScrollNotification scrollInfo) {
@@ -156,33 +156,31 @@ class NoteListView extends GetWidget<NoteTakingController> {
                       ),
                     ),
                     children: note.subTasks.isNotEmpty
-                        ? [
-                            ...note.subTasks.asMap().entries.map(
-                              (entry) {
-                                int subTaskIndex = entry.key;
-                                String subTask = entry.value;
-                                return ListTile(
-                                  tileColor: tileColor,
-                                  leading: Icon(
-                                    Icons.subdirectory_arrow_right,
-                                    color: textColor,
-                                  ),
-                                  title: Text(
-                                    subTask,
-                                    style: textStyle,
-                                  ),
-                                  trailing: IconButton(
-                                    icon: Icon(Icons.close,
-                                        color: textColor.withOpacity(0.7)),
-                                    onPressed: () async {
-                                      await controller.deleteSubTask(
-                                          note.id ?? "", subTaskIndex);
-                                    },
-                                  ),
-                                );
-                              },
-                            ),
-                          ]
+                        ? note.subTasks.asMap().entries.map(
+                          (entry) {
+                            int subTaskIndex = entry.key;
+                            String subTask = entry.value;
+                            return ListTile(
+                              tileColor: tileColor,
+                              leading: Icon(
+                                Icons.subdirectory_arrow_right,
+                                color: textColor,
+                              ),
+                              title: Text(
+                                subTask,
+                                style: textStyle,
+                              ),
+                              trailing: IconButton(
+                                icon: Icon(Icons.close,
+                                    color: textColor.withOpacity(0.7)),
+                                onPressed: () async {
+                                  await controller.deleteSubTask(
+                                      note.id ?? "", subTaskIndex);
+                                },
+                              ),
+                            );
+                          },
+                        ).toList()
                         : [],
                   ),
                 ),
@@ -193,6 +191,7 @@ class NoteListView extends GetWidget<NoteTakingController> {
       ),
     );
   }
+  
 
   Widget _buildEmptyState(BuildContext context, AppTheme appTheme) {
     return Center(

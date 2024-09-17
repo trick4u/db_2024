@@ -163,13 +163,18 @@ class NoteTakingController extends GetxController {
     }
   }
 
-  Future<void> updateNote(String noteId, Note updatedNote) async {
+ Future<void> updateNote(String noteId, Note updatedNote) async {
     if (currentUser == null) {
       Get.snackbar('Error', 'You must be logged in to update notes');
       return;
     }
 
     try {
+      // Filter out empty subtasks
+      updatedNote = updatedNote.copyWith(
+        subTasks: updatedNote.subTasks.where((task) => task.isNotEmpty).toList(),
+      );
+
       await notesCollection.doc(noteId).update(updatedNote.toMap());
       int index = _notes.indexWhere((n) => n.id == noteId);
       if (index != -1) {
@@ -232,7 +237,7 @@ class NoteTakingController extends GetxController {
     _selectedDate.value = newDate;
   }
 
-  Future<void> saveNote() async {
+   Future<void> saveNote() async {
     if (currentUser == null) {
       Get.snackbar('Error', 'You must be logged in to save notes');
       return;
@@ -241,7 +246,10 @@ class NoteTakingController extends GetxController {
     if (canSave && canAddMoreNotes) {
       final note = Note(
         title: titleController.text.trim(),
-        subTasks: subTasks.map((controller) => controller.text.trim()).toList(),
+        subTasks: subTasks
+            .map((controller) => controller.text.trim())
+            .where((text) => text.isNotEmpty)
+            .toList(),
         date: selectedDate,
         userId: currentUser!.uid,
       );
@@ -261,6 +269,7 @@ class NoteTakingController extends GetxController {
       Get.snackbar('Error', 'Maximum number of notes (20) reached');
     }
   }
+
 
   Future<void> fetchNotes({bool loadMore = false}) async {
     if (currentUser == null) return;
