@@ -18,8 +18,7 @@ class StatisticsScreen extends GetWidget<StatisticsController> {
     final appTheme = Get.find<AppTheme>();
     ScaleUtil.init(context);
 
-    return SafeArea(
-      child: Padding(
+    var padding = Padding(
         padding: ScaleUtil.symmetric(horizontal: 10, vertical: 10),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -78,7 +77,21 @@ class StatisticsScreen extends GetWidget<StatisticsController> {
             ),
           ],
         ),
-      ),
+      );
+    return SafeArea(
+      child:Obx((){
+         if (controller.isLoading.value) {
+          return Center(child: CircularProgressIndicator());
+        } else if (controller.hasError.value) {
+          return Center(
+            child: Text(
+              'Error loading statistics. Please try again.',
+              style: appTheme.bodyMedium,
+            ),
+          );
+        } else { 
+          return padding;
+      }})
     );
   }
 

@@ -180,22 +180,23 @@ class ProfileController extends GetxController {
   }
 
   //get the user details
-  void getUserDetails() async {
-    var user = FirebaseAuth.instance.currentUser;
-    if (user != null) {
-      var userDoc = await firebaseFireStore
-          .collection('users')
-          .doc(user.uid)
-          .get()
-          .then((value) {
-        name.value = value['name'];
-        username.value = value['username'];
-
-        email.value = value['email'];
-      });
+  Future<void> getUserDetails() async {
+    try {
+      isLoading.value = true;
+      User? user = _auth.currentUser;
+      if (user != null) {
+        DocumentSnapshot userData = await _firestore.collection('users').doc(user.uid).get();
+        name.value = userData['name'] ?? '';
+        email.value = userData['email'] ?? '';
+        username.value = userData['username'] ?? '';
+      }
+    } catch (e) {
+      print('Error loading user details: $e');
+      // Handle error (e.g., show a snackbar)
+    } finally {
+      isLoading.value = false;
     }
   }
-
   //update the user details
   void updateUserDetails() async {
     var user = FirebaseAuth.instance.currentUser;

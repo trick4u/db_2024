@@ -9,6 +9,8 @@ import 'page_one_controller.dart';
 
 class StatisticsController extends GetxController {
   final pageOneController = Get.put(PageOneController());
+    RxBool isLoading = true.obs;
+  RxBool hasError = false.obs;
 
   RxInt completedTasks = 0.obs;
   RxInt pendingTasks = 0.obs;
@@ -16,7 +18,7 @@ class StatisticsController extends GetxController {
   RxList<int> weeklyPendingTasks = List.generate(7, (_) => 0).obs;
   RxList<QuickEventModel> upcomingTasks = <QuickEventModel>[].obs;
   RxMap<String, int> pendingTaskCategories = <String, int>{}.obs;
-    final RxBool isGradientReversed = false.obs;
+  final RxBool isGradientReversed = false.obs;
 
   Rx<DateTime> currentWeekStart = DateTime.now().obs;
   RxBool hasDataForWeek = true.obs;
@@ -37,7 +39,7 @@ class StatisticsController extends GetxController {
     updateStatistics();
   }
 
-    void toggleTaskView() {
+  void toggleTaskView() {
     showCompletedTasks.toggle();
     isGradientReversed.toggle();
   }
@@ -81,19 +83,28 @@ class StatisticsController extends GetxController {
     String endDate = DateFormat('d/M').format(endOfWeek);
     return '$startDate-$endDate';
   }
+  Future<void> updateStatistics() async {
+    isLoading.value = true;
+    hasError.value = false;
 
-  void updateStatistics() {
-    updateTasksOverview();
-    updateWeeklyTaskCompletion();
-    updateWeeklyPendingTasks();
-    updateUpcomingTasks();
+    try {
+      updateTasksOverview();
+      updateWeeklyTaskCompletion();
+      updateWeeklyPendingTasks();
+      updateUpcomingTasks();
+    } catch (e) {
+      print('Error updating statistics: $e');
+      hasError.value = true;
+    } finally {
+      isLoading.value = false;
+    }
   }
 
   void updateTasksOverview() {
     completedTasks.value = pageOneController.completedEvents.length;
     pendingTasks.value = pageOneController.pendingEvents.length;
   }
-
+  
   void updateWeeklyTaskCompletion() {
     List<int> newCompletion = List.generate(7, (_) => 0);
     bool hasData = false;
@@ -134,7 +145,6 @@ class StatisticsController extends GetxController {
         date1.day == date2.day;
   }
 
- 
   void updateUpcomingTasks() {
     DateTime now = DateTime.now();
     DateTime sevenDaysLater = now.add(Duration(days: 7));

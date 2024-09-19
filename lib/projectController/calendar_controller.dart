@@ -33,6 +33,9 @@ class CalendarController extends GetxController {
 
   late AudioPlayer _audioPlayer = AudioPlayer();
 
+  RxBool isLoading = true.obs;
+  RxBool hasError = false.obs;
+
   CollectionReference get eventsCollection {
     return _firestore
         .collection('users')
@@ -47,16 +50,30 @@ class CalendarController extends GetxController {
   void onInit() {
     super.onInit();
     _audioPlayer = AudioPlayer();
-    fetchEvents(selectedDay.value);
+     loadInitialData();
     fetchRandomBackgroundImage();
   }
 
-  Future<void> fetchRandomBackgroundImage() async {
+   Future<void> loadInitialData() async {
+    isLoading.value = true;
+    hasError.value = false;
+
+    try {
+      await fetchEvents(selectedDay.value);
+      await fetchRandomBackgroundImage();
+    } catch (e) {
+      print('Error loading initial data: $e');
+      hasError.value = true;
+    } finally {
+      isLoading.value = false;
+    }
+  }
+
+    Future<void> fetchRandomBackgroundImage() async {
     try {
       final imageUrl = await _pexelsService.getRandomImageUrl();
-      if (imageUrl.isNotEmpty && imageUrl.isNotEmpty) {
+      if (imageUrl.isNotEmpty) {
         backgroundImageUrl.value = imageUrl;
-        // Store the image URL in SharedPreferences
         final prefs = await SharedPreferences.getInstance();
         await prefs.setString('background_image_url', imageUrl);
       } else {
@@ -64,11 +81,9 @@ class CalendarController extends GetxController {
       }
     } catch (e) {
       print('Error fetching random background image: $e');
-      // Use a fallback image or the last saved image
       await loadSavedBackgroundImage();
     }
   }
-
   Future<void> loadSavedBackgroundImage() async {
     final prefs = await SharedPreferences.getInstance();
     final savedImageUrl = prefs.getString('background_image_url');
@@ -151,24 +166,27 @@ class CalendarController extends GetxController {
     update();
   }
 
-  void fetchEvents(DateTime day) {
-    if (currentUser == null) return;
+ Future<void> fetchEvents(DateTime day) async {
+    if (currentUser == null) {
+      hasError.value = true;
+      return;
+    }
 
-    DateTime startOfMonth = DateTime(day.year, day.month, 1);
-    DateTime endOfMonth = DateTime(day.year, day.month + 1, 0, 23, 59, 59);
+    try {
+      DateTime startOfMonth = DateTime(day.year, day.month, 1);
+      DateTime endOfMonth = DateTime(day.year, day.month + 1, 0, 23, 59, 59);
 
-    eventsCollection
-        .where('date', isGreaterThanOrEqualTo: Timestamp.fromDate(startOfMonth))
-        .where('date', isLessThanOrEqualTo: Timestamp.fromDate(endOfMonth))
-        .snapshots()
-        .listen((querySnapshot) {
+      QuerySnapshot querySnapshot = await eventsCollection
+          .where('date', isGreaterThanOrEqualTo: Timestamp.fromDate(startOfMonth))
+          .where('date', isLessThanOrEqualTo: Timestamp.fromDate(endOfMonth))
+          .get();
+
       Map<DateTime, List<QuickEventModel>> newEventsGrouped = {};
       List<QuickEventModel> newEvents = [];
 
       for (var doc in querySnapshot.docs) {
         QuickEventModel event = QuickEventModel.fromFirestore(doc);
-        DateTime eventDate =
-            DateTime(event.date.year, event.date.month, event.date.day);
+        DateTime eventDate = DateTime(event.date.year, event.date.month, event.date.day);
 
         if (!newEventsGrouped.containsKey(eventDate)) {
           newEventsGrouped[eventDate] = [];
@@ -181,7 +199,10 @@ class CalendarController extends GetxController {
       events.value = newEvents;
 
       update();
-    });
+    } catch (e) {
+      print('Error fetching events: $e');
+      hasError.value = true;
+    }
   }
 
   bool hasEventsForDay(DateTime day) {
