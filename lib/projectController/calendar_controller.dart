@@ -6,10 +6,12 @@ import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:just_audio/just_audio.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:table_calendar/table_calendar.dart';
 
 import '../models/quick_event_model.dart';
 import '../projectPages/page_two_calendar.dart';
+import '../services/pexels_service.dart';
 import '../widgets/event_bottomSheet.dart';
 import 'package:flutter/services.dart';
 
@@ -23,6 +25,8 @@ class CalendarController extends GetxController {
 
   RxMap<DateTime, List<QuickEventModel>> eventsGrouped =
       <DateTime, List<QuickEventModel>>{}.obs;
+       RxString backgroundImageUrl = ''.obs;
+  final PexelsService _pexelsService = PexelsService();
 
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   User? currentUser = FirebaseAuth.instance.currentUser;
@@ -44,7 +48,38 @@ class CalendarController extends GetxController {
     super.onInit();
     _audioPlayer = AudioPlayer();
     fetchEvents(selectedDay.value);
+        fetchRandomBackgroundImage();
   }
+
+  Future<void> fetchRandomBackgroundImage() async {
+    try {
+      final imageUrl = await _pexelsService.getRandomImageUrl();
+      if (imageUrl.isNotEmpty && imageUrl.isNotEmpty) {
+        backgroundImageUrl.value = imageUrl;
+        // Store the image URL in SharedPreferences
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setString('background_image_url', imageUrl);
+      } else {
+        throw Exception('Received empty image URL');
+      }
+    } catch (e) {
+      print('Error fetching random background image: $e');
+      // Use a fallback image or the last saved image
+      await loadSavedBackgroundImage();
+    }
+  }
+
+  Future<void> loadSavedBackgroundImage() async {
+    final prefs = await SharedPreferences.getInstance();
+    final savedImageUrl = prefs.getString('background_image_url');
+    if (savedImageUrl != null && savedImageUrl.isNotEmpty) {
+      backgroundImageUrl.value = savedImageUrl;
+    } else {
+      // Use a default image URL if no saved image is available
+      backgroundImageUrl.value = 'https://cdn.pixabay.com/photo/2024/04/09/22/28/trees-8686902_1280.jpg';
+    }
+  }
+
 
   //expansion
   void toggleEventExpansion(String eventId) {

@@ -44,37 +44,32 @@ class MainScreen extends GetWidget<MainScreenController> {
     return SlideInUp(
       child: Padding(
         padding: ScaleUtil.only(left: 10, right: 10, bottom: 20),
-        child: PressableDough(
-          onReleased: (de) {
-            controller.incrementIndex();
-          },
-          child: Container(
-            width: ScaleUtil.width(50),
-            decoration: BoxDecoration(
-              color: appTheme.isDarkMode ? Colors.black : Colors.white,
-              borderRadius: BorderRadius.circular(10),
-              boxShadow: [
-                BoxShadow(
-                  color: appTheme.isDarkMode
-                      ? Colors.white.withOpacity(0.1)
-                      : Colors.black.withOpacity(0.1),
-                  blurRadius: 10,
-                  offset: Offset(0, 5),
-                ),
-              ],
-            ),
-            height: ScaleUtil.height(50),
-            child: Padding(
-              padding: ScaleUtil.symmetric(horizontal: 10, vertical: 10),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                children: [
-                  _buildNavItem(FontAwesomeIcons.house, 0),
-                  _buildNavItem(FontAwesomeIcons.calendarCheck, 1),
-                  _buildNavItem(FontAwesomeIcons.chartSimple, 2),
-                  _buildNavItem(FontAwesomeIcons.userGear, 3),
-                ],
+        child: Container(
+          width: ScaleUtil.width(50),
+          decoration: BoxDecoration(
+            color: appTheme.isDarkMode ? Colors.black : Colors.white,
+            borderRadius: BorderRadius.circular(10),
+            boxShadow: [
+              BoxShadow(
+                color: appTheme.isDarkMode
+                    ? Colors.white.withOpacity(0.1)
+                    : Colors.black.withOpacity(0.1),
+                blurRadius: 10,
+                offset: Offset(0, 5),
               ),
+            ],
+          ),
+          height: ScaleUtil.height(50),
+          child: Padding(
+            padding: ScaleUtil.symmetric(horizontal: 10, vertical: 10),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: [
+                _buildNavItem(FontAwesomeIcons.house, 0),
+                _buildNavItem(FontAwesomeIcons.calendarCheck, 1),
+                _buildNavItem(FontAwesomeIcons.chartSimple, 2),
+                _buildNavItem(FontAwesomeIcons.userGear, 3),
+              ],
             ),
           ),
         ),
