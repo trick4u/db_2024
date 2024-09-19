@@ -82,8 +82,6 @@ class VisionBoardController extends GetxController {
     super.onClose();
   }
 
-  
-
   void _loadActiveNotificationsCount() async {
     List<NotificationModel> notifications =
         await AwesomeNotifications().listScheduledNotifications();
@@ -150,50 +148,41 @@ class VisionBoardController extends GetxController {
     return _scheduledNotifications[itemId] ?? false;
   }
 
-Future<void> scheduleNotification(VisionBoardItem item, bool isMorning) async {
-  if (isMorning && !canScheduleMorningNotification()) {
-    Get.snackbar(
-      'Morning Notification Limit Reached',
-      'You can only have 5 active morning notifications. Please cancel an existing morning notification to schedule a new one.',
-      snackPosition: SnackPosition.BOTTOM,
-    );
-    return;
-  }
-  if (!isMorning && !canScheduleNightNotification()) {
-    Get.snackbar(
-      'Night Notification Limit Reached',
-      'You can only have 5 active night notifications. Please cancel an existing night notification to schedule a new one.',
-      snackPosition: SnackPosition.BOTTOM,
-    );
-    return;
-  }
+  Future<void> scheduleNotification(
+      VisionBoardItem item, bool isMorning) async {
+    if (isMorning && !canScheduleMorningNotification()) {
+      Get.snackbar(
+        'Morning Notification Limit Reached',
+        'You can only have 5 active morning notifications. Please cancel an existing morning notification to schedule a new one.',
+        snackPosition: SnackPosition.BOTTOM,
+      );
+      return;
+    }
+    if (!isMorning && !canScheduleNightNotification()) {
+      Get.snackbar(
+        'Night Notification Limit Reached',
+        'You can only have 5 active night notifications. Please cancel an existing night notification to schedule a new one.',
+        snackPosition: SnackPosition.BOTTOM,
+      );
+      return;
+    }
 
-  int notificationId = item.id.hashCode;
-  String title = 'Vision Board Reminder';
-  String body = item.title;
-  String imageUrl = item.imageUrls.isNotEmpty ? item.imageUrls[0] : '';
+    int notificationId = item.id.hashCode;
+    String title = 'Vision Board Reminder';
+    String body = item.title;
+    String imageUrl = item.imageUrls.isNotEmpty ? item.imageUrls[0] : '';
 
-  DateTime scheduledTime = _getNextAvailableTime(isMorning);
+    DateTime scheduledTime = _getNextAvailableTime(isMorning);
 
-  // Print scheduled time for debugging
-  print('Attempting to schedule notification for: ${scheduledTime.toString()}');
-
-  try {
-    await AwesomeNotifications().cancelSchedule(notificationId);
-    print('Cancelled any existing notifications for ID: $notificationId');
-
-    bool success = await AwesomeNotifications().createNotification(
+    await AwesomeNotifications().createNotification(
       content: NotificationContent(
+        autoDismissible: false,
         id: notificationId,
         channelKey: 'vision_board_reminders',
         title: title,
         body: body,
         bigPicture: imageUrl,
         notificationLayout: NotificationLayout.BigPicture,
-        category: NotificationCategory.Reminder,
-        wakeUpScreen: true,
-        criticalAlert: true,
-        autoDismissible: false,
         payload: {'time': isMorning ? 'morning' : 'night'},
       ),
       schedule: NotificationCalendar(
@@ -206,75 +195,47 @@ Future<void> scheduleNotification(VisionBoardItem item, bool isMorning) async {
         millisecond: 0,
         repeats: false,
         allowWhileIdle: true,
-        preciseAlarm: true,
       ),
     );
 
-    if (success) {
-      print('Successfully scheduled notification for: ${scheduledTime.toString()}');
-      
-      // Update local state and Firestore
-      _notificationActiveStates[item.id] = true;
-      if (isMorning) {
-        activeMorningNotificationsCount.value++;
-      } else {
-        activeNightNotificationsCount.value++;
-      }
-
-      await visionBoardCollection.doc(item.id).update({
-        'hasNotification': true,
-        'notificationTime': isMorning ? 'morning' : 'night',
-        'scheduledNotificationTime': Timestamp.fromDate(scheduledTime),
-      });
-
-      // Update local item
-      int index = visionBoardItems.indexWhere((i) => i.id == item.id);
-      if (index != -1) {
-        visionBoardItems[index] = visionBoardItems[index].copyWith(
-          hasNotification: true,
-          notificationTime: isMorning ? 'morning' : 'night',
-          scheduledNotificationTime: scheduledTime,
-        );
-        visionBoardItems.refresh();
-      }
-
-      _scheduleNotificationStateUpdate(item.id, scheduledTime);
-
-      Get.snackbar(
-        'Notification Scheduled',
-        'You will be reminded at ${scheduledTime.hour}:${scheduledTime.minute.toString().padLeft(2, '0')}',
-        snackPosition: SnackPosition.BOTTOM,
-      );
+    // Update local state and Firestore
+    _notificationActiveStates[item.id] = true;
+    if (isMorning) {
+      activeMorningNotificationsCount.value++;
     } else {
-      print('Failed to schedule notification. No exception thrown.');
-      Get.snackbar(
-        'Notification Scheduling Failed',
-        'Please try again later.',
-        snackPosition: SnackPosition.BOTTOM,
-      );
+      activeNightNotificationsCount.value++;
     }
-  } catch (e) {
-    print('Error scheduling notification: $e');
+
+    await visionBoardCollection.doc(item.id).update({
+      'hasNotification': true,
+      'notificationTime': isMorning ? 'morning' : 'night',
+      'scheduledNotificationTime': Timestamp.fromDate(scheduledTime),
+    });
+
+    // Update local item
+    int index = visionBoardItems.indexWhere((i) => i.id == item.id);
+    if (index != -1) {
+      visionBoardItems[index] = visionBoardItems[index].copyWith(
+        hasNotification: true,
+        notificationTime: isMorning ? 'morning' : 'night',
+        scheduledNotificationTime: scheduledTime,
+      );
+      visionBoardItems.refresh();
+    }
+
+    _scheduleNotificationStateUpdate(item.id, scheduledTime);
+
     Get.snackbar(
-      'Error',
-      'Failed to schedule notification: $e',
+      'Notification Scheduled',
+      'You will be reminded at ${scheduledTime.hour}:${scheduledTime.minute.toString().padLeft(2, '0')}',
       snackPosition: SnackPosition.BOTTOM,
     );
   }
 
-  // Print all scheduled notifications for debugging
-  List<NotificationModel> scheduledNotifications = await AwesomeNotifications().listScheduledNotifications();
-  print('All scheduled notifications:');
-  for (var notification in scheduledNotifications) {
-    print('ID: ${notification.content?.id}, Schedule: ${notification.schedule?.toString()}');
-  }
-}
-
-
   DateTime _getNextAvailableTime(bool isMorning) {
     DateTime now = DateTime.now();
     DateTime baseTime = isMorning
-        ? DateTime(now.year, now.month, now.day, 11, 00)
+        ? DateTime(now.year, now.month, now.day, 08, 00)
         : DateTime(now.year, now.month, now.day, 22, 0);
 
     if (baseTime.isBefore(now)) {
