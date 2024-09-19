@@ -7,9 +7,10 @@ import 'dart:math' as math;
 
 import 'page_one_controller.dart';
 
-class StatisticsController extends GetxController {
+class StatisticsController extends GetxController with WidgetsBindingObserver {
   final pageOneController = Get.put(PageOneController());
-    RxBool isLoading = true.obs;
+  RxBool isInitializing = true.obs;
+  RxBool isLoading = false.obs;
   RxBool hasError = false.obs;
 
   RxInt completedTasks = 0.obs;
@@ -27,17 +28,52 @@ class StatisticsController extends GetxController {
     Duration(days: 90),
   );
   RxBool canGoBack = true.obs;
+
   @override
   void onInit() {
     super.onInit();
-    setCurrentWeekStart(DateTime.now());
-
-    ever(pageOneController.upcomingEvents, (_) => updateStatistics());
-    ever(pageOneController.pendingEvents, (_) => updateStatistics());
-    ever(pageOneController.completedEvents, (_) => updateStatistics());
-
-    updateStatistics();
+    WidgetsBinding.instance.addObserver(this);
+    initializeController();
   }
+    @override
+  void onClose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.onClose();
+  }
+
+   @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      // App has come to the foreground
+      refreshData();
+    }
+  }
+    Future<void> initializeController() async {
+    try {
+      isInitializing.value = true;
+      setCurrentWeekStart(DateTime.now());
+
+      ever(pageOneController.upcomingEvents, (_) => updateStatistics());
+      ever(pageOneController.pendingEvents, (_) => updateStatistics());
+      ever(pageOneController.completedEvents, (_) => updateStatistics());
+
+      await updateStatistics();
+    } catch (e) {
+      print('Error initializing StatisticsController: $e');
+      hasError.value = true;
+    } finally {
+      isInitializing.value = false;
+    }
+  }
+    Future<void> refreshData() async {
+    // Only refresh if not already loading
+    if (!isLoading.value) {
+      print('Refreshing statistics data');
+      await updateStatistics();
+    }
+  }
+
+
 
   void toggleTaskView() {
     showCompletedTasks.toggle();
@@ -83,15 +119,20 @@ class StatisticsController extends GetxController {
     String endDate = DateFormat('d/M').format(endOfWeek);
     return '$startDate-$endDate';
   }
-  Future<void> updateStatistics() async {
+
+Future<void> updateStatistics() async {
+    if (isLoading.value) return; // Prevent multiple simultaneous updates
+
     isLoading.value = true;
     hasError.value = false;
 
     try {
+    //  await pageOneController.refreshData(); // Ensure PageOneController data is up-to-date
       updateTasksOverview();
       updateWeeklyTaskCompletion();
       updateWeeklyPendingTasks();
       updateUpcomingTasks();
+      hasDataForWeek.value = hasDataForCurrentWeek();
     } catch (e) {
       print('Error updating statistics: $e');
       hasError.value = true;
@@ -104,7 +145,7 @@ class StatisticsController extends GetxController {
     completedTasks.value = pageOneController.completedEvents.length;
     pendingTasks.value = pageOneController.pendingEvents.length;
   }
-  
+
   void updateWeeklyTaskCompletion() {
     List<int> newCompletion = List.generate(7, (_) => 0);
     bool hasData = false;

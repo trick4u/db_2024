@@ -11,6 +11,7 @@ import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:table_calendar/table_calendar.dart';
 import 'package:tushar_db/services/scale_util.dart';
+ 
 
 import '../models/quick_event_model.dart';
 import '../projectController/calendar_controller.dart';
@@ -81,6 +82,63 @@ class calendarpageWidget extends StatelessWidget {
               child: LayoutBuilder(builder: (context, constraints) {
                 return Stack(
                   children: [
+                    //video
+                    // Positioned.fill(
+                    //   child: Padding(
+                    //     padding: EdgeInsets.all(
+                    //         ScaleUtil.scale(8)), // Match TableCalendar padding
+                    //     child: ClipRRect(
+                    //       borderRadius:
+                    //           BorderRadius.circular(ScaleUtil.scale(8)),
+                    //       child: Obx(() {
+                    //         final videoController =
+                    //             controller.backgroundVideoController.value;
+                    //         double containerHeight;
+                    //         switch (controller.calendarFormat) {
+                    //           case CalendarFormat.month:
+                    //             containerHeight = 320 -
+                    //                 ScaleUtil.scale(16); // Subtract padding
+                    //             break;
+                    //           case CalendarFormat.twoWeeks:
+                    //             containerHeight = 180 -
+                    //                 ScaleUtil.scale(16); // Subtract padding
+                    //             break;
+                    //           case CalendarFormat.week:
+                    //           default:
+                    //             containerHeight = 130 -
+                    //                 ScaleUtil.scale(16); // Subtract padding
+                    //             break;
+                    //         }
+
+                    //         return videoController != null &&
+                    //                 videoController.value.isInitialized
+                    //             ? FittedBox(
+                    //                 fit: BoxFit.cover,
+                    //                 child: SizedBox(
+                    //                   width: videoController.value.size.width,
+                    //                   height: containerHeight,
+                    //                   child: VideoPlayer(videoController),
+                    //                 ),
+                    //               )
+                    //             : Container(color: appTheme.cardColor);
+                    //       }),
+                    //     ),
+                    //   ),
+                    // ),
+                    // // Semi-transparent overlay
+                    // Positioned.fill(
+                    //   child: Padding(
+                    //     padding: EdgeInsets.all(
+                    //         ScaleUtil.scale(8)), // Match TableCalendar padding
+                    //     child: Container(
+                    //       decoration: BoxDecoration(
+                    //         color: Colors.black.withOpacity(0.3),
+                    //         borderRadius:
+                    //             BorderRadius.circular(ScaleUtil.scale(8)),
+                    //       ),
+                    //     ),
+                    //   ),
+                    // ),
                     Obx(() {
                       final imageUrl = controller.backgroundImageUrl.value;
                       double imageHeight;

@@ -9,6 +9,7 @@ import 'package:just_audio/just_audio.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:table_calendar/table_calendar.dart';
 
+
 import '../models/quick_event_model.dart';
 import '../projectPages/page_two_calendar.dart';
 import '../services/pexels_service.dart';
@@ -45,16 +46,76 @@ class CalendarController extends GetxController {
 
   //expansion
   RxMap<String, bool> expandedEvents = <String, bool>{}.obs;
+  // Rx<VideoPlayerController?> backgroundVideoController =
+  //     Rx<VideoPlayerController?>(null);
+  RxString backgroundVideoUrl = ''.obs;
 
   @override
   void onInit() {
     super.onInit();
     _audioPlayer = AudioPlayer();
-     loadInitialData();
-    fetchRandomBackgroundImage();
+    loadInitialData();
+   fetchRandomBackgroundImage();
+  //  fetchRandomBackgroundVideo();
   }
 
-   Future<void> loadInitialData() async {
+  @override
+  void onClose() {
+   // backgroundVideoController.value?.dispose();
+    super.onClose();
+  }
+
+  // Future<void> fetchRandomBackgroundVideo() async {
+  //   try {
+  //     final videoUrl = await _pexelsService.getRandomVideoUrl();
+  //     if (videoUrl.isNotEmpty) {
+  //       backgroundVideoUrl.value = videoUrl;
+  //       await loadVideoPlayer(videoUrl);
+  //     } else {
+  //       print('Received empty video URL, loading fallback');
+  //       await loadFallbackVideo();
+  //     }
+  //   } catch (e) {
+  //     print('Error fetching random background video: $e');
+  //     await loadFallbackVideo();
+  //   }
+  // }
+
+  // Future<void> loadVideoPlayer(String url) async {
+  //   if (backgroundVideoController.value != null) {
+  //     await backgroundVideoController.value!.dispose();
+  //   }
+
+  //   try {
+  //     backgroundVideoController.value =
+  //         VideoPlayerController.networkUrl(Uri.parse(url));
+  //     await backgroundVideoController.value!.initialize();
+  //     backgroundVideoController.value!.setLooping(true);
+  //     backgroundVideoController.value!.play();
+  //     backgroundVideoController.value!.setVolume(0);
+   
+  //     update();
+  //   } catch (e) {
+  //     print('Error initializing video player: $e');
+  //     await loadFallbackVideo();
+  //   }
+  // }
+
+  // Future<void> loadFallbackVideo() async {
+  //   // Load a fallback video or image
+  //   // This could be a local asset or a reliable remote URL
+  //   String fallbackUrl = 'https://www.pexels.com/video/hot-tea-in-mug-14319069/';
+  //   try {
+  //     await loadVideoPlayer(fallbackUrl);
+  //   } catch (e) {
+  //     print('Error loading fallback video: $e');
+  //     // If even the fallback fails, we'll just leave the controller as null
+  //     backgroundVideoController.value = null;
+  //     update();
+  //   }
+  // }
+
+  Future<void> loadInitialData() async {
     isLoading.value = true;
     hasError.value = false;
 
@@ -69,7 +130,7 @@ class CalendarController extends GetxController {
     }
   }
 
-    Future<void> fetchRandomBackgroundImage() async {
+Future<void> fetchRandomBackgroundImage() async {
     try {
       final imageUrl = await _pexelsService.getRandomImageUrl();
       if (imageUrl.isNotEmpty) {
@@ -84,6 +145,7 @@ class CalendarController extends GetxController {
       await loadSavedBackgroundImage();
     }
   }
+
   Future<void> loadSavedBackgroundImage() async {
     final prefs = await SharedPreferences.getInstance();
     final savedImageUrl = prefs.getString('background_image_url');
@@ -166,7 +228,7 @@ class CalendarController extends GetxController {
     update();
   }
 
- Future<void> fetchEvents(DateTime day) async {
+  Future<void> fetchEvents(DateTime day) async {
     if (currentUser == null) {
       hasError.value = true;
       return;
@@ -177,7 +239,8 @@ class CalendarController extends GetxController {
       DateTime endOfMonth = DateTime(day.year, day.month + 1, 0, 23, 59, 59);
 
       QuerySnapshot querySnapshot = await eventsCollection
-          .where('date', isGreaterThanOrEqualTo: Timestamp.fromDate(startOfMonth))
+          .where('date',
+              isGreaterThanOrEqualTo: Timestamp.fromDate(startOfMonth))
           .where('date', isLessThanOrEqualTo: Timestamp.fromDate(endOfMonth))
           .get();
 
@@ -186,7 +249,8 @@ class CalendarController extends GetxController {
 
       for (var doc in querySnapshot.docs) {
         QuickEventModel event = QuickEventModel.fromFirestore(doc);
-        DateTime eventDate = DateTime(event.date.year, event.date.month, event.date.day);
+        DateTime eventDate =
+            DateTime(event.date.year, event.date.month, event.date.day);
 
         if (!newEventsGrouped.containsKey(eventDate)) {
           newEventsGrouped[eventDate] = [];

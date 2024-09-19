@@ -43,7 +43,7 @@ class MainScreen extends GetWidget<MainScreenController> {
   Widget _buildBottomNavigationBar() {
     return SlideInUp(
       child: Padding(
-        padding: ScaleUtil.only(left: 10, right: 10, bottom: 20),
+        padding: ScaleUtil.only(left: 10, right: 10, bottom: 10),
         child: Container(
           width: ScaleUtil.width(50),
           decoration: BoxDecoration(
