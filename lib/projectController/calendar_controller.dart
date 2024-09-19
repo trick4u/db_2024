@@ -25,7 +25,7 @@ class CalendarController extends GetxController {
 
   RxMap<DateTime, List<QuickEventModel>> eventsGrouped =
       <DateTime, List<QuickEventModel>>{}.obs;
-       RxString backgroundImageUrl = ''.obs;
+  RxString backgroundImageUrl = ''.obs;
   final PexelsService _pexelsService = PexelsService();
 
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
@@ -48,7 +48,7 @@ class CalendarController extends GetxController {
     super.onInit();
     _audioPlayer = AudioPlayer();
     fetchEvents(selectedDay.value);
-        fetchRandomBackgroundImage();
+    fetchRandomBackgroundImage();
   }
 
   Future<void> fetchRandomBackgroundImage() async {
@@ -76,10 +76,10 @@ class CalendarController extends GetxController {
       backgroundImageUrl.value = savedImageUrl;
     } else {
       // Use a default image URL if no saved image is available
-      backgroundImageUrl.value = 'https://cdn.pixabay.com/photo/2024/04/09/22/28/trees-8686902_1280.jpg';
+      backgroundImageUrl.value =
+          'https://cdn.pixabay.com/photo/2024/04/09/22/28/trees-8686902_1280.jpg';
     }
   }
-
 
   //expansion
   void toggleEventExpansion(String eventId) {
@@ -509,119 +509,120 @@ class CalendarController extends GetxController {
   }
 
   //notifications
-Future<void> markNotificationAsDisplayed(int notificationId) async {
-  try {
-    // Find the event with this notification ID
-    QuerySnapshot eventQuery = await eventsCollection
-        .where('notificationId', isEqualTo: notificationId)
-        .limit(1)
-        .get();
+  Future<void> markNotificationAsDisplayed(int notificationId) async {
+    try {
+      // Find the event with this notification ID
+      QuerySnapshot eventQuery = await eventsCollection
+          .where('notificationId', isEqualTo: notificationId)
+          .limit(1)
+          .get();
 
-    if (eventQuery.docs.isNotEmpty) {
-      String eventId = eventQuery.docs.first.id;
-      
-      await eventsCollection.doc(eventId).update({
-        'lastNotificationDisplayed': FieldValue.serverTimestamp(),
-      });
+      if (eventQuery.docs.isNotEmpty) {
+        String eventId = eventQuery.docs.first.id;
 
-      // Update the local event model
-      int index = events.indexWhere((e) => e.id == eventId);
-      if (index != -1) {
-        events[index] = events[index].copyWith(
-          lastNotificationDisplayed: DateTime.now(),
-        );
+        await eventsCollection.doc(eventId).update({
+          'lastNotificationDisplayed': FieldValue.serverTimestamp(),
+        });
+
+        // Update the local event model
+        int index = events.indexWhere((e) => e.id == eventId);
+        if (index != -1) {
+          events[index] = events[index].copyWith(
+            lastNotificationDisplayed: DateTime.now(),
+          );
+        }
+
+        print('Marked notification as displayed for event: $eventId');
+        update();
+      } else {
+        print('No event found for notification ID: $notificationId');
       }
-
-      print('Marked notification as displayed for event: $eventId');
-      update();
-    } else {
-      print('No event found for notification ID: $notificationId');
+    } catch (e) {
+      print('Error marking notification as displayed: $e');
     }
-  } catch (e) {
-    print('Error marking notification as displayed: $e');
-  }
-}
- 
-     
-Future<void> scheduleNotification(QuickEventModel event) async {
-  if (!event.hasReminder || event.reminderTime == null) {
-    print('Reminder not set for event: ${event.id}');
-    return;
   }
 
-  int notificationId = event.id.hashCode;
+  Future<void> scheduleNotification(QuickEventModel event) async {
+    if (!event.hasReminder || event.reminderTime == null) {
+      print('Reminder not set for event: ${event.id}');
+      return;
+    }
 
-  DateTime scheduledDate = DateTime(
-    event.date.year,
-    event.date.month,
-    event.date.day,
-    event.reminderTime!.hour,
-    event.reminderTime!.minute,
-  );
+    int notificationId = event.id.hashCode;
 
-  if (scheduledDate.isBefore(DateTime.now())) {
-    print('Reminder time is in the past for event: ${event.id}. Notification not scheduled.');
-    return;
-  }
-
-  try {
-    // Cancel any existing notification for this event
-    await AwesomeNotifications().cancel(notificationId);
-    print('Cancelled existing notification for event: ${event.id}');
-
-    bool success = await AwesomeNotifications().createNotification(
-      content: NotificationContent(
-        id: notificationId,
-        channelKey: 'quickschedule',
-        title: 'Event Reminder',
-        body: event.title,
-        category: NotificationCategory.Reminder,
-        notificationLayout: NotificationLayout.Default,
-        criticalAlert: true,
-        wakeUpScreen: true,
-      ),
-      schedule: NotificationCalendar(
-        year: scheduledDate.year,
-        month: scheduledDate.month,
-        day: scheduledDate.day,
-        hour: scheduledDate.hour,
-        minute: scheduledDate.minute,
-        second: 0,
-        millisecond: 0,
-        repeats: false,
-        preciseAlarm: true,
-        allowWhileIdle: true,
-      ),
+    DateTime scheduledDate = DateTime(
+      event.date.year,
+      event.date.month,
+      event.date.day,
+      event.reminderTime!.hour,
+      event.reminderTime!.minute,
     );
 
-    if (success) {
-      print('Scheduled notification with ID: $notificationId for event: ${event.id} at time: $scheduledDate');
-      
-      // Update the event in Firestore
-      await eventsCollection.doc(event.id).update({
-        'notificationId': notificationId,
-        'lastNotificationDisplayed': null,
-      });
-
-      // Update the local event model
-      int index = events.indexWhere((e) => e.id == event.id);
-      if (index != -1) {
-        events[index] = events[index].copyWith(
-          notificationId: notificationId,
-          lastNotificationDisplayed: null,
-        );
-      }
-
-      print('Event updated in Firestore and local state for event: ${event.id}');
-    } else {
-      print('Failed to schedule notification for event: ${event.id}. No exception thrown.');
+    if (scheduledDate.isBefore(DateTime.now())) {
+      print(
+          'Reminder time is in the past for event: ${event.id}. Notification not scheduled.');
+      return;
     }
 
-  } catch (e) {
-    print('Error scheduling notification for event ${event.id}: $e');
-  }
-}
+    try {
+      // Cancel any existing notification for this event
+      await AwesomeNotifications().cancel(notificationId);
+      print('Cancelled existing notification for event: ${event.id}');
 
+      bool success = await AwesomeNotifications().createNotification(
+        content: NotificationContent(
+          id: notificationId,
+          channelKey: 'quickschedule',
+          title: 'Event Reminder',
+          body: event.title,
+          category: NotificationCategory.Reminder,
+          notificationLayout: NotificationLayout.Default,
+          criticalAlert: true,
+          wakeUpScreen: true,
+        ),
+        schedule: NotificationCalendar(
+          year: scheduledDate.year,
+          month: scheduledDate.month,
+          day: scheduledDate.day,
+          hour: scheduledDate.hour,
+          minute: scheduledDate.minute,
+          second: 0,
+          millisecond: 0,
+          repeats: false,
+          preciseAlarm: true,
+          allowWhileIdle: true,
+        ),
+      );
+
+      if (success) {
+        print(
+            'Scheduled notification with ID: $notificationId for event: ${event.id} at time: $scheduledDate');
+
+        // Update the event in Firestore
+        await eventsCollection.doc(event.id).update({
+          'notificationId': notificationId,
+          'lastNotificationDisplayed': null,
+        });
+
+        // Update the local event model
+        int index = events.indexWhere((e) => e.id == event.id);
+        if (index != -1) {
+          events[index] = events[index].copyWith(
+            notificationId: notificationId,
+            lastNotificationDisplayed: null,
+          );
+        }
+
+        print(
+            'Event updated in Firestore and local state for event: ${event.id}');
+      } else {
+        print(
+            'Failed to schedule notification for event: ${event.id}. No exception thrown.');
+      }
+    } catch (e) {
+      print('Error scheduling notification for event ${event.id}: $e');
+    }
+  }
 
   Future<void> updateNotification(QuickEventModel event) async {
     // First, cancel the existing notification

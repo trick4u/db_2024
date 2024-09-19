@@ -35,10 +35,15 @@ class CustomCalendarHeader extends GetView<CalendarController> {
                 headerText = DateFormat('MMMM d, yyyy').format(focusedDate);
               }
 
-              return Text(
-                headerText,
-                style: TextStyle(fontSize: 20, fontFamily: 'Euclid'),
-                overflow: TextOverflow.ellipsis,
+              return GestureDetector(
+                onTap: (){
+                    controller.fetchRandomBackgroundImage();
+                },
+                child: Text(
+                  headerText,
+                  style: TextStyle(fontSize: 20, fontFamily: 'Euclid'),
+                  overflow: TextOverflow.ellipsis,
+                ),
               );
             }),
           ),
