@@ -198,7 +198,7 @@ class ForgotPasswordBottomSheet extends GetWidget<LoginController> {
   Widget build(BuildContext context) {
     ScaleUtil.init(context);
     return Padding(
-      padding: ScaleUtil.only(left: 20, right: 20, bottom: 50),
+      padding: ScaleUtil.only(left: 20, right: 20, bottom: 10),
       child: Container(
         padding: EdgeInsets.only(
           bottom: MediaQuery.of(context).viewInsets.bottom,

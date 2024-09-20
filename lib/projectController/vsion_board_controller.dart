@@ -184,7 +184,7 @@ class VisionBoardController extends GetxController {
         body: body,
         bigPicture: imageUrl,
         notificationLayout: NotificationLayout.BigPicture,
-         category: NotificationCategory.Reminder,
+        category: NotificationCategory.Reminder,
         payload: {'time': isMorning ? 'morning' : 'night'},
       ),
       schedule: NotificationCalendar(
@@ -237,7 +237,7 @@ class VisionBoardController extends GetxController {
   DateTime _getNextAvailableTime(bool isMorning) {
     DateTime now = DateTime.now();
     DateTime baseTime = isMorning
-        ? DateTime(now.year, now.month, now.day, 16, 12)
+        ? DateTime(now.year, now.month, now.day, 18, 40)
         : DateTime(now.year, now.month, now.day, 22, 0);
 
     if (baseTime.isBefore(now)) {
