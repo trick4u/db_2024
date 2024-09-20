@@ -96,7 +96,8 @@ class VisionBoardController extends GetxController {
       }
     }
   }
-   bool isItemExpanded(String itemId) {
+
+  bool isItemExpanded(String itemId) {
     return _expandedStates[itemId] ?? false;
   }
 
@@ -176,14 +177,25 @@ class VisionBoardController extends GetxController {
 
     await AwesomeNotifications().createNotification(
       content: NotificationContent(
-        autoDismissible: false,
         id: notificationId,
         channelKey: 'vision_board_reminders',
         title: title,
-        body: body,
+        body: title,
+        category: NotificationCategory.Reminder,
+        notificationLayout: NotificationLayout.Default,
+        criticalAlert: true,
+        wakeUpScreen: true,
+        roundedBigPicture: true,
         bigPicture: imageUrl,
-        notificationLayout: NotificationLayout.BigPicture,
-        payload: {'time': isMorning ? 'morning' : 'night'},
+
+        // autoDismissible: false,
+        // id: notificationId,
+        // channelKey: 'vision_board_reminders',
+        // title: title,
+        // body: body,
+        // bigPicture: imageUrl,
+        // notificationLayout: NotificationLayout.BigPicture,
+        // payload: {'time': isMorning ? 'morning' : 'night'},
       ),
       schedule: NotificationCalendar(
         year: scheduledTime.year,
@@ -235,7 +247,7 @@ class VisionBoardController extends GetxController {
   DateTime _getNextAvailableTime(bool isMorning) {
     DateTime now = DateTime.now();
     DateTime baseTime = isMorning
-        ? DateTime(now.year, now.month, now.day, 10, 15)
+        ? DateTime(now.year, now.month, now.day, 15, 15)
         : DateTime(now.year, now.month, now.day, 22, 0);
 
     if (baseTime.isBefore(now)) {
@@ -543,7 +555,7 @@ class VisionBoardController extends GetxController {
         VisionBoardItem item = VisionBoardItem.fromFirestore(doc);
         allItems.add(item);
         _notificationActiveStates[item.id] = item.hasNotification;
-          if (!_expandedStates.containsKey(item.id)) {
+        if (!_expandedStates.containsKey(item.id)) {
           _expandedStates[item.id] = false;
         }
 
