@@ -96,7 +96,8 @@ class VisionBoardController extends GetxController {
       }
     }
   }
-   bool isItemExpanded(String itemId) {
+
+  bool isItemExpanded(String itemId) {
     return _expandedStates[itemId] ?? false;
   }
 
@@ -183,6 +184,7 @@ class VisionBoardController extends GetxController {
         body: body,
         bigPicture: imageUrl,
         notificationLayout: NotificationLayout.BigPicture,
+         category: NotificationCategory.Reminder,
         payload: {'time': isMorning ? 'morning' : 'night'},
       ),
       schedule: NotificationCalendar(
@@ -235,7 +237,7 @@ class VisionBoardController extends GetxController {
   DateTime _getNextAvailableTime(bool isMorning) {
     DateTime now = DateTime.now();
     DateTime baseTime = isMorning
-        ? DateTime(now.year, now.month, now.day, 08, 00)
+        ? DateTime(now.year, now.month, now.day, 16, 12)
         : DateTime(now.year, now.month, now.day, 22, 0);
 
     if (baseTime.isBefore(now)) {
@@ -543,7 +545,7 @@ class VisionBoardController extends GetxController {
         VisionBoardItem item = VisionBoardItem.fromFirestore(doc);
         allItems.add(item);
         _notificationActiveStates[item.id] = item.hasNotification;
-          if (!_expandedStates.containsKey(item.id)) {
+        if (!_expandedStates.containsKey(item.id)) {
           _expandedStates[item.id] = false;
         }
 
