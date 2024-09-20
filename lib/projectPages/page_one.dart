@@ -99,13 +99,13 @@ class PageOneScreen extends GetWidget<PageOneController> {
                             SizedBox(
                               width: 50,
                             ),
-                            // GestureDetector(
-                            //   onTap: () {
-                            //     Get.toNamed(AppRoutes.NOTIFICAION);
-                            //   },
-                            //   child: Text("Noti",
-                            //       style: AppTextTheme.textTheme.bodySmall),
-                            // ),
+                            GestureDetector(
+                              onTap: () {
+                                Get.toNamed(AppRoutes.NOTIFICAION);
+                              },
+                              child: Text("Noti",
+                                  style: AppTextTheme.textTheme.bodySmall),
+                            ),
                           ],
                         ),
                       ),

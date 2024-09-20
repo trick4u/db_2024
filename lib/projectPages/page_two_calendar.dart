@@ -11,7 +11,6 @@ import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:table_calendar/table_calendar.dart';
 import 'package:tushar_db/services/scale_util.dart';
- 
 
 import '../models/quick_event_model.dart';
 import '../projectController/calendar_controller.dart';
@@ -25,23 +24,26 @@ class CalendarPage extends GetWidget<CalendarController> {
     final appTheme = Get.find<AppTheme>();
 
     return GetBuilder<CalendarController>(
-        builder: (controller) => Obx(() {
-              if (controller.isLoading.value) {
-                return Center(child: CircularProgressIndicator());
-              } else if (controller.hasError.value) {
-                return Center(
-                  child: Text(
-                    'Error loading calendar data. Please try again.',
-                    style: appTheme.bodyMedium,
-                  ),
-                );
-              } else {
-                return calendarpageWidget(
-                  appTheme: appTheme,
-                  controller: controller,
-                );
-              }
-            }));
+      builder: (controller) => Obx(
+        () {
+          if (controller.isLoading.value) {
+            return Center(child: CircularProgressIndicator());
+          } else if (controller.hasError.value) {
+            return Center(
+              child: Text(
+                'Error loading calendar data. Please try again.',
+                style: appTheme.bodyMedium,
+              ),
+            );
+          } else {
+            return calendarpageWidget(
+              appTheme: appTheme,
+              controller: controller,
+            );
+          }
+        },
+      ),
+    );
   }
 }
 

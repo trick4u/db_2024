@@ -82,6 +82,8 @@ class MainScreen extends GetWidget<MainScreenController> {
       child: GestureDetector(
         onTap: () => controller.changeIndex(index),
         child: AnimatedContainer(
+          height: ScaleUtil.height(50),
+          width: ScaleUtil.width(60),
           duration: Duration(milliseconds: 300),
           curve: Curves.easeOutCubic,
           padding: ScaleUtil.only(bottom: 6, top: 4),
