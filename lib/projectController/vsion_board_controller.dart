@@ -237,7 +237,7 @@ class VisionBoardController extends GetxController {
   DateTime _getNextAvailableTime(bool isMorning) {
     DateTime now = DateTime.now();
     DateTime baseTime = isMorning
-        ? DateTime(now.year, now.month, now.day, 12, 20)
+        ? DateTime(now.year, now.month, now.day, 08, 00)
         : DateTime(now.year, now.month, now.day, 22, 0);
 
     if (baseTime.isBefore(now)) {

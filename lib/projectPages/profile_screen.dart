@@ -367,6 +367,10 @@ class ChangePasswordBottomSheet extends GetWidget<ProfileController> {
   final TextEditingController confirmNewPasswordController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
 
+  final RxBool showCurrentPassword = false.obs;
+  final RxBool showNewPassword = false.obs;
+  final RxBool showConfirmNewPassword = false.obs;
+
   @override
   Widget build(BuildContext context) {
     ScaleUtil.init(context);
@@ -387,11 +391,11 @@ class ChangePasswordBottomSheet extends GetWidget<ProfileController> {
               children: [
                 _buildHeader(context),
                 ScaleUtil.sizedBox(height: 16),
-                _buildPasswordField(context, 'Current Password', currentPasswordController),
+                _buildPasswordField(context, 'Current Password', currentPasswordController, showCurrentPassword),
                 ScaleUtil.sizedBox(height: 16),
-                _buildPasswordField(context, 'New Password', newPasswordController),
+                _buildPasswordField(context, 'New Password', newPasswordController, showNewPassword),
                 ScaleUtil.sizedBox(height: 16),
-                _buildPasswordField(context, 'Confirm New Password', confirmNewPasswordController),
+                _buildPasswordField(context, 'Confirm New Password', confirmNewPasswordController, showConfirmNewPassword),
                 ScaleUtil.sizedBox(height: 16),
                 _buildActionButtons(context),
               ],
@@ -401,6 +405,7 @@ class ChangePasswordBottomSheet extends GetWidget<ProfileController> {
       ),
     );
   }
+
 
   Widget _buildHeader(BuildContext context) {
     return Row(
@@ -423,13 +428,13 @@ class ChangePasswordBottomSheet extends GetWidget<ProfileController> {
     );
   }
 
-  Widget _buildPasswordField(BuildContext context, String label, TextEditingController controller) {
+  Widget _buildPasswordField(BuildContext context, String label, TextEditingController controller, RxBool showPassword) {
     return FadeIn(
       child: ClipRRect(
         borderRadius: ScaleUtil.circular(10),
-        child: TextFormField(
+        child: Obx(() => TextFormField(
           controller: controller,
-          obscureText: true,
+          obscureText: !showPassword.value,
           style: appTheme.bodyMedium.copyWith(
             fontSize: ScaleUtil.fontSize(12),
           ),
@@ -440,6 +445,14 @@ class ChangePasswordBottomSheet extends GetWidget<ProfileController> {
             fillColor: appTheme.textFieldFillColor,
             border: InputBorder.none,
             contentPadding: ScaleUtil.symmetric(horizontal: 16, vertical: 12),
+            suffixIcon: IconButton(
+              icon: Icon(
+                showPassword.value ? Icons.visibility : Icons.visibility_off,
+                color: appTheme.textColor,
+                size: ScaleUtil.iconSize(15),
+              ),
+              onPressed: () => showPassword.toggle(),
+            ),
           ),
           onChanged: (_) => _updateCanSave(),
           validator: (value) {
@@ -448,7 +461,7 @@ class ChangePasswordBottomSheet extends GetWidget<ProfileController> {
             }
             return null;
           },
-        ),
+        )),
       ),
     );
   }
@@ -506,14 +519,7 @@ class ChangePasswordBottomSheet extends GetWidget<ProfileController> {
         newPasswordController.text,
       );
       Get.back();
-      Get.snackbar(
-        'Success',
-        'Password changed successfully',
-        snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: Colors.green,
-        colorText: Colors.white,
-        duration: Duration(seconds: 2),
-      );
+     
     }
   }
 }
