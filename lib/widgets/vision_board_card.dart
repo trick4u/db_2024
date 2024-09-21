@@ -119,67 +119,78 @@ class VisionBoardItemCard extends StatelessWidget {
     final AppTheme appTheme = Get.find<AppTheme>();
 
     return Padding(
-      padding: ScaleUtil.symmetric(horizontal: 16, vertical: 12),
+      padding: ScaleUtil.symmetric(vertical: 12),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+          Padding(
+            padding: ScaleUtil.symmetric(horizontal: 0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Row(
                   children: [
-                    GestureDetector(
-                      onTap: () => controller.toggleItemExpansion(item.id),
-                      child: Obx(() => AnimatedCrossFade(
-                        firstChild: Text(
-                          item.title,
-                          style: appTheme.bodyMedium,
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
+                    _buildNotificationButton(context, controller, appTheme),
+                    ScaleUtil.sizedBox(width: 2),
+                    if (controller.canEditItem(item.id))
+                      IconButton(
+                        icon: Icon(
+                          FontAwesomeIcons.penToSquare,
+                          size: ScaleUtil.iconSize(15),
                         ),
-                        secondChild: Text(
-                          item.title,
-                          style: appTheme.bodyMedium,
-                        ),
-                        crossFadeState: controller.isItemExpanded(item.id)
-                            ? CrossFadeState.showSecond
-                            : CrossFadeState.showFirst,
-                        duration: Duration(milliseconds: 300),
-                      )),
-                    ),
-                    ScaleUtil.sizedBox(height: 4),
-                    Text(
-                      _getTimeAgo(),
-                      style: appTheme.bodyMedium.copyWith(color: appTheme.secondaryTextColor),
-                    ),
+                        onPressed: onEdit,
+                        padding: EdgeInsets.zero,
+                        constraints: BoxConstraints(),
+                      ),
                   ],
                 ),
-              ),
-              _buildNotificationButton(context, controller, appTheme),
-              if (controller.canEditItem(item.id))
                 IconButton(
                   icon: Icon(
-                    FontAwesomeIcons.penToSquare,
-                    size: ScaleUtil.iconSize(15),
+                    FontAwesomeIcons.trashCan,
+                    color: Colors.redAccent,
                   ),
-                  onPressed: onEdit,
+                  onPressed: () => _confirmDelete(context, controller),
                 ),
-              IconButton(
-                icon: Icon(
-                  FontAwesomeIcons.trashCan,
-                  color: appTheme.colorScheme.primary,
-                ),
-                onPressed: () => _confirmDelete(context, controller),
-              ),
-            ],
+              ],
+            ),
+          ),
+          ScaleUtil.sizedBox(height: 8),
+          Padding(
+            padding: ScaleUtil.symmetric(horizontal: 16),
+            child: GestureDetector(
+              onTap: () => controller.toggleItemExpansion(item.id),
+              child: Obx(() => AnimatedCrossFade(
+                    firstChild: Text(
+                      item.title,
+                      style: appTheme.bodyMedium,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    secondChild: Text(
+                      item.title,
+                      style: appTheme.bodyMedium,
+                    ),
+                    crossFadeState: controller.isItemExpanded(item.id)
+                        ? CrossFadeState.showSecond
+                        : CrossFadeState.showFirst,
+                    duration: Duration(milliseconds: 300),
+                  )),
+            ),
+          ),
+          ScaleUtil.sizedBox(height: 4),
+          Padding(
+            padding: ScaleUtil.symmetric(horizontal: 16),
+            child: Text(
+              _getTimeAgo(),
+              style: appTheme.bodyMedium
+                  .copyWith(color: appTheme.secondaryTextColor),
+            ),
           ),
         ],
       ),
     );
   }
-  
+
   Widget _buildNotificationButton(BuildContext context,
       VisionBoardController controller, AppTheme appTheme) {
     return Obx(() {

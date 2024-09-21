@@ -94,12 +94,12 @@ void main() async {
   await AwesomeNotifications().initialize(
       null,
       [
-        NotificationChannel(
-            channelKey: 'basic_channel',
-            channelName: 'Basic notifications',
-            channelDescription: 'Notification channel for basic tests',
-            defaultColor: const Color(0xFF9D50DD),
-            ledColor: Colors.blue),
+        // NotificationChannel(
+        //     channelKey: 'basic_channel',
+        //     channelName: 'Basic notifications',
+        //     channelDescription: 'Notification channel for basic tests',
+        //     defaultColor: const Color(0xFF9D50DD),
+        //     ledColor: Colors.blue),
         NotificationChannel(
         channelKey: 'quickschedule',
         channelName: 'Reminder Notifications',
@@ -127,21 +127,21 @@ void main() async {
           enableLights: true,
           enableVibration: true,
         ),
-        NotificationChannel(
-          channelKey: 'vision_board_reminders',
-          channelName: 'Vision Board Reminders',
-          channelDescription:
-              'Notification channel for vision board item reminders',
-          defaultColor: Color(0xFF9D50DD),
-          ledColor: Colors.purple,
-          importance: NotificationImportance.Max,
-          defaultPrivacy: NotificationPrivacy.Private,
-          // channelShowBadge: true,
-          playSound: true,
-          // soundSource: soundSource,
-          enableLights: true,
-          enableVibration: true,
-        ),
+        // NotificationChannel(
+        //   channelKey: 'vision_board_reminders',
+        //   channelName: 'Vision Board Reminders',
+        //   channelDescription:
+        //       'Notification channel for vision board item reminders',
+        //   defaultColor: Color(0xFF9D50DD),
+        //   ledColor: Colors.purple,
+        //   importance: NotificationImportance.Max,
+        //   defaultPrivacy: NotificationPrivacy.Private,
+        //   // channelShowBadge: true,
+        //   playSound: true,
+        //   // soundSource: soundSource,
+        //   enableLights: true,
+        //   enableVibration: true,
+        // ),
       ],
     );
 
