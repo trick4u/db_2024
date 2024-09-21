@@ -179,7 +179,7 @@ class VisionBoardController extends GetxController {
       content: NotificationContent(
         autoDismissible: false,
         id: notificationId,
-        channelKey: 'vision_board_reminders',
+        channelKey: 'event_reminders',
         title: title,
         body: body,
         bigPicture: imageUrl,
@@ -237,7 +237,7 @@ class VisionBoardController extends GetxController {
   DateTime _getNextAvailableTime(bool isMorning) {
     DateTime now = DateTime.now();
     DateTime baseTime = isMorning
-        ? DateTime(now.year, now.month, now.day, 18, 40)
+        ? DateTime(now.year, now.month, now.day, 12, 20)
         : DateTime(now.year, now.month, now.day, 22, 0);
 
     if (baseTime.isBefore(now)) {
@@ -258,6 +258,7 @@ class VisionBoardController extends GetxController {
 
     return baseTime;
   }
+
 
   void _scheduleNotificationStateUpdate(String itemId, DateTime scheduledTime) {
     Future.delayed(scheduledTime.difference(DateTime.now()), () {

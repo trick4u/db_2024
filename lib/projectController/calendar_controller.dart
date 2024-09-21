@@ -6,10 +6,13 @@ import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:just_audio/just_audio.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:table_calendar/table_calendar.dart';
+
 
 import '../models/quick_event_model.dart';
 import '../projectPages/page_two_calendar.dart';
+import '../services/pexels_service.dart';
 import '../widgets/event_bottomSheet.dart';
 import 'package:flutter/services.dart';
 
@@ -23,11 +26,16 @@ class CalendarController extends GetxController {
 
   RxMap<DateTime, List<QuickEventModel>> eventsGrouped =
       <DateTime, List<QuickEventModel>>{}.obs;
+  RxString backgroundImageUrl = ''.obs;
+  final PexelsService _pexelsService = PexelsService();
 
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   User? currentUser = FirebaseAuth.instance.currentUser;
 
   late AudioPlayer _audioPlayer = AudioPlayer();
+
+  RxBool isLoading = true.obs;
+  RxBool hasError = false.obs;
 
   CollectionReference get eventsCollection {
     return _firestore
@@ -38,12 +46,116 @@ class CalendarController extends GetxController {
 
   //expansion
   RxMap<String, bool> expandedEvents = <String, bool>{}.obs;
+  // Rx<VideoPlayerController?> backgroundVideoController =
+  //     Rx<VideoPlayerController?>(null);
+  RxString backgroundVideoUrl = ''.obs;
 
   @override
   void onInit() {
     super.onInit();
     _audioPlayer = AudioPlayer();
-    fetchEvents(selectedDay.value);
+    loadInitialData();
+   fetchRandomBackgroundImage();
+  //  fetchRandomBackgroundVideo();
+  }
+
+  @override
+  void onClose() {
+   // backgroundVideoController.value?.dispose();
+    super.onClose();
+  }
+
+  // Future<void> fetchRandomBackgroundVideo() async {
+  //   try {
+  //     final videoUrl = await _pexelsService.getRandomVideoUrl();
+  //     if (videoUrl.isNotEmpty) {
+  //       backgroundVideoUrl.value = videoUrl;
+  //       await loadVideoPlayer(videoUrl);
+  //     } else {
+  //       print('Received empty video URL, loading fallback');
+  //       await loadFallbackVideo();
+  //     }
+  //   } catch (e) {
+  //     print('Error fetching random background video: $e');
+  //     await loadFallbackVideo();
+  //   }
+  // }
+
+  // Future<void> loadVideoPlayer(String url) async {
+  //   if (backgroundVideoController.value != null) {
+  //     await backgroundVideoController.value!.dispose();
+  //   }
+
+  //   try {
+  //     backgroundVideoController.value =
+  //         VideoPlayerController.networkUrl(Uri.parse(url));
+  //     await backgroundVideoController.value!.initialize();
+  //     backgroundVideoController.value!.setLooping(true);
+  //     backgroundVideoController.value!.play();
+  //     backgroundVideoController.value!.setVolume(0);
+   
+  //     update();
+  //   } catch (e) {
+  //     print('Error initializing video player: $e');
+  //     await loadFallbackVideo();
+  //   }
+  // }
+
+  // Future<void> loadFallbackVideo() async {
+  //   // Load a fallback video or image
+  //   // This could be a local asset or a reliable remote URL
+  //   String fallbackUrl = 'https://www.pexels.com/video/hot-tea-in-mug-14319069/';
+  //   try {
+  //     await loadVideoPlayer(fallbackUrl);
+  //   } catch (e) {
+  //     print('Error loading fallback video: $e');
+  //     // If even the fallback fails, we'll just leave the controller as null
+  //     backgroundVideoController.value = null;
+  //     update();
+  //   }
+  // }
+
+  Future<void> loadInitialData() async {
+    isLoading.value = true;
+    hasError.value = false;
+
+    try {
+      await fetchEvents(selectedDay.value);
+      await fetchRandomBackgroundImage();
+    } catch (e) {
+      print('Error loading initial data: $e');
+      hasError.value = true;
+    } finally {
+      isLoading.value = false;
+    }
+  }
+
+Future<void> fetchRandomBackgroundImage() async {
+    try {
+      final imageUrl = await _pexelsService.getRandomImageUrl();
+      if (imageUrl.isNotEmpty) {
+        backgroundImageUrl.value = imageUrl;
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setString('background_image_url', imageUrl);
+      } else {
+        throw Exception('Received empty image URL');
+      }
+    } catch (e) {
+      print('Error fetching random background image: $e');
+      await loadSavedBackgroundImage();
+    }
+  }
+
+  Future<void> loadSavedBackgroundImage() async {
+    final prefs = await SharedPreferences.getInstance();
+    final savedImageUrl = prefs.getString('background_image_url');
+    if (savedImageUrl != null && savedImageUrl.isNotEmpty) {
+      backgroundImageUrl.value = savedImageUrl;
+    } else {
+      // Use a default image URL if no saved image is available
+      backgroundImageUrl.value =
+          'https://cdn.pixabay.com/photo/2024/04/09/22/28/trees-8686902_1280.jpg';
+    }
   }
 
   //expansion
@@ -116,17 +228,22 @@ class CalendarController extends GetxController {
     update();
   }
 
-  void fetchEvents(DateTime day) {
-    if (currentUser == null) return;
+  Future<void> fetchEvents(DateTime day) async {
+    if (currentUser == null) {
+      hasError.value = true;
+      return;
+    }
 
-    DateTime startOfMonth = DateTime(day.year, day.month, 1);
-    DateTime endOfMonth = DateTime(day.year, day.month + 1, 0, 23, 59, 59);
+    try {
+      DateTime startOfMonth = DateTime(day.year, day.month, 1);
+      DateTime endOfMonth = DateTime(day.year, day.month + 1, 0, 23, 59, 59);
 
-    eventsCollection
-        .where('date', isGreaterThanOrEqualTo: Timestamp.fromDate(startOfMonth))
-        .where('date', isLessThanOrEqualTo: Timestamp.fromDate(endOfMonth))
-        .snapshots()
-        .listen((querySnapshot) {
+      QuerySnapshot querySnapshot = await eventsCollection
+          .where('date',
+              isGreaterThanOrEqualTo: Timestamp.fromDate(startOfMonth))
+          .where('date', isLessThanOrEqualTo: Timestamp.fromDate(endOfMonth))
+          .get();
+
       Map<DateTime, List<QuickEventModel>> newEventsGrouped = {};
       List<QuickEventModel> newEvents = [];
 
@@ -146,7 +263,10 @@ class CalendarController extends GetxController {
       events.value = newEvents;
 
       update();
-    });
+    } catch (e) {
+      print('Error fetching events: $e');
+      hasError.value = true;
+    }
   }
 
   bool hasEventsForDay(DateTime day) {
@@ -474,119 +594,120 @@ class CalendarController extends GetxController {
   }
 
   //notifications
-Future<void> markNotificationAsDisplayed(int notificationId) async {
-  try {
-    // Find the event with this notification ID
-    QuerySnapshot eventQuery = await eventsCollection
-        .where('notificationId', isEqualTo: notificationId)
-        .limit(1)
-        .get();
+  Future<void> markNotificationAsDisplayed(int notificationId) async {
+    try {
+      // Find the event with this notification ID
+      QuerySnapshot eventQuery = await eventsCollection
+          .where('notificationId', isEqualTo: notificationId)
+          .limit(1)
+          .get();
 
-    if (eventQuery.docs.isNotEmpty) {
-      String eventId = eventQuery.docs.first.id;
-      
-      await eventsCollection.doc(eventId).update({
-        'lastNotificationDisplayed': FieldValue.serverTimestamp(),
-      });
+      if (eventQuery.docs.isNotEmpty) {
+        String eventId = eventQuery.docs.first.id;
 
-      // Update the local event model
-      int index = events.indexWhere((e) => e.id == eventId);
-      if (index != -1) {
-        events[index] = events[index].copyWith(
-          lastNotificationDisplayed: DateTime.now(),
-        );
+        await eventsCollection.doc(eventId).update({
+          'lastNotificationDisplayed': FieldValue.serverTimestamp(),
+        });
+
+        // Update the local event model
+        int index = events.indexWhere((e) => e.id == eventId);
+        if (index != -1) {
+          events[index] = events[index].copyWith(
+            lastNotificationDisplayed: DateTime.now(),
+          );
+        }
+
+        print('Marked notification as displayed for event: $eventId');
+        update();
+      } else {
+        print('No event found for notification ID: $notificationId');
       }
-
-      print('Marked notification as displayed for event: $eventId');
-      update();
-    } else {
-      print('No event found for notification ID: $notificationId');
+    } catch (e) {
+      print('Error marking notification as displayed: $e');
     }
-  } catch (e) {
-    print('Error marking notification as displayed: $e');
-  }
-}
- 
-     
-Future<void> scheduleNotification(QuickEventModel event) async {
-  if (!event.hasReminder || event.reminderTime == null) {
-    print('Reminder not set for event: ${event.id}');
-    return;
   }
 
-  int notificationId = event.id.hashCode;
+  Future<void> scheduleNotification(QuickEventModel event) async {
+    if (!event.hasReminder || event.reminderTime == null) {
+      print('Reminder not set for event: ${event.id}');
+      return;
+    }
 
-  DateTime scheduledDate = DateTime(
-    event.date.year,
-    event.date.month,
-    event.date.day,
-    event.reminderTime!.hour,
-    event.reminderTime!.minute,
-  );
+    int notificationId = event.id.hashCode;
 
-  if (scheduledDate.isBefore(DateTime.now())) {
-    print('Reminder time is in the past for event: ${event.id}. Notification not scheduled.');
-    return;
-  }
-
-  try {
-    // Cancel any existing notification for this event
-    await AwesomeNotifications().cancel(notificationId);
-    print('Cancelled existing notification for event: ${event.id}');
-
-    bool success = await AwesomeNotifications().createNotification(
-      content: NotificationContent(
-        id: notificationId,
-        channelKey: 'quickschedule',
-        title: 'Event Reminder',
-        body: event.title,
-        category: NotificationCategory.Reminder,
-        notificationLayout: NotificationLayout.Default,
-        criticalAlert: true,
-        wakeUpScreen: true,
-      ),
-      schedule: NotificationCalendar(
-        year: scheduledDate.year,
-        month: scheduledDate.month,
-        day: scheduledDate.day,
-        hour: scheduledDate.hour,
-        minute: scheduledDate.minute,
-        second: 0,
-        millisecond: 0,
-        repeats: false,
-        preciseAlarm: true,
-        allowWhileIdle: true,
-      ),
+    DateTime scheduledDate = DateTime(
+      event.date.year,
+      event.date.month,
+      event.date.day,
+      event.reminderTime!.hour,
+      event.reminderTime!.minute,
     );
 
-    if (success) {
-      print('Scheduled notification with ID: $notificationId for event: ${event.id} at time: $scheduledDate');
-      
-      // Update the event in Firestore
-      await eventsCollection.doc(event.id).update({
-        'notificationId': notificationId,
-        'lastNotificationDisplayed': null,
-      });
-
-      // Update the local event model
-      int index = events.indexWhere((e) => e.id == event.id);
-      if (index != -1) {
-        events[index] = events[index].copyWith(
-          notificationId: notificationId,
-          lastNotificationDisplayed: null,
-        );
-      }
-
-      print('Event updated in Firestore and local state for event: ${event.id}');
-    } else {
-      print('Failed to schedule notification for event: ${event.id}. No exception thrown.');
+    if (scheduledDate.isBefore(DateTime.now())) {
+      print(
+          'Reminder time is in the past for event: ${event.id}. Notification not scheduled.');
+      return;
     }
 
-  } catch (e) {
-    print('Error scheduling notification for event ${event.id}: $e');
-  }
-}
+    try {
+      // Cancel any existing notification for this event
+      await AwesomeNotifications().cancel(notificationId);
+      print('Cancelled existing notification for event: ${event.id}');
 
+      bool success = await AwesomeNotifications().createNotification(
+        content: NotificationContent(
+          id: notificationId,
+          channelKey: 'quickschedule',
+          title: 'Event Reminder',
+          body: event.title,
+          category: NotificationCategory.Reminder,
+          notificationLayout: NotificationLayout.Default,
+          criticalAlert: true,
+          wakeUpScreen: true,
+        ),
+        schedule: NotificationCalendar(
+          year: scheduledDate.year,
+          month: scheduledDate.month,
+          day: scheduledDate.day,
+          hour: scheduledDate.hour,
+          minute: scheduledDate.minute,
+          second: 0,
+          millisecond: 0,
+          repeats: false,
+          preciseAlarm: true,
+          allowWhileIdle: true,
+        ),
+      );
+
+      if (success) {
+        print(
+            'Scheduled notification with ID: $notificationId for event: ${event.id} at time: $scheduledDate');
+
+        // Update the event in Firestore
+        await eventsCollection.doc(event.id).update({
+          'notificationId': notificationId,
+          'lastNotificationDisplayed': null,
+        });
+
+        // Update the local event model
+        int index = events.indexWhere((e) => e.id == event.id);
+        if (index != -1) {
+          events[index] = events[index].copyWith(
+            notificationId: notificationId,
+            lastNotificationDisplayed: null,
+          );
+        }
+
+        print(
+            'Event updated in Firestore and local state for event: ${event.id}');
+      } else {
+        print(
+            'Failed to schedule notification for event: ${event.id}. No exception thrown.');
+      }
+    } catch (e) {
+      print('Error scheduling notification for event ${event.id}: $e');
+    }
+  }
 
   Future<void> updateNotification(QuickEventModel event) async {
     // First, cancel the existing notification
