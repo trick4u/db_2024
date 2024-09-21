@@ -1,4 +1,6 @@
+import 'package:animate_do/animate_do.dart';
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
 import 'package:tushar_db/app_routes.dart';
 import 'package:tushar_db/services/scale_util.dart';
@@ -193,130 +195,142 @@ class ForgotPasswordBottomSheet extends GetWidget<LoginController> {
   final AppTheme appTheme = Get.find<AppTheme>();
   final RxBool canSave = false.obs;
   final TextEditingController emailController = TextEditingController();
+  final _formKey = GlobalKey<FormState>();
 
   @override
   Widget build(BuildContext context) {
     ScaleUtil.init(context);
     return Padding(
-      padding: ScaleUtil.only(left: 20, right: 20, bottom: 10),
-      child: Container(
-        padding: EdgeInsets.only(
-          bottom: MediaQuery.of(context).viewInsets.bottom,
+      padding: ScaleUtil.only(left: 10, right: 10, bottom: 10),
+      child: Card(
+        elevation: ScaleUtil.scale(8),
+        color: appTheme.cardColor,
+        shape: RoundedRectangleBorder(
+          borderRadius: ScaleUtil.circular(20),
         ),
-        decoration: BoxDecoration(
-          color: appTheme.cardColor,
-          borderRadius: BorderRadius.circular(
-            ScaleUtil.width(20),
-          ),
-        ),
-        child: Padding(
-          padding: ScaleUtil.symmetric(horizontal: 20, vertical: 10),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                children: [
-                  Text(
-                    'Forgot Password',
-                    style: appTheme.titleLarge.copyWith(
-                      fontSize: ScaleUtil.fontSize(15),
-                    ),
-                  ),
-                  Spacer(),
-                  IconButton(
-                    icon: Icon(Icons.close,
-                        color: appTheme.textColor,
-                        size: ScaleUtil.iconSize(15)),
-                    onPressed: () => Get.back(),
-                  ),
-                ],
-              ),
-              ScaleUtil.sizedBox(height: 16),
-              _buildTextField('Email', emailController, _updateCanSave),
-              ScaleUtil.sizedBox(height: 24),
-              Align(
-                alignment: Alignment.centerRight,
-                child: _buildSaveButton(context),
-              ),
-              ScaleUtil.sizedBox(height: 16),
-            ],
+        child: Form(
+          key: _formKey,
+          child: Container(
+            padding: ScaleUtil.symmetric(horizontal: 20, vertical: 20),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                _buildHeader(context),
+                ScaleUtil.sizedBox(height: 16),
+                _buildEmailField(context),
+                ScaleUtil.sizedBox(height: 16),
+                _buildActionButtons(context),
+              ],
+            ),
           ),
         ),
       ),
     );
   }
 
-  Widget _buildTextField(String label, TextEditingController textController,
-      VoidCallback onChanged) {
-    return ClipRRect(
-      borderRadius: ScaleUtil.circular(10),
-      child: TextField(
-        controller: textController,
-        style: appTheme.bodyMedium,
-        decoration: InputDecoration(
-          labelText: label,
-          filled: true,
-          fillColor: appTheme.textFieldFillColor,
-          labelStyle: appTheme.bodyMedium.copyWith(
-            color: appTheme.secondaryTextColor,
+  Widget _buildHeader(BuildContext context) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text(
+          'Forgot Password',
+          style: appTheme.titleLarge.copyWith(
+            fontSize: ScaleUtil.fontSize(15),
+          ),
+        ),
+        IconButton(
+          icon: Icon(Icons.close,
+              color: appTheme.textColor, size: ScaleUtil.iconSize(18)),
+          onPressed: () => Get.back(),
+          tooltip: 'Close',
+        ),
+      ],
+    );
+  }
+
+  Widget _buildEmailField(BuildContext context) {
+    return FadeIn(
+      child: ClipRRect(
+        borderRadius: ScaleUtil.circular(10),
+        child: TextFormField(
+          controller: emailController,
+          style: appTheme.bodyMedium.copyWith(
             fontSize: ScaleUtil.fontSize(12),
           ),
-          border: InputBorder.none,
-          enabledBorder: InputBorder.none,
-          focusedBorder: InputBorder.none,
-          errorBorder: InputBorder.none,
-          disabledBorder: InputBorder.none,
-          contentPadding: ScaleUtil.symmetric(horizontal: 16, vertical: 6),
+          decoration: InputDecoration(
+            labelText: 'Email',
+            labelStyle: TextStyle(fontSize: ScaleUtil.fontSize(12)),
+            filled: true,
+            fillColor: appTheme.textFieldFillColor,
+            border: InputBorder.none,
+            contentPadding: ScaleUtil.symmetric(horizontal: 16, vertical: 12),
+          ),
+          onChanged: (_) => _updateCanSave(),
+          validator: (value) {
+            if (value == null || value.isEmpty) {
+              return 'Please enter your email';
+            }
+            if (!GetUtils.isEmail(value)) {
+              return 'Please enter a valid email';
+            }
+            return null;
+          },
         ),
-        onChanged: (_) => onChanged(),
       ),
+    );
+  }
+
+  Widget _buildActionButtons(BuildContext context) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.end,
+      children: [
+        _buildSaveButton(context),
+      ],
     );
   }
 
   Widget _buildSaveButton(BuildContext context) {
-    return Obx(() => Container(
-          decoration: BoxDecoration(
-            color: canSave.value ? appTheme.colorScheme.primary : Colors.grey,
-            shape: BoxShape.circle,
-          ),
-          child: Material(
-            color: Colors.transparent,
-            child: InkWell(
-              borderRadius: ScaleUtil.circular(20),
-              onTap: canSave.value
-                  ? () async {
-                      try {
-                        await controller
-                            .forgotPassword(emailController.text.trim());
-                        Navigator.of(context).pop(); // Close the bottom sheet
-                      } catch (e) {
-                        Get.snackbar(
-                          'Error',
-                          'Failed to reset password: ${e.toString()}',
-                          snackPosition: SnackPosition.BOTTOM,
-                        );
-                      }
-                    }
-                  : null,
-              child: Padding(
-                padding: ScaleUtil.all(10),
-                child: Icon(
-                  Icons.check,
-                  color: Colors.white,
-                  size: ScaleUtil.iconSize(15),
+    return SlideInRight(
+      child: Obx(() => Container(
+            decoration: BoxDecoration(
+              color: canSave.value ? appTheme.colorScheme.primary : Colors.grey,
+              shape: BoxShape.circle,
+            ),
+            child: Material(
+              color: Colors.transparent,
+              child: InkWell(
+                borderRadius: ScaleUtil.circular(20),
+                onTap: canSave.value ? _handleSave : null,
+                child: Padding(
+                  padding: ScaleUtil.all(10),
+                  child: Icon(
+                    FontAwesomeIcons.check,
+                    color: Colors.white,
+                    size: ScaleUtil.iconSize(15),
+                  ),
                 ),
               ),
             ),
-          ),
-        ));
+          )),
+    );
   }
 
   void _updateCanSave() {
-    canSave.value = isValidEmail(emailController.text.trim());
+    canSave.value = GetUtils.isEmail(emailController.text.trim());
   }
 
-  bool isValidEmail(String email) {
-    return RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(email);
+  void _handleSave() {
+    if (_formKey.currentState!.validate()) {
+      controller.forgotPassword(emailController.text.trim());
+      Get.back();
+      Get.snackbar(
+        'Success',
+        'Password reset email sent successfully',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.green,
+        colorText: Colors.white,
+        duration: Duration(seconds: 2),
+      );
+    }
   }
 }
