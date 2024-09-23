@@ -141,51 +141,36 @@ class calendarpageWidget extends StatelessWidget {
                     //     ),
                     //   ),
                     // ),
-                    Obx(() {
-                      final imageUrl = controller.backgroundImageUrl.value;
-                      double imageHeight;
-                      switch (controller.calendarFormat) {
-                        case CalendarFormat.month:
-                          imageHeight = ScaleUtil.height(320);
-                          break;
-                        case CalendarFormat.twoWeeks:
-                          imageHeight = ScaleUtil.height(180);
-                          break;
-                        case CalendarFormat.week:
-                        default:
-                          imageHeight = ScaleUtil.height(130);
-                          break;
-                      }
-                      return ClipRRect(
+                    Positioned.fill(
+                      child: ClipRRect(
                         borderRadius: BorderRadius.circular(ScaleUtil.scale(8)),
-                        child: Stack(
-                          children: [
-                            if (imageUrl.isNotEmpty)
-                              Center(
-                                child: CachedNetworkImage(
+                        child: Obx(() {
+                          final imageUrl = controller.backgroundImageUrl.value;
+                          return imageUrl.isNotEmpty
+                              ? CachedNetworkImage(
                                   imageUrl: imageUrl,
                                   fit: BoxFit.cover,
                                   width: constraints.maxWidth,
-                                  height: imageHeight,
+                                  height: constraints.maxHeight,
                                   placeholder: (context, url) =>
                                       Container(color: appTheme.cardColor),
                                   errorWidget: (context, url, error) =>
                                       Container(color: appTheme.cardColor),
-                                ),
-                              )
-                            else
-                              Container(
-                                  color: appTheme.cardColor,
-                                  height: imageHeight),
-                            Positioned.fill(
-                              child: Container(
-                                color: Colors.black.withOpacity(0.5),
-                              ),
-                            ),
-                          ],
+                                )
+                              : Container(color: appTheme.cardColor);
+                        }),
+                      ),
+                    ),
+                    // Overlay
+                    Positioned.fill(
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: Colors.black.withOpacity(0.5),
+                          borderRadius:
+                              BorderRadius.circular(ScaleUtil.scale(8)),
                         ),
-                      );
-                    }),
+                      ),
+                    ),
                     Column(
                       children: [
                         ScaleUtil.sizedBox(height: 20),

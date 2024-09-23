@@ -776,25 +776,37 @@ class VisionBoardController extends GetxController {
     resetForm();
   }
 
-  Future<void> deleteItem(String itemId) async {
-    if (currentUser == null) return;
-    try {
-      // First, get the item to delete its images
-      DocumentSnapshot doc = await visionBoardCollection.doc(itemId).get();
-      VisionBoardItem item = VisionBoardItem.fromFirestore(doc);
+Future<void> deleteItem(String itemId) async {
+  if (currentUser == null) return;
+  try {
+    // First, get the item to delete its images
+    DocumentSnapshot doc = await visionBoardCollection.doc(itemId).get();
+    VisionBoardItem item = VisionBoardItem.fromFirestore(doc);
 
-      // Delete images from storage
-      for (String imageUrl in item.imageUrls) {
-        await FirebaseStorage.instance.refFromURL(imageUrl).delete();
-      }
-
-      // Delete the document from Firestore
-      await visionBoardCollection.doc(itemId).delete();
-      print('Vision board item deleted: $itemId');
-    } catch (e) {
-      print('Error deleting vision board item: $e');
+    // Cancel the notification if it exists
+    if (item.hasNotification) {
+      await cancelNotification(itemId);
     }
+
+    // Delete images from storage
+    for (String imageUrl in item.imageUrls) {
+      await FirebaseStorage.instance.refFromURL(imageUrl).delete();
+    }
+
+    // Delete the document from Firestore
+    await visionBoardCollection.doc(itemId).delete();
+
+    // Remove the item from the local list
+    visionBoardItems.removeWhere((element) => element.id == itemId);
+    _updateDisplayedItems();
+
+    print('Vision board item deleted: $itemId');
+  } catch (e) {
+    print('Error deleting vision board item: $e');
+    Get.snackbar('Error', 'Failed to delete vision board item',
+        snackPosition: SnackPosition.BOTTOM);
   }
+}
 
   Future<void> updateItem(VisionBoardItem item) async {
     if (currentUser == null) return;

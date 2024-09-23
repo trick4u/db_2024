@@ -17,10 +17,7 @@ class ProfileScreen extends GetWidget<ProfileController> {
   Widget build(BuildContext context) {
     ScaleUtil.init(context);
     appTheme.updateStatusBarColor();
-    return Scaffold(
-      resizeToAvoidBottomInset: false,
-      body: SafeArea(
-        child: CustomScrollView(
+    var customScrollView = CustomScrollView(
           slivers: [
             SliverAppBar(
               expandedHeight: ScaleUtil.height(80),
@@ -121,7 +118,21 @@ class ProfileScreen extends GetWidget<ProfileController> {
               ),
             ),
           ],
-        ),
+        );
+    return Scaffold(
+      resizeToAvoidBottomInset: false,
+      body: SafeArea(
+          child: Obx(() {
+          if (controller.isLoading.value) {
+            return Center(child: CircularProgressIndicator());
+          } else if (controller.hasError.value) {
+            return Center(
+              child: Text('An error occurred. Please try again.'),
+            );
+          } else {
+            return customScrollView;
+          }
+        }),
       ),
     );
   }

@@ -39,13 +39,16 @@ class ProfileController extends GetxController {
   static const int MIN_USERNAME_LENGTH = 4;
 
   RxList<NotificationModel> notifications = <NotificationModel>[].obs;
+  
   RxBool isLoading = true.obs;
+  RxBool hasError = false.obs;
 
-  @override
+ @override
   void onInit() {
     super.onInit();
-    getUserDetails();
+    loadUserData();
   }
+
 
   @override
   void onReady() {
@@ -179,20 +182,33 @@ class ProfileController extends GetxController {
     }
   }
 
+   Future<void> loadUserData() async {
+    isLoading.value = true;
+    hasError.value = false;
+    try {
+       getUserDetails();
+      isLoading.value = false;
+    } catch (e) {
+      print('Error loading user data: $e');
+      hasError.value = true;
+      isLoading.value = false;
+    }
+  }
   //get the user details
   void getUserDetails() async {
     var user = FirebaseAuth.instance.currentUser;
     if (user != null) {
-      var userDoc = await firebaseFireStore
-          .collection('users')
-          .doc(user.uid)
-          .get()
-          .then((value) {
-        name.value = value['name'];
-        username.value = value['username'];
-
-        email.value = value['email'];
-      });
+      try {
+        var userDoc = await firebaseFireStore.collection('users').doc(user.uid).get();
+        name.value = userDoc['name'] ?? '';
+        username.value = userDoc['username'] ?? '';
+        email.value = userDoc['email'] ?? '';
+      } catch (e) {
+        print('Error fetching user details: $e');
+        throw e;
+      }
+    } else {
+      throw Exception('No user logged in');
     }
   }
 
@@ -214,16 +230,7 @@ class ProfileController extends GetxController {
     }
   }
 
-  Future<void> loadUserData() async {
-    User? user = _auth.currentUser;
-    if (user != null) {
-      DocumentSnapshot userData =
-          await _firestore.collection('users').doc(user.uid).get();
-      name.value = userData['name'] ?? '';
-      email.value = userData['email'] ?? '';
-      username.value = userData['username'] ?? '';
-    }
-  }
+
 
   Future<void> updateName(String newName) async {
     try {

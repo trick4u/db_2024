@@ -21,8 +21,6 @@ import '../projectController/statistics_controller.dart';
 import '../projectPages/awesome_noti.dart';
 import '../projectPages/main_screen.dart';
 
-
-
 import '../projectPages/page_one.dart';
 
 import '../projectPages/page_two_calendar.dart';
@@ -58,10 +56,11 @@ class MainScreenController extends GetxController
   @override
   void onInit() {
     super.onInit();
+    Get.put(PageOneController()); // Ensure this is initialized first
     Get.lazyPut(() => ProfileController());
     Get.lazyPut(() => StatisticsController());
     Get.lazyPut<CalendarController>(() => CalendarController());
-     scheduleDailyNotification();
+    scheduleDailyNotification();
     if (Platform.isIOS) {
       _setupBackgroundChannel();
       _scheduleAndroidNotification();
@@ -78,7 +77,6 @@ class MainScreenController extends GetxController
     });
   }
 
-
   Future<void> scheduleDailyNotification() async {
     if (Platform.isAndroid) {
       await _scheduleAndroidNotification();
@@ -89,7 +87,7 @@ class MainScreenController extends GetxController
 
   Future<void> _scheduleAndroidNotification() async {
     await AwesomeNotifications().cancelSchedule(10);
-    
+
     await AwesomeNotifications().createNotification(
       content: NotificationContent(
         id: 10,
@@ -110,12 +108,13 @@ class MainScreenController extends GetxController
     );
     print("Daily notification scheduled for Android");
   }
+
   Future<void> _showNotificationOnMainThread() async {
     // Use compute to run the notification creation on a separate isolate
     await compute(_isolateNotification, null);
   }
 
-   static Future<void> _isolateNotification(_) async {
+  static Future<void> _isolateNotification(_) async {
     // Ensure we're on the main thread before creating the notification
     SchedulerBinding.instance.addPostFrameCallback((_) async {
       await AwesomeNotifications().createNotification(

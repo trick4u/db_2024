@@ -25,6 +25,7 @@ class StatisticsController extends GetxController {
     Duration(days: 90),
   );
   RxBool canGoBack = true.obs;
+   RxBool isLoading = true.obs;
   @override
   void onInit() {
     super.onInit();
@@ -82,11 +83,13 @@ class StatisticsController extends GetxController {
     return '$startDate-$endDate';
   }
 
-  void updateStatistics() {
+ void updateStatistics() {
+    isLoading.value = true;
     updateTasksOverview();
     updateWeeklyTaskCompletion();
     updateWeeklyPendingTasks();
     updateUpcomingTasks();
+    isLoading.value = false;
   }
 
   void updateTasksOverview() {

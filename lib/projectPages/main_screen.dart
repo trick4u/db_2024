@@ -59,9 +59,10 @@ class MainScreen extends GetWidget<MainScreenController> {
               ),
             ],
           ),
-          height: ScaleUtil.height(50),
+          height:
+              ScaleUtil.height(50), // Increased height for larger touch area
           child: Padding(
-            padding: ScaleUtil.symmetric(horizontal: 10, vertical: 10),
+            padding: ScaleUtil.symmetric(horizontal: 10, vertical: 5),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
@@ -81,22 +82,33 @@ class MainScreen extends GetWidget<MainScreenController> {
     return SlideInDown(
       child: GestureDetector(
         onTap: () => controller.changeIndex(index),
-        child: AnimatedContainer(
-          duration: Duration(milliseconds: 300),
-          curve: Curves.easeIn,
-          padding: ScaleUtil.only(bottom: 6, top: 4),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(15),
-            shape: BoxShape.rectangle,
-          ),
-          child: Icon(
-            icon,
-            color: controller.selectedIndex.value == index
-                ? (appTheme.isDarkMode ? Colors.white : Colors.black)
-                : Colors.grey,
-            size: controller.selectedIndex.value == index
-                ? ScaleUtil.height(20)
-                : ScaleUtil.height(15),
+        child: Center(
+          child: AnimatedContainer(
+            width:
+                ScaleUtil.width(35), // Increased width for larger touch area
+            height: ScaleUtil.height(35),
+            duration: Duration(milliseconds: 300),
+            curve: Curves.easeIn,
+            padding: ScaleUtil.all(8), // Adjust padding as needed
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(15),
+              color: controller.selectedIndex.value == index
+                  ? (appTheme.isDarkMode
+                      ? Colors.white.withOpacity(0.1)
+                      : Colors.black.withOpacity(0.1))
+                  : Colors.transparent,
+            ),
+            child: Center(
+              child: Icon(
+                icon,
+                color: controller.selectedIndex.value == index
+                    ? (appTheme.isDarkMode ? Colors.white : Colors.black)
+                    : Colors.grey,
+                size: controller.selectedIndex.value == index
+                    ? ScaleUtil.height(20)
+                    : ScaleUtil.height(16),
+              ),
+            ),
           ),
         ),
       ),

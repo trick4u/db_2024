@@ -9,7 +9,6 @@ import 'package:just_audio/just_audio.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:table_calendar/table_calendar.dart';
 
-
 import '../models/quick_event_model.dart';
 import '../projectPages/page_two_calendar.dart';
 import '../services/pexels_service.dart';
@@ -36,6 +35,8 @@ class CalendarController extends GetxController {
 
   RxBool isLoading = true.obs;
   RxBool hasError = false.obs;
+  RxInt imageFetchCount = 0.obs;
+  RxString lastFetchDate = ''.obs;
 
   CollectionReference get eventsCollection {
     return _firestore
@@ -55,13 +56,14 @@ class CalendarController extends GetxController {
     super.onInit();
     _audioPlayer = AudioPlayer();
     loadInitialData();
-   fetchRandomBackgroundImage();
-  //  fetchRandomBackgroundVideo();
+    fetchRandomBackgroundImage();
+    loadImageFetchData();
+    //  fetchRandomBackgroundVideo();
   }
 
   @override
   void onClose() {
-   // backgroundVideoController.value?.dispose();
+    // backgroundVideoController.value?.dispose();
     super.onClose();
   }
 
@@ -93,7 +95,7 @@ class CalendarController extends GetxController {
   //     backgroundVideoController.value!.setLooping(true);
   //     backgroundVideoController.value!.play();
   //     backgroundVideoController.value!.setVolume(0);
-   
+
   //     update();
   //   } catch (e) {
   //     print('Error initializing video player: $e');
@@ -130,13 +132,39 @@ class CalendarController extends GetxController {
     }
   }
 
-Future<void> fetchRandomBackgroundImage() async {
+  Future<void> loadImageFetchData() async {
+    final prefs = await SharedPreferences.getInstance();
+    imageFetchCount.value = prefs.getInt('image_fetch_count') ?? 0;
+    lastFetchDate.value = prefs.getString('last_fetch_date') ?? '';
+
+    // Reset count if it's a new day
+    if (lastFetchDate.value !=
+        DateFormat('yyyy-MM-dd').format(DateTime.now())) {
+      imageFetchCount.value = 0;
+      lastFetchDate.value = DateFormat('yyyy-MM-dd').format(DateTime.now());
+      await prefs.setInt('image_fetch_count', 0);
+      await prefs.setString('last_fetch_date', lastFetchDate.value);
+    }
+  }
+
+  Future<void> fetchRandomBackgroundImage() async {
+    if (imageFetchCount.value >= 20) {
+    
+      return;
+    }
+
     try {
       final imageUrl = await _pexelsService.getRandomImageUrl();
       if (imageUrl.isNotEmpty) {
         backgroundImageUrl.value = imageUrl;
         final prefs = await SharedPreferences.getInstance();
         await prefs.setString('background_image_url', imageUrl);
+
+        // Increment and save the fetch count
+        imageFetchCount.value++;
+        lastFetchDate.value = DateFormat('yyyy-MM-dd').format(DateTime.now());
+        await prefs.setInt('image_fetch_count', imageFetchCount.value);
+        await prefs.setString('last_fetch_date', lastFetchDate.value);
       } else {
         throw Exception('Received empty image URL');
       }

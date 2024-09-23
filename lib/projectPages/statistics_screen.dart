@@ -18,7 +18,7 @@ class StatisticsScreen extends GetWidget<StatisticsController> {
     final appTheme = Get.find<AppTheme>();
     ScaleUtil.init(context);
 
-    return SafeArea(
+    var safeArea = SafeArea(
       child: Padding(
         padding: ScaleUtil.symmetric(horizontal: 10, vertical: 10),
         child: Column(
@@ -54,13 +54,11 @@ class StatisticsScreen extends GetWidget<StatisticsController> {
                         ),
                         Obx(() {
                           if (controller.upcomingTasks.isNotEmpty) {
-                            return Center(
-                              child: Text(
-                                'Total upcoming tasks: ${controller.upcomingTasks.length}',
-                                style: appTheme.bodyMedium.copyWith(
-                                  fontSize: ScaleUtil.fontSize(12),
-                                  color: appTheme.secondaryTextColor,
-                                ),
+                            return Text(
+                              'Total upcoming tasks: ${controller.upcomingTasks.length}',
+                              style: appTheme.bodyMedium.copyWith(
+                                fontSize: ScaleUtil.fontSize(12),
+                                color: appTheme.secondaryTextColor,
                               ),
                             );
                           } else {
@@ -80,6 +78,27 @@ class StatisticsScreen extends GetWidget<StatisticsController> {
         ),
       ),
     );
+    return Obx(() {
+      if (controller.isLoading.value) {
+        return Center(child: CircularProgressIndicator());
+      }
+
+      try {
+        return safeArea;
+      } catch (e) {
+        return Column(
+          children: [
+            Center(
+              child: Text('An error occurred: $e'),
+            ),
+            ElevatedButton(
+              onPressed: () => controller.updateStatistics(),
+              child: Text('Retry'),
+            ),
+          ],
+        );
+      }
+    });
   }
 
   Widget _buildTasksOverview(AppTheme appTheme) {
@@ -384,14 +403,12 @@ class StatisticsScreen extends GetWidget<StatisticsController> {
   Widget _buildUpcomingTasks(AppTheme appTheme) {
     return Obx(() {
       if (controller.upcomingTasks.isEmpty) {
-        return Center(
-          child: Padding(
-            padding: ScaleUtil.only(top: 30),
-            child: Text(
-              'no upcoming tasks in the next 7 days',
-              style: appTheme.bodyMedium.copyWith(
-                fontSize: ScaleUtil.fontSize(14),
-              ),
+        return Padding(
+          padding: ScaleUtil.only(top: 30),
+          child: Text(
+            'no upcoming tasks in the next 7 days',
+            style: appTheme.bodyMedium.copyWith(
+              fontSize: ScaleUtil.fontSize(14),
             ),
           ),
         );

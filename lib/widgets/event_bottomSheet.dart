@@ -44,6 +44,9 @@ class _EventBottomSheetState extends State<EventBottomSheet> {
   bool _isEventCompleted = false;
   String? _selectedRepetition;
 
+  static const int TITLE_MAX_LENGTH = 100;
+  static const int DESCRIPTION_MAX_LENGTH = 500;
+
   @override
   void initState() {
     super.initState();
@@ -124,6 +127,7 @@ class _EventBottomSheetState extends State<EventBottomSheet> {
                     child: TextField(
                       controller: _titleController,
                       style: appTheme.bodyMedium,
+                      maxLength: TITLE_MAX_LENGTH,
                       decoration: InputDecoration(
                         labelText: 'Event Title',
                         filled: true,
@@ -137,6 +141,7 @@ class _EventBottomSheetState extends State<EventBottomSheet> {
                         focusedBorder: InputBorder.none,
                         errorBorder: InputBorder.none,
                         disabledBorder: InputBorder.none,
+                        counterText: '',
                         contentPadding:
                             ScaleUtil.symmetric(horizontal: 16, vertical: 6),
                       ),
@@ -150,22 +155,20 @@ class _EventBottomSheetState extends State<EventBottomSheet> {
                       borderRadius: ScaleUtil.circular(10),
                       child: TextField(
                         controller: _descriptionController,
-                        style: appTheme.bodyMedium.copyWith(
-                          fontSize:
-                              ScaleUtil.fontSize(appTheme.bodyMedium.fontSize!),
-                        ),
+                        style: appTheme.bodyMedium,
+                        maxLength: DESCRIPTION_MAX_LENGTH,
                         decoration: InputDecoration(
-                          labelText: 'Description',
-                          filled: true,
-                          fillColor: appTheme.textFieldFillColor,
-                          border: InputBorder.none,
-                          enabledBorder: InputBorder.none,
-                          focusedBorder: InputBorder.none,
-                          errorBorder: InputBorder.none,
-                          disabledBorder: InputBorder.none,
-                          contentPadding:
-                              ScaleUtil.symmetric(horizontal: 16, vertical: 12),
-                        ),
+                            labelText: '',
+                            filled: true,
+                            fillColor: appTheme.textFieldFillColor,
+                            border: InputBorder.none,
+                            enabledBorder: InputBorder.none,
+                            focusedBorder: InputBorder.none,
+                            errorBorder: InputBorder.none,
+                            disabledBorder: InputBorder.none,
+                            contentPadding: ScaleUtil.symmetric(
+                                horizontal: 16, vertical: 12),
+                            counterText: ""),
                         maxLines: 3,
                       ),
                     ),
