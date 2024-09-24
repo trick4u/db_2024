@@ -12,7 +12,7 @@ import '../services/app_text_style.dart';
 import '../services/app_theme.dart';
 import '../services/scale_util.dart';
 
-class StatisticsScreen extends GetWidget<StatisticsController> {
+class StatisticsScreen extends GetView<StatisticsController> {
   @override
   Widget build(BuildContext context) {
     final appTheme = Get.find<AppTheme>();
@@ -36,9 +36,9 @@ class StatisticsScreen extends GetWidget<StatisticsController> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  _buildTasksOverview(appTheme),
+                  _buildTasksOverview(appTheme, controller),
                   ScaleUtil.sizedBox(height: 16),
-                  _buildWeeklyTaskChart(appTheme),
+                  _buildWeeklyTaskChart(appTheme,controller),
                   ScaleUtil.sizedBox(height: 16),
                   Padding(
                     padding: ScaleUtil.symmetric(horizontal: 8),
@@ -72,36 +72,29 @@ class StatisticsScreen extends GetWidget<StatisticsController> {
               ),
             ),
             Expanded(
-              child: _buildUpcomingTasks(appTheme),
+              child: _buildUpcomingTasks(appTheme,controller),
             ),
           ],
         ),
       ),
     );
-    return Obx(() {
-      if (controller.isLoading.value) {
-        return Center(child: CircularProgressIndicator());
-      }
-
-      try {
-        return safeArea;
-      } catch (e) {
-        return Column(
-          children: [
-            Center(
-              child: Text('An error occurred: $e'),
-            ),
-            ElevatedButton(
-              onPressed: () => controller.updateStatistics(),
-              child: Text('Retry'),
-            ),
-          ],
-        );
-      }
-    });
+   return GetBuilder<StatisticsController>(
+      builder: (controller) => Obx(
+        () {
+          if (controller.isLoading.value) {
+            return Center(child: CircularProgressIndicator());
+          } else {
+            return safeArea;
+             
+            
+          }
+        },
+      ),
+    );
   }
+}
 
-  Widget _buildTasksOverview(AppTheme appTheme) {
+  Widget _buildTasksOverview(AppTheme appTheme, StatisticsController controller) {
     return Obx(() => Row(
           children: [
             Expanded(
@@ -205,7 +198,7 @@ class StatisticsScreen extends GetWidget<StatisticsController> {
     );
   }
 
-  Widget _buildWeeklyTaskChart(AppTheme appTheme) {
+  Widget _buildWeeklyTaskChart(AppTheme appTheme,StatisticsController controller) {
     return FadeIn(
       child: PressableDough(
         onReleased: (d) {
@@ -400,7 +393,7 @@ class StatisticsScreen extends GetWidget<StatisticsController> {
     return maxValue > 8 ? maxValue : 8; // Ensure minimum of 8 for Y-axis
   }
 
-  Widget _buildUpcomingTasks(AppTheme appTheme) {
+  Widget _buildUpcomingTasks(AppTheme appTheme,StatisticsController controller) {
     return Obx(() {
       if (controller.upcomingTasks.isEmpty) {
         return Padding(
@@ -441,4 +434,5 @@ class StatisticsScreen extends GetWidget<StatisticsController> {
       );
     });
   }
-}
+
+

@@ -7,7 +7,7 @@ import 'dart:math' as math;
 
 import 'page_one_controller.dart';
 
-class StatisticsController extends GetxController {
+class StatisticsController extends GetxController with WidgetsBindingObserver {
   final pageOneController = Get.put(PageOneController());
 
   RxInt completedTasks = 0.obs;
@@ -16,7 +16,7 @@ class StatisticsController extends GetxController {
   RxList<int> weeklyPendingTasks = List.generate(7, (_) => 0).obs;
   RxList<QuickEventModel> upcomingTasks = <QuickEventModel>[].obs;
   RxMap<String, int> pendingTaskCategories = <String, int>{}.obs;
-    final RxBool isGradientReversed = false.obs;
+  final RxBool isGradientReversed = false.obs;
 
   Rx<DateTime> currentWeekStart = DateTime.now().obs;
   RxBool hasDataForWeek = true.obs;
@@ -25,10 +25,11 @@ class StatisticsController extends GetxController {
     Duration(days: 90),
   );
   RxBool canGoBack = true.obs;
-   RxBool isLoading = true.obs;
+  RxBool isLoading = true.obs;
   @override
   void onInit() {
     super.onInit();
+    WidgetsBinding.instance.addObserver(this);
     setCurrentWeekStart(DateTime.now());
 
     ever(pageOneController.upcomingEvents, (_) => updateStatistics());
@@ -38,7 +39,20 @@ class StatisticsController extends GetxController {
     updateStatistics();
   }
 
-    void toggleTaskView() {
+  @override
+  void onClose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.onClose();
+  }
+
+    @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      updateStatistics();
+    }
+  }
+
+  void toggleTaskView() {
     showCompletedTasks.toggle();
     isGradientReversed.toggle();
   }
@@ -83,13 +97,19 @@ class StatisticsController extends GetxController {
     return '$startDate-$endDate';
   }
 
- void updateStatistics() {
+   void updateStatistics() {
     isLoading.value = true;
-    updateTasksOverview();
-    updateWeeklyTaskCompletion();
-    updateWeeklyPendingTasks();
-    updateUpcomingTasks();
-    isLoading.value = false;
+    try {
+      updateTasksOverview();
+      updateWeeklyTaskCompletion();
+      updateWeeklyPendingTasks();
+      updateUpcomingTasks();
+    } catch (e) {
+      print('Error updating statistics: $e');
+      // Handle the error appropriately
+    } finally {
+      isLoading.value = false;
+    }
   }
 
   void updateTasksOverview() {
@@ -137,7 +157,6 @@ class StatisticsController extends GetxController {
         date1.day == date2.day;
   }
 
- 
   void updateUpcomingTasks() {
     DateTime now = DateTime.now();
     DateTime sevenDaysLater = now.add(Duration(days: 7));

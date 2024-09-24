@@ -27,7 +27,7 @@ import '../projectPages/page_two_calendar.dart';
 import '../projectPages/profile_screen.dart';
 
 class MainScreenController extends GetxController
-    with GetSingleTickerProviderStateMixin {
+    with GetSingleTickerProviderStateMixin, WidgetsBindingObserver {
   //variables
   final RxInt currentIndex = 0.obs;
   var selectedIndex = 0.obs;
@@ -56,14 +56,38 @@ class MainScreenController extends GetxController
   @override
   void onInit() {
     super.onInit();
+    WidgetsBinding.instance.addObserver(this);
     Get.put(PageOneController()); // Ensure this is initialized first
     Get.lazyPut(() => ProfileController());
     Get.lazyPut(() => StatisticsController());
     Get.lazyPut<CalendarController>(() => CalendarController());
-    scheduleDailyNotification();
-    if (Platform.isIOS) {
-      _setupBackgroundChannel();
-      _scheduleAndroidNotification();
+    // scheduleDailyNotification();
+    // if (Platform.isIOS) {
+    //   _setupBackgroundChannel();
+    //   _scheduleAndroidNotification();
+    // }
+  }
+    @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      refreshCurrentScreen();
+    }
+  }
+
+  void refreshCurrentScreen() {
+    switch (selectedIndex.value) {
+      case 0:
+        // Get.find<PageOneController>().refreshData();
+        break;
+      case 1:
+        //  Get.find<CalendarController>().refreshData();
+        break;
+      case 2:
+        Get.find<StatisticsController>().updateStatistics();
+        break;
+      case 3:
+        Get.find<ProfileController>().loadUserData();
+        break;
     }
   }
 
@@ -91,7 +115,7 @@ class MainScreenController extends GetxController
     await AwesomeNotifications().createNotification(
       content: NotificationContent(
         id: 10,
-        channelKey: 'basic_channel',
+        channelKey: 'event_reminders',
         title: 'Daily Reminder',
         body: 'Start your day with purpose!',
         notificationLayout: NotificationLayout.Default,

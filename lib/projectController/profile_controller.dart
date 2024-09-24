@@ -9,7 +9,7 @@ import 'package:get/get.dart';
 import '../app_routes.dart';
 import '../models/user_model.dart';
 
-class ProfileController extends GetxController {
+class ProfileController extends GetxController with WidgetsBindingObserver {
   var age = 0.obs;
 
   var firebaseFireStore = FirebaseFirestore.instance;
@@ -46,9 +46,9 @@ class ProfileController extends GetxController {
  @override
   void onInit() {
     super.onInit();
+    WidgetsBinding.instance.addObserver(this);
     loadUserData();
   }
-
 
   @override
   void onReady() {
@@ -58,11 +58,18 @@ class ProfileController extends GetxController {
     super.onReady();
   }
 
-  @override
+ @override
   void onClose() {
-    _debounce?.cancel();
+    WidgetsBinding.instance.removeObserver(this);
     super.onClose();
   }
+   @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      loadUserData();
+    }
+  }
+
    void toggleGradientDirection() {
     isGradientReversed.toggle();
   }
@@ -182,15 +189,15 @@ class ProfileController extends GetxController {
     }
   }
 
-   Future<void> loadUserData() async {
-    isLoading.value = true;
-    hasError.value = false;
+  Future<void> loadUserData() async {
     try {
+      isLoading.value = true;
+      hasError.value = false;
        getUserDetails();
-      isLoading.value = false;
     } catch (e) {
       print('Error loading user data: $e');
       hasError.value = true;
+    } finally {
       isLoading.value = false;
     }
   }

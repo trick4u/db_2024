@@ -2,6 +2,8 @@ import 'package:get/get.dart';
 import 'package:internet_connection_checker_plus/internet_connection_checker_plus.dart';
 import 'package:tushar_db/bindings/network_binding.dart';
 import 'package:tushar_db/projectController/calendar_controller.dart';
+import 'package:tushar_db/projectController/profile_controller.dart';
+import 'package:tushar_db/projectController/statistics_controller.dart';
 
 import '../controller/home_controller.dart';
 import '../controller/main_screen_controller.dart';
@@ -20,7 +22,10 @@ class InitialBinding extends Bindings {
         fenix: true);
 
     Get.lazyPut<PageOneController>(() => PageOneController(), fenix: true);
-  Get.lazyPut<CalendarController>(() => CalendarController(), fenix: true);
-    Get.put(NetworkController(), permanent: true);
+    Get.lazyPut<CalendarController>(() => CalendarController(), fenix: true);
+    Get.lazyPut<StatisticsController>(() => StatisticsController(),
+        fenix: true);
+    Get.lazyPut<ProfileController>(() => ProfileController(), fenix: true);
+    // Get.put(NetworkController(), permanent: true);
   }
 }

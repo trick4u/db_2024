@@ -14,16 +14,32 @@ class NetworkScreen extends StatelessWidget {
         title: Text('Network Connectivity'),
       ),
       body: Center(
-        child:  Obx(() {
+        child: Obx(() {
           return Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Text(
-                'You are ${networkController.isOnline.value ? 'online' : 'offline'}',
-                style: const TextStyle(fontSize: 20),
+              GestureDetector(
+                onTap: () {
+                  networkController.checkNetworkConnectivity();
+                },
+                child: Container(
+                  padding: EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: Colors.blue.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Text(
+                    'You are ${networkController.isOnline.value ? 'online' : 'offline'}',
+                    style: const TextStyle(fontSize: 20),
+                    textAlign: TextAlign.center,
+                  ),
+                ),
               ),
               const SizedBox(height: 20),
-            
+              Text(
+                'Tap to check connectivity',
+                style: TextStyle(fontSize: 16, color: Colors.grey),
+              ),
             ],
           );
         }),

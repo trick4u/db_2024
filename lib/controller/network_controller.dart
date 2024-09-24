@@ -34,7 +34,7 @@ class NetworkController extends GetxController {
         case InternetStatus.connected:
           if (!isInitialCheck && !isOnline.value) {
             isOnline.value = true;
-            Get.offAll(() => MainScreen());
+            navigateToMainScreen();
           }
           break;
         case InternetStatus.disconnected:
@@ -47,6 +47,29 @@ class NetworkController extends GetxController {
           break;
       }
     });
+  }
+
+  Future<void> checkNetworkConnectivity() async {
+    bool hasInternet = await InternetConnection().hasInternetAccess;
+    isOnline.value = hasInternet;
+    if (hasInternet) {
+      // Get.snackbar(
+      //   'Connected',
+      //   'You are online',
+      //   snackPosition: SnackPosition.BOTTOM,
+      // );
+      navigateToMainScreen();
+    } else {
+      Get.snackbar(
+        'No Internet',
+        'Please check your internet connection',
+        snackPosition: SnackPosition.BOTTOM,
+      );
+    }
+  }
+
+  void navigateToMainScreen() {
+    Get.offAll(() => MainScreen());
   }
 
   @override

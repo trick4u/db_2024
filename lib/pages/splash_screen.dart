@@ -51,7 +51,7 @@ class _SplashScreenState extends State<SplashScreen> {
               ),
               SizedBox(height: ScaleUtil.height(20)),
               Text(
-                'DoBoard',
+                'doBoard',
                 style: TextStyle(
                   fontFamily: GoogleFonts.pacifico().fontFamily,
                   fontSize: 30,

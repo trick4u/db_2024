@@ -6,6 +6,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:omni_datetime_picker/omni_datetime_picker.dart';
@@ -174,31 +175,63 @@ class VisionBoardController extends GetxController {
     String imageUrl = item.imageUrls.isNotEmpty ? item.imageUrls[0] : '';
 
     DateTime scheduledTime = _getNextAvailableTime(isMorning);
+    SchedulerBinding.instance.addPostFrameCallback((_) async {
+      await AwesomeNotifications().createNotification(
+        content: NotificationContent(
+          autoDismissible: false,
+          id: notificationId,
+          channelKey: 'vision_board_reminders',
+          title: title,
+          body: body,
+          bigPicture: imageUrl,
+          notificationLayout: NotificationLayout.BigPicture,
+          category: NotificationCategory.Reminder,
+          payload: {'time': isMorning ? 'morning' : 'night'},
+          criticalAlert: true,
+          wakeUpScreen: true,
+        ),
+        schedule: NotificationCalendar(
+          year: scheduledTime.year,
+          month: scheduledTime.month,
+          day: scheduledTime.day,
+          hour: scheduledTime.hour,
+          minute: scheduledTime.minute,
+          second: 0,
+          millisecond: 0,
+          repeats: false,
+          preciseAlarm: true,
+          allowWhileIdle: true,
+        ),
+      );
+    });
 
-    await AwesomeNotifications().createNotification(
-      content: NotificationContent(
-        autoDismissible: false,
-        id: notificationId,
-        channelKey: 'event_reminders',
-        title: title,
-        body: body,
-        bigPicture: imageUrl,
-        notificationLayout: NotificationLayout.BigPicture,
-        category: NotificationCategory.Reminder,
-        payload: {'time': isMorning ? 'morning' : 'night'},
-      ),
-      schedule: NotificationCalendar(
-        year: scheduledTime.year,
-        month: scheduledTime.month,
-        day: scheduledTime.day,
-        hour: scheduledTime.hour,
-        minute: scheduledTime.minute,
-        second: 0,
-        millisecond: 0,
-        repeats: false,
-        allowWhileIdle: true,
-      ),
-    );
+    // await AwesomeNotifications().createNotification(
+    //   content: NotificationContent(
+    //     autoDismissible: false,
+    //     id: notificationId,
+    //     channelKey: 'quickschedule',
+    //     title: title,
+    //     body: body,
+    //     bigPicture: imageUrl,
+    //     notificationLayout: NotificationLayout.BigPicture,
+    //     category: NotificationCategory.Reminder,
+    //     payload: {'time': isMorning ? 'morning' : 'night'},
+    //     criticalAlert: true,
+    //     wakeUpScreen: true,
+    //   ),
+    //   schedule: NotificationCalendar(
+    //     year: scheduledTime.year,
+    //     month: scheduledTime.month,
+    //     day: scheduledTime.day,
+    //     hour: scheduledTime.hour,
+    //     minute: scheduledTime.minute,
+    //     second: 0,
+    //     millisecond: 0,
+    //     repeats: false,
+    //     preciseAlarm: true,
+    //     allowWhileIdle: true,
+    //   ),
+    // );
 
     // Update local state and Firestore
     _notificationActiveStates[item.id] = true;
@@ -237,7 +270,7 @@ class VisionBoardController extends GetxController {
   DateTime _getNextAvailableTime(bool isMorning) {
     DateTime now = DateTime.now();
     DateTime baseTime = isMorning
-        ? DateTime(now.year, now.month, now.day, 08, 00)
+        ? DateTime(now.year, now.month, now.day, 14, 40)
         : DateTime(now.year, now.month, now.day, 22, 0);
 
     if (baseTime.isBefore(now)) {
@@ -258,7 +291,6 @@ class VisionBoardController extends GetxController {
 
     return baseTime;
   }
-
 
   void _scheduleNotificationStateUpdate(String itemId, DateTime scheduledTime) {
     Future.delayed(scheduledTime.difference(DateTime.now()), () {
@@ -776,37 +808,37 @@ class VisionBoardController extends GetxController {
     resetForm();
   }
 
-Future<void> deleteItem(String itemId) async {
-  if (currentUser == null) return;
-  try {
-    // First, get the item to delete its images
-    DocumentSnapshot doc = await visionBoardCollection.doc(itemId).get();
-    VisionBoardItem item = VisionBoardItem.fromFirestore(doc);
+  Future<void> deleteItem(String itemId) async {
+    if (currentUser == null) return;
+    try {
+      // First, get the item to delete its images
+      DocumentSnapshot doc = await visionBoardCollection.doc(itemId).get();
+      VisionBoardItem item = VisionBoardItem.fromFirestore(doc);
 
-    // Cancel the notification if it exists
-    if (item.hasNotification) {
-      await cancelNotification(itemId);
+      // Cancel the notification if it exists
+      if (item.hasNotification) {
+        await cancelNotification(itemId);
+      }
+
+      // Delete images from storage
+      for (String imageUrl in item.imageUrls) {
+        await FirebaseStorage.instance.refFromURL(imageUrl).delete();
+      }
+
+      // Delete the document from Firestore
+      await visionBoardCollection.doc(itemId).delete();
+
+      // Remove the item from the local list
+      visionBoardItems.removeWhere((element) => element.id == itemId);
+      _updateDisplayedItems();
+
+      print('Vision board item deleted: $itemId');
+    } catch (e) {
+      print('Error deleting vision board item: $e');
+      Get.snackbar('Error', 'Failed to delete vision board item',
+          snackPosition: SnackPosition.BOTTOM);
     }
-
-    // Delete images from storage
-    for (String imageUrl in item.imageUrls) {
-      await FirebaseStorage.instance.refFromURL(imageUrl).delete();
-    }
-
-    // Delete the document from Firestore
-    await visionBoardCollection.doc(itemId).delete();
-
-    // Remove the item from the local list
-    visionBoardItems.removeWhere((element) => element.id == itemId);
-    _updateDisplayedItems();
-
-    print('Vision board item deleted: $itemId');
-  } catch (e) {
-    print('Error deleting vision board item: $e');
-    Get.snackbar('Error', 'Failed to delete vision board item',
-        snackPosition: SnackPosition.BOTTOM);
   }
-}
 
   Future<void> updateItem(VisionBoardItem item) async {
     if (currentUser == null) return;
