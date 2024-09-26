@@ -191,46 +191,58 @@ class VisionBoardItemCard extends StatelessWidget {
     );
   }
 
-  Widget _buildNotificationButton(BuildContext context,
-      VisionBoardController controller, AppTheme appTheme) {
-    return Obx(() {
-      if (!controller.canScheduleAnyNotification() &&
-          !controller.isNotificationActive(item.id)) {
-        return SizedBox
-            .shrink(); // Hide the button if both limits reached and not active
-      }
+Widget _buildNotificationButton(BuildContext context,
+    VisionBoardController controller, AppTheme appTheme) {
+  return Obx(() {
+    if (!controller.canScheduleAnyNotification() &&
+        !controller.isNotificationActive(item.id)) {
+      return SizedBox.shrink();
+    }
 
-      Widget notificationIcon;
-      if (controller.isNotificationActive(item.id)) {
-        if (item.notificationTime == 'morning') {
-          notificationIcon = Icon(
-            Icons.wb_sunny,
-            size: ScaleUtil.iconSize(15),
-            color: Colors.orange,
-          );
-        } else {
-          notificationIcon = Icon(
-            Icons.nightlight_round,
-            size: ScaleUtil.iconSize(15),
-            color: Colors.indigo,
-          );
-        }
+    Widget notificationIcon;
+    if (controller.isNotificationActive(item.id)) {
+      if (item.notificationTime == 'morning') {
+        notificationIcon = Icon(
+          Icons.wb_sunny,
+          size: ScaleUtil.iconSize(15),
+          color: Colors.orange,
+        );
       } else {
         notificationIcon = Icon(
-          FontAwesomeIcons.bell,
+          Icons.nightlight_round,
           size: ScaleUtil.iconSize(15),
+          color: Colors.indigo,
         );
       }
+    } else {
+      notificationIcon = Icon(
+        FontAwesomeIcons.bell,
+        size: ScaleUtil.iconSize(15),
+      );
+    }
 
-      return PopupMenuButton<String>(
-        icon: notificationIcon,
-        onSelected: (String value) =>
-            _handleNotificationAction(value, controller),
-        itemBuilder: (BuildContext context) {
-          List<PopupMenuEntry<String>> menuItems = [];
+    return PopupMenuButton<String>(
+      icon: notificationIcon,
+      onSelected: (String value) =>
+          _handleNotificationAction(value, controller),
+      itemBuilder: (BuildContext context) {
+        List<PopupMenuEntry<String>> menuItems = [];
 
-          if (controller.canScheduleMorningNotification() ||
-              item.notificationTime == 'morning') {
+        if (controller.isNotificationActive(item.id)) {
+          // If a notification is active, only show the cancel option
+          menuItems.add(PopupMenuItem<String>(
+            value: 'cancel',
+            child: Row(
+              children: [
+                Icon(Icons.cancel, color: Colors.red),
+                SizedBox(width: 8),
+                Text('Cancel Notification'),
+              ],
+            ),
+          ));
+        } else {
+          // If no notification is active, show options to schedule
+          if (controller.canScheduleMorningNotification()) {
             menuItems.add(PopupMenuItem<String>(
               value: 'morning',
               child: Row(
@@ -243,8 +255,7 @@ class VisionBoardItemCard extends StatelessWidget {
             ));
           }
 
-          if (controller.canScheduleNightNotification() ||
-              item.notificationTime == 'night') {
+          if (controller.canScheduleNightNotification()) {
             menuItems.add(PopupMenuItem<String>(
               value: 'night',
               child: Row(
@@ -256,25 +267,13 @@ class VisionBoardItemCard extends StatelessWidget {
               ),
             ));
           }
+        }
 
-          if (controller.isNotificationActive(item.id)) {
-            menuItems.add(PopupMenuItem<String>(
-              value: 'cancel',
-              child: Row(
-                children: [
-                  Icon(Icons.cancel, color: Colors.red),
-                  SizedBox(width: 8),
-                  Text('Cancel Notification'),
-                ],
-              ),
-            ));
-          }
-
-          return menuItems;
-        },
-      );
-    });
-  }
+        return menuItems;
+      },
+    );
+  });
+}
 
   void _handleNotificationAction(
       String action, VisionBoardController controller) {
