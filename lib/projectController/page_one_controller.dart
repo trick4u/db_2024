@@ -268,7 +268,7 @@ class PageOneController extends GetxController {
     });
   }
 
-void deleteReminder(String reminderId) async {
+Future<void> deleteReminder(String reminderId) async {
   if (currentUser == null) return;
   try {
     // Fetch the reminder document
@@ -281,7 +281,6 @@ void deleteReminder(String reminderId) async {
       print('Notification canceled successfully for reminder: $reminderId');
     } catch (e) {
       print('Warning: Failed to cancel notification for reminder: $reminderId. Error: $e');
-      // Continue with deletion even if notification cancellation fails
     }
 
     // Delete the reminder from Firestore
@@ -668,52 +667,19 @@ Future<void> cancelNotificationForReminder(int? notificationId) async {
     }
   }
 
- Future<void> schedulePeriodicNotifications(
-    String body,
-    int interval,
-    bool repeat, {
-    int? notificationId,
-    DateTime? initialTriggerTime,
-    required String documentId,
-  }) async {
-    try {
-      notificationId ??= body.hashCode;
-      DateTime scheduledDate = initialTriggerTime ?? DateTime.now().add(Duration(minutes: interval));
+Future<void> schedulePeriodicNotifications(
+  String body,
+  int interval,
+  bool repeat, {
+  int? notificationId,
+  DateTime? initialTriggerTime,
+  required String documentId,
+  int triggerCount = 0,
+}) async {
+  try {
+    notificationId ??= body.hashCode;
+    DateTime scheduledDate = initialTriggerTime ?? DateTime.now().add(Duration(minutes: interval));
 
-      await AwesomeNotifications().createNotification(
-        content: NotificationContent(
-          id: notificationId,
-          channelKey: 'quickschedule',
-          title: 'DoBoard Reminder 📅',
-          body: body,
-          category: NotificationCategory.Reminder,
-          notificationLayout: NotificationLayout.Default,
-          criticalAlert: true,
-          wakeUpScreen: true,
-          payload: {
-            'repeat': repeat.toString(),
-            'interval': interval.toString(),
-            'documentId': documentId,
-          },
-        ),
-        schedule: NotificationCalendar.fromDate(date: scheduledDate),
-      );
-
-      print('Scheduled notification with ID: $notificationId for time: $scheduledDate, Repeat: $repeat, DocumentID: $documentId, Interval: $interval minutes');
-
-      // Update the Firestore document with the scheduled time
-      await updateReminderTriggerTime(documentId, scheduledDate);
-    } catch (e) {
-      print('Error scheduling notification: $e');
-    }
-  }
-
-
-
-
-    Future<void> scheduleNextNotification(int notificationId, String body, int interval, DateTime lastTriggerTime, String documentId) async {
-    DateTime nextTriggerTime = lastTriggerTime.add(Duration(minutes: interval));
-    
     await AwesomeNotifications().createNotification(
       content: NotificationContent(
         id: notificationId,
@@ -725,44 +691,79 @@ Future<void> cancelNotificationForReminder(int? notificationId) async {
         criticalAlert: true,
         wakeUpScreen: true,
         payload: {
-          'repeat': 'true',
+          'repeat': repeat.toString(),
           'interval': interval.toString(),
           'documentId': documentId,
+          'triggerCount': triggerCount.toString(),
         },
       ),
-      schedule: NotificationCalendar(
-        year: nextTriggerTime.year,
-        month: nextTriggerTime.month,
-        day: nextTriggerTime.day,
-        hour: nextTriggerTime.hour,
-        minute: nextTriggerTime.minute,
-        second: 0,
-        millisecond: 0,
-        repeats: false,
-        preciseAlarm: true,
-        allowWhileIdle: true,
-      ),
+      schedule: NotificationCalendar.fromDate(date: scheduledDate),
     );
 
-    print('Scheduled next notification with ID: $notificationId for time: $nextTriggerTime, DocumentID: $documentId');
+    print('Scheduled notification with ID: $notificationId for time: $scheduledDate, Repeat: $repeat, DocumentID: $documentId, TriggerCount: $triggerCount');
 
-    // Update the trigger time in Firestore
-    await updateReminderTriggerTime(documentId, nextTriggerTime);
+    // Update the Firestore document with the scheduled time and trigger count
+    await updateReminderTriggerTime(documentId, scheduledDate, triggerCount);
+  } catch (e) {
+    print('Error scheduling notification: $e');
   }
+}
 
 
 
-  Future<void> updateReminderTriggerTime(String documentId, DateTime triggerTime) async {
-    try {
-      await remindersCollection.doc(documentId).update({
-        'triggerTime': triggerTime,
-        'lastUpdated': FieldValue.serverTimestamp(),
-      });
-      print('Updated trigger time for document: $documentId to $triggerTime');
-    } catch (e) {
-      print('Error updating reminder trigger time: $e');
-    }
+  //   Future<void> scheduleNextNotification(int notificationId, String body, int interval, DateTime lastTriggerTime, String documentId) async {
+  //   DateTime nextTriggerTime = lastTriggerTime.add(Duration(minutes: interval));
+    
+  //   await AwesomeNotifications().createNotification(
+  //     content: NotificationContent(
+  //       id: notificationId,
+  //       channelKey: 'quickschedule',
+  //       title: 'DoBoard Reminder 📅',
+  //       body: body,
+  //       category: NotificationCategory.Reminder,
+  //       notificationLayout: NotificationLayout.Default,
+  //       criticalAlert: true,
+  //       wakeUpScreen: true,
+  //       payload: {
+  //         'repeat': 'true',
+  //         'interval': interval.toString(),
+  //         'documentId': documentId,
+  //       },
+  //     ),
+  //     schedule: NotificationCalendar(
+  //       year: nextTriggerTime.year,
+  //       month: nextTriggerTime.month,
+  //       day: nextTriggerTime.day,
+  //       hour: nextTriggerTime.hour,
+  //       minute: nextTriggerTime.minute,
+  //       second: 0,
+  //       millisecond: 0,
+  //       repeats: false,
+  //       preciseAlarm: true,
+  //       allowWhileIdle: true,
+  //     ),
+  //   );
+
+  //   print('Scheduled next notification with ID: $notificationId for time: $nextTriggerTime, DocumentID: $documentId');
+
+  //   // Update the trigger time in Firestore
+  //   await updateReminderTriggerTime(documentId, nextTriggerTime);
+  // }
+
+
+
+Future<void> updateReminderTriggerTime(String documentId, DateTime triggerTime, int triggerCount) async {
+  try {
+    await remindersCollection.doc(documentId).update({
+      'triggerTime': triggerTime,
+      'lastUpdated': FieldValue.serverTimestamp(),
+      'triggerCount': triggerCount,
+    });
+    print('Updated trigger time for document: $documentId to $triggerTime, TriggerCount: $triggerCount');
+  } catch (e) {
+    print('Error updating reminder trigger time: $e');
   }
+}
 
   void updateAllReminders() {
     for (var reminder in allReminders) {
@@ -825,6 +826,7 @@ Future<void> cancelNotificationForReminder(int? notificationId) async {
     setSelectedTile('all reminders');
     setSelectedListType('all reminders');
   }
+
   Future<String> createReminder(String reminder, int interval, bool repeat) async {
     DateTime triggerTime = DateTime.now().add(Duration(minutes: interval));
     

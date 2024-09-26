@@ -52,13 +52,13 @@ class NotificationService extends GetxController {
         String documentId = receivedAction.payload!['documentId']!;
         final pageOneController = Get.find<PageOneController>();
 
-        await pageOneController.scheduleNextNotification(
-          receivedAction.id!,
-          receivedAction.body!,
-          interval,
-          DateTime.now(),
-          documentId,
-        );
+        // await pageOneController.scheduleNextNotification(
+        //   receivedAction.id!,
+        //   receivedAction.body!,
+        //   interval,
+        //   DateTime.now(),
+        //   documentId,
+        // );
       }
       // Handle the action here
     } catch (e) {
@@ -76,43 +76,53 @@ class NotificationService extends GetxController {
     }
   }
 
-  static Future<void> onNotificationDisplayedMethod(
-      ReceivedNotification receivedNotification) async {
-    try {
-      print('Notification displayed: ${receivedNotification.id}');
+ static Future<void> onNotificationDisplayedMethod(
+    ReceivedNotification receivedNotification) async {
+  try {
+    print('Notification displayed: ${receivedNotification.id}');
 
-      if (receivedNotification.id != null) {
-        await Get.find<CalendarController>()
-            .markNotificationAsDisplayed(receivedNotification.id!);
-      }
-
-      Map<String, String?>? payload = receivedNotification.payload;
-
-      bool repeat = payload?['repeat'] == 'true';
-      int interval = int.tryParse(payload?['interval'] ?? '0') ?? 0;
-      String? documentId = payload?['documentId'];
-
-      if (repeat && interval > 0 && documentId != null) {
-        final PageOneController controller = Get.find<PageOneController>();
-
-        // Calculate the next trigger time
-        DateTime nextTriggerTime =
-            DateTime.now().add(Duration(minutes: interval));
-
-        // Schedule the next notification
-        await controller.schedulePeriodicNotifications(
-            receivedNotification.body ?? '', interval, repeat,
-            notificationId: receivedNotification.id,
-            initialTriggerTime: nextTriggerTime,
-            documentId: documentId);
-
-        print(
-            'Rescheduled repeating notification: ID ${receivedNotification.id}, Next trigger: $nextTriggerTime, Interval: $interval minutes');
-      }
-    } catch (e) {
-      print('Error in onNotificationDisplayedMethod: $e');
+    if (receivedNotification.id != null) {
+      await Get.find<CalendarController>()
+          .markNotificationAsDisplayed(receivedNotification.id!);
     }
+
+    Map<String, String?>? payload = receivedNotification.payload;
+
+    bool repeat = payload?['repeat'] == 'true';
+    int interval = int.tryParse(payload?['interval'] ?? '0') ?? 0;
+    String? documentId = payload?['documentId'];
+    int triggerCount = int.tryParse(payload?['triggerCount'] ?? '0') ?? 0;
+
+    triggerCount++;
+
+    if ((!repeat || triggerCount >= 6) && documentId != null) {
+      // Remove the reminder from the list and cancel future notifications
+      final PageOneController controller = Get.find<PageOneController>();
+      await controller.deleteReminder(documentId);
+      print('Reminder removed after $triggerCount triggers: $documentId');
+    } else if (repeat && triggerCount < 6 && interval > 0 && documentId != null) {
+      final PageOneController controller = Get.find<PageOneController>();
+
+      // Calculate the next trigger time
+      DateTime nextTriggerTime =
+          DateTime.now().add(Duration(minutes: interval));
+
+      // Schedule the next notification
+      await controller.schedulePeriodicNotifications(
+          receivedNotification.body ?? '', interval, repeat,
+          notificationId: receivedNotification.id,
+          initialTriggerTime: nextTriggerTime,
+          documentId: documentId,
+          triggerCount: triggerCount);
+
+      print(
+          'Rescheduled repeating notification: ID ${receivedNotification.id}, Next trigger: $nextTriggerTime, Interval: $interval minutes, TriggerCount: $triggerCount');
+    }
+  } catch (e) {
+    print('Error in onNotificationDisplayedMethod: $e');
   }
+}
+
 
   static Future<void> onDismissActionReceivedMethod(
       ReceivedAction receivedAction) async {

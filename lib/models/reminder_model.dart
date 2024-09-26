@@ -8,6 +8,7 @@ class ReminderModel {
   final DateTime? triggerTime;
   final DateTime? createdAt;
   final int? notificationId;
+  int triggerCount;
 
   ReminderModel({
     required this.id,
@@ -17,6 +18,7 @@ class ReminderModel {
     this.triggerTime,
     this.createdAt,
     this.notificationId,
+    this.triggerCount = 0,
   });
 
   factory ReminderModel.fromFirestore(DocumentSnapshot doc) {
@@ -33,6 +35,7 @@ class ReminderModel {
           ? (data['createdAt'] as Timestamp).toDate()
           : null,
       notificationId: data['notificationId'],
+      triggerCount: data['triggerCount'] ?? 0,
     );
   }
 
@@ -41,8 +44,10 @@ class ReminderModel {
       'reminder': reminder,
       'time': time,
       'repeat': repeat,
-      'triggerTime': triggerTime != null ? Timestamp.fromDate(triggerTime!) : null,
+      'triggerTime':
+          triggerTime != null ? Timestamp.fromDate(triggerTime!) : null,
       'createdAt': createdAt != null ? Timestamp.fromDate(createdAt!) : null,
+      'triggerCount': triggerCount,
     };
   }
 }

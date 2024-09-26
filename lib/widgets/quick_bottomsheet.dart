@@ -133,7 +133,8 @@ class _QuickReminderBottomSheetState extends State<QuickReminderBottomSheet> {
                         : Icons.repeat,
                     color: widget.reminderController.repeat.value
                         ? widget.appTheme.colorScheme.primary
-                        : widget.appTheme.colorScheme.onSurface.withOpacity(0.5),
+                        : widget.appTheme.colorScheme.onSurface
+                            .withOpacity(0.5),
                     size: ScaleUtil.iconSize(18),
                   ),
                   onPressed: () {
@@ -275,8 +276,10 @@ class _QuickReminderBottomSheetState extends State<QuickReminderBottomSheet> {
 
   void _handleSave() async {
     if (_formKey.currentState!.validate()) {
-      int interval = _getMinutesFromValue(widget.reminderController.timeSelected.value);
-      String reminderText = widget.reminderController.reminderTextController.text;
+      int interval =
+          _getMinutesFromValue(widget.reminderController.timeSelected.value);
+      String reminderText =
+          widget.reminderController.reminderTextController.text;
       bool repeat = widget.reminderController.repeat.value;
 
       try {
@@ -287,7 +290,8 @@ class _QuickReminderBottomSheetState extends State<QuickReminderBottomSheet> {
             interval,
             repeat,
           );
-          print('Reminder updated: ${widget.reminderToEdit!.id}, Interval: $interval minutes, Repeat: $repeat');
+          print(
+              'Reminder updated: ${widget.reminderToEdit!.id}, Interval: $interval minutes, Repeat: $repeat');
         } else {
           // Create the reminder document first
           String documentId = await widget.reminderController.createReminder(
@@ -303,7 +307,8 @@ class _QuickReminderBottomSheetState extends State<QuickReminderBottomSheet> {
             repeat,
             documentId: documentId,
           );
-          print('New reminder created and scheduled: $documentId, Interval: $interval minutes, Repeat: $repeat');
+          print(
+              'New reminder created and scheduled: $documentId, Interval: $interval minutes, Repeat: $repeat');
         }
 
         Get.back();
@@ -330,5 +335,4 @@ class _QuickReminderBottomSheetState extends State<QuickReminderBottomSheet> {
       }
     }
   }
-
 }
