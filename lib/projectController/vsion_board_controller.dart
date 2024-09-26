@@ -150,8 +150,11 @@ class VisionBoardController extends GetxController {
     return _scheduledNotifications[itemId] ?? false;
   }
 
+
+
   Future<void> scheduleNotification(
       VisionBoardItem item, bool isMorning) async {
+   // _optimizeMemoryUsage();
     if (isMorning && !canScheduleMorningNotification()) {
       Get.snackbar(
         'Morning Notification Limit Reached',
@@ -270,8 +273,8 @@ class VisionBoardController extends GetxController {
   DateTime _getNextAvailableTime(bool isMorning) {
     DateTime now = DateTime.now();
     DateTime baseTime = isMorning
-        ? DateTime(now.year, now.month, now.day, 08, 00)
-        : DateTime(now.year, now.month, now.day, 22, 0);
+        ? DateTime(now.year, now.month, now.day, 08,00)
+        : DateTime(now.year, now.month, now.day, 22, 00);
 
     if (baseTime.isBefore(now)) {
       baseTime = baseTime.add(Duration(days: 1));

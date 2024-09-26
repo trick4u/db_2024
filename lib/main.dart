@@ -92,15 +92,16 @@ void main() async {
   print('WorkManager initialized!');
 
   await AwesomeNotifications().initialize(
-      null,
-      [
-        // NotificationChannel(
-        //     channelKey: 'basic_channel',
-        //     channelName: 'Basic notifications',
-        //     channelDescription: 'Notification channel for basic tests',
-        //     defaultColor: const Color(0xFF9D50DD),
-        //     ledColor: Colors.blue),
-        NotificationChannel(
+    null,
+    [
+      NotificationChannel(
+        channelKey: 'basic_channel',
+        channelName: 'Basic notifications',
+        channelDescription: 'Notification channel for basic tests',
+        defaultColor: const Color(0xFF9D50DD),
+        ledColor: Colors.blue,
+      ),
+      NotificationChannel(
         channelKey: 'quickschedule',
         channelName: 'Reminder Notifications',
         channelDescription: 'Notification channel for reminders and events',
@@ -112,39 +113,39 @@ void main() async {
         playSound: true,
         criticalAlerts: true,
       ),
-        NotificationChannel(
-          channelKey: 'event_reminders',
-          channelName: 'Reminder Notifications',
-          channelDescription:
-              'Notification channel for daily motivational quotes',
-          defaultColor: Color(0xFF9D50DD),
-          ledColor: Colors.white,
-          importance: NotificationImportance.Max,
-          defaultRingtoneType: DefaultRingtoneType.Notification,
-          // channelShowBadge: false,
-          playSound: true,
-          // soundSource: soundSource,
-          enableLights: true,
-          enableVibration: true,
-        ),
-        NotificationChannel(
-          channelKey: 'vision_board_reminders',
-          channelName: 'Vision Board Reminders',
-          channelDescription:
-              'Notification channel for vision board item reminders',
-          defaultColor: Color(0xFF9D50DD),
-          ledColor: Colors.purple,
-          importance: NotificationImportance.Max,
-          defaultPrivacy: NotificationPrivacy.Public,
-           defaultRingtoneType: DefaultRingtoneType.Notification,
-          // channelShowBadge: true,
-          playSound: true,
-          // soundSource: soundSource,
-          enableLights: true,
-          enableVibration: true,
-        ),
-      ],
-    );
+      NotificationChannel(
+        channelKey: 'event_reminders',
+        channelName: 'Reminder Notifications',
+        channelDescription:
+            'Notification channel for daily motivational quotes',
+        defaultColor: Color(0xFF9D50DD),
+        ledColor: Colors.white,
+        importance: NotificationImportance.Max,
+        defaultRingtoneType: DefaultRingtoneType.Notification,
+        // channelShowBadge: false,
+        playSound: true,
+        // soundSource: soundSource,
+        enableLights: true,
+        enableVibration: true,
+      ),
+      NotificationChannel(
+        channelKey: 'vision_board_reminders',
+        channelName: 'Vision Board Reminders',
+        channelDescription:
+            'Notification channel for vision board item reminders',
+        defaultColor: Color(0xFF9D50DD),
+        ledColor: Colors.purple,
+        importance: NotificationImportance.Max,
+        defaultPrivacy: NotificationPrivacy.Public,
+        defaultRingtoneType: DefaultRingtoneType.Notification,
+        // channelShowBadge: true,
+        playSound: true,
+        // soundSource: soundSource,
+        enableLights: true,
+        enableVibration: true,
+      ),
+    ],
+  );
 
   // Initialize NotificationTrackingService
   await Get.putAsync(() => NotificationTrackingService().init());

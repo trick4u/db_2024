@@ -148,10 +148,10 @@ class CalendarController extends GetxController {
   }
 
   Future<void> fetchRandomBackgroundImage() async {
-    if (imageFetchCount.value >= 20) {
+    // if (imageFetchCount.value >= 20) {
     
-      return;
-    }
+    //   return;
+    // }
 
     try {
       final imageUrl = await _pexelsService.getRandomImageUrl();
@@ -160,11 +160,11 @@ class CalendarController extends GetxController {
         final prefs = await SharedPreferences.getInstance();
         await prefs.setString('background_image_url', imageUrl);
 
-        // Increment and save the fetch count
-        imageFetchCount.value++;
-        lastFetchDate.value = DateFormat('yyyy-MM-dd').format(DateTime.now());
-        await prefs.setInt('image_fetch_count', imageFetchCount.value);
-        await prefs.setString('last_fetch_date', lastFetchDate.value);
+        // // Increment and save the fetch count
+        // imageFetchCount.value++;
+        // lastFetchDate.value = DateFormat('yyyy-MM-dd').format(DateTime.now());
+        // await prefs.setInt('image_fetch_count', imageFetchCount.value);
+        // await prefs.setString('last_fetch_date', lastFetchDate.value);
       } else {
         throw Exception('Received empty image URL');
       }

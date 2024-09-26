@@ -61,11 +61,11 @@ class MainScreenController extends GetxController
     Get.lazyPut(() => ProfileController());
     Get.lazyPut(() => StatisticsController());
     Get.lazyPut<CalendarController>(() => CalendarController());
-    // scheduleDailyNotification();
-    // if (Platform.isIOS) {
-    //   _setupBackgroundChannel();
-    //   _scheduleAndroidNotification();
-    // }
+    scheduleDailyNotification();
+    if (Platform.isIOS) {
+      _setupBackgroundChannel();
+      _scheduleAndroidNotification();
+    }
   }
     @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
@@ -115,14 +115,14 @@ class MainScreenController extends GetxController
     await AwesomeNotifications().createNotification(
       content: NotificationContent(
         id: 10,
-        channelKey: 'event_reminders',
+        channelKey: 'basic_channel',
         title: 'Daily Reminder',
         body: 'Start your day with purpose!',
         notificationLayout: NotificationLayout.Default,
       ),
       schedule: NotificationCalendar(
-        hour: 7, // 7 AM
-        minute: 0,
+        hour: 10, // 7 AM
+        minute: 10,
         second: 0,
         millisecond: 0,
         repeats: true,
