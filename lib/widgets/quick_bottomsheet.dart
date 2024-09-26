@@ -273,40 +273,62 @@ class _QuickReminderBottomSheetState extends State<QuickReminderBottomSheet> {
     );
   }
 
-  void _handleSave() {
+  void _handleSave() async {
     if (_formKey.currentState!.validate()) {
-      int minutes =
-          _getMinutesFromValue(widget.reminderController.timeSelected.value);
+      int interval = _getMinutesFromValue(widget.reminderController.timeSelected.value);
+      String reminderText = widget.reminderController.reminderTextController.text;
+      bool repeat = widget.reminderController.repeat.value;
 
-      if (widget.reminderToEdit != null) {
-        widget.reminderController.updateReminder(
-          widget.reminderToEdit!.id ?? "", // This should now be a string
-          widget.reminderController.reminderTextController.text,
-          minutes,
-          widget.reminderController.repeat.value,
-        );
-      } else {
-        widget.reminderController.schedulePeriodicNotifications(
-          widget.reminderController.reminderTextController.text,
-          minutes,
-          widget.reminderController.repeat.value,
-        );
+      try {
+        if (widget.reminderToEdit != null) {
+          await widget.reminderController.updateReminder(
+            widget.reminderToEdit!.id ?? "",
+            reminderText,
+            interval,
+            repeat,
+          );
+          print('Reminder updated: ${widget.reminderToEdit!.id}, Interval: $interval minutes, Repeat: $repeat');
+        } else {
+          // Create the reminder document first
+          String documentId = await widget.reminderController.createReminder(
+            reminderText,
+            interval,
+            repeat,
+          );
 
-        widget.reminderController
-            .saveReminder(widget.reminderController.repeat.value);
+          // Now schedule the notification with the new documentId
+          await widget.reminderController.schedulePeriodicNotifications(
+            reminderText,
+            interval,
+            repeat,
+            documentId: documentId,
+          );
+          print('New reminder created and scheduled: $documentId, Interval: $interval minutes, Repeat: $repeat');
+        }
+
+        Get.back();
+        Get.snackbar(
+          'Success',
+          widget.reminderToEdit != null
+              ? 'Reminder updated successfully'
+              : 'Reminder added successfully',
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: Colors.green,
+          colorText: Colors.white,
+          duration: Duration(seconds: 2),
+        );
+      } catch (e) {
+        print('Error saving reminder: $e');
+        Get.snackbar(
+          'Error',
+          'Failed to save reminder. Please try again.',
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: Colors.red,
+          colorText: Colors.white,
+          duration: Duration(seconds: 2),
+        );
       }
-
-      Get.back();
-      Get.snackbar(
-        'Success',
-        widget.reminderToEdit != null
-            ? 'Reminder updated successfully'
-            : 'Reminder added successfully',
-        snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: Colors.green,
-        colorText: Colors.white,
-        duration: Duration(seconds: 2),
-      );
     }
   }
+
 }

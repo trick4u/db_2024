@@ -81,9 +81,14 @@ class RemindersList extends GetWidget<PageOneController> {
                 isScrollControlled: true,
                 backgroundColor: Colors.transparent,
                 builder: (BuildContext context) {
-                  return QuickReminderBottomSheet(
-                    reminderController: controller,
-                    appTheme: appTheme,
+                  return Padding(
+                    padding: EdgeInsets.only(
+                      bottom: MediaQuery.of(context).viewInsets.bottom,
+                    ),
+                    child: QuickReminderBottomSheet(
+                      reminderController: controller,
+                      appTheme: appTheme,
+                    ),
                   );
                 },
               );
@@ -291,7 +296,9 @@ class ReminderCard extends GetView<PageOneController> {
         ),
         if (reminder.repeat)
           Text(
-            reminder.triggerTime!.isBefore(DateTime.now()) ? 'Updating...' : 'Next reminder',
+            reminder.triggerTime!.isBefore(DateTime.now())
+                ? 'Updating...'
+                : 'Next reminder',
             style: TextStyle(
               fontStyle: FontStyle.italic,
               fontSize: ScaleUtil.fontSize(8),
