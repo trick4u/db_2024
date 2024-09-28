@@ -135,7 +135,7 @@ class NoteBottomSheet extends GetView<NoteTakingController> {
                             ? _buildSubTaskToggleButton()
                             : SizedBox()),
                         ScaleUtil.sizedBox(width: 16),
-                        _buildSaveIconButton(),
+                        _buildSaveButton(),
                       ],
                     ),
                   ),
@@ -212,23 +212,33 @@ class NoteBottomSheet extends GetView<NoteTakingController> {
 
   Widget _buildSubTaskToggleButton() {
     return Obx(() => Container(
+          width: ScaleUtil.width(30),
+          height: ScaleUtil.height(30),
           decoration: BoxDecoration(
+            shape: BoxShape.circle,
             color: controller.canAddSubTask
                 ? appTheme.colorScheme.primary
                 : appTheme.colorScheme.surface,
-            shape: BoxShape.circle,
+            borderRadius: ScaleUtil.circular(8),
+            boxShadow: [
+              BoxShadow(
+                color: appTheme.colorScheme.primary.withOpacity(0.3),
+                spreadRadius: ScaleUtil.scale(1),
+                blurRadius: ScaleUtil.scale(3),
+                offset: Offset(0, ScaleUtil.scale(2)),
+              ),
+            ],
           ),
           child: Material(
             color: Colors.transparent,
             child: InkWell(
-              borderRadius: ScaleUtil.circular(20),
+              borderRadius: ScaleUtil.circular(8),
               onTap: controller.canAddSubTask ? controller.addSubTask : null,
-              child: Padding(
-                padding: ScaleUtil.all(10),
+              child: Center(
                 child: FaIcon(
                   FontAwesomeIcons.listUl,
                   color: controller.canAddSubTask ? Colors.white : Colors.black,
-                  size: ScaleUtil.iconSize(15),
+                  size: ScaleUtil.iconSize(10),
                 ),
               ),
             ),
@@ -236,17 +246,28 @@ class NoteBottomSheet extends GetView<NoteTakingController> {
         ));
   }
 
-  Widget _buildSaveIconButton() {
+  Widget _buildSaveButton() {
     return Obx(() => Container(
+          width: ScaleUtil.width(30),
+          height: ScaleUtil.height(30),
           decoration: BoxDecoration(
+            shape: BoxShape.circle,
             color:
                 controller.canSave ? appTheme.colorScheme.primary : Colors.grey,
-            shape: BoxShape.circle,
+            borderRadius: ScaleUtil.circular(8),
+            boxShadow: [
+              BoxShadow(
+                color: appTheme.colorScheme.primary.withOpacity(0.3),
+                spreadRadius: ScaleUtil.scale(1),
+                blurRadius: ScaleUtil.scale(3),
+                offset: Offset(0, ScaleUtil.scale(2)),
+              ),
+            ],
           ),
           child: Material(
             color: Colors.transparent,
             child: InkWell(
-              borderRadius: ScaleUtil.circular(20),
+              borderRadius: ScaleUtil.circular(8),
               onTap: controller.canSave
                   ? () {
                       if (note == null) {
@@ -264,12 +285,11 @@ class NoteBottomSheet extends GetView<NoteTakingController> {
                       }
                     }
                   : null,
-              child: Padding(
-                padding: ScaleUtil.all(10),
+              child: Center(
                 child: Icon(
                   FontAwesomeIcons.check,
                   color: Colors.white,
-                  size: ScaleUtil.iconSize(15),
+                  size: ScaleUtil.iconSize(10),
                 ),
               ),
             ),

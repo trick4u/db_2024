@@ -654,10 +654,17 @@ Future<void> deleteEvent(String eventId) async {
           events[index] = events[index].copyWith(
             lastNotificationDisplayed: now,
           );
+          
+          // Update the eventsGrouped map
+          DateTime eventDate = DateTime(events[index].date.year, events[index].date.month, events[index].date.day);
+          int groupIndex = eventsGrouped[eventDate]?.indexWhere((e) => e.id == eventId) ?? -1;
+          if (groupIndex != -1) {
+            eventsGrouped[eventDate]![groupIndex] = events[index];
+          }
         }
 
         print('Marked notification as displayed for event: $eventId');
-        update(); // This will trigger a rebuild of the EventCard
+        update(); // This will trigger a rebuild of the UI
       } else {
         print('No event found for notification ID: $notificationId');
       }
