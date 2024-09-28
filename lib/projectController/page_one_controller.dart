@@ -238,6 +238,7 @@ class PageOneController extends GetxController {
 
 
   void fetchAllReminders() {
+    
     if (currentUser == null) return;
 
     remindersCollection.snapshots().listen((querySnapshot) {

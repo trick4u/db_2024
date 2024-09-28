@@ -795,21 +795,28 @@ class VisionBoardController extends GetxController {
     }
   }
 
-  Future<void> saveToFirestore(List<String> imageUrls, String userId) async {
-    final newItem = VisionBoardItem(
-      id: '',
-      title: titleController.text.trim(),
-      date: selectedDate.value,
-      imageUrls: imageUrls,
-      userId: userId,
-      createdAt: DateTime.now(),
-    );
-    final docRef = await visionBoardCollection.add(newItem.toMap());
-    newItem.id = docRef.id;
+ Future<void> saveToFirestore(List<String> imageUrls, String userId) async {
+  final newItem = VisionBoardItem(
+    id: '',
+    title: titleController.text.trim(),
+    date: selectedDate.value,
+    imageUrls: imageUrls,
+    userId: userId,
+    createdAt: DateTime.now(),
+  );
+  
+  // Use the correct path for the vision board subcollection
+  final docRef = await FirebaseFirestore.instance
+      .collection('users')
+      .doc(userId)
+      .collection('vision_board')
+      .add(newItem.toMap());
+  
+  newItem.id = docRef.id;
 
-    // Clear the form
-    resetForm();
-  }
+  // Clear the form
+  resetForm();
+}
 
   Future<void> deleteItem(String itemId) async {
     if (currentUser == null) return;

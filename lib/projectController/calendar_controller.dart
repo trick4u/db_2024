@@ -302,30 +302,40 @@ class CalendarController extends GetxController {
     return eventsGrouped[dateKey]?.isNotEmpty ?? false;
   }
 
-  Future<void> deleteEvent(String eventId) async {
-    if (currentUser == null) return;
-    try {
-      // First, fetch the event data
-      DocumentSnapshot eventDoc = await eventsCollection.doc(eventId).get();
-      if (eventDoc.exists) {
-        QuickEventModel event = QuickEventModel.fromFirestore(eventDoc);
+Future<void> deleteEvent(String eventId) async {
+  if (currentUser == null) return;
+  try {
+    // First, fetch the event data
+    DocumentSnapshot eventDoc = await eventsCollection.doc(eventId).get();
+    if (eventDoc.exists) {
+      QuickEventModel event = QuickEventModel.fromFirestore(eventDoc);
 
-        // Cancel the notification if it exists
-        await cancelNotification(event);
+      // Cancel the notification if it exists
+      await cancelNotification(event);
 
-        // Delete the event from Firestore
-        await eventsCollection.doc(eventId).delete();
-
-        // Remove the event from the local list
-        events.removeWhere((e) => e.id == eventId);
-
-        print('Event deleted: $eventId');
-        update();
+      // Remove the event from the local lists immediately
+      events.removeWhere((e) => e.id == eventId);
+      
+      // Update the eventsGrouped map
+      DateTime eventDate = DateTime(event.date.year, event.date.month, event.date.day);
+      if (eventsGrouped.containsKey(eventDate)) {
+        eventsGrouped[eventDate]!.removeWhere((e) => e.id == eventId);
+        if (eventsGrouped[eventDate]!.isEmpty) {
+          eventsGrouped.remove(eventDate);
+        }
       }
-    } catch (e) {
-      print('Error deleting event: $e');
+
+      // Delete the event from Firestore
+      await eventsCollection.doc(eventId).delete();
+
+      print('Event deleted: $eventId');
+      update(); // Trigger UI update
     }
+  } catch (e) {
+    print('Error deleting event: $e');
+    Get.snackbar('Error', 'Failed to delete event');
   }
+}
 
   void showEventBottomSheet(BuildContext context, {QuickEventModel? event}) {
     if (event == null) {
@@ -632,21 +642,22 @@ class CalendarController extends GetxController {
 
       if (eventQuery.docs.isNotEmpty) {
         String eventId = eventQuery.docs.first.id;
+        DateTime now = DateTime.now();
 
         await eventsCollection.doc(eventId).update({
-          'lastNotificationDisplayed': FieldValue.serverTimestamp(),
+          'lastNotificationDisplayed': Timestamp.fromDate(now),
         });
 
         // Update the local event model
         int index = events.indexWhere((e) => e.id == eventId);
         if (index != -1) {
           events[index] = events[index].copyWith(
-            lastNotificationDisplayed: DateTime.now(),
+            lastNotificationDisplayed: now,
           );
         }
 
         print('Marked notification as displayed for event: $eventId');
-        update();
+        update(); // This will trigger a rebuild of the EventCard
       } else {
         print('No event found for notification ID: $notificationId');
       }
@@ -745,22 +756,36 @@ class CalendarController extends GetxController {
     await scheduleNotification(event);
   }
 
-  Future<void> cancelNotification(QuickEventModel event) async {
-    try {
-      // Cancel the notification using the event's ID as the notification ID
-      await AwesomeNotifications().cancel(event.id.hashCode);
+Future<void> cancelNotification(QuickEventModel event) async {
+  try {
+    // Cancel the notification using the event's ID as the notification ID
+    await AwesomeNotifications().cancel(event.id.hashCode);
 
-      // If you're using a separate collection to store notification mappings, delete it here
+    // Try to delete the notification mapping
+    try {
       await FirebaseFirestore.instance
+          .collection('users')
+          .doc(currentUser?.uid)
           .collection('notificationMappings')
           .doc(event.id.hashCode.toString())
           .delete();
-
-      print('Notification canceled for event: ${event.id}');
     } catch (e) {
-      print('Error canceling notification: $e');
+      print('Error deleting notification mapping: $e');
+      // Continue execution even if this fails
+    }
+
+    print('Notification canceled for event: ${event.id}');
+  } catch (e) {
+    print('Error canceling notification: $e');
+    // If it's a permission error, we'll just log it and continue
+    if (e.toString().contains('permission-denied')) {
+      print('Permission denied when canceling notification. Continuing operation.');
+    } else {
+      // For other errors, we might want to rethrow or handle differently
+      rethrow;
     }
   }
+}
 
   //
   Map<String, dynamic> getEventStatistics() {
@@ -824,7 +849,7 @@ class CalendarController extends GetxController {
   }
 
   //toggle event reminder
-  Future<void> toggleEventReminder(String eventId) async {
+ Future<void> toggleEventReminder(String eventId) async {
     if (currentUser == null) return;
     try {
       DocumentSnapshot eventDoc = await eventsCollection.doc(eventId).get();
@@ -834,36 +859,21 @@ class CalendarController extends GetxController {
 
         Map<String, dynamic> updateData = {
           'hasReminder': newReminderStatus,
-          'reminderTime':
-              newReminderStatus ? event.reminderTime ?? event.date : null,
+          'reminderTime': newReminderStatus ? event.reminderTime ?? event.date : null,
+          'lastNotificationDisplayed': null, // Reset this field when toggling
         };
-
-        if (newReminderStatus) {
-          // Reset the notification display status when turning on the reminder
-          updateData['lastNotificationDisplayed'] = null;
-        } else {
-          // Remove the lastNotificationDisplayed field when turning off the reminder
-          updateData['lastNotificationDisplayed'] = FieldValue.delete();
-        }
 
         await eventsCollection.doc(eventId).update(updateData);
 
         if (newReminderStatus) {
-          // If turning on the reminder, schedule a notification
           QuickEventModel updatedEvent = QuickEventModel.fromFirestore(
               await eventsCollection.doc(eventId).get());
           await scheduleNotification(updatedEvent);
         } else {
-          // If turning off the reminder, cancel the notification
           await cancelNotification(event);
         }
 
         fetchEvents(selectedDay.value);
-        update();
-      } else {
-        print('Event document not found. It may have been deleted.');
-        // Optionally, you can remove the event from the local state here
-        // events.removeWhere((e) => e.id == eventId);
         update();
       }
     } catch (e) {
