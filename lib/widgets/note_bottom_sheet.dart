@@ -220,14 +220,6 @@ class NoteBottomSheet extends GetView<NoteTakingController> {
                 ? appTheme.colorScheme.primary
                 : appTheme.colorScheme.surface,
             borderRadius: ScaleUtil.circular(8),
-            boxShadow: [
-              BoxShadow(
-                color: appTheme.colorScheme.primary.withOpacity(0.3),
-                spreadRadius: ScaleUtil.scale(1),
-                blurRadius: ScaleUtil.scale(3),
-                offset: Offset(0, ScaleUtil.scale(2)),
-              ),
-            ],
           ),
           child: Material(
             color: Colors.transparent,
@@ -255,14 +247,6 @@ class NoteBottomSheet extends GetView<NoteTakingController> {
             color:
                 controller.canSave ? appTheme.colorScheme.primary : Colors.grey,
             borderRadius: ScaleUtil.circular(8),
-            boxShadow: [
-              BoxShadow(
-                color: appTheme.colorScheme.primary.withOpacity(0.3),
-                spreadRadius: ScaleUtil.scale(1),
-                blurRadius: ScaleUtil.scale(3),
-                offset: Offset(0, ScaleUtil.scale(2)),
-              ),
-            ],
           ),
           child: Material(
             color: Colors.transparent,

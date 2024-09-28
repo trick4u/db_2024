@@ -13,7 +13,8 @@ class RegisterController extends GetxController {
   final TextEditingController nameController = TextEditingController();
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
-  final TextEditingController confirmPasswordController = TextEditingController();
+  final TextEditingController confirmPasswordController =
+      TextEditingController();
 
   RxBool isPasswordVisible = false.obs;
   RxBool isConfirmPasswordVisible = false.obs;
@@ -64,7 +65,7 @@ class RegisterController extends GetxController {
     isUsernameValid.value = isValidUsername(username);
     isUsernameEmpty.value = username.isEmpty;
     if (isUsernameValid.value) {
-      checkUsernameAvailability();
+      checkUsernameAvailability(username); // Pass the username here
     } else {
       isUsernameAvailable.value = false;
       hasCheckedUsername.value = false;
@@ -91,13 +92,26 @@ class RegisterController extends GetxController {
   }
 
   void _validateConfirmPassword() {
-    doPasswordsMatch.value = passwordController.text == confirmPasswordController.text;
+    doPasswordsMatch.value =
+        passwordController.text == confirmPasswordController.text;
     _updateRegisterButtonState();
   }
 
+  void onUsernameChanged(String value) {
+    if (_debounce?.isActive ?? false) _debounce!.cancel();
+    _debounce = Timer(const Duration(milliseconds: 500), () {
+      if (isValidUsername(value)) {
+        checkUsernameAvailability(value);
+      } else {
+        isUsernameAvailable.value = false;
+        hasCheckedUsername.value = false;
+      }
+      _updateRegisterButtonState();
+    });
+  }
+
   void _updateRegisterButtonState() {
-    isRegisterButtonActive.value = 
-        isUsernameValid.value &&
+    isRegisterButtonActive.value = isUsernameValid.value &&
         isUsernameAvailable.value &&
         isNameValid.value &&
         isEmailValid.value &&
@@ -113,36 +127,38 @@ class RegisterController extends GetxController {
     return RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(email);
   }
 
-  Future<void> checkUsernameAvailability() async {
-    if (_debounce?.isActive ?? false) _debounce!.cancel();
-    _debounce = Timer(const Duration(milliseconds: 500), () async {
-      final username = usernameController.text.trim();
-      if (!isValidUsername(username)) return;
+  Future<void> checkUsernameAvailability(String username) async {
+    if (!isValidUsername(username)) {
+      isUsernameAvailable.value = false;
+      hasCheckedUsername.value = false;
+      Get.snackbar('Error', 'Invalid username format or length');
+      return;
+    }
 
-      isCheckingUsername.value = true;
-      try {
-        final querySnapshot = await FirebaseFirestore.instance
-            .collection('users')
-            .where('username', isEqualTo: username)
-            .get();
+    isCheckingUsername.value = true;
+    try {
+      final querySnapshot = await FirebaseFirestore.instance
+          .collection('users')
+          .where('username', isEqualTo: username)
+          .limit(1) // Add this line to comply with the new rules
+          .get();
 
-        isUsernameAvailable.value = querySnapshot.docs.isEmpty;
-        hasCheckedUsername.value = true;
+      isUsernameAvailable.value = querySnapshot.docs.isEmpty;
+      hasCheckedUsername.value = true;
 
-        if (isUsernameAvailable.value) {
-          Get.snackbar('Success', 'Username is available');
-        } else {
-          Get.snackbar('Error', 'Username is already taken');
-        }
-      } catch (e) {
-        Get.snackbar('Error', 'Failed to check username availability');
-        isUsernameAvailable.value = false;
-        hasCheckedUsername.value = false;
-      } finally {
-        isCheckingUsername.value = false;
-        _updateRegisterButtonState();
+      if (isUsernameAvailable.value) {
+        Get.snackbar('Success', 'Username is available');
+      } else {
+        Get.snackbar('Error', 'Username is already taken');
       }
-    });
+    } catch (e) {
+      print('Error checking username availability: $e');
+      Get.snackbar('Error', 'Failed to check username availability');
+      isUsernameAvailable.value = false;
+      hasCheckedUsername.value = false;
+    } finally {
+      isCheckingUsername.value = false;
+    }
   }
 
   void togglePasswordVisibility() {
@@ -158,7 +174,8 @@ class RegisterController extends GetxController {
 
     isLoading.value = true;
     try {
-      UserCredential userCredential = await FirebaseAuth.instance.createUserWithEmailAndPassword(
+      UserCredential userCredential =
+          await FirebaseAuth.instance.createUserWithEmailAndPassword(
         email: emailController.text.trim(),
         password: passwordController.text,
       );
@@ -177,7 +194,8 @@ class RegisterController extends GetxController {
           .doc(newUser.uid)
           .set(newUser.toMap());
 
-      Get.snackbar('Registration Successful', 'Please check your email to verify your account');
+      Get.snackbar('Registration Successful',
+          'Please check your email to verify your account');
       Get.offAllNamed(AppRoutes.EMAILVERIFICATION);
     } catch (e) {
       Get.snackbar('Registration Error', e.toString());

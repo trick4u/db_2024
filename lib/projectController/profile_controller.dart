@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -104,90 +105,128 @@ class ProfileController extends GetxController with WidgetsBindingObserver {
     }
   }
 
-  Future<void> deleteAccount() async {
-    final TextEditingController passwordController = TextEditingController();
+ Future<void> deleteAccount() async {
+  final TextEditingController passwordController = TextEditingController();
 
-    try {
-      // Get the current user
-      final user = FirebaseAuth.instance.currentUser;
-      if (user == null) {
-        print('No user is currently signed in.');
-        return;
-      }
+  try {
+    // Get the current user
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) {
+      print('No user is currently signed in.');
+      return;
+    }
 
-      // Show re-authentication dialog
-      bool? shouldProceed = await Get.dialog<bool>(
-        AlertDialog(
-          title: Text('Confirm Account Deletion'),
-          content: Text(
-              'Please re-enter your password to delete your account. This action cannot be undone.'),
-          actions: [
-            TextButton(
-              child: Text('Cancel'),
-              onPressed: () => Get.back(result: false),
-            ),
-            TextButton(
-              child: Text('Proceed'),
-              onPressed: () => Get.back(result: true),
-            ),
-          ],
-        ),
-      );
-
-      if (shouldProceed != true) {
-        return;
-      }
-
-      // Get the user's password
-      String? password = await Get.dialog<String>(
-        AlertDialog(
-          title: Text('Enter Password'),
-          content: TextField(
-            controller: passwordController,
-            obscureText: true,
-            decoration: InputDecoration(hintText: "Password"),
+    // Show re-authentication dialog
+    bool? shouldProceed = await Get.dialog<bool>(
+      AlertDialog(
+        title: Text('Confirm Account Deletion'),
+        content: Text(
+            'Please re-enter your password to delete your account. This action cannot be undone.'),
+        actions: [
+          TextButton(
+            child: Text('Cancel'),
+            onPressed: () => Get.back(result: false),
           ),
-          actions: [
-            TextButton(
-              child: Text('Submit'),
-              onPressed: () => Get.back(result: passwordController.text),
-            ),
-          ],
+          TextButton(
+            child: Text('Proceed'),
+            onPressed: () => Get.back(result: true),
+          ),
+        ],
+      ),
+    );
+
+    if (shouldProceed != true) {
+      return;
+    }
+
+    // Get the user's password
+    String? password = await Get.dialog<String>(
+      AlertDialog(
+        title: Text('Enter Password'),
+        content: TextField(
+          controller: passwordController,
+          obscureText: true,
+          decoration: InputDecoration(hintText: "Password"),
         ),
-      );
+        actions: [
+          TextButton(
+            child: Text('Submit'),
+            onPressed: () => Get.back(result: passwordController.text),
+          ),
+        ],
+      ),
+    );
 
-      if (password == null || password.isEmpty) {
-        Get.snackbar('Error', 'Password is required to delete account');
-        return;
-      }
+    if (password == null || password.isEmpty) {
+      Get.snackbar('Error', 'Password is required to delete account');
+      return;
+    }
 
-      // Re-authenticate
-      AuthCredential credential = EmailAuthProvider.credential(
-        email: user.email!,
-        password: password,
-      );
-      await user.reauthenticateWithCredential(credential);
+    // Re-authenticate
+    AuthCredential credential = EmailAuthProvider.credential(
+      email: user.email!,
+      password: password,
+    );
+    await user.reauthenticateWithCredential(credential);
 
-      // Delete user data from Firestore
-      await FirebaseFirestore.instance
+    // Delete user data and subcollections from Firestore
+    WriteBatch batch = FirebaseFirestore.instance.batch();
+
+    // Delete main user document
+    batch.delete(FirebaseFirestore.instance.collection('users').doc(user.uid));
+
+    // Delete subcollections
+    final subcollections = ['notes', 'reminders', 'vision_board', 'events', 'notificationMappings'];
+    
+    for (String subcollection in subcollections) {
+      QuerySnapshot subcollectionDocs = await FirebaseFirestore.instance
           .collection('users')
           .doc(user.uid)
-          .delete();
-
-      // Delete the user account from Firebase Authentication
-      await user.delete();
-
-      // Navigate to the home screen
-      await Get.offAllNamed(AppRoutes.HOME);
-      Get.snackbar('Success', 'Your account has been deleted');
-    } catch (error) {
-      print('Error deleting account: $error');
-      Get.snackbar('Error', 'Failed to delete account: $error');
-    } finally {
-      // Ensure the controller is always disposed
-      passwordController.dispose();
+          .collection(subcollection)
+          .get();
+      
+      for (DocumentSnapshot doc in subcollectionDocs.docs) {
+        batch.delete(doc.reference);
+      }
     }
+
+    // Commit the batch
+    await batch.commit();
+
+    // Delete the user account from Firebase Authentication
+    await user.delete();
+
+    // Navigate to the home screen
+    await Get.offAllNamed(AppRoutes.HOME);
+    Get.snackbar('Success', 'Your account and all associated data have been deleted');
+  } catch (error) {
+    print('Error deleting account: $error');
+    Get.snackbar('Error', 'Failed to delete account: $error');
+  } finally {
+    // Ensure the controller is always disposed
+    passwordController.dispose();
   }
+}
+
+Future<void> _deleteUserImages(String userId) async {
+  try {
+    // Get reference to the user's vision board images folder
+    final Reference storageRef = FirebaseStorage.instance.ref().child('users/$userId/vision_board_images');
+    
+    // List all items (images) in the folder
+    final ListResult result = await storageRef.listAll();
+
+    // Delete each image
+    for (var item in result.items) {
+      await item.delete();
+    }
+
+    print('All images for user $userId have been deleted from Firebase Storage');
+  } catch (e) {
+    print('Error deleting user images: $e');
+    // You might want to handle this error, perhaps by showing a snackbar or rethrowing
+  }
+}
 
   Future<void> loadUserData() async {
     try {

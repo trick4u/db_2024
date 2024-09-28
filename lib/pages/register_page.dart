@@ -50,8 +50,9 @@ class RegisterPage extends GetView<RegisterController> {
                                   icon: controller.isCheckingUsername.value
                                       ? CircularProgressIndicator()
                                       : Icon(Icons.check),
-                                  onPressed:
-                                      controller.checkUsernameAvailability,
+                                  onPressed: () =>
+                                      controller.checkUsernameAvailability(
+                                          controller.usernameController.text),
                                 ),
                           errorText: controller.hasCheckedUsername.value &&
                                   !controller.isUsernameAvailable.value
@@ -60,6 +61,8 @@ class RegisterPage extends GetView<RegisterController> {
                           inputFormatters: [
                             LengthLimitingTextInputFormatter(15),
                           ],
+                          onChanged: (value) =>
+                              controller.onUsernameChanged(value),
                         )),
                     SizedBox(height: ScaleUtil.height(10.0)),
                     Obx(() => _buildTextField(
