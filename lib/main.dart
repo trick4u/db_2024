@@ -39,6 +39,7 @@ import 'services/notification_service.dart';
 import 'services/notification_tracking_service.dart';
 
 import 'services/scale_util.dart';
+import 'services/work_manager.dart';
 
 void callbackDispatcher() {
   // Workmanager().executeTask((task, inputData) async {
@@ -77,16 +78,16 @@ void main() async {
   await GetStorage.init();
 
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
-
+    await WorkmanagerNotificationService.initialize();
   FirebaseFirestore.instance.settings = Settings(persistenceEnabled: true);
 
   Get.put(AuthService());
   final appTheme = Get.put(AppTheme());
   appTheme.updateStatusBarColor();
 
-  if (Platform.isAndroid) {
-    await Workmanager().initialize(callbackDispatcher, isInDebugMode: true);
-  }
+  // if (Platform.isAndroid) {
+  //   await Workmanager().initialize(callbackDispatcher, isInDebugMode: true);
+  // }
   // String soundSource =
   //     Platform.isIOS ? 'success.wav' : 'resource://raw/notification_sound';
   print('WorkManager initialized!');

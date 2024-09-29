@@ -19,6 +19,7 @@ import '../models/reminder_model.dart';
 import '../projectPages/awesome_noti.dart';
 import '../services/app_theme.dart';
 import '../services/notification_service.dart';
+import '../services/work_manager.dart';
 import '../widgets/quick_bottomsheet.dart';
 import 'add_task_controller.dart';
 import 'package:http/http.dart' as http;
@@ -109,7 +110,7 @@ class PageOneController extends GetxController {
     fetchAllReminders();
 
     reminderTextController = TextEditingController();
-  
+    rescheduleAllReminders();
 
     super.onInit();
   }
@@ -118,7 +119,7 @@ class PageOneController extends GetxController {
   @override
   void onReady() {
     //getAllGoals();
-   
+
     updateGreeting();
   }
 
@@ -135,15 +136,14 @@ class PageOneController extends GetxController {
     _audioPlayer.dispose();
     super.onClose();
   }
-   void toggleGradientDirectionReminder() {
+
+  void toggleGradientDirectionReminder() {
     isGradientReversedReminder.toggle();
   }
-
 
   void toggleGradientDirection() {
     isGradientReversed.toggle();
   }
-   
 
   void _initializeSelectedTile() {
     if (selectedTile.value.isEmpty) {
@@ -203,12 +203,12 @@ class PageOneController extends GetxController {
     });
   }
 
- 
-
   //for reminders
-  Future<void> updateReminder(String reminderId, String newReminder, int newInterval, bool repeat) async {
+  Future<void> updateReminder(String reminderId, String newReminder,
+      int newInterval, bool repeat) async {
     try {
-      DateTime newTriggerTime = DateTime.now().add(Duration(minutes: newInterval));
+      DateTime newTriggerTime =
+          DateTime.now().add(Duration(minutes: newInterval));
       await remindersCollection.doc(reminderId).update({
         "reminder": newReminder,
         "interval": newInterval,
@@ -228,7 +228,8 @@ class PageOneController extends GetxController {
         documentId: reminderId,
       );
 
-      print('Reminder updated: $reminderId, New interval: $newInterval minutes, Repeat: $repeat');
+      print(
+          'Reminder updated: $reminderId, New interval: $newInterval minutes, Repeat: $repeat');
       fetchAllReminders(); // Refresh the list
     } catch (e) {
       print('Error updating reminder: $e');
@@ -236,9 +237,7 @@ class PageOneController extends GetxController {
     }
   }
 
-
   void fetchAllReminders() {
-    
     if (currentUser == null) return;
 
     remindersCollection.snapshots().listen((querySnapshot) {
@@ -269,45 +268,47 @@ class PageOneController extends GetxController {
     });
   }
 
-Future<void> deleteReminder(String reminderId) async {
-  if (currentUser == null) return;
-  try {
-    // Fetch the reminder document
-    DocumentSnapshot reminderDoc = await remindersCollection.doc(reminderId).get();
-    ReminderModel reminder = ReminderModel.fromFirestore(reminderDoc);
-
-    // Attempt to cancel the notification
+  Future<void> deleteReminder(String reminderId) async {
+    if (currentUser == null) return;
     try {
-      await cancelNotificationForReminder(reminder.notificationId);
-      print('Notification canceled successfully for reminder: $reminderId');
-    } catch (e) {
-      print('Warning: Failed to cancel notification for reminder: $reminderId. Error: $e');
-    }
+      // Fetch the reminder document
+      DocumentSnapshot reminderDoc =
+          await remindersCollection.doc(reminderId).get();
+      ReminderModel reminder = ReminderModel.fromFirestore(reminderDoc);
 
-    // Delete the reminder from Firestore
-    await remindersCollection.doc(reminderId).delete();
-    
-    Get.snackbar('Success', 'Reminder deleted successfully');
-    fetchAllReminders(); // Refresh the list
-  } catch (e) {
-    print('Error deleting reminder: $e');
-    Get.snackbar('Error', 'Failed to delete reminder');
+      // Attempt to cancel the notification
+      try {
+        await cancelNotificationForReminder(reminder.notificationId);
+        print('Notification canceled successfully for reminder: $reminderId');
+      } catch (e) {
+        print(
+            'Warning: Failed to cancel notification for reminder: $reminderId. Error: $e');
+      }
+
+      // Delete the reminder from Firestore
+      await remindersCollection.doc(reminderId).delete();
+
+      Get.snackbar('Success', 'Reminder deleted successfully');
+      fetchAllReminders(); // Refresh the list
+    } catch (e) {
+      print('Error deleting reminder: $e');
+      Get.snackbar('Error', 'Failed to delete reminder');
+    }
   }
-}
-  
-Future<void> cancelNotificationForReminder(int? notificationId) async {
-  if (notificationId == null) {
-    print('No notification ID provided');
-    return;
+
+  Future<void> cancelNotificationForReminder(int? notificationId) async {
+    if (notificationId == null) {
+      print('No notification ID provided');
+      return;
+    }
+    try {
+      await AwesomeNotifications().cancel(notificationId);
+      print('Notification cancellation requested for ID: $notificationId');
+    } catch (e) {
+      print('Error canceling notification: $e');
+      throw e; // Re-throw the error to be caught in deleteReminder
+    }
   }
-  try {
-    await AwesomeNotifications().cancel(notificationId);
-    print('Notification cancellation requested for ID: $notificationId');
-  } catch (e) {
-    print('Error canceling notification: $e');
-    throw e; // Re-throw the error to be caught in deleteReminder
-  }
-}
 
   void toggleReminderCompletion(String reminderId, bool isCompleted) {
     remindersCollection.doc(reminderId).update({'isCompleted': isCompleted});
@@ -587,10 +588,6 @@ Future<void> cancelNotificationForReminder(int? notificationId) async {
 
   //get all goals
 
- 
-
-
-
   var chips = <ChipProperties>[
     ChipProperties(
         text: '15 min', fontColor: Colors.white, backgroundColor: Colors.grey),
@@ -632,89 +629,106 @@ Future<void> cancelNotificationForReminder(int? notificationId) async {
       chips.refresh(); // Notify listeners
     }
   }
-  
-
 
   Future<void> updateNextTriggerTime(String reminderId) async {
     try {
-      DocumentSnapshot reminderDoc = await remindersCollection.doc(reminderId).get();
+      DocumentSnapshot reminderDoc =
+          await remindersCollection.doc(reminderId).get();
       ReminderModel reminder = ReminderModel.fromFirestore(reminderDoc);
 
-      if (reminder.repeat && reminder.triggerTime != null && reminder.triggerTime!.isBefore(DateTime.now())) {
+      if (reminder.repeat &&
+          reminder.triggerTime != null &&
+          reminder.triggerTime!.isBefore(DateTime.now())) {
         DateTime nextTriggerTime = reminder.triggerTime!;
         int intervalMinutes = reminder.time;
         while (nextTriggerTime.isBefore(DateTime.now())) {
-          nextTriggerTime = nextTriggerTime.add(Duration(minutes: intervalMinutes));
+          nextTriggerTime =
+              nextTriggerTime.add(Duration(minutes: intervalMinutes));
         }
 
         await remindersCollection.doc(reminderId).update({
           'triggerTime': nextTriggerTime,
         });
+        await WorkmanagerNotificationService.cancelNotification(
+            reminder.notificationId?.toString() ?? reminderId);
 
         await AwesomeNotifications().cancel(reminder.notificationId ?? 0);
         await schedulePeriodicNotifications(
-          reminder.reminder,
-          intervalMinutes,
-          reminder.repeat,
-          notificationId: reminder.notificationId ?? reminder.reminder.hashCode,
-          initialTriggerTime: nextTriggerTime,
-          documentId: reminderId  // Add this line to pass the documentId
-        );
+            reminder.reminder, intervalMinutes, reminder.repeat,
+            notificationId:
+                reminder.notificationId ?? reminder.reminder.hashCode,
+            initialTriggerTime: nextTriggerTime,
+            documentId: reminderId // Add this line to pass the documentId
+            );
 
-        print('Updated next trigger time for reminder: $reminderId, Next trigger: $nextTriggerTime, Interval: $intervalMinutes minutes');
+        print(
+            'Updated next trigger time for reminder: $reminderId, Next trigger: $nextTriggerTime, Interval: $intervalMinutes minutes');
       }
     } catch (e) {
       print('Error updating next trigger time: $e');
     }
   }
 
-Future<void> schedulePeriodicNotifications(
-  String body,
-  int interval,
-  bool repeat, {
-  int? notificationId,
-  DateTime? initialTriggerTime,
-  required String documentId,
-  int triggerCount = 0,
-}) async {
-  try {
-    notificationId ??= body.hashCode;
-    DateTime scheduledDate = initialTriggerTime ?? DateTime.now().add(Duration(minutes: interval));
+  Future<void> schedulePeriodicNotifications(
+    String body,
+    int interval,
+    bool repeat, {
+    int? notificationId,
+    DateTime? initialTriggerTime,
+    required String documentId,
+    int triggerCount = 0,
+  }) async {
+    try {
+      notificationId ??= body.hashCode;
+      DateTime scheduledDate =
+          initialTriggerTime ?? DateTime.now().add(Duration(minutes: interval));
 
-    await AwesomeNotifications().createNotification(
-      content: NotificationContent(
-        id: notificationId,
-        channelKey: 'quickschedule',
-        title: 'DoBoard Reminder 📅',
-        body: body,
-        category: NotificationCategory.Reminder,
-        notificationLayout: NotificationLayout.Default,
-        criticalAlert: true,
-        wakeUpScreen: true,
-        payload: {
-          'repeat': repeat.toString(),
-          'interval': interval.toString(),
-          'documentId': documentId,
-          'triggerCount': triggerCount.toString(),
-        },
-      ),
-      schedule: NotificationCalendar.fromDate(date: scheduledDate),
-    );
+      await AwesomeNotifications().createNotification(
+        content: NotificationContent(
+          id: notificationId,
+          channelKey: 'quickschedule',
+          title: 'DoBoard Reminder 📅',
+          body: body,
+          category: NotificationCategory.Reminder,
+          notificationLayout: NotificationLayout.Default,
+          criticalAlert: true,
+          wakeUpScreen: true,
+          payload: {
+            'repeat': repeat.toString(),
+            'interval': interval.toString(),
+            'documentId': documentId,
+            'triggerCount': triggerCount.toString(),
+          },
+        ),
+        schedule: NotificationCalendar.fromDate(date: scheduledDate),
+      );
+      Map<String, dynamic> notificationData = {
+        'id': notificationId,
+        'channelKey': 'quickschedule',
+        'title': 'DoBoard Reminder 📅',
+        'body': body,
+        'scheduledTime': scheduledDate.toIso8601String(),
+        'repeat': repeat,
+        'interval': interval,
+        'documentId': documentId,
+        'triggerCount': triggerCount,
+      };
+      await WorkmanagerNotificationService.scheduleNotification(
+          notificationData);
 
-    print('Scheduled notification with ID: $notificationId for time: $scheduledDate, Repeat: $repeat, DocumentID: $documentId, TriggerCount: $triggerCount');
+      print(
+          'Scheduled notification with ID: $notificationId for time: $scheduledDate, Repeat: $repeat, DocumentID: $documentId, TriggerCount: $triggerCount');
 
-    // Update the Firestore document with the scheduled time and trigger count
-    await updateReminderTriggerTime(documentId, scheduledDate, triggerCount);
-  } catch (e) {
-    print('Error scheduling notification: $e');
+      // Update the Firestore document with the scheduled time and trigger count
+      await updateReminderTriggerTime(documentId, scheduledDate, triggerCount);
+    } catch (e) {
+      print('Error scheduling notification: $e');
+    }
   }
-}
-
-
 
   //   Future<void> scheduleNextNotification(int notificationId, String body, int interval, DateTime lastTriggerTime, String documentId) async {
   //   DateTime nextTriggerTime = lastTriggerTime.add(Duration(minutes: interval));
-    
+
   //   await AwesomeNotifications().createNotification(
   //     content: NotificationContent(
   //       id: notificationId,
@@ -751,20 +765,20 @@ Future<void> schedulePeriodicNotifications(
   //   await updateReminderTriggerTime(documentId, nextTriggerTime);
   // }
 
-
-
-Future<void> updateReminderTriggerTime(String documentId, DateTime triggerTime, int triggerCount) async {
-  try {
-    await remindersCollection.doc(documentId).update({
-      'triggerTime': triggerTime,
-      'lastUpdated': FieldValue.serverTimestamp(),
-      'triggerCount': triggerCount,
-    });
-    print('Updated trigger time for document: $documentId to $triggerTime, TriggerCount: $triggerCount');
-  } catch (e) {
-    print('Error updating reminder trigger time: $e');
+  Future<void> updateReminderTriggerTime(
+      String documentId, DateTime triggerTime, int triggerCount) async {
+    try {
+      await remindersCollection.doc(documentId).update({
+        'triggerTime': triggerTime,
+        'lastUpdated': FieldValue.serverTimestamp(),
+        'triggerCount': triggerCount,
+      });
+      print(
+          'Updated trigger time for document: $documentId to $triggerTime, TriggerCount: $triggerCount');
+    } catch (e) {
+      print('Error updating reminder trigger time: $e');
+    }
   }
-}
 
   void updateAllReminders() {
     for (var reminder in allReminders) {
@@ -798,10 +812,11 @@ Future<void> updateReminderTriggerTime(String documentId, DateTime triggerTime, 
   }
 
   //save data into firestore
- Future<void> saveReminder(bool repeat) async {
+  Future<void> saveReminder(bool repeat) async {
     int notificationId = reminderTextController.text.hashCode;
-    DateTime triggerTime = nextNotificationTime.value ?? DateTime.now().add(Duration(minutes: timeSelected.value));
-    
+    DateTime triggerTime = nextNotificationTime.value ??
+        DateTime.now().add(Duration(minutes: timeSelected.value));
+
     DocumentReference docRef = await remindersCollection.add({
       "reminder": reminderTextController.text,
       "time": timeSelected.value,
@@ -828,9 +843,10 @@ Future<void> updateReminderTriggerTime(String documentId, DateTime triggerTime, 
     setSelectedListType('all reminders');
   }
 
-  Future<String> createReminder(String reminder, int interval, bool repeat) async {
+  Future<String> createReminder(
+      String reminder, int interval, bool repeat) async {
     DateTime triggerTime = DateTime.now().add(Duration(minutes: interval));
-    
+
     DocumentReference docRef = await remindersCollection.add({
       "reminder": reminder,
       "interval": interval,
@@ -841,16 +857,19 @@ Future<void> updateReminderTriggerTime(String documentId, DateTime triggerTime, 
       "notificationId": reminder.hashCode,
     });
 
-    print('Created reminder with ID: ${docRef.id}, Interval: $interval minutes');
+    print(
+        'Created reminder with ID: ${docRef.id}, Interval: $interval minutes');
 
     return docRef.id;
   }
-   Future<void> rescheduleExistingReminder(String documentId) async {
+
+  Future<void> rescheduleExistingReminder(String documentId) async {
     try {
-      DocumentSnapshot reminderDoc = await remindersCollection.doc(documentId).get();
+      DocumentSnapshot reminderDoc =
+          await remindersCollection.doc(documentId).get();
       if (reminderDoc.exists) {
         Map<String, dynamic> data = reminderDoc.data() as Map<String, dynamic>;
-        
+
         await schedulePeriodicNotifications(
           data['reminder'],
           data['time'],
@@ -876,7 +895,6 @@ Future<void> updateReminderTriggerTime(String documentId, DateTime triggerTime, 
       print('Error rescheduling all reminders: $e');
     }
   }
-  
 
   //get goals from firestore
 
