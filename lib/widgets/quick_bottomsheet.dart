@@ -306,6 +306,7 @@ class _QuickReminderBottomSheetState extends State<QuickReminderBottomSheet> {
             interval,
             repeat,
             documentId: documentId,
+            triggerCount: 0,
           );
           print(
               'New reminder created and scheduled: $documentId, Interval: $interval minutes, Repeat: $repeat');
