@@ -119,19 +119,20 @@ class CalendarController extends GetxController {
   //   }
   // }
 
-   Future<void> rescheduleNotifications() async {
+  Future<void> rescheduleNotifications() async {
     if (currentUser == null) return;
 
-    QuerySnapshot eventSnapshot = await eventsCollection.where('hasReminder', isEqualTo: true).get();
-    
+    QuerySnapshot eventSnapshot =
+        await eventsCollection.where('hasReminder', isEqualTo: true).get();
+
     for (var doc in eventSnapshot.docs) {
       QuickEventModel event = QuickEventModel.fromFirestore(doc);
-      if (event.reminderTime != null && event.reminderTime!.isAfter(DateTime.now())) {
+      if (event.reminderTime != null &&
+          event.reminderTime!.isAfter(DateTime.now())) {
         await scheduleNotification(event);
       }
     }
   }
-
 
   Future<void> loadInitialData() async {
     isLoading.value = true;
@@ -748,15 +749,21 @@ class CalendarController extends GetxController {
       if (success) {
         print(
             'Scheduled notification with ID: $notificationId for event: ${event.id} at time: $scheduledDate');
-        Map<String, dynamic> notificationData = {
-      'id': notificationId,
-      'channelKey': 'quickschedule',
-      'title': 'Event Reminder',
-      'body': event.title,
-      'scheduledTime': scheduledDate.toIso8601String(),
-    };
+        await WorkmanagerNotificationService.cancelNotification(
+            event.id, 'calendar');
+        print('Cancelled existing notification for event: ${event.id}');
 
-    await WorkmanagerNotificationService.scheduleNotification(notificationData);
+        Map<String, dynamic> notificationData = {
+          'id': notificationId,
+          'channelKey': 'quickschedule',
+          'title': 'Event Reminder',
+          'body': event.title,
+          'scheduledTime': scheduledDate.toIso8601String(),
+          'source': 'calendar',
+        };
+
+        await WorkmanagerNotificationService.scheduleNotification(
+            notificationData);
         // Update the event in Firestore
         await eventsCollection.doc(event.id).update({
           'notificationId': notificationId,
@@ -792,7 +799,8 @@ class CalendarController extends GetxController {
   }
 
   Future<void> cancelNotification(QuickEventModel event) async {
-    await WorkmanagerNotificationService.cancelNotification(event.id);
+    await WorkmanagerNotificationService.cancelNotification(
+        event.id, 'calendar');
     try {
       // Cancel the notification using the event's ID as the notification ID
       await AwesomeNotifications().cancel(event.id.hashCode);

@@ -78,7 +78,8 @@ void main() async {
   await GetStorage.init();
 
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
-    await WorkmanagerNotificationService.initialize();
+  await WorkmanagerNotificationService.initialize();
+  await BootReceiver.initialize();
   FirebaseFirestore.instance.settings = Settings(persistenceEnabled: true);
 
   Get.put(AuthService());

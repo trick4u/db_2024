@@ -297,6 +297,8 @@ class PageOneController extends GetxController {
   }
 
   Future<void> cancelNotificationForReminder(int? notificationId) async {
+    await WorkmanagerNotificationService.cancelNotification(
+        notificationId.toString(), 'page_one');
     if (notificationId == null) {
       print('No notification ID provided');
       return;
@@ -650,7 +652,7 @@ class PageOneController extends GetxController {
           'triggerTime': nextTriggerTime,
         });
         await WorkmanagerNotificationService.cancelNotification(
-            reminder.notificationId?.toString() ?? reminderId);
+            reminder.notificationId?.toString() ?? reminderId, 'page_one');
 
         await AwesomeNotifications().cancel(reminder.notificationId ?? 0);
         await schedulePeriodicNotifications(
@@ -712,7 +714,9 @@ class PageOneController extends GetxController {
         'interval': interval,
         'documentId': documentId,
         'triggerCount': triggerCount,
+        'source': 'page_one',
       };
+
       await WorkmanagerNotificationService.scheduleNotification(
           notificationData);
 
