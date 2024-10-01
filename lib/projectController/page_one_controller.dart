@@ -268,6 +268,14 @@ class PageOneController extends GetxController {
     });
   }
 
+  void scheduleReminderRemoval(String documentId) {
+    // Schedule the removal of the reminder after a delay
+    Future.delayed(Duration(minutes: 5), () async {
+      await deleteReminder(documentId);
+      print('Non-repeating reminder removed after delay: $documentId');
+    });
+  }
+
   Future<void> deleteReminder(String reminderId) async {
     if (currentUser == null) return;
     try {
@@ -287,9 +295,11 @@ class PageOneController extends GetxController {
 
       // Delete the reminder from Firestore
       await remindersCollection.doc(reminderId).delete();
+      allReminders.removeWhere((r) => r.id == reminderId);
 
       Get.snackbar('Success', 'Reminder deleted successfully');
-      fetchAllReminders(); // Refresh the list
+      fetchAllReminders();
+      update();
     } catch (e) {
       print('Error deleting reminder: $e');
       Get.snackbar('Error', 'Failed to delete reminder');
@@ -695,6 +705,7 @@ class PageOneController extends GetxController {
           notificationLayout: NotificationLayout.Default,
           criticalAlert: true,
           wakeUpScreen: true,
+          autoDismissible: false,
           payload: {
             'repeat': repeat.toString(),
             'interval': interval.toString(),
@@ -703,6 +714,17 @@ class PageOneController extends GetxController {
           },
         ),
         schedule: NotificationCalendar.fromDate(date: scheduledDate),
+        actionButtons: [
+          NotificationActionButton(
+            key: 'MARK_DONE',
+            label: 'Mark as Done',
+          ),
+          NotificationActionButton(
+            key: 'DISMISS',
+            label: 'Dismiss',
+            actionType: ActionType.DismissAction,
+          ),
+        ],
       );
       Map<String, dynamic> notificationData = {
         'id': notificationId,

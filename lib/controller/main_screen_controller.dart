@@ -25,6 +25,7 @@ import '../projectPages/page_one.dart';
 
 import '../projectPages/page_two_calendar.dart';
 import '../projectPages/profile_screen.dart';
+import '../services/work_manager.dart';
 
 class MainScreenController extends GetxController
     with GetSingleTickerProviderStateMixin, WidgetsBindingObserver {
@@ -61,13 +62,10 @@ class MainScreenController extends GetxController
     Get.lazyPut(() => ProfileController());
     Get.lazyPut(() => StatisticsController());
     Get.lazyPut<CalendarController>(() => CalendarController());
-    scheduleDailyNotification();
-    if (Platform.isIOS) {
-      _setupBackgroundChannel();
-      _scheduleAndroidNotification();
-    }
+    WorkmanagerNotificationService.initialize();
   }
-    @override
+
+  @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.resumed) {
       refreshCurrentScreen();

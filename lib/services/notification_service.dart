@@ -43,26 +43,14 @@ class NotificationService extends GetxController {
 
   static Future<void> onActionReceivedMethod(
       ReceivedAction receivedAction) async {
-    try {
-      print('Notification action received: ${receivedAction.id}');
-      if (receivedAction.payload != null &&
-          receivedAction.payload!['repeat'] == 'true' &&
-          receivedAction.payload!['documentId'] != null) {
-        int interval = int.parse(receivedAction.payload!['interval'] ?? '0');
-        String documentId = receivedAction.payload!['documentId']!;
-        final pageOneController = Get.find<PageOneController>();
-
-        // await pageOneController.scheduleNextNotification(
-        //   receivedAction.id!,
-        //   receivedAction.body!,
-        //   interval,
-        //   DateTime.now(),
-        //   documentId,
-        // );
+    if (receivedAction.actionType == ActionType.DismissAction ||
+        receivedAction.buttonKeyPressed == 'MARK_DONE') {
+      String? documentId = receivedAction.payload?['documentId'];
+      if (documentId != null) {
+        final PageOneController controller = Get.find<PageOneController>();
+        await controller.deleteReminder(documentId);
+        print('Reminder removed after user interaction: $documentId');
       }
-      // Handle the action here
-    } catch (e) {
-      print('Error in onActionReceivedMethod: $e');
     }
   }
 
@@ -99,7 +87,7 @@ class NotificationService extends GetxController {
         // Remove the reminder from the list and cancel future notifications
         final PageOneController controller = Get.find<PageOneController>();
         await controller.deleteReminder(documentId);
-        print('Reminder removed after $triggerCount triggers: $documentId');
+        print('Non-repeating reminder removed after triggering: $documentId');
       } else if (repeat &&
           triggerCount < 6 &&
           interval > 0 &&

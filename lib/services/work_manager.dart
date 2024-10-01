@@ -5,8 +5,11 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:workmanager/workmanager.dart';
 
 class WorkmanagerNotificationService {
-  static const String CHECK_NOTIFICATIONS_TASK = 'com.example.checkNotifications';
-  static const String RESCHEDULE_NOTIFICATIONS_TASK = 'com.example.rescheduleNotifications';
+  static const String CHECK_NOTIFICATIONS_TASK =
+      'com.example.checkNotifications';
+  static const String RESCHEDULE_NOTIFICATIONS_TASK =
+      'com.example.rescheduleNotifications';
+  static const String DAILY_NOTIFICATION_TASK = 'com.example.dailyNotification';
 
   static Future<void> initialize() async {
     await Workmanager().initialize(callbackDispatcher, isInDebugMode: false);
@@ -22,14 +25,62 @@ class WorkmanagerNotificationService {
         requiresStorageNotLow: false,
       ),
     );
+    await Workmanager().registerOneOffTask(
+      'rescheduleNotificationsTask',
+      RESCHEDULE_NOTIFICATIONS_TASK,
+      initialDelay: Duration(seconds: 5),
+      constraints: Constraints(
+        networkType: NetworkType.not_required,
+        requiresBatteryNotLow: false,
+        requiresCharging: false,
+        requiresDeviceIdle: false,
+        requiresStorageNotLow: false,
+      ),
+    );
+       await Workmanager().registerPeriodicTask(
+      'dailyNotificationTask',
+      DAILY_NOTIFICATION_TASK,
+      frequency: Duration(days: 1),
+      initialDelay: _getInitialDelay(),
+      constraints: Constraints(
+        networkType: NetworkType.not_required,
+        requiresBatteryNotLow: false,
+        requiresCharging: false,
+        requiresDeviceIdle: false,
+        requiresStorageNotLow: false,
+      ),
+    );
+  }
+    static Duration _getInitialDelay() {
+    final now = DateTime.now();
+    final eightAM = DateTime(now.year, now.month, now.day, 12, 0);
+    if (now.isAfter(eightAM)) {
+      return eightAM.add(Duration(days: 1)).difference(now);
+    } else {
+      return eightAM.difference(now);
+    }
+  }
+    static Future<void> triggerDailyNotification() async {
+    await AwesomeNotifications().createNotification(
+      content: NotificationContent(
+        id: 10,
+        channelKey: 'basic_channel',
+        title: 'Daily Reminder',
+        body: 'Start your day with purpose!',
+        notificationLayout: NotificationLayout.Default,
+      ),
+    );
   }
 
-  static Future<void> scheduleNotification(Map<String, dynamic> notificationData) async {
+  static Future<void> scheduleNotification(
+      Map<String, dynamic> notificationData) async {
     final prefs = await SharedPreferences.getInstance();
-    String key = 'notification_${notificationData['id']}_${notificationData['source']}';
+    String key =
+        'notification_${notificationData['id']}_${notificationData['source']}';
     await prefs.setString(key, jsonEncode(notificationData));
 
-    List<String> notificationKeys = prefs.getStringList('notification_keys') ?? [];
+    List<String> notificationKeys =
+        prefs.getStringList('notification_keys') ?? [];
     if (!notificationKeys.contains(key)) {
       notificationKeys.add(key);
       await prefs.setStringList('notification_keys', notificationKeys);
@@ -41,20 +92,24 @@ class WorkmanagerNotificationService {
     String key = 'notification_${id}_$source';
     await prefs.remove(key);
 
-    List<String> notificationKeys = prefs.getStringList('notification_keys') ?? [];
+    List<String> notificationKeys =
+        prefs.getStringList('notification_keys') ?? [];
     notificationKeys.remove(key);
     await prefs.setStringList('notification_keys', notificationKeys);
   }
 
   static Future<void> rescheduleNotifications() async {
     final prefs = await SharedPreferences.getInstance();
-    List<String> notificationKeys = prefs.getStringList('notification_keys') ?? [];
+    List<String> notificationKeys =
+        prefs.getStringList('notification_keys') ?? [];
 
     for (String key in notificationKeys) {
       String? notificationDataString = prefs.getString(key);
       if (notificationDataString != null) {
-        Map<String, dynamic> notificationData = jsonDecode(notificationDataString);
-        DateTime scheduledTime = DateTime.parse(notificationData['scheduledTime']);
+        Map<String, dynamic> notificationData =
+            jsonDecode(notificationDataString);
+        DateTime scheduledTime =
+            DateTime.parse(notificationData['scheduledTime']);
 
         if (scheduledTime.isAfter(DateTime.now())) {
           await AwesomeNotifications().createNotification(
@@ -86,20 +141,27 @@ void callbackDispatcher() {
       case WorkmanagerNotificationService.RESCHEDULE_NOTIFICATIONS_TASK:
         await WorkmanagerNotificationService.rescheduleNotifications();
         break;
+          case WorkmanagerNotificationService.DAILY_NOTIFICATION_TASK:
+        await WorkmanagerNotificationService.triggerDailyNotification();
+        break;
     }
+
     return Future.value(true);
   });
 }
 
 Future<void> _checkAndTriggerNotifications() async {
   final prefs = await SharedPreferences.getInstance();
-  List<String> notificationKeys = prefs.getStringList('notification_keys') ?? [];
+  List<String> notificationKeys =
+      prefs.getStringList('notification_keys') ?? [];
 
   for (String key in notificationKeys) {
     String? notificationDataString = prefs.getString(key);
     if (notificationDataString != null) {
-      Map<String, dynamic> notificationData = jsonDecode(notificationDataString);
-      DateTime scheduledTime = DateTime.parse(notificationData['scheduledTime']);
+      Map<String, dynamic> notificationData =
+          jsonDecode(notificationDataString);
+      DateTime scheduledTime =
+          DateTime.parse(notificationData['scheduledTime']);
 
       if (scheduledTime.isBefore(DateTime.now())) {
         await AwesomeNotifications().createNotification(
