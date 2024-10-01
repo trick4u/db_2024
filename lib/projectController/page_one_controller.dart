@@ -54,6 +54,14 @@ class PageOneController extends GetxController {
   Rx<DateTime?> nextNotificationTime = Rx<DateTime?>(null);
   final RxBool isGradientReversedReminder = false.obs;
 
+  //more variables
+
+  static const int MAX_REMINDERS = 10;
+  static const int MIN_INTERVAL_MINUTES = 2;
+  static const int MAX_REMINDER_TEXT_LENGTH = 70;
+  static const int MAX_NOTIFICATION_TEXT_LENGTH = 50;
+  static const int MAX_REPEAT_COUNT = 6;
+
   CollectionReference get eventsCollection {
     return _firestore
         .collection('users')
@@ -869,9 +877,37 @@ class PageOneController extends GetxController {
     setSelectedListType('all reminders');
   }
 
-  Future<String> createReminder(
-      String reminder, int interval, bool repeat) async {
-    DateTime triggerTime = DateTime.now().add(Duration(minutes: interval));
+  Future<void> onNotificationDisplayed(String documentId) async {
+    try {
+      DocumentSnapshot doc = await remindersCollection.doc(documentId).get();
+      if (doc.exists) {
+        Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
+        int repeatCount = (data['repeatCount'] ?? 0) + 1;
+        bool repeat = data['repeat'] ?? false;
+
+        if (repeat && repeatCount >= MAX_REPEAT_COUNT) {
+          await deleteReminder(documentId);
+          print(
+              'Repeating reminder removed after $MAX_REPEAT_COUNT displays: $documentId');
+        } else {
+          await remindersCollection.doc(documentId).update({
+            'repeatCount': repeatCount,
+          });
+          print('Updated repeat count for reminder $documentId: $repeatCount');
+        }
+      }
+    } catch (e) {
+      print('Error in onNotificationDisplayed: $e');
+    }
+  }
+
+   Future<String?> createReminder(String reminder, int interval, bool repeat) async {
+    if (allReminders.length >= MAX_REMINDERS) {
+      Get.snackbar('Limit Reached', 'You can only have up to 10 reminders.');
+      return null;
+    }
+
+    DateTime triggerTime = await _getNextAvailableTriggerTime(interval);
 
     DocumentReference docRef = await remindersCollection.add({
       "reminder": reminder,
@@ -883,11 +919,49 @@ class PageOneController extends GetxController {
       "notificationId": reminder.hashCode,
     });
 
-    print(
-        'Created reminder with ID: ${docRef.id}, Interval: $interval minutes');
+    await schedulePeriodicNotifications(
+      reminder,
+      interval,
+      repeat,
+      notificationId: reminder.hashCode,
+      initialTriggerTime: triggerTime,
+      documentId: docRef.id,
+    );
 
+    print('Created reminder with ID: ${docRef.id}, Interval: $interval minutes, TriggerTime: $triggerTime');
     return docRef.id;
   }
+
+
+ Future<DateTime> _getNextAvailableTriggerTime(int interval) async {
+    DateTime now = DateTime.now();
+    DateTime proposedTime = now.add(Duration(minutes: interval));
+
+    QuerySnapshot existingReminders = await remindersCollection
+        .where('triggerTime', isGreaterThanOrEqualTo: now)
+        .orderBy('triggerTime')
+        .get();
+
+    List<DateTime> existingTimes = existingReminders.docs
+        .map((doc) => (doc['triggerTime'] as Timestamp).toDate())
+        .toList();
+
+    existingTimes.sort();
+
+    for (DateTime existingTime in existingTimes) {
+      if (proposedTime.difference(existingTime).inMinutes.abs() < 2) {
+        proposedTime = existingTime.add(Duration(minutes: 2));
+      }
+    }
+
+    // Ensure the proposed time is at least 2 minutes from now
+    if (proposedTime.difference(now).inMinutes < 2) {
+      proposedTime = now.add(Duration(minutes: 2));
+    }
+
+    return proposedTime;
+  }
+
 
   Future<void> rescheduleExistingReminder(String documentId) async {
     try {

@@ -274,7 +274,7 @@ class _QuickReminderBottomSheetState extends State<QuickReminderBottomSheet> {
     );
   }
 
-  void _handleSave() async {
+ void _handleSave() async {
     if (_formKey.currentState!.validate()) {
       int interval =
           _getMinutesFromValue(widget.reminderController.timeSelected.value);
@@ -294,22 +294,26 @@ class _QuickReminderBottomSheetState extends State<QuickReminderBottomSheet> {
               'Reminder updated: ${widget.reminderToEdit!.id}, Interval: $interval minutes, Repeat: $repeat');
         } else {
           // Create the reminder document first
-          String documentId = await widget.reminderController.createReminder(
+          String? documentId = await widget.reminderController.createReminder(
             reminderText,
             interval,
             repeat,
           );
 
-          // Now schedule the notification with the new documentId
-          await widget.reminderController.schedulePeriodicNotifications(
-            reminderText,
-            interval,
-            repeat,
-            documentId: documentId,
-            triggerCount: 0,
-          );
-          print(
-              'New reminder created and scheduled: $documentId, Interval: $interval minutes, Repeat: $repeat');
+          if (documentId != null) {
+            // Now schedule the notification with the new documentId
+            await widget.reminderController.schedulePeriodicNotifications(
+              reminderText,
+              interval,
+              repeat,
+              documentId: documentId,
+              triggerCount: 0,
+            );
+            print(
+                'New reminder created and scheduled: $documentId, Interval: $interval minutes, Repeat: $repeat');
+          } else {
+            throw Exception('Failed to create reminder. Limit may have been reached.');
+          }
         }
 
         Get.back();
@@ -327,11 +331,11 @@ class _QuickReminderBottomSheetState extends State<QuickReminderBottomSheet> {
         print('Error saving reminder: $e');
         Get.snackbar(
           'Error',
-          'Failed to save reminder. Please try again.',
+          'Failed to save reminder. ${e.toString()}',
           snackPosition: SnackPosition.BOTTOM,
           backgroundColor: Colors.red,
           colorText: Colors.white,
-          duration: Duration(seconds: 2),
+          duration: Duration(seconds: 3),
         );
       }
     }
