@@ -13,9 +13,11 @@ import 'package:tushar_db/app_routes.dart';
 import 'package:tushar_db/constants/colors.dart';
 import 'package:tushar_db/services/app_text_style.dart';
 import 'package:tushar_db/services/scale_util.dart';
+import 'package:tushar_db/widgets/pomodoro.dart';
 
 import '../projectController/page_one_controller.dart';
 
+import '../projectController/pomodoro_controller.dart';
 import '../services/app_theme.dart';
 import '../services/quotes_service.dart';
 
@@ -162,6 +164,7 @@ class PageOneScreen extends GetWidget<PageOneController> {
                     )
                   : SizedBox.shrink()),
             ),
+            ScaleUtil.sizedBox(height: 20),
           ],
         ),
       ),
@@ -200,6 +203,9 @@ class PageOneScreen extends GetWidget<PageOneController> {
 
   Widget _buildSelectedList() {
     switch (controller.selectedListType.value) {
+      case 'pomodoro':
+       // Get.put(PomodoroController());
+        return PomodoroMusicPlayer();
       case 'all reminders':
         return RemindersList();
       default:

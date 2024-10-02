@@ -1,99 +1,131 @@
-
+import 'package:cached_network_image/cached_network_image.dart';
+import 'package:dough/dough.dart';
 
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:http/http.dart' as http;
+import 'package:tushar_db/services/scale_util.dart';
 import 'dart:convert';
 
+import '../projectController/pomodoro_controller.dart';
+import '../services/app_theme.dart';
 
-class PomodoroMusicPlayer extends StatefulWidget {
-  @override
-  _PomodoroMusicPlayerState createState() => _PomodoroMusicPlayerState();
-}
-
-class _PomodoroMusicPlayerState extends State<PomodoroMusicPlayer> {
-  final AudioPlayer _audioPlayer = AudioPlayer();
-  List<Map<String, dynamic>> _tracks = [];
-  int _currentTrackIndex = 0;
-
-  @override
-  void initState() {
-    super.initState();
-    _fetchTracks();
-  }
-
-  Future<void> _fetchTracks() async {
-    final response = await http.get(Uri.parse(
-        'https://api.jamendo.com/v3.0/tracks/?client_id=6b572951&format=json&limit=20&tags=lofi+ambient&include=musicinfo&groupby=artist_id'));
-
-    if (response.statusCode == 200) {
-      final data = json.decode(response.body);
-      setState(() {
-        _tracks = List<Map<String, dynamic>>.from(data['results']);
-      });
-      if (_tracks.isNotEmpty) {
-        _playTrack(_tracks[0]);
-      }
-    } else {
-      print('Failed to load tracks: ${response.statusCode}');
-      // Handle error - maybe show a dialog to the user
-    }
-  }
-
-  Future<void> _playTrack(Map<String, dynamic> track) async {
-    try {
-      await _audioPlayer.setUrl(track['audio']);
-      _audioPlayer.play();
-      setState(() {
-        // Update UI to show current track info
-      });
-    } catch (e) {
-      print('Error playing track: $e');
-      // Handle error - maybe skip to next track or show error to user
-    }
-  }
-
-  void _playNextTrack() {
-    if (_currentTrackIndex < _tracks.length - 1) {
-      _currentTrackIndex++;
-      _playTrack(_tracks[_currentTrackIndex]);
-    } else {
-      // Reached end of playlist, maybe start over or shuffle
-      _currentTrackIndex = 0;
-      _playTrack(_tracks[_currentTrackIndex]);
-    }
-  }
+class PomodoroMusicPlayer extends GetView<PomodoroController> {
+  final AppTheme appTheme = Get.find<AppTheme>();
 
   @override
   Widget build(BuildContext context) {
+    ScaleUtil.init(context);
+
     return Scaffold(
-      body: Column(
-        children: [
-          Text(_tracks.isNotEmpty 
-              ? 'Now Playing: ${_tracks[_currentTrackIndex]['name']} by ${_tracks[_currentTrackIndex]['artist_name']}'
-              : 'Loading tracks...'),
-          ElevatedButton(
-            onPressed: () {
-              if (_audioPlayer.playing) {
-                _audioPlayer.pause();
-              } else {
-                _audioPlayer.play();
-              }
-            },
-            child: Text(_audioPlayer.playing ? 'Pause' : 'Play'),
+      body: SafeArea(
+        child: PressableDough(
+          onReleased: (r) {
+            controller.fetchRandomBackgroundImage();
+          },
+          child: Stack(
+            children: [
+              // Background Image
+              Obx(
+                () => controller.backgroundImageUrl.value != null
+                    ? Container(
+                        width: double.infinity,
+                        height: double.infinity,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(20),
+                          
+                        ),
+                        child: CachedNetworkImage(
+                          imageUrl: controller.backgroundImageUrl.value!,
+                          fit: BoxFit.cover,
+                          placeholder: (context, url) => Container(
+                            color: appTheme.colorScheme.surface,
+                            child: Center(child: CircularProgressIndicator()),
+                          ),
+                          errorWidget: (context, url, error) => Container(
+                            color: appTheme.colorScheme.surface,
+                            child: Icon(Icons.error),
+                          ),
+                        ),
+                      )
+                    : Container(
+                        width: double.infinity,
+                        height: double.infinity,
+                        color: appTheme.colorScheme.surface,
+                        child: Center(child: CircularProgressIndicator()),
+                      ),
+              ),
+
+              // Overlay for better text readability
+              Container(
+                width: double.infinity,
+                height: double.infinity,
+                color: appTheme.colorScheme.surface.withOpacity(0.3),
+              ),
+
+              // Content
+              Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Obx(() => Text(
+                          controller.tracks.isNotEmpty
+                              ? 'by ${controller.tracks[controller.currentTrackIndex.value]['artist_name']}'
+                              : 'Loading...',
+                          style: appTheme.titleLarge.copyWith(
+                            color: appTheme.colorScheme.onSurface,
+                            fontSize: ScaleUtil.fontSize(20),
+                          ),
+                        )),
+                    SizedBox(height: ScaleUtil.height(20)),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        _buildCircularButton(
+                          onPressed: controller.togglePlayPause,
+                          icon: Obx(() => Icon(
+                                controller.isPlaying.value
+                                    ? Icons.pause
+                                    : Icons.play_arrow,
+                                color: appTheme.colorScheme.onPrimary,
+                                size: ScaleUtil.iconSize(16),
+                              )),
+                        ),
+                        SizedBox(width: ScaleUtil.width(20)),
+                        _buildCircularButton(
+                          onPressed: controller.playNextTrack,
+                          icon: Icon(
+                            Icons.skip_next,
+                            color: appTheme.colorScheme.onPrimary,
+                            size: ScaleUtil.iconSize(16),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ],
           ),
-          ElevatedButton(
-            onPressed: _playNextTrack,
-            child: Text('Next Track'),
-          ),
-        ],
+        ),
       ),
     );
   }
 
-  @override
-  void dispose() {
-    _audioPlayer.dispose();
-    super.dispose();
+  Widget _buildCircularButton({
+    required VoidCallback onPressed,
+    required Widget icon,
+  }) {
+    return ElevatedButton(
+      onPressed: onPressed,
+      child: icon,
+      style: ElevatedButton.styleFrom(
+        shape: CircleBorder(),
+        padding: ScaleUtil.all(20),
+        backgroundColor: appTheme.colorScheme.primary.withOpacity(0.7),
+        elevation: 5,
+      ),
+    );
   }
 }

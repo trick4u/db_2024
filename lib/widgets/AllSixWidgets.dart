@@ -58,7 +58,7 @@ class AllSixCards extends GetWidget<PageOneController> {
               if (tileTitle == 'pending' ||
                   tileTitle == 'upcoming' ||
                   tileTitle == 'completed tasks' ||
-                  tileTitle == 'all reminders') {
+                  tileTitle == 'all reminders'||  tileTitle == 'pomodoro') {
                 onListTypeSelected(tileTitle);
               } else if (tileTitle == 'add reminders') {
                 controller.showQuickReminderBottomSheet(context);
@@ -68,11 +68,6 @@ class AllSixCards extends GetWidget<PageOneController> {
                 Get.toNamed(AppRoutes.NOTETAKING);
               } else if (tileTitle == 'vision') {
                 Get.toNamed(AppRoutes.VISIONBOARD);
-              } else {
-                Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) => PomodoroMusicPlayer()));
               }
             },
             child: AnimatedContainer(

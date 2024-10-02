@@ -97,7 +97,7 @@ class PageOneController extends GetxController {
   late AudioPlayer _audioPlayer;
   final RxString selectedTile = ''.obs;
   final List<Map<String, dynamic>> items = [
-    {'title': 'Coming soon..', 'icon': FontAwesomeIcons.question},
+    {'title': 'pomodoro', 'icon': FontAwesomeIcons.question},
     {'title': 'Take notes', 'icon': FontAwesomeIcons.noteSticky},
     {'title': 'All reminders', 'icon': FontAwesomeIcons.listCheck},
     {'title': 'Completed tasks', 'icon': FontAwesomeIcons.checkDouble},
