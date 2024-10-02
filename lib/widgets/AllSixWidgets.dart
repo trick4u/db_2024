@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
 import 'package:tushar_db/app_routes.dart';
+import 'package:tushar_db/widgets/pomodoro.dart';
 
 import '../projectController/page_one_controller.dart';
 import '../services/app_text_style.dart';
@@ -67,6 +68,11 @@ class AllSixCards extends GetWidget<PageOneController> {
                 Get.toNamed(AppRoutes.NOTETAKING);
               } else if (tileTitle == 'vision') {
                 Get.toNamed(AppRoutes.VISIONBOARD);
+              } else {
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => PomodoroMusicPlayer()));
               }
             },
             child: AnimatedContainer(

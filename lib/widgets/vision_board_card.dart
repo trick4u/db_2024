@@ -10,7 +10,7 @@ import 'package:photo_view/photo_view.dart';
 import 'package:photo_view/photo_view_gallery.dart';
 import 'package:tushar_db/services/app_text_style.dart';
 
-import '../projectController/vsion_board_controller.dart';
+import '../projectController/vision_board_controller.dart';
 import '../services/app_theme.dart';
 import '../services/scale_util.dart';
 
@@ -20,7 +20,7 @@ import 'package:dots_indicator/dots_indicator.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-import '../projectController/vsion_board_controller.dart';
+import '../projectController/vision_board_controller.dart';
 import '../services/scale_util.dart';
 import 'package:timeago/timeago.dart' as timeago;
 

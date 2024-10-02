@@ -8,7 +8,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
 import 'package:omni_datetime_picker/omni_datetime_picker.dart';
 
-import '../projectController/vsion_board_controller.dart';
+import '../projectController/vision_board_controller.dart';
 import '../services/app_theme.dart';
 import '../services/scale_util.dart';
 

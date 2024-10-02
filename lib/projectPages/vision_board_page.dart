@@ -11,7 +11,7 @@ import 'package:omni_datetime_picker/omni_datetime_picker.dart';
 import 'package:tushar_db/services/app_text_style.dart';
 import 'package:tushar_db/services/app_theme.dart';
 
-import '../projectController/vsion_board_controller.dart';
+import '../projectController/vision_board_controller.dart';
 import '../services/scale_util.dart';
 import '../widgets/vision_board_card.dart';
 import '../widgets/vision_bottom_sheet.dart';
