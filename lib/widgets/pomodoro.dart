@@ -29,23 +29,35 @@ class PomodoroMusicPlayer extends GetView<PomodoroController> {
               // Background Image
               Obx(
                 () => controller.backgroundImageUrl.value != null
-                    ? Container(
-                        width: double.infinity,
-                        height: double.infinity,
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(20),
-                          
-                        ),
-                        child: CachedNetworkImage(
-                          imageUrl: controller.backgroundImageUrl.value!,
-                          fit: BoxFit.cover,
-                          placeholder: (context, url) => Container(
-                            color: appTheme.colorScheme.surface,
-                            child: Center(child: CircularProgressIndicator()),
+                    ? ClipRRect(
+                        borderRadius: ScaleUtil.circular(20),
+                        child: Container(
+                          width: double.infinity,
+                          height: double.infinity,
+                          decoration: BoxDecoration(
+                            borderRadius: ScaleUtil.circular(20),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.grey,
+                                spreadRadius: ScaleUtil.scale(1),
+                                blurRadius: ScaleUtil.scale(3),
+                                offset: Offset(0, ScaleUtil.scale(2)),
+                              ),
+                            ],
                           ),
-                          errorWidget: (context, url, error) => Container(
-                            color: appTheme.colorScheme.surface,
-                            child: Icon(Icons.error),
+                          child: CachedNetworkImage(
+                            imageUrl: controller.backgroundImageUrl.value!,
+                            fit: BoxFit.cover,
+                            placeholder: (context, url) => Container(
+                              color: appTheme.colorScheme.surface,
+                              child: Center(
+                                child: CircularProgressIndicator(),
+                              ),
+                            ),
+                            errorWidget: (context, url, error) => Container(
+                              color: appTheme.colorScheme.surface,
+                              child: Icon(Icons.error),
+                            ),
                           ),
                         ),
                       )
@@ -65,45 +77,55 @@ class PomodoroMusicPlayer extends GetView<PomodoroController> {
               ),
 
               // Content
-              Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Obx(() => Text(
-                          controller.tracks.isNotEmpty
-                              ? 'by ${controller.tracks[controller.currentTrackIndex.value]['artist_name']}'
-                              : 'Loading...',
-                          style: appTheme.titleLarge.copyWith(
-                            color: appTheme.colorScheme.onSurface,
-                            fontSize: ScaleUtil.fontSize(20),
-                          ),
-                        )),
-                    SizedBox(height: ScaleUtil.height(20)),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        _buildCircularButton(
-                          onPressed: controller.togglePlayPause,
-                          icon: Obx(() => Icon(
-                                controller.isPlaying.value
-                                    ? Icons.pause
-                                    : Icons.play_arrow,
-                                color: appTheme.colorScheme.onPrimary,
-                                size: ScaleUtil.iconSize(16),
-                              )),
-                        ),
-                        SizedBox(width: ScaleUtil.width(20)),
-                        _buildCircularButton(
-                          onPressed: controller.playNextTrack,
-                          icon: Icon(
-                            Icons.skip_next,
-                            color: appTheme.colorScheme.onPrimary,
-                            size: ScaleUtil.iconSize(16),
-                          ),
-                        ),
-                      ],
+              Obx(
+                () => Center(
+                  child: Text(
+                    controller.tracks.isNotEmpty
+                        ? 'by ${controller.tracks[controller.currentTrackIndex.value]['artist_name']}'
+                        : 'Loading...',
+                    style: appTheme.titleLarge.copyWith(
+                      color: appTheme.colorScheme.onSurface,
+                      fontSize: ScaleUtil.fontSize(20),
                     ),
-                  ],
+                  ),
+                ),
+              ),
+
+              // Track switching button
+              Positioned(
+                right: ScaleUtil.width(60),
+                bottom: ScaleUtil.height(10),
+                child: _buildCircularButton(
+                  onPressed: controller.switchTrack,
+                  icon: Obx(
+                    () => Icon(
+                      controller.isLimitedMode.value
+                          ? Icons.shuffle
+                          : Icons.skip_next,
+                      color: appTheme.colorScheme.onPrimary,
+                      size: ScaleUtil.iconSize(12),
+                    ),
+                  ),
+                ),
+              ),
+
+              // Mute/Play/Pause button in bottom right corner
+              Positioned(
+                right: ScaleUtil.width(10),
+                bottom: ScaleUtil.height(10),
+                child: _buildCircularButton(
+                  onPressed: controller.toggleMutePlayPause,
+                  icon: Obx(
+                    () => Icon(
+                      controller.isMuted.value
+                          ? Icons.volume_off
+                          : (controller.isPlaying.value
+                              ? Icons.volume_up
+                              : Icons.play_arrow),
+                      color: appTheme.colorScheme.onPrimary,
+                      size: ScaleUtil.iconSize(12),
+                    ),
+                  ),
                 ),
               ),
             ],
@@ -122,7 +144,7 @@ class PomodoroMusicPlayer extends GetView<PomodoroController> {
       child: icon,
       style: ElevatedButton.styleFrom(
         shape: CircleBorder(),
-        padding: ScaleUtil.all(20),
+        padding: ScaleUtil.all(10),
         backgroundColor: appTheme.colorScheme.primary.withOpacity(0.7),
         elevation: 5,
       ),

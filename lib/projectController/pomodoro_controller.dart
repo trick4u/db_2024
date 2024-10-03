@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:get/get.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:http/http.dart' as http;
@@ -11,17 +13,75 @@ class PomodoroController extends GetxController {
   RxList<Map<String, dynamic>> tracks = <Map<String, dynamic>>[].obs;
   RxInt currentTrackIndex = 0.obs;
   RxBool isPlaying = false.obs;
-   Rx<String?> backgroundImageUrl = Rx<String?>(null);
+  Rx<String?> backgroundImageUrl = Rx<String?>(null);
   final PexelsService _pexelsService = PexelsService();
+  RxBool isMuted = false.obs;
+
+   RxInt switchCount = 0.obs;
+  RxList<int> lastFiveTracks = <int>[].obs;
+  RxBool isLimitedMode = false.obs;
 
   @override
   void onInit() {
     super.onInit();
     fetchTracks();
-      fetchBackgroundImage();
+    fetchBackgroundImage();
   }
 
-   Future<void> fetchBackgroundImage() async {
+  void switchTrack() {
+    if (tracks.isEmpty) return;
+
+    if (!isLimitedMode.value && switchCount.value < 5) {
+      // Normal mode: switch to next track
+      int nextIndex = (currentTrackIndex.value + 1) % tracks.length;
+      currentTrackIndex.value = nextIndex;
+      updateLastFiveTracks(nextIndex);
+      playTrack(tracks[nextIndex]);
+      switchCount.value++;
+
+      if (switchCount.value == 5) {
+        isLimitedMode.value = true;
+      }
+    } else {
+      // Limited mode: switch between last 5 tracks
+      if (lastFiveTracks.length < 2) return; // Need at least 2 tracks to switch
+      int randomIndex = Random().nextInt(lastFiveTracks.length);
+      while (lastFiveTracks[randomIndex] == currentTrackIndex.value) {
+        randomIndex = Random().nextInt(lastFiveTracks.length);
+      }
+      currentTrackIndex.value = lastFiveTracks[randomIndex];
+      playTrack(tracks[currentTrackIndex.value]);
+    }
+  }
+
+   void updateLastFiveTracks(int index) {
+    if (!lastFiveTracks.contains(index)) {
+      if (lastFiveTracks.length >= 5) {
+        lastFiveTracks.removeAt(0);
+      }
+      lastFiveTracks.add(index);
+    }
+  }
+
+  void toggleMutePlayPause() {
+    if (isMuted.value) {
+      // If currently muted, unmute and play
+      audioPlayer.setVolume(1.0);
+      audioPlayer.play();
+      isMuted.value = false;
+      isPlaying.value = true;
+    } else if (isPlaying.value) {
+      // If playing, mute
+      audioPlayer.setVolume(0.0);
+      isMuted.value = true;
+    } else {
+      // If paused, play
+      audioPlayer.play();
+      isPlaying.value = true;
+    }
+  }
+
+  Future<void> fetchBackgroundImage() async {
     try {
       final imageUrl = await _pexelsService.getRandomImageUrl();
       backgroundImageUrl.value = imageUrl;
@@ -30,7 +90,7 @@ class PomodoroController extends GetxController {
     }
   }
 
-    Future<void> fetchRandomBackgroundImage() async {
+  Future<void> fetchRandomBackgroundImage() async {
     // if (imageFetchCount.value >= 20) {
 
     //   return;
@@ -57,7 +117,6 @@ class PomodoroController extends GetxController {
     }
   }
 
-
   Future<void> loadSavedBackgroundImage() async {
     final prefs = await SharedPreferences.getInstance();
     final savedImageUrl = prefs.getString('background_image_url');
@@ -69,8 +128,6 @@ class PomodoroController extends GetxController {
           'https://cdn.pixabay.com/photo/2024/04/09/22/28/trees-8686902_1280.jpg';
     }
   }
-
-
 
   Future<void> fetchTracks() async {
     final response = await http.get(
