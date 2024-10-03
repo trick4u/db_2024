@@ -181,6 +181,8 @@ class PageOneScreen extends GetWidget<PageOneController> {
         return 'Completed Tasks'.toLowerCase();
       case 'all reminders':
         return 'all reminders'.toLowerCase();
+      case 'pomodoro':
+        return 'pomodoro'.toLowerCase();
       default:
         return '';
     }
@@ -204,7 +206,7 @@ class PageOneScreen extends GetWidget<PageOneController> {
   Widget _buildSelectedList() {
     switch (controller.selectedListType.value) {
       case 'pomodoro':
-       // Get.put(PomodoroController());
+        // Get.put(PomodoroController());
         return PomodoroMusicPlayer();
       case 'all reminders':
         return RemindersList();

@@ -1,4 +1,5 @@
 import 'dart:math';
+import 'dart:async';
 
 import 'package:get/get.dart';
 import 'package:just_audio/just_audio.dart';
@@ -17,22 +18,105 @@ class PomodoroController extends GetxController {
   final PexelsService _pexelsService = PexelsService();
   RxBool isMuted = false.obs;
 
-   RxInt switchCount = 0.obs;
+  RxInt switchCount = 0.obs;
   RxList<int> lastFiveTracks = <int>[].obs;
   RxBool isLimitedMode = false.obs;
+
+  RxString currentGenre = 'chill'.obs;
+  RxDouble volume = 1.0.obs;
+  RxList<String> availableGenres = <String>[
+    'chill',
+    'ambient',
+    'lofi',
+    'classical',
+    'jazz',
+    'nature',
+    'electronic',
+    'postrock',
+    'piano',
+    'acoustic',
+    'minimal',
+    'soundtrack',
+    'instrumental',
+  ].obs;
+
+  Timer? sessionTimer;
+  Timer? trackTimer;
+  RxInt remainingTime = 1500.obs; // 25 minutes in seconds
 
   @override
   void onInit() {
     super.onInit();
+    randomizeInitialGenre();
     fetchTracks();
     fetchBackgroundImage();
+    setupAudioPlayerListeners();
+    audioPlayer.setVolume(volume.value);
+  }
+
+  void increaseVolume() {
+    if (volume.value < 1.0) {
+      volume.value = (volume.value + 0.1).clamp(0.0, 10.0);
+      audioPlayer.setVolume(volume.value);
+    }
+  }
+
+  void decreaseVolume() {
+    if (volume.value > 0.0) {
+      volume.value = (volume.value - 0.1).clamp(0.0, 1.0);
+      audioPlayer.setVolume(volume.value);
+    }
+  }
+
+  void randomizeInitialGenre() {
+    final random = Random();
+    currentGenre.value =
+        availableGenres[random.nextInt(availableGenres.length)];
+  }
+
+  void setupAudioPlayerListeners() {
+    audioPlayer.playerStateStream.listen((playerState) {
+      if (playerState.processingState == ProcessingState.completed) {
+        playNextTrack();
+      }
+    });
+  }
+
+  void startPomodoroSession() {
+    remainingTime.value = 1500; // Reset to 25 minutes
+    sessionTimer?.cancel();
+    sessionTimer = Timer.periodic(Duration(seconds: 1), (timer) {
+      if (remainingTime.value > 0) {
+        remainingTime.value--;
+      } else {
+        endPomodoroSession();
+      }
+    });
+
+    if (!isPlaying.value) {
+      playNextTrack();
+    }
+    isPlaying.value = true;
+  }
+
+  void endPomodoroSession() {
+    sessionTimer?.cancel();
+    audioPlayer.stop();
+    isPlaying.value = false;
+    remainingTime.value = 1500; // Reset to 25 minutes
+  }
+
+  void switchGenre() {
+    int nextGenreIndex = (availableGenres.indexOf(currentGenre.value) + 1) %
+        availableGenres.length;
+    currentGenre.value = availableGenres[nextGenreIndex];
+    fetchTracks();
   }
 
   void switchTrack() {
     if (tracks.isEmpty) return;
 
     if (!isLimitedMode.value && switchCount.value < 5) {
-      // Normal mode: switch to next track
       int nextIndex = (currentTrackIndex.value + 1) % tracks.length;
       currentTrackIndex.value = nextIndex;
       updateLastFiveTracks(nextIndex);
@@ -43,8 +127,7 @@ class PomodoroController extends GetxController {
         isLimitedMode.value = true;
       }
     } else {
-      // Limited mode: switch between last 5 tracks
-      if (lastFiveTracks.length < 2) return; // Need at least 2 tracks to switch
+      if (lastFiveTracks.length < 2) return;
       int randomIndex = Random().nextInt(lastFiveTracks.length);
       while (lastFiveTracks[randomIndex] == currentTrackIndex.value) {
         randomIndex = Random().nextInt(lastFiveTracks.length);
@@ -54,7 +137,7 @@ class PomodoroController extends GetxController {
     }
   }
 
-   void updateLastFiveTracks(int index) {
+  void updateLastFiveTracks(int index) {
     if (!lastFiveTracks.contains(index)) {
       if (lastFiveTracks.length >= 5) {
         lastFiveTracks.removeAt(0);
@@ -65,19 +148,15 @@ class PomodoroController extends GetxController {
 
   void toggleMutePlayPause() {
     if (isMuted.value) {
-      // If currently muted, unmute and play
       audioPlayer.setVolume(1.0);
       audioPlayer.play();
       isMuted.value = false;
       isPlaying.value = true;
     } else if (isPlaying.value) {
-      // If playing, mute
       audioPlayer.setVolume(0.0);
       isMuted.value = true;
     } else {
-      // If paused, play
-      audioPlayer.play();
-      isPlaying.value = true;
+      startPomodoroSession();
     }
   }
 
@@ -91,23 +170,12 @@ class PomodoroController extends GetxController {
   }
 
   Future<void> fetchRandomBackgroundImage() async {
-    // if (imageFetchCount.value >= 20) {
-
-    //   return;
-    // }
-
     try {
       final imageUrl = await _pexelsService.getRandomImageUrl();
       if (imageUrl.isNotEmpty) {
         backgroundImageUrl.value = imageUrl;
         final prefs = await SharedPreferences.getInstance();
         await prefs.setString('background_image_url', imageUrl);
-
-        // // Increment and save the fetch count
-        // imageFetchCount.value++;
-        // lastFetchDate.value = DateFormat('yyyy-MM-dd').format(DateTime.now());
-        // await prefs.setInt('image_fetch_count', imageFetchCount.value);
-        // await prefs.setString('last_fetch_date', lastFetchDate.value);
       } else {
         throw Exception('Received empty image URL');
       }
@@ -123,7 +191,6 @@ class PomodoroController extends GetxController {
     if (savedImageUrl != null && savedImageUrl.isNotEmpty) {
       backgroundImageUrl.value = savedImageUrl;
     } else {
-      // Use a default image URL if no saved image is available
       backgroundImageUrl.value =
           'https://cdn.pixabay.com/photo/2024/04/09/22/28/trees-8686902_1280.jpg';
     }
@@ -132,14 +199,17 @@ class PomodoroController extends GetxController {
   Future<void> fetchTracks() async {
     final response = await http.get(
       Uri.parse(
-          'https://api.jamendo.com/v3.0/tracks/?client_id=6b572951&format=json&limit=20&tags=chill&include=musicinfo&groupby=artist_id'),
+          'https://api.jamendo.com/v3.0/tracks/?client_id=6b572951&format=json&limit=20&tags=${currentGenre.value}&include=musicinfo&groupby=artist_id'),
     );
 
     if (response.statusCode == 200) {
       final data = json.decode(response.body);
       tracks.value = List<Map<String, dynamic>>.from(data['results']);
       if (tracks.isNotEmpty) {
-        playTrack(tracks[0]);
+        currentTrackIndex.value = 0;
+        if (isPlaying.value) {
+          playTrack(tracks[0]);
+        }
       }
     } else {
       print('Failed to load tracks: ${response.statusCode}');
@@ -157,11 +227,8 @@ class PomodoroController extends GetxController {
   }
 
   void playNextTrack() {
-    if (currentTrackIndex.value < tracks.length - 1) {
-      currentTrackIndex++;
-    } else {
-      currentTrackIndex.value = 0;
-    }
+    if (tracks.isEmpty) return;
+    currentTrackIndex.value = (currentTrackIndex.value + 1) % tracks.length;
     playTrack(tracks[currentTrackIndex.value]);
   }
 
@@ -169,15 +236,17 @@ class PomodoroController extends GetxController {
     if (isPlaying.value) {
       audioPlayer.pause();
       isPlaying.value = false;
+      sessionTimer?.cancel();
     } else {
-      audioPlayer.play();
-      isPlaying.value = true;
+      startPomodoroSession();
     }
   }
 
   @override
   void onClose() {
     audioPlayer.dispose();
+    sessionTimer?.cancel();
+    trackTimer?.cancel();
     super.onClose();
   }
 }
