@@ -1,6 +1,7 @@
 import 'dart:math';
 import 'dart:async';
 
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:http/http.dart' as http;
@@ -9,7 +10,7 @@ import 'dart:convert';
 
 import '../services/pexels_service.dart';
 
-class PomodoroController extends GetxController {
+class PomodoroController extends GetxController with WidgetsBindingObserver {
   final AudioPlayer audioPlayer = AudioPlayer();
   RxList<Map<String, dynamic>> tracks = <Map<String, dynamic>>[].obs;
   RxInt currentTrackIndex = 0.obs;
@@ -44,15 +45,75 @@ class PomodoroController extends GetxController {
   Timer? trackTimer;
   RxInt remainingTime = 1500.obs; // 25 minutes in seconds
 
+   int? _savedRemainingTime;
+  bool? _wasPlaying;
+
   @override
   void onInit() {
     super.onInit();
+        WidgetsBinding.instance.addObserver(this);
     randomizeInitialGenre();
     fetchTracks();
     fetchBackgroundImage();
     setupAudioPlayerListeners();
     audioPlayer.setVolume(volume.value);
   }
+
+
+  @override
+  void onClose() {
+    WidgetsBinding.instance.removeObserver(this);
+    audioPlayer.dispose();
+    sessionTimer?.cancel();
+    trackTimer?.cancel();
+    super.onClose();
+  }
+   @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    switch (state) {
+      case AppLifecycleState.paused:
+      case AppLifecycleState.inactive:
+        // App is in background or inactive
+        _pauseEverything();
+        break;
+      case AppLifecycleState.resumed:
+        // App is in foreground
+        _resumeEverything();
+        break;
+      default:
+        break;
+    }
+  }
+   void _pauseEverything() {
+    _savedRemainingTime = remainingTime.value;
+    _wasPlaying = isPlaying.value;
+    
+    // Pause the timer
+    sessionTimer?.cancel();
+    
+    // Pause the music
+    audioPlayer.pause();
+    isPlaying.value = false;
+  }
+
+  void _resumeEverything() {
+    // Resume the timer if it was running
+    if (_savedRemainingTime != null && _wasPlaying == true) {
+      remainingTime.value = _savedRemainingTime!;
+      startPomodoroSession();
+    }
+    
+    // Resume the music if it was playing
+    if (_wasPlaying == true) {
+      audioPlayer.play();
+      isPlaying.value = true;
+    }
+    
+    // Reset the saved state
+    _savedRemainingTime = null;
+    _wasPlaying = null;
+  }
+
 
   void increaseVolume() {
     if (volume.value < 1.0) {
@@ -83,7 +144,13 @@ class PomodoroController extends GetxController {
   }
 
   void startPomodoroSession() {
-    remainingTime.value = 1500; // Reset to 25 minutes
+    if (_savedRemainingTime != null) {
+      remainingTime.value = _savedRemainingTime!;
+      _savedRemainingTime = null;
+    } else {
+      remainingTime.value = 1500; // Reset to 25 minutes
+    }
+    
     sessionTimer?.cancel();
     sessionTimer = Timer.periodic(Duration(seconds: 1), (timer) {
       if (remainingTime.value > 0) {
@@ -242,11 +309,5 @@ class PomodoroController extends GetxController {
     }
   }
 
-  @override
-  void onClose() {
-    audioPlayer.dispose();
-    sessionTimer?.cancel();
-    trackTimer?.cancel();
-    super.onClose();
-  }
+
 }
