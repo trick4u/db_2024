@@ -39,6 +39,8 @@ class PomodoroController extends GetxController with WidgetsBindingObserver {
     'minimal',
     'soundtrack',
     'instrumental',
+    'peaceful'
+
   ].obs;
 
   Timer? sessionTimer;

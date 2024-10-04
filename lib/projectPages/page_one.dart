@@ -31,6 +31,8 @@ class PageOneScreen extends GetWidget<PageOneController> {
   final appTheme = Get.find<AppTheme>();
 
   final RxBool _isDialogOpen = false.obs;
+  final RxBool _isChangingBackground = false.obs;
+  final RxInt _backgroundChangeCount = 0.obs;
 
   Future<void> _showQuoteDialog(BuildContext context) async {
     if (_isDialogOpen.value) return;
@@ -56,6 +58,19 @@ class PageOneScreen extends GetWidget<PageOneController> {
       },
     );
     _isDialogOpen.value = false;
+  }
+
+  Future<void> _changeBackground() async {
+    if (_isChangingBackground.value || _backgroundChangeCount.value >= 10)
+      return;
+
+    _isChangingBackground.value = true;
+
+    final PomodoroController networkController = Get.find<PomodoroController>();
+    await networkController.fetchRandomBackgroundImage();
+
+    _backgroundChangeCount.value++;
+    _isChangingBackground.value = false;
   }
 
   @override
@@ -136,12 +151,20 @@ class PageOneScreen extends GetWidget<PageOneController> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text(
-                                _getListTitle(
-                                    controller.selectedListType.value),
-                                style:
-                                    AppTextTheme.textTheme.titleLarge?.copyWith(
-                                  fontSize: ScaleUtil.fontSize(18),
+                              GestureDetector(
+                                onTap: () {
+                                  if (controller.selectedListType.value ==
+                                      "pomodoro") {
+                                    _changeBackground();
+                                  }
+                                },
+                                child: Text(
+                                  _getListTitle(
+                                      controller.selectedListType.value),
+                                  style: AppTextTheme.textTheme.titleLarge
+                                      ?.copyWith(
+                                    fontSize: ScaleUtil.fontSize(18),
+                                  ),
                                 ),
                               ),
                               Text(

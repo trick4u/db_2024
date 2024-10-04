@@ -32,7 +32,7 @@ class PomodoroMusicPlayer extends GetView<PomodoroController> {
           },
           child: PressableDough(
             onReleased: (r) {
-              controller.fetchRandomBackgroundImage();
+            
             },
             child: Stack(
               children: [
