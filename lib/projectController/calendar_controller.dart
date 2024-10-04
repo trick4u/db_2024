@@ -52,6 +52,9 @@ class CalendarController extends GetxController {
   //     Rx<VideoPlayerController?>(null);
   RxString backgroundVideoUrl = ''.obs;
 
+  RxInt backgroundChangeCount = 0.obs;
+  RxBool isChangingBackground = false.obs;
+
   @override
   void onInit() {
     super.onInit();
@@ -60,6 +63,8 @@ class CalendarController extends GetxController {
     fetchRandomBackgroundImage();
     loadImageFetchData();
     rescheduleNotifications();
+     loadSavedBackgroundImage();
+    loadBackgroundChangeCount();
     //  fetchRandomBackgroundVideo();
   }
 
@@ -119,6 +124,11 @@ class CalendarController extends GetxController {
   //   }
   // }
 
+  Future<void> loadBackgroundChangeCount() async {
+    final prefs = await SharedPreferences.getInstance();
+    backgroundChangeCount.value = prefs.getInt('background_change_count') ?? 0;
+  }
+
   Future<void> rescheduleNotifications() async {
     if (currentUser == null) return;
 
@@ -141,6 +151,7 @@ class CalendarController extends GetxController {
     try {
       await fetchEvents(selectedDay.value);
       await fetchRandomBackgroundImage();
+       await loadSavedBackgroundImage();
     } catch (e) {
       print('Error loading initial data: $e');
       hasError.value = true;
@@ -165,10 +176,18 @@ class CalendarController extends GetxController {
   }
 
   Future<void> fetchRandomBackgroundImage() async {
-    // if (imageFetchCount.value >= 20) {
+    if (isChangingBackground.value || backgroundChangeCount.value >= 10) {
+      if (backgroundChangeCount.value >= 10) {
+        Get.snackbar(
+          'Background Change Limit Reached',
+          'You can only change the background 10 times.',
+          snackPosition: SnackPosition.BOTTOM,
+        );
+      }
+      return;
+    }
 
-    //   return;
-    // }
+    isChangingBackground.value = true;
 
     try {
       final imageUrl = await _pexelsService.getRandomImageUrl();
@@ -177,17 +196,19 @@ class CalendarController extends GetxController {
         final prefs = await SharedPreferences.getInstance();
         await prefs.setString('background_image_url', imageUrl);
 
-        // // Increment and save the fetch count
-        // imageFetchCount.value++;
-        // lastFetchDate.value = DateFormat('yyyy-MM-dd').format(DateTime.now());
-        // await prefs.setInt('image_fetch_count', imageFetchCount.value);
-        // await prefs.setString('last_fetch_date', lastFetchDate.value);
+        backgroundChangeCount.value++;
+        await prefs.setInt(
+            'background_change_count', backgroundChangeCount.value);
+
+        update(); // Trigger UI update
       } else {
         throw Exception('Received empty image URL');
       }
     } catch (e) {
       print('Error fetching random background image: $e');
       await loadSavedBackgroundImage();
+    } finally {
+      isChangingBackground.value = false;
     }
   }
 

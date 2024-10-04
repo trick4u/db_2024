@@ -25,6 +25,7 @@ class PomodoroController extends GetxController with WidgetsBindingObserver {
 
   RxString currentGenre = 'chill'.obs;
   RxDouble volume = 1.0.obs;
+  RxDouble overlayOpacity = 0.3.obs;
   RxList<String> availableGenres = <String>[
     'chill',
     'ambient',
@@ -40,27 +41,25 @@ class PomodoroController extends GetxController with WidgetsBindingObserver {
     'soundtrack',
     'instrumental',
     'peaceful'
-
   ].obs;
 
   Timer? sessionTimer;
   Timer? trackTimer;
   RxInt remainingTime = 1500.obs; // 25 minutes in seconds
 
-   int? _savedRemainingTime;
+  int? _savedRemainingTime;
   bool? _wasPlaying;
 
   @override
   void onInit() {
     super.onInit();
-        WidgetsBinding.instance.addObserver(this);
+    WidgetsBinding.instance.addObserver(this);
     randomizeInitialGenre();
     fetchTracks();
     fetchBackgroundImage();
     setupAudioPlayerListeners();
     audioPlayer.setVolume(volume.value);
   }
-
 
   @override
   void onClose() {
@@ -70,7 +69,8 @@ class PomodoroController extends GetxController with WidgetsBindingObserver {
     trackTimer?.cancel();
     super.onClose();
   }
-   @override
+
+  @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     switch (state) {
       case AppLifecycleState.paused:
@@ -86,13 +86,34 @@ class PomodoroController extends GetxController with WidgetsBindingObserver {
         break;
     }
   }
-   void _pauseEverything() {
+   void increaseVolume() {
+    if (volume.value < 1.0) {
+      volume.value = (volume.value + 0.1).clamp(0.0, 1.0);
+      audioPlayer.setVolume(volume.value);
+      updateOverlayOpacity();
+    }
+  }
+
+  void decreaseVolume() {
+    if (volume.value > 0.0) {
+      volume.value = (volume.value - 0.1).clamp(0.0, 1.0);
+      audioPlayer.setVolume(volume.value);
+      updateOverlayOpacity();
+    }
+  }
+
+  void updateOverlayOpacity() {
+    // Inverse relationship: as volume decreases, opacity decreases
+    overlayOpacity.value = volume.value * 0.3;
+  }
+
+  void _pauseEverything() {
     _savedRemainingTime = remainingTime.value;
     _wasPlaying = isPlaying.value;
-    
+
     // Pause the timer
     sessionTimer?.cancel();
-    
+
     // Pause the music
     audioPlayer.pause();
     isPlaying.value = false;
@@ -104,32 +125,31 @@ class PomodoroController extends GetxController with WidgetsBindingObserver {
       remainingTime.value = _savedRemainingTime!;
       startPomodoroSession();
     }
-    
+
     // Resume the music if it was playing
     if (_wasPlaying == true) {
       audioPlayer.play();
       isPlaying.value = true;
     }
-    
+
     // Reset the saved state
     _savedRemainingTime = null;
     _wasPlaying = null;
   }
 
+  // void increaseVolume() {
+  //   if (volume.value < 1.0) {
+  //     volume.value = (volume.value + 0.1).clamp(0.0, 10.0);
+  //     audioPlayer.setVolume(volume.value);
+  //   }
+  // }
 
-  void increaseVolume() {
-    if (volume.value < 1.0) {
-      volume.value = (volume.value + 0.1).clamp(0.0, 10.0);
-      audioPlayer.setVolume(volume.value);
-    }
-  }
-
-  void decreaseVolume() {
-    if (volume.value > 0.0) {
-      volume.value = (volume.value - 0.1).clamp(0.0, 1.0);
-      audioPlayer.setVolume(volume.value);
-    }
-  }
+  // void decreaseVolume() {
+  //   if (volume.value > 0.0) {
+  //     volume.value = (volume.value - 0.1).clamp(0.0, 1.0);
+  //     audioPlayer.setVolume(volume.value);
+  //   }
+  // }
 
   void randomizeInitialGenre() {
     final random = Random();
@@ -152,7 +172,7 @@ class PomodoroController extends GetxController with WidgetsBindingObserver {
     } else {
       remainingTime.value = 1500; // Reset to 25 minutes
     }
-    
+
     sessionTimer?.cancel();
     sessionTimer = Timer.periodic(Duration(seconds: 1), (timer) {
       if (remainingTime.value > 0) {
@@ -310,6 +330,4 @@ class PomodoroController extends GetxController with WidgetsBindingObserver {
       startPomodoroSession();
     }
   }
-
-
 }

@@ -80,11 +80,11 @@ class PomodoroMusicPlayer extends GetView<PomodoroController> {
                 ),
           
                 // Overlay for better text readability
-                Container(
+                Obx(() => Container(
                   width: double.infinity,
                   height: double.infinity,
-                  color: appTheme.colorScheme.surface.withOpacity(0.3),
-                ),
+                  color: appTheme.colorScheme.surface.withOpacity(controller.overlayOpacity.value),
+                )),
           
                 // Timer display
                 Positioned(
