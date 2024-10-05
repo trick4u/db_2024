@@ -26,6 +26,7 @@ class PomodoroController extends GetxController with WidgetsBindingObserver {
   RxString currentGenre = 'chill'.obs;
   RxDouble volume = 1.0.obs;
   RxDouble overlayOpacity = 0.3.obs;
+  RxBool isVolumeMuted = false.obs;
   RxList<String> availableGenres = <String>[
     'chill',
     'ambient',
@@ -86,11 +87,13 @@ class PomodoroController extends GetxController with WidgetsBindingObserver {
         break;
     }
   }
-   void increaseVolume() {
+
+  void increaseVolume() {
     if (volume.value < 1.0) {
       volume.value = (volume.value + 0.1).clamp(0.0, 1.0);
       audioPlayer.setVolume(volume.value);
       updateOverlayOpacity();
+      isVolumeMuted.value = false;
     }
   }
 
@@ -99,12 +102,14 @@ class PomodoroController extends GetxController with WidgetsBindingObserver {
       volume.value = (volume.value - 0.1).clamp(0.0, 1.0);
       audioPlayer.setVolume(volume.value);
       updateOverlayOpacity();
+      if (volume.value == 0.0) {
+        isVolumeMuted.value = true;
+      }
     }
   }
 
-  void updateOverlayOpacity() {
-    // Inverse relationship: as volume decreases, opacity decreases
-    overlayOpacity.value = volume.value * 0.3;
+ void updateOverlayOpacity() {
+    overlayOpacity.value = 0.3 + (1 - volume.value) * 0.3;
   }
 
   void _pauseEverything() {
@@ -235,19 +240,28 @@ class PomodoroController extends GetxController with WidgetsBindingObserver {
     }
   }
 
+ 
   void toggleMutePlayPause() {
-    if (isMuted.value) {
-      audioPlayer.setVolume(1.0);
+    if (isVolumeMuted.value) {
+      // If volume is muted, unmute and play
+      volume.value = volume.value > 0 ? volume.value : 0.5; // Set to 0.5 if it was 0
+      audioPlayer.setVolume(volume.value);
       audioPlayer.play();
-      isMuted.value = false;
+      isVolumeMuted.value = false;
       isPlaying.value = true;
     } else if (isPlaying.value) {
+      // If playing, mute the volume
+      volume.value = 0.0;
       audioPlayer.setVolume(0.0);
-      isMuted.value = true;
+      isVolumeMuted.value = true;
     } else {
+      // If not playing, start the session
       startPomodoroSession();
     }
+    // Update overlay opacity to reflect the current volume state
+    updateOverlayOpacity();
   }
+
 
   Future<void> fetchBackgroundImage() async {
     try {

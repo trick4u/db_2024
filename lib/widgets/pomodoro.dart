@@ -21,7 +21,7 @@ class PomodoroMusicPlayer extends GetView<PomodoroController> {
     return Scaffold(
       body: SafeArea(
         child: GestureDetector(
-            onVerticalDragUpdate: (details) {
+          onVerticalDragUpdate: (details) {
             if (details.primaryDelta! < 0) {
               // Swipe up - increase volume
               controller.increaseVolume();
@@ -31,9 +31,7 @@ class PomodoroMusicPlayer extends GetView<PomodoroController> {
             }
           },
           child: PressableDough(
-            onReleased: (r) {
-            
-            },
+            onReleased: (r) {},
             child: Stack(
               children: [
                 // Background Image
@@ -78,14 +76,14 @@ class PomodoroMusicPlayer extends GetView<PomodoroController> {
                           child: Center(child: CircularProgressIndicator()),
                         ),
                 ),
-          
+
                 // Overlay for better text readability
-                Obx(() => Container(
+               Obx(() => Container(
                   width: double.infinity,
                   height: double.infinity,
                   color: appTheme.colorScheme.surface.withOpacity(controller.overlayOpacity.value),
                 )),
-          
+
                 // Timer display
                 Positioned(
                   top: ScaleUtil.height(20),
@@ -93,8 +91,10 @@ class PomodoroMusicPlayer extends GetView<PomodoroController> {
                   right: 0,
                   child: Obx(() {
                     final remainingTime = controller.remainingTime.value;
-                    final minutes = (remainingTime ~/ 60).toString().padLeft(2, '0');
-                    final seconds = (remainingTime % 60).toString().padLeft(2, '0');
+                    final minutes =
+                        (remainingTime ~/ 60).toString().padLeft(2, '0');
+                    final seconds =
+                        (remainingTime % 60).toString().padLeft(2, '0');
                     return Text(
                       '$minutes:$seconds',
                       style: appTheme.titleLarge.copyWith(
@@ -105,7 +105,7 @@ class PomodoroMusicPlayer extends GetView<PomodoroController> {
                     );
                   }),
                 ),
-          
+
                 // Content
                 Center(
                   child: Column(
@@ -135,7 +135,7 @@ class PomodoroMusicPlayer extends GetView<PomodoroController> {
                     ],
                   ),
                 ),
-          
+
                 // Genre switching button
                 Positioned(
                   right: ScaleUtil.width(110),
@@ -149,7 +149,7 @@ class PomodoroMusicPlayer extends GetView<PomodoroController> {
                     ),
                   ),
                 ),
-          
+
                 // Track switching button
                 Positioned(
                   right: ScaleUtil.width(60),
@@ -167,16 +167,16 @@ class PomodoroMusicPlayer extends GetView<PomodoroController> {
                     ),
                   ),
                 ),
-          
+
                 // Mute/Play/Pause button in bottom right corner
-                Positioned(
+         Positioned(
                   right: ScaleUtil.width(10),
                   bottom: ScaleUtil.height(10),
                   child: _buildCircularButton(
                     onPressed: controller.toggleMutePlayPause,
                     icon: Obx(
                       () => Icon(
-                        controller.isMuted.value
+                        controller.isVolumeMuted.value
                             ? Icons.volume_off
                             : (controller.isPlaying.value
                                 ? Icons.volume_up
@@ -187,7 +187,6 @@ class PomodoroMusicPlayer extends GetView<PomodoroController> {
                     ),
                   ),
                 ),
-          
                 // Session start button
                 Positioned(
                   left: ScaleUtil.width(10),
