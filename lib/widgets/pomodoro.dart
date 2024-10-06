@@ -2,6 +2,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:dough/dough.dart';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_blurhash/flutter_blurhash.dart';
 import 'package:get/get.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:http/http.dart' as http;
@@ -13,6 +14,7 @@ import '../services/app_theme.dart';
 
 class PomodoroMusicPlayer extends GetView<PomodoroController> {
   final AppTheme appTheme = Get.find<AppTheme>();
+  final String placeholderHash = "L15OTk-:0001IBV[x[bc01Dk_1~o";
 
   @override
   Widget build(BuildContext context) {
@@ -56,10 +58,11 @@ class PomodoroMusicPlayer extends GetView<PomodoroController> {
                             child: CachedNetworkImage(
                               imageUrl: controller.backgroundImageUrl.value!,
                               fit: BoxFit.cover,
-                              placeholder: (context, url) => Container(
-                                color: appTheme.colorScheme.surface,
-                                child: Center(
-                                  child: CircularProgressIndicator(),
+                              placeholder: (context, url) => ClipRRect(
+                                borderRadius: ScaleUtil.circular(20),
+                                child: BlurHash(
+                                  hash: placeholderHash,
+                                  imageFit: BoxFit.cover,
                                 ),
                               ),
                               errorWidget: (context, url, error) => Container(
@@ -69,20 +72,26 @@ class PomodoroMusicPlayer extends GetView<PomodoroController> {
                             ),
                           ),
                         )
-                      : Container(
-                          width: double.infinity,
-                          height: double.infinity,
-                          color: appTheme.colorScheme.surface,
-                          child: Center(child: CircularProgressIndicator()),
+                      : ClipRRect(
+                          borderRadius: ScaleUtil.circular(20),
+                          child: Container(
+                            width: double.infinity,
+                            height: double.infinity,
+                            child: BlurHash(
+                              hash: placeholderHash,
+                              imageFit: BoxFit.cover,
+                            ),
+                          ),
                         ),
                 ),
 
                 // Overlay for better text readability
-               Obx(() => Container(
-                  width: double.infinity,
-                  height: double.infinity,
-                  color: appTheme.colorScheme.surface.withOpacity(controller.overlayOpacity.value),
-                )),
+                Obx(() => Container(
+                      width: double.infinity,
+                      height: double.infinity,
+                      color: appTheme.colorScheme.surface
+                          .withOpacity(controller.overlayOpacity.value),
+                    )),
 
                 // Timer display
                 Positioned(
@@ -107,34 +116,34 @@ class PomodoroMusicPlayer extends GetView<PomodoroController> {
                 ),
 
                 // Content
-                Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Obx(
-                        () => Text(
-                          'Genre: ${controller.currentGenre.value}',
-                          style: appTheme.titleLarge.copyWith(
-                            color: appTheme.colorScheme.onSurface,
-                            fontSize: ScaleUtil.fontSize(14),
-                          ),
-                        ),
-                      ),
-                      SizedBox(height: ScaleUtil.height(10)),
-                      Obx(
-                        () => Text(
-                          controller.tracks.isNotEmpty
-                              ? 'by ${controller.tracks[controller.currentTrackIndex.value]['artist_name']}'
-                              : 'Loading...',
-                          style: appTheme.titleLarge.copyWith(
-                            color: appTheme.colorScheme.onSurface,
-                            fontSize: ScaleUtil.fontSize(20),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
+                // Center(
+                //   child: Column(
+                //     mainAxisAlignment: MainAxisAlignment.center,
+                //     children: [
+                //       Obx(
+                //         () => Text(
+                //           'Genre: ${controller.currentGenre.value}',
+                //           style: appTheme.titleLarge.copyWith(
+                //             color: appTheme.colorScheme.onSurface,
+                //             fontSize: ScaleUtil.fontSize(14),
+                //           ),
+                //         ),
+                //       ),
+                //       SizedBox(height: ScaleUtil.height(10)),
+                //       Obx(
+                //         () => Text(
+                //           controller.tracks.isNotEmpty
+                //               ? 'by ${controller.tracks[controller.currentTrackIndex.value]['artist_name']}'
+                //               : 'Loading...',
+                //           style: appTheme.titleLarge.copyWith(
+                //             color: appTheme.colorScheme.onSurface,
+                //             fontSize: ScaleUtil.fontSize(20),
+                //           ),
+                //         ),
+                //       ),
+                //     ],
+                //   ),
+                // ),
 
                 // Genre switching button
                 Positioned(
@@ -169,7 +178,7 @@ class PomodoroMusicPlayer extends GetView<PomodoroController> {
                 ),
 
                 // Mute/Play/Pause button in bottom right corner
-         Positioned(
+                Positioned(
                   right: ScaleUtil.width(10),
                   bottom: ScaleUtil.height(10),
                   child: _buildCircularButton(
@@ -191,14 +200,18 @@ class PomodoroMusicPlayer extends GetView<PomodoroController> {
                 Positioned(
                   left: ScaleUtil.width(10),
                   bottom: ScaleUtil.height(10),
-                  child: _buildCircularButton(
-                    onPressed: controller.startPomodoroSession,
-                    icon: Icon(
-                      Icons.timer,
-                      color: appTheme.colorScheme.onPrimary,
-                      size: ScaleUtil.iconSize(12),
-                    ),
-                  ),
+                  child: Obx(() => _buildCircularButton(
+                        onPressed: controller.togglePlayPause,
+                        icon: Icon(
+                          controller.isSessionActive.value
+                              ? (controller.isPlaying.value
+                                  ? Icons.pause
+                                  : Icons.play_arrow)
+                              : Icons.timer,
+                          color: appTheme.colorScheme.onPrimary,
+                          size: ScaleUtil.iconSize(12),
+                        ),
+                      )),
                 ),
               ],
             ),

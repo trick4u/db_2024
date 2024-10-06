@@ -21,7 +21,7 @@ Future<String> getRandomImageUrl() async {
     do {
       final response = await http.get(
         Uri.parse(
-          '${baseUrl}search?query=nature+landscape&orientation=landscape&per_page=1&page=${_getRandomPage()}&size=large'),
+          '${baseUrl}search?query=abstract+nature+landscape&orientation=landscape&per_page=1&page=${_getRandomPage()}&size=large'),
         headers: {'Authorization': apiKey},
       );
 
@@ -59,7 +59,7 @@ Future<String> getRandomImageUrl() async {
     do {
       final response = await http.get(
         Uri.parse(
-          '${baseUrl}search?query=abstract+landscape&orientation=landscape&per_page=1&page=${_getRandomPage()}&size=large'),
+          '${baseUrl}search?query=abstract+landscape&orientation=landscape+illustrations&per_page=1&page=${_getRandomPage()}&size=large'),
         headers: {'Authorization': apiKey},
       );
 

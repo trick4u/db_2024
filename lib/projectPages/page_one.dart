@@ -134,7 +134,7 @@ class PageOneScreen extends GetWidget<PageOneController> {
             ScaleUtil.sizedBox(height: 10),
             FadeIn(
               child: AllSixCards(
-                height: ScaleUtil.height(300),
+                height: ScaleUtil.height(280),
                 useFixedHeight: true,
                 onListTypeSelected: (listType) {
                   controller.setSelectedListType(listType);
@@ -143,47 +143,49 @@ class PageOneScreen extends GetWidget<PageOneController> {
             ),
             Expanded(
               child: Obx(() => controller.selectedListType.value.isNotEmpty
-                  ? Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Padding(
-                          padding: ScaleUtil.symmetric(horizontal: 20),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              GestureDetector(
-                                onTap: () {
-                                  if (controller.selectedListType.value ==
-                                      "pomodoro") {
-                                    _changeBackground();
-                                  }
-                                },
-                                child: Text(
-                                  _getListTitle(
-                                      controller.selectedListType.value),
-                                  style: AppTextTheme.textTheme.titleLarge
-                                      ?.copyWith(
-                                    fontSize: ScaleUtil.fontSize(18),
+                  ? Container(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Padding(
+                            padding: ScaleUtil.symmetric(horizontal: 20),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                GestureDetector(
+                                  onTap: () {
+                                    if (controller.selectedListType.value ==
+                                        "pomodoro") {
+                                      _changeBackground();
+                                    }
+                                  },
+                                  child: Text(
+                                    _getListTitle(
+                                        controller.selectedListType.value),
+                                    style: AppTextTheme.textTheme.titleLarge
+                                        ?.copyWith(
+                                      fontSize: ScaleUtil.fontSize(18),
+                                    ),
                                   ),
                                 ),
-                              ),
-                              Text(
-                                _getTaskCount(
-                                    controller.selectedListType.value),
-                                style:
-                                    AppTextTheme.textTheme.bodyMedium?.copyWith(
-                                  color: appTheme.secondaryTextColor,
-                                  fontSize: ScaleUtil.fontSize(12),
+                                Text(
+                                  _getTaskCount(
+                                      controller.selectedListType.value),
+                                  style: AppTextTheme.textTheme.bodyMedium
+                                      ?.copyWith(
+                                    color: appTheme.secondaryTextColor,
+                                    fontSize: ScaleUtil.fontSize(12),
+                                  ),
                                 ),
-                              ),
-                            ],
+                              ],
+                            ),
                           ),
-                        ),
-                        ScaleUtil.sizedBox(height: 10),
-                        Expanded(
-                          child: _buildSelectedList(),
-                        ),
-                      ],
+                          ScaleUtil.sizedBox(height: 10),
+                          Expanded(
+                            child: _buildSelectedList(),
+                          ),
+                        ],
+                      ),
                     )
                   : SizedBox.shrink()),
             ),

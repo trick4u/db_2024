@@ -51,6 +51,8 @@ class PomodoroController extends GetxController with WidgetsBindingObserver {
   int? _savedRemainingTime;
   bool? _wasPlaying;
 
+  RxBool isSessionActive = false.obs;
+
   @override
   void onInit() {
     super.onInit();
@@ -88,28 +90,28 @@ class PomodoroController extends GetxController with WidgetsBindingObserver {
     }
   }
 
-  void increaseVolume() {
-    if (volume.value < 1.0) {
-      volume.value = (volume.value + 0.1).clamp(0.0, 1.0);
-      audioPlayer.setVolume(volume.value);
-      updateOverlayOpacity();
-      isVolumeMuted.value = false;
-    }
-  }
-
   void decreaseVolume() {
-    if (volume.value > 0.0) {
-      volume.value = (volume.value - 0.1).clamp(0.0, 1.0);
-      audioPlayer.setVolume(volume.value);
+    if (isPlaying.value) {
+      audioPlayer.pause();
+      isPlaying.value = false;
+      isVolumeMuted.value = true;
       updateOverlayOpacity();
-      if (volume.value == 0.0) {
-        isVolumeMuted.value = true;
-      }
     }
   }
 
- void updateOverlayOpacity() {
-    overlayOpacity.value = 0.3 + (1 - volume.value) * 0.3;
+  void increaseVolume() {
+    if (!isPlaying.value) {
+      audioPlayer.play();
+      isPlaying.value = true;
+      isVolumeMuted.value = false;
+      volume.value = volume.value > 0 ? volume.value : 0.5;
+      audioPlayer.setVolume(volume.value);
+      updateOverlayOpacity();
+    }
+  }
+
+  void updateOverlayOpacity() {
+    overlayOpacity.value = isPlaying.value ? 0.3 : 0;
   }
 
   void _pauseEverything() {
@@ -170,12 +172,10 @@ class PomodoroController extends GetxController with WidgetsBindingObserver {
     });
   }
 
-  void startPomodoroSession() {
-    if (_savedRemainingTime != null) {
-      remainingTime.value = _savedRemainingTime!;
-      _savedRemainingTime = null;
-    } else {
+   void startPomodoroSession() {
+    if (!isSessionActive.value) {
       remainingTime.value = 1500; // Reset to 25 minutes
+      isSessionActive.value = true;
     }
 
     sessionTimer?.cancel();
@@ -188,16 +188,27 @@ class PomodoroController extends GetxController with WidgetsBindingObserver {
     });
 
     if (!isPlaying.value) {
-      playNextTrack();
+      playCurrentTrack();
     }
     isPlaying.value = true;
   }
 
-  void endPomodoroSession() {
+  void playNextTrack() {
+    if (tracks.isEmpty) return;
+    currentTrackIndex.value = (currentTrackIndex.value + 1) % tracks.length;
+    playTrack(tracks[currentTrackIndex.value]);
+  }
+
+  void playCurrentTrack() {
+    if (tracks.isNotEmpty) {
+      playTrack(tracks[currentTrackIndex.value]);
+    }
+  }
+
+    void endPomodoroSession() {
     sessionTimer?.cancel();
-    audioPlayer.stop();
-    isPlaying.value = false;
-    remainingTime.value = 1500; // Reset to 25 minutes
+    isSessionActive.value = false;
+    // We don't reset the remainingTime here, so the user can see it reached zero
   }
 
   void switchGenre() {
@@ -240,11 +251,11 @@ class PomodoroController extends GetxController with WidgetsBindingObserver {
     }
   }
 
- 
   void toggleMutePlayPause() {
     if (isVolumeMuted.value) {
       // If volume is muted, unmute and play
-      volume.value = volume.value > 0 ? volume.value : 0.5; // Set to 0.5 if it was 0
+      volume.value =
+          volume.value > 0 ? volume.value : 0.5; // Set to 0.5 if it was 0
       audioPlayer.setVolume(volume.value);
       audioPlayer.play();
       isVolumeMuted.value = false;
@@ -262,10 +273,9 @@ class PomodoroController extends GetxController with WidgetsBindingObserver {
     updateOverlayOpacity();
   }
 
-
   Future<void> fetchBackgroundImage() async {
     try {
-      final imageUrl = await _pexelsService.getRandomImageUrl();
+      final imageUrl = await _pexelsService.getRandomImageUrlAbs();
       backgroundImageUrl.value = imageUrl;
     } catch (e) {
       print('Error fetching background image: $e');
@@ -274,7 +284,7 @@ class PomodoroController extends GetxController with WidgetsBindingObserver {
 
   Future<void> fetchRandomBackgroundImage() async {
     try {
-      final imageUrl = await _pexelsService.getRandomImageUrl();
+      final imageUrl = await _pexelsService.getRandomImageUrlAbs();
       if (imageUrl.isNotEmpty) {
         backgroundImageUrl.value = imageUrl;
         final prefs = await SharedPreferences.getInstance();
@@ -310,18 +320,27 @@ class PomodoroController extends GetxController with WidgetsBindingObserver {
       tracks.value = List<Map<String, dynamic>>.from(data['results']);
       if (tracks.isNotEmpty) {
         currentTrackIndex.value = 0;
-        if (isPlaying.value) {
-          playTrack(tracks[0]);
-        }
+        // Preload the first track without playing it
+        await preloadTrack(tracks[0]);
       }
     } else {
       print('Failed to load tracks: ${response.statusCode}');
     }
   }
 
-  Future<void> playTrack(Map<String, dynamic> track) async {
+  Future<void> preloadTrack(Map<String, dynamic> track) async {
     try {
       await audioPlayer.setUrl(track['audio']);
+    } catch (e) {
+      print('Error preloading track: $e');
+    }
+  }
+
+  Future<void> playTrack(Map<String, dynamic> track) async {
+    try {
+      if (audioPlayer.audioSource?.toString() != track['audio']) {
+        await audioPlayer.setUrl(track['audio']);
+      }
       audioPlayer.play();
       isPlaying.value = true;
     } catch (e) {
@@ -329,19 +348,20 @@ class PomodoroController extends GetxController with WidgetsBindingObserver {
     }
   }
 
-  void playNextTrack() {
-    if (tracks.isEmpty) return;
-    currentTrackIndex.value = (currentTrackIndex.value + 1) % tracks.length;
-    playTrack(tracks[currentTrackIndex.value]);
-  }
-
-  void togglePlayPause() {
+ void togglePlayPause() {
     if (isPlaying.value) {
       audioPlayer.pause();
       isPlaying.value = false;
       sessionTimer?.cancel();
     } else {
-      startPomodoroSession();
+      if (isSessionActive.value) {
+        // Resume the existing session
+        startPomodoroSession();
+      } else {
+        // Start a new session
+        remainingTime.value = 1500; // Reset to 25 minutes
+        startPomodoroSession();
+      }
     }
   }
 }
