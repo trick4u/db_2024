@@ -98,21 +98,66 @@ class PomodoroMusicPlayer extends GetView<PomodoroController> {
                   top: ScaleUtil.height(20),
                   left: 0,
                   right: 0,
-                  child: Obx(() {
-                    final remainingTime = controller.remainingTime.value;
-                    final minutes =
-                        (remainingTime ~/ 60).toString().padLeft(2, '0');
-                    final seconds =
-                        (remainingTime % 60).toString().padLeft(2, '0');
-                    return Text(
-                      '$minutes:$seconds',
-                      style: appTheme.titleLarge.copyWith(
-                        color: appTheme.colorScheme.onSurface,
-                        fontSize: ScaleUtil.fontSize(24),
+                  child: Column(
+                    children: [
+                      Obx(() {
+                        final remainingTime = controller.remainingTime.value;
+                        final minutes =
+                            (remainingTime ~/ 60).toString().padLeft(2, '0');
+                        final seconds =
+                            (remainingTime % 60).toString().padLeft(2, '0');
+                        return Text(
+                          '$minutes:$seconds',
+                          style: appTheme.titleLarge.copyWith(
+                            color: appTheme.colorScheme.onSurface,
+                            fontSize: ScaleUtil.fontSize(24),
+                          ),
+                          textAlign: TextAlign.center,
+                        );
+                      }),
+                      SizedBox(height: ScaleUtil.height(5)),
+                      Obx(() => Text(
+                            controller.isBreakTime.value
+                                ? 'Break Time'
+                                : 'Session ${controller.currentSession.value}/${controller.totalSessions.value}',
+                            style: appTheme.bodyMedium.copyWith(
+                              color: appTheme.colorScheme.onSurface,
+                              fontSize: ScaleUtil.fontSize(14),
+                            ),
+                            textAlign: TextAlign.center,
+                          )),
+                    ],
+                  ),
+                ),
+                Positioned(
+                  left: ScaleUtil.width(10),
+                  bottom: ScaleUtil.height(10),
+                  child: Obx(
+                    () => _buildCircularButton(
+                      onPressed: controller.togglePlayPause,
+                      icon: Icon(
+                        controller.isSessionActive.value
+                            ? (controller.isPlaying.value
+                                ? Icons.pause
+                                : Icons.play_arrow)
+                            : Icons.timer,
+                        color: appTheme.colorScheme.onPrimary,
+                        size: ScaleUtil.iconSize(12),
                       ),
-                      textAlign: TextAlign.center,
-                    );
-                  }),
+                    ),
+                  ),
+                ),
+                Positioned(
+                  left: ScaleUtil.width(70),
+                  bottom: ScaleUtil.height(10),
+                  child: _buildCircularButton(
+                    onPressed: controller.resetPomodoro,
+                    icon: Icon(
+                      Icons.stop,
+                      color: appTheme.colorScheme.onPrimary,
+                      size: ScaleUtil.iconSize(12),
+                    ),
+                  ),
                 ),
 
                 // Content

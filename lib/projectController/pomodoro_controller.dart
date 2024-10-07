@@ -27,10 +27,12 @@ class PomodoroController extends GetxController with WidgetsBindingObserver {
   RxDouble volume = 1.0.obs;
   RxDouble overlayOpacity = 0.3.obs;
   RxBool isVolumeMuted = false.obs;
-  RxInt sessionDuration = 25.obs; // Default 25 minutes
-  RxInt breakDuration = 5.obs; // Default 5 minutes break
+  RxInt sessionDuration = 5.obs; // Default 25 minutes
+  RxInt breakDuration = 2.obs; // Default 5 minutes break
   RxBool isBreakTime = false.obs;
   RxBool isSetupComplete = false.obs;
+  RxInt totalSessions = 4.obs; // Default to 4 sessions
+  RxInt currentSession = 1.obs;
 
   RxList<String> availableGenres = <String>[
     'chill',
@@ -57,6 +59,7 @@ class PomodoroController extends GetxController with WidgetsBindingObserver {
   bool? _wasPlaying;
 
   RxBool isSessionActive = false.obs;
+  RxBool isBreakActive = false.obs;
 
   @override
   void onInit() {
@@ -179,7 +182,7 @@ class PomodoroController extends GetxController with WidgetsBindingObserver {
 
   void startPomodoroSession() {
     if (!isSessionActive.value) {
-      remainingTime.value = sessionDuration.value * 60; // Convert minutes to seconds
+      remainingTime.value = sessionDuration.value * 60;
       isSessionActive.value = true;
       isBreakTime.value = false;
       isSetupComplete.value = true;
@@ -191,7 +194,14 @@ class PomodoroController extends GetxController with WidgetsBindingObserver {
         remainingTime.value--;
       } else {
         if (isBreakTime.value) {
-          endPomodoroSession();
+          if (currentSession.value < totalSessions.value) {
+            currentSession.value++;
+            isBreakTime.value = false;
+            remainingTime.value = sessionDuration.value * 60;
+            playCurrentTrack();
+          } else {
+            resetPomodoro();
+          }
         } else {
           startBreak();
         }
@@ -211,16 +221,15 @@ class PomodoroController extends GetxController with WidgetsBindingObserver {
     isSetupComplete.value = false;
     remainingTime.value = sessionDuration.value * 60;
     isPlaying.value = false;
-    // Stop the music
+    currentSession.value = 1;
     audioPlayer.stop();
   }
 
   void startBreak() {
     remainingTime.value = breakDuration.value * 60;
     isBreakTime.value = true;
-    // You might want to change the music or pause it during break time
-    // For example: pauseMusic();
-    decreaseVolume();
+    audioPlayer.pause();
+    isPlaying.value = false;
   }
 
   void playNextTrack() {
@@ -239,7 +248,7 @@ class PomodoroController extends GetxController with WidgetsBindingObserver {
     sessionTimer?.cancel();
     isSessionActive.value = false;
     isBreakTime.value = false;
-    // We don't reset the remainingTime here, so the user can see it reached zero
+    currentSession.value = 1;
   }
 
   void switchGenre() {
@@ -386,11 +395,9 @@ class PomodoroController extends GetxController with WidgetsBindingObserver {
       sessionTimer?.cancel();
     } else {
       if (isSessionActive.value) {
-        // Resume the existing session
         startPomodoroSession();
       } else {
-        // Start a new session
-        remainingTime.value = 1500; // Reset to 25 minutes
+        remainingTime.value = sessionDuration.value * 60;
         startPomodoroSession();
       }
     }

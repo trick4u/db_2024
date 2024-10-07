@@ -26,6 +26,8 @@ class PomodoroSetupScreen extends GetWidget<PomodoroController> {
             SizedBox(height: ScaleUtil.height(10)),
             _buildBreakDurationSlider(),
             SizedBox(height: ScaleUtil.height(10)),
+            _buildTotalSessionsSlider(),
+            SizedBox(height: ScaleUtil.height(10)),
             Align(
               alignment: Alignment.centerRight,
               child: _buildStartButton(),
@@ -33,6 +35,28 @@ class PomodoroSetupScreen extends GetWidget<PomodoroController> {
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildTotalSessionsSlider() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'Number of Sessions',
+          style: appTheme.bodyMedium,
+        ),
+        Obx(() => Slider(
+              value: controller.totalSessions.value.toDouble(),
+              min: 1,
+              max: 10,
+              divisions: 9,
+              label: '${controller.totalSessions.value} sessions',
+              onChanged: (value) {
+                controller.totalSessions.value = value.round();
+              },
+            )),
+      ],
     );
   }
 
