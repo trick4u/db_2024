@@ -24,6 +24,8 @@ import '../widgets/quick_bottomsheet.dart';
 import 'add_task_controller.dart';
 import 'package:http/http.dart' as http;
 
+import 'calendar_controller.dart';
+
 class PageOneController extends GetxController {
   //variables
 
@@ -901,7 +903,8 @@ class PageOneController extends GetxController {
     }
   }
 
-   Future<String?> createReminder(String reminder, int interval, bool repeat) async {
+  Future<String?> createReminder(
+      String reminder, int interval, bool repeat) async {
     if (allReminders.length >= MAX_REMINDERS) {
       Get.snackbar('Limit Reached', 'You can only have up to 10 reminders.');
       return null;
@@ -928,12 +931,12 @@ class PageOneController extends GetxController {
       documentId: docRef.id,
     );
 
-    print('Created reminder with ID: ${docRef.id}, Interval: $interval minutes, TriggerTime: $triggerTime');
+    print(
+        'Created reminder with ID: ${docRef.id}, Interval: $interval minutes, TriggerTime: $triggerTime');
     return docRef.id;
   }
 
-
- Future<DateTime> _getNextAvailableTriggerTime(int interval) async {
+  Future<DateTime> _getNextAvailableTriggerTime(int interval) async {
     DateTime now = DateTime.now();
     DateTime proposedTime = now.add(Duration(minutes: interval));
 
@@ -961,7 +964,6 @@ class PageOneController extends GetxController {
 
     return proposedTime;
   }
-
 
   Future<void> rescheduleExistingReminder(String documentId) async {
     try {
@@ -1001,5 +1003,132 @@ class PageOneController extends GetxController {
   String getReadableTime(Timestamp timestamp) {
     DateTime dateTime = timestamp.toDate();
     return DateFormat('yyyy-MM-dd HH:mm:ss').format(dateTime);
+  }
+}
+
+extension NotificationSchedulingExtension on PageOneController {
+  Map<String, dynamic> robustSanitizeEventData(Map<String, dynamic> data) {
+    Map<String, dynamic> sanitizedData = {};
+
+    data.forEach((key, value) {
+      if (value != null) {
+        if (value is DateTime) {
+          sanitizedData[key] = Timestamp.fromDate(value);
+        } else if (key == 'startTime' ||
+            key == 'endTime' ||
+            key == 'reminderTime') {
+          if (value is DateTime) {
+            sanitizedData[key] = Timestamp.fromDate(value);
+          } else if (value is Timestamp) {
+            sanitizedData[key] = value;
+          }
+          // If it's neither DateTime nor Timestamp, we don't include it
+        } else {
+          sanitizedData[key] = value;
+        }
+      }
+    });
+
+    return sanitizedData;
+  }
+
+  Future<void> robustUpdateEventWithErrorHandling(
+      String eventId, Map<String, dynamic> updatedData) async {
+    try {
+      Map<String, dynamic> sanitizedData = robustSanitizeEventData(updatedData);
+
+      // Fetch the current event data
+      DocumentSnapshot eventDoc = await eventsCollection.doc(eventId).get();
+      Map<String, dynamic> currentData =
+          eventDoc.data() as Map<String, dynamic>;
+
+      // Merge the sanitized data with the current data
+      Map<String, dynamic> mergedData = {...currentData, ...sanitizedData};
+
+      // Update the event
+      await eventsCollection.doc(eventId).update(mergedData);
+
+      // Recreate the QuickEventModel
+      QuickEventModel updatedEvent = QuickEventModel.fromFirestore(
+          await eventsCollection.doc(eventId).get());
+
+      // Handle notification
+      if (updatedEvent.hasReminder && updatedEvent.reminderTime != null) {
+        await scheduleEventNotification(updatedEvent);
+      } else {
+        await cancelEventNotification(updatedEvent);
+      }
+
+      print('Event updated successfully: $eventId');
+    } catch (e) {
+      print('Error updating event: $e');
+      Get.snackbar('Error', 'Failed to update event. Please try again.');
+    }
+  }
+
+  Future<void> scheduleEventNotification(QuickEventModel event) async {
+    final calendarController = Get.find<CalendarController>();
+    await calendarController.scheduleNotification(event);
+  }
+
+  Future<void> cancelEventNotification(QuickEventModel event) async {
+    final calendarController = Get.find<CalendarController>();
+    await calendarController.cancelNotification(event);
+  }
+
+  Map<String, dynamic> sanitizeEventData(Map<String, dynamic> data) {
+    Map<String, dynamic> sanitizedData = {};
+
+    data.forEach((key, value) {
+      if (value != null) {
+        if (value is DateTime) {
+          sanitizedData[key] = Timestamp.fromDate(value);
+        } else if (key == 'startTime' ||
+            key == 'endTime' ||
+            key == 'reminderTime') {
+          if (value is DateTime) {
+            sanitizedData[key] = Timestamp.fromDate(value);
+          }
+        } else {
+          sanitizedData[key] = value;
+        }
+      }
+    });
+
+    return sanitizedData;
+  }
+
+  Future<void> updateEventWithErrorHandling(
+      String eventId, Map<String, dynamic> updatedData) async {
+    try {
+      Map<String, dynamic> sanitizedData = sanitizeEventData(updatedData);
+      await updateEvent(eventId, sanitizedData);
+
+      // Fetch the updated event
+      DocumentSnapshot eventDoc = await eventsCollection.doc(eventId).get();
+      QuickEventModel updatedEvent = QuickEventModel.fromFirestore(eventDoc);
+
+      // Schedule or cancel notification based on the updated event data
+      await scheduleEventNotification(updatedEvent);
+
+      print('Event updated successfully: $eventId');
+    } catch (e) {
+      print('Error updating event: $e');
+      // Here you can add more error handling, such as showing a snackbar to the user
+      Get.snackbar('Error', 'Failed to update event. Please try again.');
+    }
+  }
+
+
+  Future<void> updateEventWithNotification(
+      String eventId, Map<String, dynamic> updatedData) async {
+    await updateEvent(eventId, updatedData);
+
+    // Fetch the updated event
+    DocumentSnapshot eventDoc = await eventsCollection.doc(eventId).get();
+    QuickEventModel updatedEvent = QuickEventModel.fromFirestore(eventDoc);
+
+    // Schedule or cancel notification based on the updated event data
+    await scheduleEventNotification(updatedEvent);
   }
 }

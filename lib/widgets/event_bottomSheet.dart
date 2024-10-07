@@ -47,7 +47,6 @@ class _EventBottomSheetState extends State<EventBottomSheet> {
 
   static const int TITLE_MAX_LENGTH = 100;
   static const int DESCRIPTION_MAX_LENGTH = 500;
- 
 
   @override
   void initState() {
@@ -65,10 +64,10 @@ class _EventBottomSheetState extends State<EventBottomSheet> {
     _isEventCompleted = widget.event?.isCompleted ?? false;
     _selectedRepetition = widget.event?.repetition;
     if (widget.event != null) {
-       if (widget.event != null) {
-      _startTime = widget.event!.startTime;
-      _endTime = widget.event!.endTime;
-    }
+      if (widget.event != null) {
+        _startTime = widget.event!.startTime;
+        _endTime = widget.event!.endTime;
+      }
       // Assume you have start and end time in your EventModel
       // _startTime = TimeOfDay.fromDateTime(widget.event!.startTime);
       // _endTime = TimeOfDay.fromDateTime(widget.event!.endTime);
@@ -88,10 +87,12 @@ class _EventBottomSheetState extends State<EventBottomSheet> {
       _isTitleEmpty = _titleController.text.isEmpty;
     });
   }
-   bool get _isDatePresentOrFuture {
+
+  bool get _isDatePresentOrFuture {
     final now = DateTime.now();
     final today = DateTime(now.year, now.month, now.day);
-    return _selectedDate.isAfter(today) || _selectedDate.isAtSameMomentAs(today);
+    return _selectedDate.isAfter(today) ||
+        _selectedDate.isAtSameMomentAs(today);
   }
 
   @override
@@ -119,7 +120,7 @@ class _EventBottomSheetState extends State<EventBottomSheet> {
                         ),
                       ),
                       Spacer(),
-                     if (_isDatePresentOrFuture)
+                      if (_isDatePresentOrFuture)
                         _buildReminderWidget(context, appTheme),
                       IconButton(
                         icon: Icon(
@@ -431,7 +432,7 @@ class _EventBottomSheetState extends State<EventBottomSheet> {
     );
   }
 
-   Widget _buildReminderWidget(BuildContext context, AppTheme appTheme) {
+  Widget _buildReminderWidget(BuildContext context, AppTheme appTheme) {
     if (_isEventCompleted) {
       return SizedBox.shrink();
     }
@@ -439,7 +440,6 @@ class _EventBottomSheetState extends State<EventBottomSheet> {
         ? _buildReminderInfo(appTheme)
         : _buildTimePickerButton(context, appTheme);
   }
-
 
   Widget _buildTimePickerButton(BuildContext context, AppTheme appTheme) {
     return TimePickerSpinnerPopUp(
@@ -459,13 +459,12 @@ class _EventBottomSheetState extends State<EventBottomSheet> {
       confirmText: 'OK',
       pressType: PressType.singlePress,
       timeFormat: 'hh:mm a',
-    
     );
   }
 
   Widget _buildReminderInfo(AppTheme appTheme) {
     return Container(
-      width: ScaleUtil.width(125),
+      width: ScaleUtil.width(140),
       padding: ScaleUtil.symmetric(vertical: 0, horizontal: 0),
       decoration: BoxDecoration(
         color: Colors.green,
@@ -477,7 +476,7 @@ class _EventBottomSheetState extends State<EventBottomSheet> {
           Row(
             children: [
               Icon(Icons.alarm_on,
-                  color: Colors.white, size: ScaleUtil.iconSize(24)),
+                  color: Colors.white, size: ScaleUtil.iconSize(20)),
               SizedBox(width: ScaleUtil.width(8)),
               Text(
                 ' ${_formatTime(_reminderTime!)}',
@@ -551,7 +550,7 @@ class ReminderButton extends StatelessWidget {
     );
   }
 
-   String _formatTime(DateTime dateTime) {
+  String _formatTime(DateTime dateTime) {
     return DateFormat('h:mm a').format(dateTime);
   }
 }

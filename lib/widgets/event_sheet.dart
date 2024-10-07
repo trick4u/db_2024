@@ -69,11 +69,11 @@ class EventsList extends StatelessWidget {
                       endTime.minute)
                   : null,
               'reminderTime': reminderTime,
-              'repetition':
-                  repetition, // Add this line to include the repetition
+              'repetition': repetition,
             };
 
-            pageOneController.updateEvent(event.id, updatedData);
+            pageOneController.robustUpdateEventWithErrorHandling(
+                event.id, updatedData);
           },
         ),
       ),
