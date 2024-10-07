@@ -27,8 +27,8 @@ class PomodoroController extends GetxController with WidgetsBindingObserver {
   RxDouble volume = 1.0.obs;
   RxDouble overlayOpacity = 0.3.obs;
   RxBool isVolumeMuted = false.obs;
-  RxInt sessionDuration = 5.obs; // Default 25 minutes
-  RxInt breakDuration = 2.obs; // Default 5 minutes break
+  RxInt sessionDuration = 25.obs; // Default 25 minutes
+  RxInt breakDuration = 5.obs; // Default 5 minutes break
   RxBool isBreakTime = false.obs;
   RxBool isSetupComplete = false.obs;
   RxInt totalSessions = 4.obs; // Default to 4 sessions

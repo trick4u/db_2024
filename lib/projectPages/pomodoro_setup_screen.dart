@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
 import 'package:tushar_db/services/app_text_style.dart';
 
@@ -27,7 +28,7 @@ class PomodoroSetupScreen extends GetWidget<PomodoroController> {
             _buildBreakDurationSlider(),
             SizedBox(height: ScaleUtil.height(10)),
             _buildTotalSessionsSlider(),
-            SizedBox(height: ScaleUtil.height(10)),
+            SizedBox(height: ScaleUtil.height(0)),
             Align(
               alignment: Alignment.centerRight,
               child: _buildStartButton(),
@@ -43,7 +44,7 @@ class PomodoroSetupScreen extends GetWidget<PomodoroController> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Number of Sessions',
+          'total sessions',
           style: appTheme.bodyMedium,
         ),
         Obx(() => Slider(
@@ -65,7 +66,7 @@ class PomodoroSetupScreen extends GetWidget<PomodoroController> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Work Session Duration',
+          'work duration',
           style: appTheme.bodyMedium,
         ),
         Obx(() => Slider(
@@ -87,14 +88,14 @@ class PomodoroSetupScreen extends GetWidget<PomodoroController> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Break Duration',
+          'break duration',
           style: appTheme.bodyMedium,
         ),
         Obx(() => Slider(
               value: controller.breakDuration.value.toDouble(),
               min: 3,
-              max: 30,
-              divisions: 9,
+              max: 10,
+              divisions: 5,
               label: '${controller.breakDuration.value} minutes',
               onChanged: (value) {
                 controller.breakDuration.value = value.round();
@@ -107,10 +108,17 @@ class PomodoroSetupScreen extends GetWidget<PomodoroController> {
   Widget _buildStartButton() {
     return GestureDetector(
       onTap: onStart,
-      child: Text(
-        'Start',
-        style: AppTextTheme.textTheme.titleLarge?.copyWith(
-          fontSize: ScaleUtil.fontSize(14),
+      child: Container(
+        width: ScaleUtil.width(30),
+        height: ScaleUtil.height(30),
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          color: appTheme.colorScheme.primary,
+        ),
+        child: Icon(
+          FontAwesomeIcons.check,
+          color: Colors.white,
+          size: ScaleUtil.iconSize(10),
         ),
       ),
     );

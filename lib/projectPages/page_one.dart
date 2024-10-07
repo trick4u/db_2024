@@ -184,7 +184,7 @@ class PageOneScreen extends GetWidget<PageOneController> {
                             ],
                           ),
                         ),
-                        ScaleUtil.sizedBox(height: 10),
+                        ScaleUtil.sizedBox(height: 0),
                         Expanded(
                           child: _buildSelectedList(),
                         ),

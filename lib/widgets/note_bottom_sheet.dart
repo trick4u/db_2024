@@ -278,6 +278,6 @@ class NoteBottomSheet extends GetView<NoteTakingController> {
               ),
             ),
           ),
-        ));
+        ),);
   }
 }
