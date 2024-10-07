@@ -9,6 +9,7 @@ import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tushar_db/constants/colors.dart';
 import 'package:tushar_db/projectController/calendar_controller.dart';
 import 'package:tushar_db/projectController/profile_controller.dart';
@@ -55,7 +56,7 @@ class MainScreenController extends GetxController
   ];
 
   @override
-  void onInit() {
+  void onInit() async {
     super.onInit();
     WidgetsBinding.instance.addObserver(this);
     Get.put(PageOneController()); // Ensure this is initialized first
@@ -63,6 +64,8 @@ class MainScreenController extends GetxController
     Get.lazyPut(() => StatisticsController());
     Get.lazyPut<CalendarController>(() => CalendarController());
     WorkmanagerNotificationService.initialize();
+    await checkAndScheduleNotification();
+    _scheduleAndroidNotification();
   }
 
   @override
@@ -99,11 +102,29 @@ class MainScreenController extends GetxController
     });
   }
 
+  Future<void> checkAndScheduleNotification() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    bool isNotificationScheduled =
+        prefs.getBool('isNotificationScheduled') ?? false;
+
+    if (!isNotificationScheduled) {
+      await scheduleDailyNotification();
+      await prefs.setBool('isNotificationScheduled', true);
+    }
+  }
+
   Future<void> scheduleDailyNotification() async {
-    if (Platform.isAndroid) {
-      await _scheduleAndroidNotification();
-    } else if (Platform.isIOS) {
-      print("Daily notification scheduled for iOS via background fetch");
+    try {
+      if (Platform.isAndroid) {
+        await _scheduleAndroidNotification();
+      } else if (Platform.isIOS) {
+        print("Daily notification scheduled for iOS via background fetch");
+        // Implement iOS-specific scheduling if needed
+      }
+      print("Daily notification scheduled successfully");
+    } catch (e) {
+      print("Error scheduling daily notification: $e");
+      // Handle the error appropriately
     }
   }
 
@@ -119,8 +140,8 @@ class MainScreenController extends GetxController
         notificationLayout: NotificationLayout.Default,
       ),
       schedule: NotificationCalendar(
-        hour: 10, // 7 AM
-        minute: 10,
+        hour: 11,
+        minute: 15,
         second: 0,
         millisecond: 0,
         repeats: true,

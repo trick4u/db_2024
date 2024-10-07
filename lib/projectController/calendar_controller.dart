@@ -178,11 +178,7 @@ class CalendarController extends GetxController {
   Future<void> fetchRandomBackgroundImage() async {
     if (isChangingBackground.value || backgroundChangeCount.value >= 10) {
       if (backgroundChangeCount.value >= 10) {
-        Get.snackbar(
-          'Background Change Limit Reached',
-          'You can only change the background 10 times.',
-          snackPosition: SnackPosition.BOTTOM,
-        );
+       return;
       }
       return;
     }

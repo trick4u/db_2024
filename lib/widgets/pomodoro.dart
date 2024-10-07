@@ -147,7 +147,7 @@ class PomodoroMusicPlayer extends GetView<PomodoroController> {
 
                 // Genre switching button
                 Positioned(
-                  right: ScaleUtil.width(110),
+                  right: ScaleUtil.width(60),
                   bottom: ScaleUtil.height(10),
                   child: _buildCircularButton(
                     onPressed: controller.switchGenre,
@@ -160,22 +160,22 @@ class PomodoroMusicPlayer extends GetView<PomodoroController> {
                 ),
 
                 // Track switching button
-                Positioned(
-                  right: ScaleUtil.width(60),
-                  bottom: ScaleUtil.height(10),
-                  child: _buildCircularButton(
-                    onPressed: controller.switchTrack,
-                    icon: Obx(
-                      () => Icon(
-                        controller.isLimitedMode.value
-                            ? Icons.shuffle
-                            : Icons.skip_next,
-                        color: appTheme.colorScheme.onPrimary,
-                        size: ScaleUtil.iconSize(12),
-                      ),
-                    ),
-                  ),
-                ),
+                // Positioned(
+                //   right: ScaleUtil.width(60),
+                //   bottom: ScaleUtil.height(10),
+                //   child: _buildCircularButton(
+                //     onPressed: controller.switchTrack,
+                //     icon: Obx(
+                //       () => Icon(
+                //         controller.isLimitedMode.value
+                //             ? Icons.shuffle
+                //             : Icons.skip_next,
+                //         color: appTheme.colorScheme.onPrimary,
+                //         size: ScaleUtil.iconSize(12),
+                //       ),
+                //     ),
+                //   ),
+                // ),
 
                 // Mute/Play/Pause button in bottom right corner
                 Positioned(
@@ -200,18 +200,20 @@ class PomodoroMusicPlayer extends GetView<PomodoroController> {
                 Positioned(
                   left: ScaleUtil.width(10),
                   bottom: ScaleUtil.height(10),
-                  child: Obx(() => _buildCircularButton(
-                        onPressed: controller.togglePlayPause,
-                        icon: Icon(
-                          controller.isSessionActive.value
-                              ? (controller.isPlaying.value
-                                  ? Icons.pause
-                                  : Icons.play_arrow)
-                              : Icons.timer,
-                          color: appTheme.colorScheme.onPrimary,
-                          size: ScaleUtil.iconSize(12),
-                        ),
-                      )),
+                  child: Obx(
+                    () => _buildCircularButton(
+                      onPressed: controller.togglePlayPause,
+                      icon: Icon(
+                        controller.isSessionActive.value
+                            ? (controller.isPlaying.value
+                                ? Icons.pause
+                                : Icons.play_arrow)
+                            : Icons.timer,
+                        color: appTheme.colorScheme.onPrimary,
+                        size: ScaleUtil.iconSize(12),
+                      ),
+                    ),
+                  ),
                 ),
               ],
             ),

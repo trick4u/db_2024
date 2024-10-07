@@ -26,6 +26,7 @@ import '../widgets/AllSixWidgets.dart';
 import '../widgets/event_sheet.dart';
 
 import '../widgets/reminder_list.dart';
+import 'pomodoro_setup_screen.dart';
 
 class PageOneScreen extends GetWidget<PageOneController> {
   final appTheme = Get.find<AppTheme>();
@@ -132,33 +133,35 @@ class PageOneScreen extends GetWidget<PageOneController> {
               ],
             ),
             ScaleUtil.sizedBox(height: 10),
-            FadeIn(
-              child: AllSixCards(
-                height: ScaleUtil.height(280),
-                useFixedHeight: true,
-                onListTypeSelected: (listType) {
-                  controller.setSelectedListType(listType);
-                },
+            Expanded(
+              child: FadeIn(
+                child: AllSixCards(
+                  useFixedHeight: true,
+                  onListTypeSelected: (listType) {
+                    controller.setSelectedListType(listType);
+                  },
+                ),
               ),
             ),
             Expanded(
               child: Obx(() => controller.selectedListType.value.isNotEmpty
-                  ? Container(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Padding(
-                            padding: ScaleUtil.symmetric(horizontal: 20),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                GestureDetector(
-                                  onTap: () {
-                                    if (controller.selectedListType.value ==
-                                        "pomodoro") {
-                                      _changeBackground();
-                                    }
-                                  },
+                  ? Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Padding(
+                          padding: ScaleUtil.symmetric(horizontal: 10),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              GestureDetector(
+                                onTap: () {
+                                  if (controller.selectedListType.value ==
+                                      "pomodoro") {
+                                    _changeBackground();
+                                  }
+                                },
+                                child: Align(
+                                  alignment: Alignment.centerLeft,
                                   child: Text(
                                     _getListTitle(
                                         controller.selectedListType.value),
@@ -168,24 +171,24 @@ class PageOneScreen extends GetWidget<PageOneController> {
                                     ),
                                   ),
                                 ),
-                                Text(
-                                  _getTaskCount(
-                                      controller.selectedListType.value),
-                                  style: AppTextTheme.textTheme.bodyMedium
-                                      ?.copyWith(
-                                    color: appTheme.secondaryTextColor,
-                                    fontSize: ScaleUtil.fontSize(12),
-                                  ),
+                              ),
+                              Text(
+                                _getTaskCount(
+                                    controller.selectedListType.value),
+                                style:
+                                    AppTextTheme.textTheme.bodyMedium?.copyWith(
+                                  color: appTheme.secondaryTextColor,
+                                  fontSize: ScaleUtil.fontSize(12),
                                 ),
-                              ],
-                            ),
+                              ),
+                            ],
                           ),
-                          ScaleUtil.sizedBox(height: 10),
-                          Expanded(
-                            child: _buildSelectedList(),
-                          ),
-                        ],
-                      ),
+                        ),
+                        ScaleUtil.sizedBox(height: 10),
+                        Expanded(
+                          child: _buildSelectedList(),
+                        ),
+                      ],
                     )
                   : SizedBox.shrink()),
             ),
@@ -197,6 +200,7 @@ class PageOneScreen extends GetWidget<PageOneController> {
   }
 
   String _getListTitle(String listType) {
+    final pomodoroController = Get.find<PomodoroController>();
     switch (listType) {
       case 'upcoming':
         return 'Upcoming Tasks'.toLowerCase();
@@ -207,7 +211,9 @@ class PageOneScreen extends GetWidget<PageOneController> {
       case 'all reminders':
         return 'all reminders'.toLowerCase();
       case 'pomodoro':
-        return 'pomodoro'.toLowerCase();
+        return pomodoroController.isSetupComplete.value
+            ? 'pomodoro'
+            : 'pomodoro setup';
       default:
         return '';
     }
@@ -231,8 +237,7 @@ class PageOneScreen extends GetWidget<PageOneController> {
   Widget _buildSelectedList() {
     switch (controller.selectedListType.value) {
       case 'pomodoro':
-        // Get.put(PomodoroController());
-        return PomodoroMusicPlayer();
+        return _buildPomodoroSection();
       case 'all reminders':
         return RemindersList();
       default:
@@ -243,5 +248,22 @@ class PageOneScreen extends GetWidget<PageOneController> {
           ),
         );
     }
+  }
+
+  Widget _buildPomodoroSection() {
+    // Ensure PomodoroController is initialized
+    if (!Get.isRegistered<PomodoroController>()) {
+      Get.put(PomodoroController());
+    }
+
+    final pomodoroController = Get.find<PomodoroController>();
+
+    return Obx(() => pomodoroController.isSetupComplete.value
+        ? PomodoroMusicPlayer()
+        : PomodoroSetupScreen(
+            onStart: () {
+              pomodoroController.startPomodoroSession();
+            },
+          ));
   }
 }

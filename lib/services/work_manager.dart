@@ -10,8 +10,11 @@ class WorkmanagerNotificationService {
   static const String RESCHEDULE_NOTIFICATIONS_TASK =
       'com.example.rescheduleNotifications';
   static const String DAILY_NOTIFICATION_TASK = 'com.example.dailyNotification';
-  static const String VISION_BOARD_CHECK_NOTIFICATIONS_TASK = 'com.example.visionBoardCheckNotifications';
-  static const String VISION_BOARD_RESCHEDULE_NOTIFICATIONS_TASK = 'com.example.visionBoardRescheduleNotifications';
+  static const String VISION_BOARD_CHECK_NOTIFICATIONS_TASK =
+      'com.example.visionBoardCheckNotifications';
+  static const String VISION_BOARD_RESCHEDULE_NOTIFICATIONS_TASK =
+      'com.example.visionBoardRescheduleNotifications';
+  static const String RESCHEDULE_ON_BOOT_TASK = 'com.example.rescheduleOnBoot';
 
   static Future<void> initialize() async {
     await Workmanager().initialize(callbackDispatcher, isInDebugMode: false);
@@ -52,6 +55,18 @@ class WorkmanagerNotificationService {
         requiresStorageNotLow: false,
       ),
     );
+    await Workmanager().registerOneOffTask(
+      'rescheduleOnBootTask',
+      RESCHEDULE_ON_BOOT_TASK,
+      initialDelay: Duration(seconds: 5),
+      constraints: Constraints(
+        networkType: NetworkType.not_required,
+        requiresBatteryNotLow: false,
+        requiresCharging: false,
+        requiresDeviceIdle: false,
+        requiresStorageNotLow: false,
+      ),
+    );
     await Workmanager().registerPeriodicTask(
       'visionBoardPeriodicNotificationCheck',
       VISION_BOARD_CHECK_NOTIFICATIONS_TASK,
@@ -78,9 +93,9 @@ class WorkmanagerNotificationService {
     );
   }
 
-  static Duration _getInitialDelay() {
+ static Duration _getInitialDelay() {
     final now = DateTime.now();
-    final eightAM = DateTime(now.year, now.month, now.day, 12, 0);
+    final eightAM = DateTime(now.year, now.month, now.day, 8, 0);
     if (now.isAfter(eightAM)) {
       return eightAM.add(Duration(days: 1)).difference(now);
     } else {
@@ -99,20 +114,34 @@ class WorkmanagerNotificationService {
       ),
     );
   }
+  
 
-  static Future<void> scheduleNotification(
-      Map<String, dynamic> notificationData) async {
+ static Future<void> scheduleNotification(Map<String, dynamic> notificationData) async {
     final prefs = await SharedPreferences.getInstance();
-    String key =
-        'notification_${notificationData['id']}_${notificationData['source']}';
+    String key = 'notification_${notificationData['id']}';
     await prefs.setString(key, jsonEncode(notificationData));
 
-    List<String> notificationKeys =
-        prefs.getStringList('notification_keys') ?? [];
+    List<String> notificationKeys = prefs.getStringList('notification_keys') ?? [];
     if (!notificationKeys.contains(key)) {
       notificationKeys.add(key);
       await prefs.setStringList('notification_keys', notificationKeys);
     }
+
+    await AwesomeNotifications().createNotification(
+      content: NotificationContent(
+        id: notificationData['id'],
+        channelKey: notificationData['channelKey'],
+        title: notificationData['title'],
+        body: notificationData['body'],
+        notificationLayout: NotificationLayout.Default,
+      ),
+      schedule: NotificationCalendar.fromDate(
+        date: DateTime.parse(notificationData['scheduledTime']),
+        repeats: true,
+      ),
+    );
+
+    print("Notification scheduled for ${notificationData['scheduledTime']}");
   }
 
   static Future<void> cancelNotification(String id, String source) async {
@@ -126,48 +155,32 @@ class WorkmanagerNotificationService {
     await prefs.setStringList('notification_keys', notificationKeys);
   }
 
-  static Future<void> rescheduleNotifications() async {
+ static Future<void> rescheduleNotifications() async {
     final prefs = await SharedPreferences.getInstance();
-    List<String> notificationKeys =
-        prefs.getStringList('notification_keys') ?? [];
+    List<String> notificationKeys = prefs.getStringList('notification_keys') ?? [];
 
     for (String key in notificationKeys) {
       String? notificationDataString = prefs.getString(key);
       if (notificationDataString != null) {
-        Map<String, dynamic> notificationData =
-            jsonDecode(notificationDataString);
-        DateTime scheduledTime =
-            DateTime.parse(notificationData['scheduledTime']);
-
-        if (scheduledTime.isAfter(DateTime.now())) {
-          await AwesomeNotifications().createNotification(
-            content: NotificationContent(
-              id: notificationData['id'],
-              channelKey: notificationData['channelKey'],
-              title: notificationData['title'],
-              body: notificationData['body'],
-              category: NotificationCategory.Reminder,
-              notificationLayout: NotificationLayout.Default,
-              criticalAlert: true,
-              wakeUpScreen: true,
-            ),
-            schedule: NotificationCalendar.fromDate(date: scheduledTime),
-          );
-        }
+        Map<String, dynamic> notificationData = jsonDecode(notificationDataString);
+        await scheduleNotification(notificationData);
       }
     }
   }
 
   // Vision Board specific methods
-  static Future<void> scheduleVisionBoardNotification(Map<String, dynamic> notificationData) async {
+  static Future<void> scheduleVisionBoardNotification(
+      Map<String, dynamic> notificationData) async {
     final prefs = await SharedPreferences.getInstance();
     String key = 'visionBoard_notification_${notificationData['id']}';
     await prefs.setString(key, jsonEncode(notificationData));
 
-    List<String> notificationKeys = prefs.getStringList('visionBoard_notification_keys') ?? [];
+    List<String> notificationKeys =
+        prefs.getStringList('visionBoard_notification_keys') ?? [];
     if (!notificationKeys.contains(key)) {
       notificationKeys.add(key);
-      await prefs.setStringList('visionBoard_notification_keys', notificationKeys);
+      await prefs.setStringList(
+          'visionBoard_notification_keys', notificationKeys);
     }
   }
 
@@ -176,20 +189,25 @@ class WorkmanagerNotificationService {
     String key = 'visionBoard_notification_$id';
     await prefs.remove(key);
 
-    List<String> notificationKeys = prefs.getStringList('visionBoard_notification_keys') ?? [];
+    List<String> notificationKeys =
+        prefs.getStringList('visionBoard_notification_keys') ?? [];
     notificationKeys.remove(key);
-    await prefs.setStringList('visionBoard_notification_keys', notificationKeys);
+    await prefs.setStringList(
+        'visionBoard_notification_keys', notificationKeys);
   }
 
   static Future<void> rescheduleVisionBoardNotifications() async {
     final prefs = await SharedPreferences.getInstance();
-    List<String> notificationKeys = prefs.getStringList('visionBoard_notification_keys') ?? [];
+    List<String> notificationKeys =
+        prefs.getStringList('visionBoard_notification_keys') ?? [];
 
     for (String key in notificationKeys) {
       String? notificationDataString = prefs.getString(key);
       if (notificationDataString != null) {
-        Map<String, dynamic> notificationData = jsonDecode(notificationDataString);
-        DateTime scheduledTime = DateTime.parse(notificationData['scheduledTime']);
+        Map<String, dynamic> notificationData =
+            jsonDecode(notificationDataString);
+        DateTime scheduledTime =
+            DateTime.parse(notificationData['scheduledTime']);
 
         if (scheduledTime.isAfter(DateTime.now())) {
           await AwesomeNotifications().createNotification(
@@ -212,7 +230,8 @@ class WorkmanagerNotificationService {
       }
     }
 
-    await prefs.setStringList('visionBoard_notification_keys', notificationKeys);
+    await prefs.setStringList(
+        'visionBoard_notification_keys', notificationKeys);
   }
 }
 
@@ -232,9 +251,12 @@ void callbackDispatcher() {
       case WorkmanagerNotificationService.VISION_BOARD_CHECK_NOTIFICATIONS_TASK:
         await _checkAndTriggerVisionBoardNotifications();
         break;
-      case WorkmanagerNotificationService.VISION_BOARD_RESCHEDULE_NOTIFICATIONS_TASK:
-        await WorkmanagerNotificationService.rescheduleVisionBoardNotifications();
+      case WorkmanagerNotificationService
+            .VISION_BOARD_RESCHEDULE_NOTIFICATIONS_TASK:
+        await WorkmanagerNotificationService
+            .rescheduleVisionBoardNotifications();
         break;
+        
     }
 
     return Future.value(true);
@@ -280,13 +302,16 @@ Future<void> _checkAndTriggerNotifications() async {
 
 Future<void> _checkAndTriggerVisionBoardNotifications() async {
   final prefs = await SharedPreferences.getInstance();
-  List<String> notificationKeys = prefs.getStringList('visionBoard_notification_keys') ?? [];
+  List<String> notificationKeys =
+      prefs.getStringList('visionBoard_notification_keys') ?? [];
 
   for (String key in notificationKeys) {
     String? notificationDataString = prefs.getString(key);
     if (notificationDataString != null) {
-      Map<String, dynamic> notificationData = jsonDecode(notificationDataString);
-      DateTime scheduledTime = DateTime.parse(notificationData['scheduledTime']);
+      Map<String, dynamic> notificationData =
+          jsonDecode(notificationDataString);
+      DateTime scheduledTime =
+          DateTime.parse(notificationData['scheduledTime']);
 
       if (scheduledTime.isBefore(DateTime.now())) {
         await AwesomeNotifications().createNotification(
