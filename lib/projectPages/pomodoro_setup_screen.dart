@@ -118,7 +118,7 @@ class PomodoroSetupScreen extends GetWidget<PomodoroController> {
         child: Icon(
           FontAwesomeIcons.check,
           color: Colors.white,
-          size: ScaleUtil.iconSize(10),
+          size: ScaleUtil.iconSize(14),
         ),
       ),
     );

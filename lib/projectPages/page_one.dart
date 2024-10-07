@@ -259,11 +259,13 @@ class PageOneScreen extends GetWidget<PageOneController> {
     final pomodoroController = Get.find<PomodoroController>();
 
     return Obx(() => pomodoroController.isSetupComplete.value
-        ? PomodoroMusicPlayer()
-        : PomodoroSetupScreen(
-            onStart: () {
-              pomodoroController.startPomodoroSession();
-            },
+        ? SlideInDown(child: PomodoroMusicPlayer())
+        : SlideInUp(
+            child: PomodoroSetupScreen(
+              onStart: () {
+                pomodoroController.startPomodoroSession();
+              },
+            ),
           ));
   }
 }

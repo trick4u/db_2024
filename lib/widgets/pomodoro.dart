@@ -148,7 +148,7 @@ class PomodoroMusicPlayer extends GetView<PomodoroController> {
                   ),
                 ),
                 Positioned(
-                  left: ScaleUtil.width(70),
+                  left: ScaleUtil.width(50),
                   bottom: ScaleUtil.height(10),
                   child: _buildCircularButton(
                     onPressed: controller.resetPomodoro,
@@ -192,7 +192,7 @@ class PomodoroMusicPlayer extends GetView<PomodoroController> {
 
                 // Genre switching button
                 Positioned(
-                  right: ScaleUtil.width(60),
+                  right: ScaleUtil.width(50),
                   bottom: ScaleUtil.height(10),
                   child: _buildCircularButton(
                     onPressed: controller.switchGenre,
