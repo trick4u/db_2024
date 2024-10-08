@@ -36,7 +36,7 @@ import 'projectPages/add_task.dart';
 import 'projectPages/journalEntryScreen.dart';
 import 'projectPages/note_taking_screen.dart';
 import 'projectPages/statistics_screen.dart';
-import 'projectPages/journal_page.dart';
+
 import 'projectPages/main_screen.dart';
 import 'pages/otp_screen.dart';
 import 'pages/phone_auth.dart';
@@ -108,11 +108,7 @@ class AppRoutes {
       name: EMAILVERIFICATION,
       page: () => EmailVerificationPage(),
     ),
-    GetPage(
-      name: JOURNAL,
-      page: () => JournalPage(),
-      binding: JournalBinding(),
-    ),
+   
     GetPage(
       name: AUTHWRAPPER,
       page: () => AuthWrapper(),

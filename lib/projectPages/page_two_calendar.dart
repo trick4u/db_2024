@@ -77,7 +77,7 @@ class calendarpageWidget extends StatelessWidget {
                 controller.showEventBottomSheet(context);
               }
             },
-            child: FadeInUp(
+            child: FadeIn(
                 child: Card(
               elevation: ScaleUtil.scale(4),
               color: appTheme.cardColor,
@@ -174,7 +174,7 @@ class calendarpageWidget extends StatelessWidget {
                     Column(
                       children: [
                         ScaleUtil.sizedBox(height: 20),
-                        FadeInDown(
+                        FadeIn(
                           child: Padding(
                             padding: ScaleUtil.symmetric(horizontal: 10),
                             child: TableCalendar(
@@ -569,63 +569,59 @@ class calendarpageWidget extends StatelessWidget {
                               itemCount: selectedDayEvents.length,
                               physics: AlwaysScrollableScrollPhysics(),
                               itemBuilder: (context, index) {
-                                return SlideInUp(
-                                  child: EventCard(
-                                    onComplete: (event) {
-                                      controller
-                                          .toggleEventCompletion(event.id);
-                                    },
-                                    onEdit: (event) {
-                                      controller.showEventBottomSheet(context,
-                                          event: event);
-                                    },
-                                    onArchive: (event) {
-                                      controller.addToArchive(event.id);
-                                    },
-                                    onDelete: (event) {
-                                      showDialog(
-                                        context: context,
-                                        builder: (BuildContext context) {
-                                          return AlertDialog(
-                                            backgroundColor:
-                                                appTheme.colorScheme.surface,
-                                            title: Text('Confirm Delete',
-                                                style: TextStyle(
-                                                    color: appTheme.textColor)),
-                                            content: Text(
-                                                'Are you sure you want to delete this event?',
-                                                style: TextStyle(
-                                                    color: appTheme.textColor)),
-                                            actions: <Widget>[
-                                              TextButton(
-                                                child: Text('Cancel',
-                                                    style: TextStyle(
-                                                        color: appTheme
-                                                            .colorScheme
-                                                            .primary)),
-                                                onPressed: () {
-                                                  Navigator.of(context).pop();
-                                                },
-                                              ),
-                                              TextButton(
-                                                child: Text('Delete',
-                                                    style: TextStyle(
-                                                        color: appTheme
-                                                            .colorScheme
-                                                            .error)),
-                                                onPressed: () {
-                                                  controller
-                                                      .deleteEvent(event.id);
-                                                  Navigator.of(context).pop();
-                                                },
-                                              ),
-                                            ],
-                                          );
-                                        },
-                                      );
-                                    },
-                                    event: selectedDayEvents[index],
-                                  ),
+                                return EventCard(
+                                  onComplete: (event) {
+                                    controller.toggleEventCompletion(event.id);
+                                  },
+                                  onEdit: (event) {
+                                    controller.showEventBottomSheet(context,
+                                        event: event);
+                                  },
+                                  onArchive: (event) {
+                                    controller.addToArchive(event.id);
+                                  },
+                                  onDelete: (event) {
+                                    showDialog(
+                                      context: context,
+                                      builder: (BuildContext context) {
+                                        return AlertDialog(
+                                          backgroundColor:
+                                              appTheme.colorScheme.surface,
+                                          title: Text('Confirm Delete',
+                                              style: TextStyle(
+                                                  color: appTheme.textColor)),
+                                          content: Text(
+                                              'Are you sure you want to delete this event?',
+                                              style: TextStyle(
+                                                  color: appTheme.textColor)),
+                                          actions: <Widget>[
+                                            TextButton(
+                                              child: Text('Cancel',
+                                                  style: TextStyle(
+                                                      color: appTheme
+                                                          .colorScheme
+                                                          .primary)),
+                                              onPressed: () {
+                                                Navigator.of(context).pop();
+                                              },
+                                            ),
+                                            TextButton(
+                                              child: Text('Delete',
+                                                  style: TextStyle(
+                                                      color: appTheme
+                                                          .colorScheme.error)),
+                                              onPressed: () {
+                                                controller
+                                                    .deleteEvent(event.id);
+                                                Navigator.of(context).pop();
+                                              },
+                                            ),
+                                          ],
+                                        );
+                                      },
+                                    );
+                                  },
+                                  event: selectedDayEvents[index],
                                 );
                               },
                             ),

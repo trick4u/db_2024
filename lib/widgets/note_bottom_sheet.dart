@@ -215,7 +215,7 @@ class NoteBottomSheet extends GetView<NoteTakingController> {
           width: ScaleUtil.width(30),
           height: ScaleUtil.height(30),
           decoration: BoxDecoration(
-            shape: BoxShape.circle,
+            // shape: BoxShape.circle,
             color: controller.canAddSubTask
                 ? appTheme.colorScheme.primary
                 : appTheme.colorScheme.surface,
@@ -239,45 +239,47 @@ class NoteBottomSheet extends GetView<NoteTakingController> {
   }
 
   Widget _buildSaveButton() {
-    return Obx(() => Container(
-          width: ScaleUtil.width(30),
-          height: ScaleUtil.height(30),
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            color:
-                controller.canSave ? appTheme.colorScheme.primary : Colors.grey,
+    return Obx(
+      () => Container(
+        width: ScaleUtil.width(30),
+        height: ScaleUtil.height(30),
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          color:
+              controller.canSave ? appTheme.colorScheme.primary : Colors.grey,
+          // borderRadius: ScaleUtil.circular(10),
+        ),
+        child: Material(
+          color: Colors.transparent,
+          child: InkWell(
             borderRadius: ScaleUtil.circular(8),
-          ),
-          child: Material(
-            color: Colors.transparent,
-            child: InkWell(
-              borderRadius: ScaleUtil.circular(8),
-              onTap: controller.canSave
-                  ? () {
-                      if (note == null) {
-                        controller.saveNote();
-                      } else {
-                        Note updatedNote = note!.copyWith(
-                          title: controller.titleController.text.trim(),
-                          subTasks: controller.subTasks
-                              .map((controller) => controller.text.trim())
-                              .toList(),
-                          date: controller.selectedDate,
-                          updatedAt: DateTime.now(),
-                        );
-                        controller.updateNote(note!.id ?? "", updatedNote);
-                      }
+            onTap: controller.canSave
+                ? () {
+                    if (note == null) {
+                      controller.saveNote();
+                    } else {
+                      Note updatedNote = note!.copyWith(
+                        title: controller.titleController.text.trim(),
+                        subTasks: controller.subTasks
+                            .map((controller) => controller.text.trim())
+                            .toList(),
+                        date: controller.selectedDate,
+                        updatedAt: DateTime.now(),
+                      );
+                      controller.updateNote(note!.id ?? "", updatedNote);
                     }
-                  : null,
-              child: Center(
-                child: Icon(
-                  FontAwesomeIcons.check,
-                  color: Colors.white,
-                  size: ScaleUtil.iconSize(10),
-                ),
+                  }
+                : null,
+            child: Center(
+              child: Icon(
+                FontAwesomeIcons.check,
+                color: Colors.white,
+                size: ScaleUtil.iconSize(10),
               ),
             ),
           ),
-        ),);
+        ),
+      ),
+    );
   }
 }

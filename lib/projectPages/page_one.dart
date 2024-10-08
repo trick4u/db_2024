@@ -258,11 +258,9 @@ class PageOneScreen extends GetWidget<PageOneController> {
       case 'all reminders':
         return RemindersList();
       default:
-        return FadeInRight(
-          child: EventsList(
-            events: controller.getSelectedEvents(),
-            eventType: controller.selectedListType.value,
-          ),
+        return EventsList(
+          events: controller.getSelectedEvents(),
+          eventType: controller.selectedListType.value,
         );
     }
   }
@@ -277,12 +275,10 @@ class PageOneScreen extends GetWidget<PageOneController> {
 
     return Obx(() => pomodoroController.isSetupComplete.value
         ? SlideInDown(child: PomodoroMusicPlayer())
-        : SlideInUp(
-            child: PomodoroSetupScreen(
-              onStart: () {
-                pomodoroController.startPomodoroSession();
-              },
-            ),
+        : PomodoroSetupScreen(
+            onStart: () {
+              pomodoroController.startPomodoroSession();
+            },
           ));
   }
 }
