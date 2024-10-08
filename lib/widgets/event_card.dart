@@ -259,7 +259,7 @@ class EventCard extends StatelessWidget {
                                   overflow: TextOverflow.ellipsis,
                                   style: AppTextTheme.textTheme.bodyMedium!
                                       .copyWith(
-                                    fontSize: ScaleUtil.fontSize(14),
+                                    fontSize: ScaleUtil.fontSize(10),
                                     decoration: event.isCompleted == true
                                         ? TextDecoration.lineThrough
                                         : TextDecoration.none,

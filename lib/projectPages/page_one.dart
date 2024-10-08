@@ -34,6 +34,7 @@ class PageOneScreen extends GetWidget<PageOneController> {
   final RxBool _isDialogOpen = false.obs;
   final RxBool _isChangingBackground = false.obs;
   final RxInt _backgroundChangeCount = 0.obs;
+  final RxBool _hasAnimated = false.obs;
 
   Future<void> _showQuoteDialog(BuildContext context) async {
     if (_isDialogOpen.value) return;
@@ -106,13 +107,29 @@ class PageOneScreen extends GetWidget<PageOneController> {
                           children: [
                             Icon(FontAwesomeIcons.handPeace, size: 25),
                             SizedBox(width: 8),
-                            AnimatedBouncingText(
-                              text: 'doBoard',
-                              textStyle: TextStyle(
-                                fontFamily: GoogleFonts.pacifico().fontFamily,
-                                fontSize: 30,
-                                fontWeight: FontWeight.w300,
-                              ),
+                            Obx(
+                              () => _hasAnimated.value
+                                  ? Text(
+                                      'doBoard',
+                                      style: TextStyle(
+                                        fontFamily:
+                                            GoogleFonts.pacifico().fontFamily,
+                                        fontSize: 30,
+                                        fontWeight: FontWeight.w300,
+                                      ),
+                                    )
+                                  : AnimatedBouncingText(
+                                      text: 'doBoard',
+                                      textStyle: TextStyle(
+                                        fontFamily:
+                                            GoogleFonts.pacifico().fontFamily,
+                                        fontSize: 30,
+                                        fontWeight: FontWeight.w300,
+                                      ),
+                                      onEnd: () {
+                                        _hasAnimated.value = true;
+                                      },
+                                    ),
                             ),
                             SizedBox(
                               width: 50,

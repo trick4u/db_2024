@@ -37,7 +37,7 @@ class CustomCalendarHeader extends GetView<CalendarController> {
 
               return GestureDetector(
                 onTap: () {
-                 controller.fetchRandomBackgroundImage();
+                  controller.fetchRandomBackgroundImage();
                 },
                 child: Text(
                   headerText,
