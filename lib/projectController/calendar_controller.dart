@@ -63,7 +63,7 @@ class CalendarController extends GetxController {
     fetchRandomBackgroundImage();
     loadImageFetchData();
     rescheduleNotifications();
-     loadSavedBackgroundImage();
+    loadSavedBackgroundImage();
     loadBackgroundChangeCount();
     //  fetchRandomBackgroundVideo();
   }
@@ -151,7 +151,7 @@ class CalendarController extends GetxController {
     try {
       await fetchEvents(selectedDay.value);
       await fetchRandomBackgroundImage();
-       await loadSavedBackgroundImage();
+      await loadSavedBackgroundImage();
     } catch (e) {
       print('Error loading initial data: $e');
       hasError.value = true;
@@ -176,10 +176,8 @@ class CalendarController extends GetxController {
   }
 
   Future<void> fetchRandomBackgroundImage() async {
-    if (isChangingBackground.value || backgroundChangeCount.value >= 10) {
-      if (backgroundChangeCount.value >= 10) {
-       return;
-      }
+    if (isChangingBackground.value ) {
+     
       return;
     }
 

@@ -99,6 +99,8 @@ class PomodoroController extends GetxController with WidgetsBindingObserver {
   }
 
   void decreaseVolume() {
+    if (isBreakTime.value) return; // Prevent volume change during break
+
     if (isPlaying.value) {
       audioPlayer.pause();
       isPlaying.value = false;
@@ -108,6 +110,8 @@ class PomodoroController extends GetxController with WidgetsBindingObserver {
   }
 
   void increaseVolume() {
+    if (isBreakTime.value) return; // Prevent volume change during break
+
     if (!isPlaying.value) {
       audioPlayer.play();
       isPlaying.value = true;
@@ -186,6 +190,7 @@ class PomodoroController extends GetxController with WidgetsBindingObserver {
       isSessionActive.value = true;
       isBreakTime.value = false;
       isSetupComplete.value = true;
+      enableMusicControls(); // Re-enable music controls when starting a new session
     }
 
     sessionTimer?.cancel();
@@ -198,6 +203,7 @@ class PomodoroController extends GetxController with WidgetsBindingObserver {
             currentSession.value++;
             isBreakTime.value = false;
             remainingTime.value = sessionDuration.value * 60;
+            enableMusicControls(); // Re-enable music controls when break ends
             playCurrentTrack();
           } else {
             resetPomodoro();
@@ -230,6 +236,22 @@ class PomodoroController extends GetxController with WidgetsBindingObserver {
     isBreakTime.value = true;
     audioPlayer.pause();
     isPlaying.value = false;
+    // Disable music controls during break
+    disableMusicControls();
+  }
+
+  void disableMusicControls() {
+    // Disable volume controls and music playback during break
+    volume.value = 0;
+    audioPlayer.setVolume(0);
+    isVolumeMuted.value = true;
+  }
+
+  void enableMusicControls() {
+    // Re-enable volume controls and music playback after break
+    volume.value = 1;
+    audioPlayer.setVolume(1);
+    isVolumeMuted.value = false;
   }
 
   void playNextTrack() {
@@ -252,6 +274,8 @@ class PomodoroController extends GetxController with WidgetsBindingObserver {
   }
 
   void switchGenre() {
+    if (isBreakTime.value) return; // Prevent switching genre during break
+
     int nextGenreIndex = (availableGenres.indexOf(currentGenre.value) + 1) %
         availableGenres.length;
     currentGenre.value = availableGenres[nextGenreIndex];
@@ -292,24 +316,21 @@ class PomodoroController extends GetxController with WidgetsBindingObserver {
   }
 
   void toggleMutePlayPause() {
+    if (isBreakTime.value) return; // Prevent toggling during break
+
     if (isVolumeMuted.value) {
-      // If volume is muted, unmute and play
-      volume.value =
-          volume.value > 0 ? volume.value : 0.5; // Set to 0.5 if it was 0
+      volume.value = volume.value > 0 ? volume.value : 0.5;
       audioPlayer.setVolume(volume.value);
       audioPlayer.play();
       isVolumeMuted.value = false;
       isPlaying.value = true;
     } else if (isPlaying.value) {
-      // If playing, mute the volume
       volume.value = 0.0;
       audioPlayer.setVolume(0.0);
       isVolumeMuted.value = true;
     } else {
-      // If not playing, start the session
       startPomodoroSession();
     }
-    // Update overlay opacity to reflect the current volume state
     updateOverlayOpacity();
   }
 
@@ -389,6 +410,8 @@ class PomodoroController extends GetxController with WidgetsBindingObserver {
   }
 
   void togglePlayPause() {
+    if (isBreakTime.value) return; // Prevent toggling during break
+
     if (isPlaying.value) {
       audioPlayer.pause();
       isPlaying.value = false;

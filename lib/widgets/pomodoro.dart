@@ -161,34 +161,34 @@ class PomodoroMusicPlayer extends GetView<PomodoroController> {
                 ),
 
                 // Content
-                // Center(
-                //   child: Column(
-                //     mainAxisAlignment: MainAxisAlignment.center,
-                //     children: [
-                //       Obx(
-                //         () => Text(
-                //           'Genre: ${controller.currentGenre.value}',
-                //           style: appTheme.titleLarge.copyWith(
-                //             color: appTheme.colorScheme.onSurface,
-                //             fontSize: ScaleUtil.fontSize(14),
-                //           ),
-                //         ),
-                //       ),
-                //       SizedBox(height: ScaleUtil.height(10)),
-                //       Obx(
-                //         () => Text(
-                //           controller.tracks.isNotEmpty
-                //               ? 'by ${controller.tracks[controller.currentTrackIndex.value]['artist_name']}'
-                //               : 'Loading...',
-                //           style: appTheme.titleLarge.copyWith(
-                //             color: appTheme.colorScheme.onSurface,
-                //             fontSize: ScaleUtil.fontSize(20),
-                //           ),
-                //         ),
-                //       ),
-                //     ],
-                //   ),
-                // ),
+                Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Obx(
+                        () => Text(
+                          'Genre: ${controller.currentGenre.value}',
+                          style: appTheme.titleLarge.copyWith(
+                            color: appTheme.colorScheme.onSurface,
+                            fontSize: ScaleUtil.fontSize(14),
+                          ),
+                        ),
+                      ),
+                      SizedBox(height: ScaleUtil.height(10)),
+                      Obx(
+                        () => Text(
+                          controller.tracks.isNotEmpty
+                              ? 'by ${controller.tracks[controller.currentTrackIndex.value]['artist_name']}'
+                              : 'Loading...',
+                          style: appTheme.titleLarge.copyWith(
+                            color: appTheme.colorScheme.onSurface,
+                            fontSize: ScaleUtil.fontSize(20),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
 
                 // Genre switching button
                 Positioned(
