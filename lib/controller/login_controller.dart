@@ -77,8 +77,9 @@ class LoginController extends GetxController {
 
       Get.offAllNamed(AppRoutes.MAIN);
     } catch (e) {
+      print(e);
       Fluttertoast.showToast(
-        msg: 'Login Error',
+        msg: e.toString(),
       );
     } finally {
       isLoading.value = false;
@@ -94,12 +95,11 @@ class LoginController extends GetxController {
     );
   }
 
-  Future<void> loginWithUsername(String username, String password) async {
-    // Implement username login logic here
-    // For example, query Firestore to get the email associated with the username
+Future<void> loginWithUsername(String username, String password) async {
+  try {
     QuerySnapshot query = await FirebaseFirestore.instance
         .collection('users')
-        .where('username', isEqualTo: "@" + username)
+        .where('username', isEqualTo: username)
         .limit(1)
         .get();
 
@@ -109,8 +109,11 @@ class LoginController extends GetxController {
 
     String email = query.docs.first['email'];
     await loginWithEmail(email, password);
+  } catch (e) {
+    print('Login error: $e');
+    throw 'Login failed: $e';
   }
-
+}
   Future<void> forgotPassword(String email) async {
     isLoading.value = true;
     try {
@@ -118,13 +121,11 @@ class LoginController extends GetxController {
       ToastUtil.showToast(
         'Password Reset',
         'A password reset link has been sent to your email.',
-      
       );
     } catch (e) {
       ToastUtil.showToast(
         'Error',
         'Failed to send password reset email: ${e.toString()}',
-      
       );
     } finally {
       isLoading.value = false;

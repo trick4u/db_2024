@@ -56,7 +56,7 @@ class MyHomePage extends StatelessWidget {
             appTheme.toggleTheme();
           },
           child: Container(
-            height: ScaleUtil.height(300),
+            height: ScaleUtil.height(200),
             margin: ScaleUtil.all(20),
             padding: ScaleUtil.all(20),
             decoration: BoxDecoration(
