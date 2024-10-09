@@ -33,11 +33,12 @@ class RegisterController extends GetxController {
   RxBool isRegisterButtonActive = false.obs;
 
   Timer? _debounce;
+    RxBool canCheckUsername = false.obs;
 
   @override
   void onInit() {
     super.onInit();
-    usernameController.addListener(_validateUsername);
+    usernameController.addListener(validateUsername);
     nameController.addListener(_validateName);
     emailController.addListener(_validateEmail);
     passwordController.addListener(_validatePassword);
@@ -47,7 +48,7 @@ class RegisterController extends GetxController {
   @override
   void onClose() {
     _debounce?.cancel();
-    usernameController.removeListener(_validateUsername);
+    usernameController.removeListener(validateUsername);
     nameController.removeListener(_validateName);
     emailController.removeListener(_validateEmail);
     passwordController.removeListener(_validatePassword);
@@ -60,18 +61,7 @@ class RegisterController extends GetxController {
     super.onClose();
   }
 
-  void _validateUsername() {
-    final username = usernameController.text.trim();
-    isUsernameValid.value = isValidUsername(username);
-    isUsernameEmpty.value = username.isEmpty;
-    if (isUsernameValid.value) {
-      checkUsernameAvailability(username); // Pass the username here
-    } else {
-      isUsernameAvailable.value = false;
-      hasCheckedUsername.value = false;
-    }
-    _updateRegisterButtonState();
-  }
+
 
   void _validateName() {
     final name = nameController.text.trim();
@@ -96,12 +86,23 @@ class RegisterController extends GetxController {
         passwordController.text == confirmPasswordController.text;
     _updateRegisterButtonState();
   }
+   void validateUsername() {
+    final username = usernameController.text.trim();
+    isUsernameValid.value = isValidUsername(username);
+    isUsernameEmpty.value = username.isEmpty;
+    canCheckUsername.value = username.length >= 7;
+    _updateRegisterButtonState();
+  }
 
-  void onUsernameChanged(String value) {
+    void onUsernameChanged() {
+    final username = usernameController.text.trim();
+    isUsernameValid.value = isValidUsername(username);
+    isUsernameEmpty.value = username.isEmpty;
+    
     if (_debounce?.isActive ?? false) _debounce!.cancel();
     _debounce = Timer(const Duration(milliseconds: 500), () {
-      if (isValidUsername(value)) {
-        checkUsernameAvailability(value);
+      if (isUsernameValid.value) {
+        checkUsernameAvailability();
       } else {
         isUsernameAvailable.value = false;
         hasCheckedUsername.value = false;
@@ -119,18 +120,17 @@ class RegisterController extends GetxController {
         doPasswordsMatch.value;
   }
 
-  bool isValidUsername(String username) {
-    return username.length >= 5 && username.length <= 15;
+bool isValidUsername(String username) {
+    return username.length >= 7 && username.length <= 15;
   }
 
   bool isValidEmail(String email) {
     return RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(email);
   }
 
-  Future<void> checkUsernameAvailability(String username) async {
+ Future<void> checkUsernameAvailability() async {
+    final username = usernameController.text.trim();
     if (!isValidUsername(username)) {
-      isUsernameAvailable.value = false;
-      hasCheckedUsername.value = false;
       Get.snackbar('Error', 'Invalid username format or length');
       return;
     }
@@ -140,7 +140,7 @@ class RegisterController extends GetxController {
       final querySnapshot = await FirebaseFirestore.instance
           .collection('users')
           .where('username', isEqualTo: username)
-          .limit(1) // Add this line to comply with the new rules
+          .limit(1)
           .get();
 
       isUsernameAvailable.value = querySnapshot.docs.isEmpty;
@@ -158,6 +158,7 @@ class RegisterController extends GetxController {
       hasCheckedUsername.value = false;
     } finally {
       isCheckingUsername.value = false;
+      _updateRegisterButtonState();
     }
   }
 

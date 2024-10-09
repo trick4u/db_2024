@@ -48,9 +48,6 @@ class MyHomePage extends StatelessWidget {
     );
   }
 
-
-
-
   Widget _buildGetStartedWidget(BuildContext context) {
     final appTheme = Get.find<AppTheme>();
 
@@ -67,17 +64,17 @@ class MyHomePage extends StatelessWidget {
               color: appTheme.cardColor,
             ),
             child: Column(
-              mainAxisSize: MainAxisSize.min,
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 SizedBox(height: ScaleUtil.height(10)),
                 Text('Get Started', style: appTheme.titleLarge),
-                SizedBox(height: ScaleUtil.height(10)),
+                Spacer(),
                 Text(
                   'Register for events, subscribe to calendars and manage events you\'re going to.',
                   style: appTheme.bodyMedium,
                 ),
-                SizedBox(height: ScaleUtil.height(20)),
+                Spacer(),
                 ElevatedButton(
                   child: Text('Continue with Email'),
                   onPressed: () {
@@ -86,29 +83,28 @@ class MyHomePage extends StatelessWidget {
                   style: appTheme.primaryButtonStyle,
                 ),
                 SizedBox(height: ScaleUtil.height(30)),
-                Row(
-                  children: [
-                    Expanded(
-                      child: ElevatedButton(
-                        child: Icon(Icons.apple),
-                        onPressed: () {},
-                        style: appTheme.primaryButtonStyle,
-                      ),
-                    ),
-                    SizedBox(width: ScaleUtil.width(10)),
-                    Expanded(
-                      child: ElevatedButton(
-                        child: Text('G'),
-                        onPressed: () {},
-                        style: appTheme.primaryButtonStyle,
-                      ),
-                    ),
-                  ],
-                ),
+                // Row(
+                //   children: [
+                //     Expanded(
+                //       child: ElevatedButton(
+                //         child: Icon(Icons.apple),
+                //         onPressed: () {},
+                //         style: appTheme.primaryButtonStyle,
+                //       ),
+                //     ),
+                //     SizedBox(width: ScaleUtil.width(10)),
+                //     Expanded(
+                //       child: ElevatedButton(
+                //         child: Text('G'),
+                //         onPressed: () {},
+                //         style: appTheme.primaryButtonStyle,
+                //       ),
+                //     ),
+                //   ],
+                // ),
               ],
             ),
           ),
         ));
   }
 }
-

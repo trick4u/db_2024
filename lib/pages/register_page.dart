@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:tushar_db/controller/register_controller.dart';
 
 import '../app_routes.dart';
@@ -20,12 +21,17 @@ class RegisterPage extends GetView<RegisterController> {
       },
       child: Scaffold(
         appBar: AppBar(
+          centerTitle: false,
           title: Text(
             'register here',
-            style: AppTextTheme.textTheme.displaySmall,
+            style: TextStyle(
+              fontFamily: GoogleFonts.pacifico().fontFamily,
+              fontSize: ScaleUtil.fontSize(25),
+              fontWeight: FontWeight.w100,
+            ),
           ),
           leading: IconButton(
-            icon: Icon(Icons.arrow_back),
+            icon: Icon(Icons.arrow_back_ios),
             onPressed: () => Get.offAllNamed(AppRoutes.HOME),
           ),
         ),
@@ -42,18 +48,19 @@ class RegisterPage extends GetView<RegisterController> {
                   children: [
                     Obx(() => _buildTextField(
                           controller: controller.usernameController,
-                          hintText: 'Enter username (5-15 characters)',
+                          hintText: 'Enter username (7-15 characters)',
                           prefixIcon: Icons.person,
-                          suffixIcon: controller.isUsernameEmpty.value
-                              ? null
-                              : IconButton(
+                          suffixIcon: controller.canCheckUsername.value
+                              ? IconButton(
                                   icon: controller.isCheckingUsername.value
-                                      ? CircularProgressIndicator()
+                                      ? CircularProgressIndicator(
+                                          strokeWidth: 2,
+                                        )
                                       : Icon(Icons.check),
-                                  onPressed: () =>
-                                      controller.checkUsernameAvailability(
-                                          controller.usernameController.text),
-                                ),
+                                  onPressed:
+                                      controller.checkUsernameAvailability,
+                                )
+                              : null,
                           errorText: controller.hasCheckedUsername.value &&
                                   !controller.isUsernameAvailable.value
                               ? 'Username unavailable'
@@ -61,8 +68,7 @@ class RegisterPage extends GetView<RegisterController> {
                           inputFormatters: [
                             LengthLimitingTextInputFormatter(15),
                           ],
-                          onChanged: (value) =>
-                              controller.onUsernameChanged(value),
+                          onChanged: (value) => controller.validateUsername(),
                         )),
                     SizedBox(height: ScaleUtil.height(10.0)),
                     Obx(() => _buildTextField(

@@ -2,6 +2,7 @@ import 'package:animate_do/animate_do.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:tushar_db/app_routes.dart';
 import 'package:tushar_db/services/scale_util.dart';
 
@@ -17,12 +18,17 @@ class LoginPage extends GetWidget<LoginController> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        centerTitle: false,
         title: Text(
           'login here',
-          style: AppTextTheme.textTheme.bodyMedium,
+          style: TextStyle(
+            fontFamily: GoogleFonts.pacifico().fontFamily,
+            fontSize: ScaleUtil.fontSize(25),
+            fontWeight: FontWeight.w100,
+          ),
         ),
         leading: IconButton(
-          icon: Icon(Icons.arrow_back),
+          icon: Icon(Icons.arrow_back_ios),
           onPressed: () => Get.offAllNamed(AppRoutes.HOME),
         ),
       ),
@@ -38,9 +44,10 @@ class LoginPage extends GetWidget<LoginController> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(
-                    'Welcome back you\'ve been missed!',
-                    style: AppTextTheme.textTheme.bodyLarge
-                        ?.copyWith(fontWeight: FontWeight.bold),
+                    'Welcome back!',
+                    style: AppTextTheme.textTheme.bodyLarge?.copyWith(
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                   SizedBox(height: ScaleUtil.height(20.0)),
                   _buildTextField(
