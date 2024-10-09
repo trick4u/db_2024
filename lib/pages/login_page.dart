@@ -10,6 +10,7 @@ import '../controller/login_controller.dart';
 import '../controller/theme_controller.dart';
 import '../services/app_text_style.dart';
 import '../services/app_theme.dart';
+import '../services/toast_util.dart';
 
 class LoginPage extends GetWidget<LoginController> {
   final appTheme = Get.find<AppTheme>();
@@ -330,12 +331,12 @@ class ForgotPasswordBottomSheet extends GetWidget<LoginController> {
     if (_formKey.currentState!.validate()) {
       controller.forgotPassword(emailController.text.trim());
       Get.back();
-      Get.snackbar(
+      ToastUtil.showToast(
         'Success',
         'Password reset email sent successfully',
-        snackPosition: SnackPosition.BOTTOM,
+
         backgroundColor: Colors.green,
-        colorText: Colors.white,
+     
         duration: Duration(seconds: 2),
       );
     }

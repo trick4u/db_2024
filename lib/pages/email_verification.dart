@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 
 import '../app_routes.dart';
 import '../controller/email_controller.dart';
+import '../services/toast_util.dart';
 
 class EmailVerificationPage extends StatelessWidget {
   @override
@@ -24,7 +25,8 @@ class EmailVerificationPage extends StatelessWidget {
                   if (user.emailVerified) {
                     Get.offAllNamed(AppRoutes.MAIN);
                   } else {
-                    Get.snackbar('Not Verified', 'Please check your email and verify your account');
+                    ToastUtil.showToast('Not Verified',
+                        'Please check your email and verify your account');
                   }
                 }
               },
@@ -36,7 +38,8 @@ class EmailVerificationPage extends StatelessWidget {
                 User? user = FirebaseAuth.instance.currentUser;
                 if (user != null && !user.emailVerified) {
                   await user.sendEmailVerification();
-                  Get.snackbar('Email Sent', 'A new verification email has been sent');
+                  ToastUtil.showToast(
+                      'Email Sent', 'A new verification email has been sent');
                 }
               },
               child: Text('Resend verification email'),

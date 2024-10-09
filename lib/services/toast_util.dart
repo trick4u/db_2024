@@ -1,17 +1,21 @@
-
-
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 
 class ToastUtil {
-  static void showToast(String message, {String title = ''}) {
+  static void showToast(
+    String title,
+    String message, {
+    Color? backgroundColor,
+    Color? textColor,
+    Duration? duration,
+  }) {
     Fluttertoast.showToast(
-      msg: title.isNotEmpty ? '$title: $message' : message,
-      toastLength: Toast.LENGTH_SHORT,
+      msg: "$title\n$message",
+      toastLength: Toast.LENGTH_LONG,
       gravity: ToastGravity.BOTTOM,
-      timeInSecForIosWeb: 1,
-      backgroundColor: Colors.black87,
-      textColor: Colors.white,
+      timeInSecForIosWeb: duration?.inSeconds ?? 3,
+      backgroundColor: backgroundColor ?? Colors.grey,
+      textColor: textColor ?? Colors.white,
       fontSize: 16.0,
     );
   }

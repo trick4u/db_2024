@@ -9,6 +9,7 @@ import 'package:tushar_db/services/scale_util.dart';
 
 import '../projectController/profile_controller.dart';
 import '../services/app_theme.dart';
+import '../services/toast_util.dart';
 
 class ProfileScreen extends GetWidget<ProfileController> {
   final appTheme = Get.find<AppTheme>();
@@ -353,12 +354,12 @@ class EditProfileBottomSheet extends GetWidget<ProfileController> {
       controller.updateName(nameController.text);
       controller.updateUsername(usernameController.text);
       Get.back();
-      Get.snackbar(
+      ToastUtil.showToast(
         'Success',
         'Profile updated successfully',
-        snackPosition: SnackPosition.BOTTOM,
+     
         backgroundColor: Colors.green,
-        colorText: Colors.white,
+      
         duration: Duration(seconds: 2),
       );
     }
@@ -524,7 +525,7 @@ class ChangePasswordBottomSheet extends GetWidget<ProfileController> {
   void _handleSave() {
     if (_formKey.currentState!.validate()) {
       if (newPasswordController.text != confirmNewPasswordController.text) {
-        Get.snackbar('Error', 'New passwords do not match');
+        ToastUtil.showToast('Error', 'New passwords do not match');
         return;
       }
       controller.changePassword(

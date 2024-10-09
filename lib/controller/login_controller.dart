@@ -5,6 +5,8 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
 import 'package:tushar_db/app_routes.dart';
 
+import '../services/toast_util.dart';
+
 class LoginController extends GetxController {
   var username = ''.obs;
   var password = ''.obs;
@@ -113,16 +115,16 @@ class LoginController extends GetxController {
     isLoading.value = true;
     try {
       await FirebaseAuth.instance.sendPasswordResetEmail(email: email);
-      Get.snackbar(
+      ToastUtil.showToast(
         'Password Reset',
         'A password reset link has been sent to your email.',
-        snackPosition: SnackPosition.BOTTOM,
+      
       );
     } catch (e) {
-      Get.snackbar(
+      ToastUtil.showToast(
         'Error',
         'Failed to send password reset email: ${e.toString()}',
-        snackPosition: SnackPosition.BOTTOM,
+      
       );
     } finally {
       isLoading.value = false;

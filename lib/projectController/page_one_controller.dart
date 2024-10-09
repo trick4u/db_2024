@@ -19,6 +19,7 @@ import '../models/reminder_model.dart';
 import '../projectPages/awesome_noti.dart';
 import '../services/app_theme.dart';
 import '../services/notification_service.dart';
+import '../services/toast_util.dart';
 import '../services/work_manager.dart';
 import '../widgets/quick_bottomsheet.dart';
 import 'add_task_controller.dart';
@@ -243,7 +244,7 @@ class PageOneController extends GetxController {
       fetchAllReminders(); // Refresh the list
     } catch (e) {
       print('Error updating reminder: $e');
-      Get.snackbar('Error', 'Failed to update reminder');
+      ToastUtil.showToast('Error', 'Failed to update reminder');
     }
   }
 
@@ -307,12 +308,12 @@ class PageOneController extends GetxController {
       await remindersCollection.doc(reminderId).delete();
       allReminders.removeWhere((r) => r.id == reminderId);
 
-      Get.snackbar('Success', 'Reminder deleted successfully');
+      ToastUtil.showToast('Success', 'Reminder deleted successfully');
       fetchAllReminders();
       update();
     } catch (e) {
       print('Error deleting reminder: $e');
-      Get.snackbar('Error', 'Failed to delete reminder');
+      ToastUtil.showToast('Error', 'Failed to delete reminder');
     }
   }
 
@@ -360,10 +361,10 @@ class PageOneController extends GetxController {
     try {
       await eventsCollection.doc(eventId).delete();
       fetchAllEvents(); // Refresh all event lists
-      Get.snackbar('Success', 'Event deleted successfully');
+      ToastUtil.showToast('Success', 'Event deleted successfully');
     } catch (e) {
       print('Error deleting event: $e');
-      Get.snackbar('Error', 'Failed to delete event');
+      ToastUtil.showToast('Error', 'Failed to delete event');
     }
   }
 
@@ -373,10 +374,10 @@ class PageOneController extends GetxController {
     try {
       await eventsCollection.doc(eventId).update({'isArchived': true});
       fetchAllEvents(); // Refresh all event lists
-      Get.snackbar('Success', 'Event archived successfully');
+      ToastUtil.showToast('Success', 'Event archived successfully');
     } catch (e) {
       print('Error archiving event: $e');
-      Get.snackbar('Error', 'Failed to archive event');
+      ToastUtil.showToast('Error', 'Failed to archive event');
     }
   }
 
@@ -447,13 +448,13 @@ class PageOneController extends GetxController {
         await eventsCollection.doc(eventId).update(finalUpdateData);
         print('Event updated: $eventId');
         fetchAllEvents(); // Refresh all event lists
-        Get.snackbar('Success', 'Event updated successfully');
+        ToastUtil.showToast('Success', 'Event updated successfully');
       } else {
         print('No changes detected for event: $eventId');
       }
     } catch (e) {
       print('Error updating event: $e');
-      Get.snackbar('Error', 'Failed to update event');
+      ToastUtil.showToast('Error', 'Failed to update event');
     }
   }
 
@@ -470,7 +471,7 @@ class PageOneController extends GetxController {
       fetchAllEvents(); // Refresh all lists after toggling completion
     } catch (e) {
       print('Error toggling event completion: $e');
-      Get.snackbar('Error', 'Failed to update event completion status');
+      ToastUtil.showToast('Error', 'Failed to update event completion status');
     }
   }
 
@@ -906,7 +907,8 @@ class PageOneController extends GetxController {
   Future<String?> createReminder(
       String reminder, int interval, bool repeat) async {
     if (allReminders.length >= MAX_REMINDERS) {
-      Get.snackbar('Limit Reached', 'You can only have up to 10 reminders.');
+      ToastUtil.showToast(
+          'Limit Reached', 'You can only have up to 10 reminders.');
       return null;
     }
 
@@ -1062,7 +1064,7 @@ extension NotificationSchedulingExtension on PageOneController {
       print('Event updated successfully: $eventId');
     } catch (e) {
       print('Error updating event: $e');
-      Get.snackbar('Error', 'Failed to update event. Please try again.');
+      ToastUtil.showToast('Error', 'Failed to update event. Please try again.');
     }
   }
 
@@ -1115,10 +1117,9 @@ extension NotificationSchedulingExtension on PageOneController {
     } catch (e) {
       print('Error updating event: $e');
       // Here you can add more error handling, such as showing a snackbar to the user
-      Get.snackbar('Error', 'Failed to update event. Please try again.');
+      ToastUtil.showToast('Error', 'Failed to update event. Please try again.');
     }
   }
-
 
   Future<void> updateEventWithNotification(
       String eventId, Map<String, dynamic> updatedData) async {

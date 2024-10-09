@@ -3,8 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 
-
 import '../app_routes.dart';
+import '../services/toast_util.dart';
 
 class PhoneAuthController extends GetxController {
   // textfield controllers
@@ -15,8 +15,6 @@ class PhoneAuthController extends GetxController {
   final RxBool isLoading = false.obs;
 
   final auth = FirebaseAuth.instance;
-
-
 
   @override
   void onInit() {
@@ -33,28 +31,21 @@ class PhoneAuthController extends GetxController {
         verificationCompleted: (PhoneAuthCredential credential) async {
           await auth.signInWithCredential(credential);
           isLoading.value = false;
-      
-         
         },
         verificationFailed: (FirebaseAuthException e) {
           isLoading.value = false;
-          Get.snackbar('Error', e.message.toString());
-     
+          ToastUtil.showToast('Error', e.message.toString());
         },
         codeSent: (String verificationId, int? resendToken) {
           Get.toNamed(AppRoutes.OTP, arguments: verificationId);
-     
+
           isLoading.value = false;
-         
-       
         },
         codeAutoRetrievalTimeout: (String verificationId) {},
       );
     } catch (e) {
       isLoading.value = false;
-      Get.snackbar('Error', e.toString());
+      ToastUtil.showToast('Error', e.toString());
     }
   }
-
-
 }

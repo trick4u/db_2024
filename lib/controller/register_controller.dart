@@ -7,6 +7,7 @@ import 'package:get/get.dart';
 import 'package:tushar_db/app_routes.dart';
 
 import '../models/user_model.dart';
+import '../services/toast_util.dart';
 
 class RegisterController extends GetxController {
   final TextEditingController usernameController = TextEditingController();
@@ -131,7 +132,7 @@ bool isValidUsername(String username) {
  Future<void> checkUsernameAvailability() async {
     final username = usernameController.text.trim();
     if (!isValidUsername(username)) {
-      Get.snackbar('Error', 'Invalid username format or length');
+      ToastUtil.showToast('Error', 'Invalid username format or length');
       return;
     }
 
@@ -147,13 +148,13 @@ bool isValidUsername(String username) {
       hasCheckedUsername.value = true;
 
       if (isUsernameAvailable.value) {
-        Get.snackbar('Success', 'Username is available');
+        ToastUtil.showToast('Success', 'Username is available');
       } else {
-        Get.snackbar('Error', 'Username is already taken');
+        ToastUtil.showToast('Error', 'Username is already taken');
       }
     } catch (e) {
       print('Error checking username availability: $e');
-      Get.snackbar('Error', 'Failed to check username availability');
+      ToastUtil.showToast('Error', 'Failed to check username availability');
       isUsernameAvailable.value = false;
       hasCheckedUsername.value = false;
     } finally {
@@ -195,11 +196,11 @@ bool isValidUsername(String username) {
           .doc(newUser.uid)
           .set(newUser.toMap());
 
-      Get.snackbar('Registration Successful',
+      ToastUtil.showToast('Registration Successful',
           'Please check your email to verify your account');
       Get.offAllNamed(AppRoutes.EMAILVERIFICATION);
     } catch (e) {
-      Get.snackbar('Registration Error', e.toString());
+      ToastUtil.showToast('Registration Error', e.toString());
     } finally {
       isLoading.value = false;
     }

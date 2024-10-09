@@ -9,6 +9,7 @@ import 'package:get/get.dart';
 
 import '../app_routes.dart';
 import '../models/user_model.dart';
+import '../services/toast_util.dart';
 
 class ProfileController extends GetxController with WidgetsBindingObserver {
   var age = 0.obs;
@@ -40,11 +41,11 @@ class ProfileController extends GetxController with WidgetsBindingObserver {
   static const int MIN_USERNAME_LENGTH = 4;
 
   RxList<NotificationModel> notifications = <NotificationModel>[].obs;
-  
+
   RxBool isLoading = true.obs;
   RxBool hasError = false.obs;
 
- @override
+  @override
   void onInit() {
     super.onInit();
     WidgetsBinding.instance.addObserver(this);
@@ -59,19 +60,20 @@ class ProfileController extends GetxController with WidgetsBindingObserver {
     super.onReady();
   }
 
- @override
+  @override
   void onClose() {
     WidgetsBinding.instance.removeObserver(this);
     super.onClose();
   }
-   @override
+
+  @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.resumed) {
       loadUserData();
     }
   }
 
-   void toggleGradientDirection() {
+  void toggleGradientDirection() {
     isGradientReversed.toggle();
   }
 
@@ -98,141 +100,152 @@ class ProfileController extends GetxController with WidgetsBindingObserver {
       try {
         await FirebaseAuth.instance.signOut();
         await Get.offAllNamed(AppRoutes.HOME);
-        Get.snackbar('Success', 'You have been logged out');
+        ToastUtil.showToast('Success', 'You have been logged out');
       } catch (error) {
-        Get.snackbar('Error', 'Failed to log out: $error');
+        ToastUtil.showToast('Error', 'Failed to log out: $error');
       }
     }
   }
 
- Future<void> deleteAccount() async {
-  final TextEditingController passwordController = TextEditingController();
+  Future<void> deleteAccount() async {
+    final TextEditingController passwordController = TextEditingController();
 
-  try {
-    // Get the current user
-    final user = FirebaseAuth.instance.currentUser;
-    if (user == null) {
-      print('No user is currently signed in.');
-      return;
-    }
+    try {
+      // Get the current user
+      final user = FirebaseAuth.instance.currentUser;
+      if (user == null) {
+        print('No user is currently signed in.');
+        return;
+      }
 
-    // Show re-authentication dialog
-    bool? shouldProceed = await Get.dialog<bool>(
-      AlertDialog(
-        title: Text('Confirm Account Deletion'),
-        content: Text(
-            'Please re-enter your password to delete your account. This action cannot be undone.'),
-        actions: [
-          TextButton(
-            child: Text('Cancel'),
-            onPressed: () => Get.back(result: false),
-          ),
-          TextButton(
-            child: Text('Proceed'),
-            onPressed: () => Get.back(result: true),
-          ),
-        ],
-      ),
-    );
-
-    if (shouldProceed != true) {
-      return;
-    }
-
-    // Get the user's password
-    String? password = await Get.dialog<String>(
-      AlertDialog(
-        title: Text('Enter Password'),
-        content: TextField(
-          controller: passwordController,
-          obscureText: true,
-          decoration: InputDecoration(hintText: "Password"),
+      // Show re-authentication dialog
+      bool? shouldProceed = await Get.dialog<bool>(
+        AlertDialog(
+          title: Text('Confirm Account Deletion'),
+          content: Text(
+              'Please re-enter your password to delete your account. This action cannot be undone.'),
+          actions: [
+            TextButton(
+              child: Text('Cancel'),
+              onPressed: () => Get.back(result: false),
+            ),
+            TextButton(
+              child: Text('Proceed'),
+              onPressed: () => Get.back(result: true),
+            ),
+          ],
         ),
-        actions: [
-          TextButton(
-            child: Text('Submit'),
-            onPressed: () => Get.back(result: passwordController.text),
-          ),
-        ],
-      ),
-    );
+      );
 
-    if (password == null || password.isEmpty) {
-      Get.snackbar('Error', 'Password is required to delete account');
-      return;
-    }
-
-    // Re-authenticate
-    AuthCredential credential = EmailAuthProvider.credential(
-      email: user.email!,
-      password: password,
-    );
-    await user.reauthenticateWithCredential(credential);
-
-    // Delete user data and subcollections from Firestore
-    WriteBatch batch = FirebaseFirestore.instance.batch();
-
-    // Delete main user document
-    batch.delete(FirebaseFirestore.instance.collection('users').doc(user.uid));
-
-    // Delete subcollections
-    final subcollections = ['notes', 'reminders', 'vision_board', 'events', 'notificationMappings'];
-    
-    for (String subcollection in subcollections) {
-      QuerySnapshot subcollectionDocs = await FirebaseFirestore.instance
-          .collection('users')
-          .doc(user.uid)
-          .collection(subcollection)
-          .get();
-      
-      for (DocumentSnapshot doc in subcollectionDocs.docs) {
-        batch.delete(doc.reference);
+      if (shouldProceed != true) {
+        return;
       }
+
+      // Get the user's password
+      String? password = await Get.dialog<String>(
+        AlertDialog(
+          title: Text('Enter Password'),
+          content: TextField(
+            controller: passwordController,
+            obscureText: true,
+            decoration: InputDecoration(hintText: "Password"),
+          ),
+          actions: [
+            TextButton(
+              child: Text('Submit'),
+              onPressed: () => Get.back(result: passwordController.text),
+            ),
+          ],
+        ),
+      );
+
+      if (password == null || password.isEmpty) {
+        ToastUtil.showToast('Error', 'Password is required to delete account');
+        return;
+      }
+
+      // Re-authenticate
+      AuthCredential credential = EmailAuthProvider.credential(
+        email: user.email!,
+        password: password,
+      );
+      await user.reauthenticateWithCredential(credential);
+
+      // Delete user data and subcollections from Firestore
+      WriteBatch batch = FirebaseFirestore.instance.batch();
+
+      // Delete main user document
+      batch
+          .delete(FirebaseFirestore.instance.collection('users').doc(user.uid));
+
+      // Delete subcollections
+      final subcollections = [
+        'notes',
+        'reminders',
+        'vision_board',
+        'events',
+        'notificationMappings'
+      ];
+
+      for (String subcollection in subcollections) {
+        QuerySnapshot subcollectionDocs = await FirebaseFirestore.instance
+            .collection('users')
+            .doc(user.uid)
+            .collection(subcollection)
+            .get();
+
+        for (DocumentSnapshot doc in subcollectionDocs.docs) {
+          batch.delete(doc.reference);
+        }
+      }
+
+      // Commit the batch
+      await batch.commit();
+
+      // Delete the user account from Firebase Authentication
+      await user.delete();
+
+      // Navigate to the home screen
+      await Get.offAllNamed(AppRoutes.HOME);
+      ToastUtil.showToast(
+          'Success', 'Your account and all associated data have been deleted');
+    } catch (error) {
+      print('Error deleting account: $error');
+      ToastUtil.showToast('Error', 'Failed to delete account: $error');
+    } finally {
+      // Ensure the controller is always disposed
+      passwordController.dispose();
     }
-
-    // Commit the batch
-    await batch.commit();
-
-    // Delete the user account from Firebase Authentication
-    await user.delete();
-
-    // Navigate to the home screen
-    await Get.offAllNamed(AppRoutes.HOME);
-    Get.snackbar('Success', 'Your account and all associated data have been deleted');
-  } catch (error) {
-    print('Error deleting account: $error');
-    Get.snackbar('Error', 'Failed to delete account: $error');
-  } finally {
-    // Ensure the controller is always disposed
-    passwordController.dispose();
   }
-}
 
-Future<void> _deleteUserImages(String userId) async {
-  try {
-    // Get reference to the user's vision board images folder
-    final Reference storageRef = FirebaseStorage.instance.ref().child('users/$userId/vision_board_images');
-    
-    // List all items (images) in the folder
-    final ListResult result = await storageRef.listAll();
+  Future<void> _deleteUserImages(String userId) async {
+    try {
+      // Get reference to the user's vision board images folder
+      final Reference storageRef = FirebaseStorage.instance
+          .ref()
+          .child('users/$userId/vision_board_images');
 
-    // Delete each image
-    for (var item in result.items) {
-      await item.delete();
+      // List all items (images) in the folder
+      final ListResult result = await storageRef.listAll();
+
+      // Delete each image
+      for (var item in result.items) {
+        await item.delete();
+      }
+
+      print(
+          'All images for user $userId have been deleted from Firebase Storage');
+    } catch (e) {
+      print('Error deleting user images: $e');
+      // You might want to handle this error, perhaps by showing a snackbar or rethrowing
     }
-
-    print('All images for user $userId have been deleted from Firebase Storage');
-  } catch (e) {
-    print('Error deleting user images: $e');
-    // You might want to handle this error, perhaps by showing a snackbar or rethrowing
   }
-}
 
   Future<void> loadUserData() async {
     try {
       isLoading.value = true;
       hasError.value = false;
-       getUserDetails();
+      getUserDetails();
     } catch (e) {
       print('Error loading user data: $e');
       hasError.value = true;
@@ -240,12 +253,14 @@ Future<void> _deleteUserImages(String userId) async {
       isLoading.value = false;
     }
   }
+
   //get the user details
   void getUserDetails() async {
     var user = FirebaseAuth.instance.currentUser;
     if (user != null) {
       try {
-        var userDoc = await firebaseFireStore.collection('users').doc(user.uid).get();
+        var userDoc =
+            await firebaseFireStore.collection('users').doc(user.uid).get();
         name.value = userDoc['name'] ?? '';
         username.value = userDoc['username'] ?? '';
         email.value = userDoc['email'] ?? '';
@@ -276,8 +291,6 @@ Future<void> _deleteUserImages(String userId) async {
     }
   }
 
-
-
   Future<void> updateName(String newName) async {
     try {
       User? user = _auth.currentUser;
@@ -287,11 +300,11 @@ Future<void> _deleteUserImages(String userId) async {
           'name': newName,
         });
         name.value = newName; // Update the observable
-        Get.snackbar('Success', 'Name updated successfully');
+        ToastUtil.showToast('Success', 'Name updated successfully');
         Get.back();
       }
     } catch (error) {
-      Get.snackbar('Error', 'Failed to update name: $error');
+      ToastUtil.showToast('Error', 'Failed to update name: $error');
     }
   }
 
@@ -331,7 +344,7 @@ Future<void> _deleteUserImages(String userId) async {
     if (!isValidUsername(username)) {
       isUsernameAvailable.value = false;
       hasCheckedUsername.value = false;
-      Get.snackbar('Error', 'Invalid username format or length');
+      ToastUtil.showToast('Error', 'Invalid username format or length');
       return;
     }
 
@@ -346,12 +359,12 @@ Future<void> _deleteUserImages(String userId) async {
       hasCheckedUsername.value = true;
 
       if (isUsernameAvailable.value) {
-        Get.snackbar('Success', 'Username is available');
+        ToastUtil.showToast('Success', 'Username is available');
       } else {
-        Get.snackbar('Error', 'Username is already taken');
+        ToastUtil.showToast('Error', 'Username is already taken');
       }
     } catch (e) {
-      Get.snackbar('Error', 'Failed to check username availability');
+      ToastUtil.showToast('Error', 'Failed to check username availability');
       isUsernameAvailable.value = false;
       hasCheckedUsername.value = false;
     } finally {
@@ -362,7 +375,7 @@ Future<void> _deleteUserImages(String userId) async {
   Future<void> updateUsername(String newUsername) async {
     newUsername = formatUsername(newUsername);
     if (!isValidUsername(newUsername)) {
-      Get.snackbar('Error', 'Invalid username format or length');
+      ToastUtil.showToast('Error', 'Invalid username format or length');
       return;
     }
 
@@ -372,7 +385,7 @@ Future<void> _deleteUserImages(String userId) async {
     }
 
     if (!isUsernameAvailable.value) {
-      Get.snackbar('Error', 'Please choose a unique username');
+      ToastUtil.showToast('Error', 'Please choose a unique username');
       return;
     }
 
@@ -383,10 +396,10 @@ Future<void> _deleteUserImages(String userId) async {
           'username': newUsername,
         });
         username.value = newUsername; // Update the observable
-        Get.snackbar('Success', 'Username updated successfully');
+        ToastUtil.showToast('Success', 'Username updated successfully');
       }
     } catch (error) {
-      Get.snackbar('Error', 'Failed to update username: $error');
+      ToastUtil.showToast('Error', 'Failed to update username: $error');
     }
   }
 
@@ -408,10 +421,10 @@ Future<void> _deleteUserImages(String userId) async {
         Get.back();
         await Get.offAllNamed(AppRoutes.HOME);
 
-        Get.snackbar('Success', 'Password changed successfully');
+        ToastUtil.showToast('Success', 'Password changed successfully');
       }
     } catch (error) {
-      Get.snackbar('Error', 'Failed to change password: $error');
+      ToastUtil.showToast('Error', 'Failed to change password: $error');
     }
   }
 }

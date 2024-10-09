@@ -3,12 +3,12 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import '../services/toast_util.dart';
+
 class ThreeTasksController extends GetxController {
   RxString timeOfDay = ''.obs;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final FirebaseAuth _auth = FirebaseAuth.instance;
-
-  
 
   //textfields
   RxString task1 = ''.obs;
@@ -30,20 +30,22 @@ class ThreeTasksController extends GetxController {
   void saveTasks(String taskTime) {
     // only save if at least one task is entered
     if (task1.value.isEmpty && task2.value.isEmpty && task3.value.isEmpty) {
-      Get.snackbar('Error', 'Please enter at least one task');
+      ToastUtil.showToast('Error', 'Please enter at least one task');
       return;
     } else {
-      _firestore.collection('users').doc(_auth.currentUser?.uid).collection(taskTime).add({
+      _firestore
+          .collection('users')
+          .doc(_auth.currentUser?.uid)
+          .collection(taskTime)
+          .add({
         'task1': task1.value,
         'task2': task2.value,
         'task3': task3.value,
         'timeOfDay': timeOfDay.value,
         'createdAt': FieldValue.serverTimestamp(),
-      
       });
-      
-      Get.snackbar('Success', 'Tasks saved successfully');
-    
+
+      ToastUtil.showToast('Success', 'Tasks saved successfully');
     }
   }
 }

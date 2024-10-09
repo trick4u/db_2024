@@ -6,6 +6,7 @@ import 'package:get/get.dart';
 import 'package:just_audio/just_audio.dart';
 
 import '../models/note_model.dart';
+import '../services/toast_util.dart';
 
 class NoteTakingController extends GetxController {
   final titleController = TextEditingController();
@@ -110,18 +111,18 @@ class NoteTakingController extends GetxController {
 
         update();
 
-        Get.snackbar(
+        ToastUtil.showToast(
           "Note Updated",
           newCompletionStatus
               ? "Note marked as completed"
               : "Note marked as incomplete",
-          snackPosition: SnackPosition.BOTTOM,
+        
           duration: Duration(seconds: 2),
         );
       }
     } catch (e) {
       print('Error toggling note completion: $e');
-      Get.snackbar('Error', 'Failed to update note status');
+      ToastUtil.showToast('Error', 'Failed to update note status');
     }
   }
 
@@ -133,7 +134,7 @@ class NoteTakingController extends GetxController {
 
   Future<void> deleteSubTask(String noteId, int subTaskIndex) async {
     if (currentUser == null) {
-      Get.snackbar('Error', 'You must be logged in to update notes');
+      ToastUtil.showToast('Error', 'You must be logged in to update notes');
       return;
     }
 
@@ -156,23 +157,24 @@ class NoteTakingController extends GetxController {
       _notes[noteIndex] = updatedNote;
       _notes.refresh();
 
-      Get.snackbar('Success', 'Sub-task deleted successfully');
+      ToastUtil.showToast('Success', 'Sub-task deleted successfully');
     } catch (e) {
       print('Error deleting sub-task: $e');
-      Get.snackbar('Error', 'Failed to delete sub-task');
+      ToastUtil.showToast('Error', 'Failed to delete sub-task');
     }
   }
 
- Future<void> updateNote(String noteId, Note updatedNote) async {
+  Future<void> updateNote(String noteId, Note updatedNote) async {
     if (currentUser == null) {
-      Get.snackbar('Error', 'You must be logged in to update notes');
+      ToastUtil.showToast('Error', 'You must be logged in to update notes');
       return;
     }
 
     try {
       // Filter out empty subtasks
       updatedNote = updatedNote.copyWith(
-        subTasks: updatedNote.subTasks.where((task) => task.isNotEmpty).toList(),
+        subTasks:
+            updatedNote.subTasks.where((task) => task.isNotEmpty).toList(),
       );
 
       await notesCollection.doc(noteId).update(updatedNote.toMap());
@@ -183,10 +185,10 @@ class NoteTakingController extends GetxController {
       _notes.refresh();
       Get.back(); // Close the bottom sheet
       clearFields();
-      Get.snackbar('Success', 'Note updated successfully');
+      ToastUtil.showToast('Success', 'Note updated successfully');
     } catch (e) {
       print('Error updating note: $e');
-      Get.snackbar('Error', 'Failed to update note');
+      ToastUtil.showToast('Error', 'Failed to update note');
     }
   }
 
@@ -237,9 +239,9 @@ class NoteTakingController extends GetxController {
     _selectedDate.value = newDate;
   }
 
-   Future<void> saveNote() async {
+  Future<void> saveNote() async {
     if (currentUser == null) {
-      Get.snackbar('Error', 'You must be logged in to save notes');
+      ToastUtil.showToast('Error', 'You must be logged in to save notes');
       return;
     }
 
@@ -260,16 +262,15 @@ class NoteTakingController extends GetxController {
         _notes.add(note);
         Get.back(); // Close the bottom sheet
         clearFields();
-        Get.snackbar('Success', 'Note saved successfully');
+        ToastUtil.showToast('Success', 'Note saved successfully');
       } catch (e) {
         print('Error saving note: $e');
-        Get.snackbar('Error', 'Failed to save note');
+        ToastUtil.showToast('Error', 'Failed to save note');
       }
     } else if (!canAddMoreNotes) {
-      Get.snackbar('Error', 'Maximum number of notes (20) reached');
+      ToastUtil.showToast('Error', 'Maximum number of notes (20) reached');
     }
   }
-
 
   Future<void> fetchNotes({bool loadMore = false}) async {
     if (currentUser == null) return;
@@ -312,7 +313,7 @@ class NoteTakingController extends GetxController {
       _hasMoreNotes = querySnapshot.docs.length == notesPerPage;
     } catch (e) {
       print('Error fetching notes: $e');
-      Get.snackbar('Error', 'Failed to fetch notes');
+      ToastUtil.showToast('Error', 'Failed to fetch notes');
     } finally {
       isLoading.value = false;
       isLoadingMore.value = false;
@@ -326,16 +327,16 @@ class NoteTakingController extends GetxController {
       await notesCollection.doc(noteId).delete();
       _notes.removeWhere((note) => note.id == noteId);
       _subtaskLengths.remove(noteId);
-      Get.snackbar('Success', 'Note deleted successfully');
+      ToastUtil.showToast('Success', 'Note deleted successfully');
     } catch (e) {
       print('Error deleting note: $e');
-      Get.snackbar('Error', 'Failed to delete note');
+      ToastUtil.showToast('Error', 'Failed to delete note');
     }
   }
 
   Future<void> deleteAllNotes() async {
     if (currentUser == null) {
-      Get.snackbar('Error', 'You must be logged in to delete notes');
+      ToastUtil.showToast('Error', 'You must be logged in to delete notes');
       return;
     }
 
@@ -357,10 +358,10 @@ class NoteTakingController extends GetxController {
       // Clear the local list of notes
       _notes.clear();
 
-      Get.snackbar('Success', 'All notes have been deleted');
+      ToastUtil.showToast('Success', 'All notes have been deleted');
     } catch (e) {
       print('Error deleting all notes: $e');
-      Get.snackbar('Error', 'Failed to delete all notes');
+      ToastUtil.showToast('Error', 'Failed to delete all notes');
     }
   }
 

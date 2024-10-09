@@ -8,6 +8,8 @@ import 'package:tushar_db/app_routes.dart';
 import 'package:tushar_db/projectPages/main_screen.dart';
 import 'package:tushar_db/services/auth_wrapper.dart';
 
+import '../services/toast_util.dart';
+
 class NetworkController extends GetxController {
   RxBool isOnline = true.obs;
   StreamSubscription? connectionStream;
@@ -40,8 +42,9 @@ class NetworkController extends GetxController {
         case InternetStatus.disconnected:
           isOnline.value = false;
           if (!isInitialCheck) {
-            Get.snackbar('No Internet', 'Please check your internet connection',
-                snackPosition: SnackPosition.BOTTOM);
+            ToastUtil.showToast(
+                'No Internet', 'Please check your internet connection',
+             );
             Get.offNamedUntil(AppRoutes.NETWORK, (route) => false);
           }
           break;
@@ -53,17 +56,17 @@ class NetworkController extends GetxController {
     bool hasInternet = await InternetConnection().hasInternetAccess;
     isOnline.value = hasInternet;
     if (hasInternet) {
-      // Get.snackbar(
+      // ToastUtil.showToast(
       //   'Connected',
       //   'You are online',
       //   snackPosition: SnackPosition.BOTTOM,
       // );
       navigateToMainScreen();
     } else {
-      Get.snackbar(
+      ToastUtil.showToast(
         'No Internet',
         'Please check your internet connection',
-        snackPosition: SnackPosition.BOTTOM,
+     
       );
     }
   }

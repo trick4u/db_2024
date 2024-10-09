@@ -51,7 +51,7 @@ class HomeController extends GetxController
   // void onInit() {
   //   tabController = TabController(length: 2, vsync: this);
   //   userAuthChanges();
-    
+
   //   super.onInit();
   // }
 
@@ -77,13 +77,13 @@ class HomeController extends GetxController
   //   String username = userName.toLowerCase();
   //   final snapshot = await firestore.collection('users').doc(username).get();
   //   if (snapshot.exists) {
-  //     Get.snackbar('Error', 'Username already taken');
+  //     ToastUtil.showToast('Error', 'Username already taken');
   //     isUsernameAvailable.value = false;
   //     return '';
   //   } else {
   //     userName = username;
   //     isUsernameAvailable.value = true;
-  //     Get.snackbar('Success', 'Username available');
+  //     ToastUtil.showToast('Success', 'Username available');
 
   //     return username;
   //   }
@@ -98,18 +98,18 @@ class HomeController extends GetxController
   // // login with email and password
   // void login() {
   //   if (emailController.text.isEmpty || passwordController.text.isEmpty) {
-  //     Get.snackbar('Error', 'All fields are required');
+  //     ToastUtil.showToast('Error', 'All fields are required');
   //   } else if (!regexp.hasMatch(emailController.text)) {
-  //     Get.snackbar('Error', 'Invalid email');
+  //     ToastUtil.showToast('Error', 'Invalid email');
   //   } else {
   //     auth
   //         .signInWithEmailAndPassword(
   //             email: emailController.text, password: passwordController.text)
   //         .then((value) {
-  //       Get.snackbar('Success', 'Login successful');
+  //       ToastUtil.showToast('Success', 'Login successful');
   //       Get.toNamed(AppRoutes.MAIN);
   //     }).catchError((e) {
-  //       Get.snackbar('Error', e.toString());
+  //       ToastUtil.showToast('Error', e.toString());
   //     });
   //   }
   // }
@@ -121,29 +121,29 @@ class HomeController extends GetxController
   //     } else {
   //       print('User is signed in!');
   //       Get.toNamed(AppRoutes.MAIN);
-      
+
   //     }
   //   });
-  
+
   // }
 
   // // register with email and password
   // void register() {
   //   if (emailController.text.isEmpty || passwordController.text.isEmpty) {
-  //     Get.snackbar('Error', 'All fields are required');
+  //     ToastUtil.showToast('Error', 'All fields are required');
   //   } else if (!regexp.hasMatch(emailController.text)) {
-  //     Get.snackbar('Error', 'Invalid email');
+  //     ToastUtil.showToast('Error', 'Invalid email');
   //   } else {
   //     auth
   //         .createUserWithEmailAndPassword(
   //             email: emailController.text, password: passwordController.text)
   //         .then((value) {
-  //       Get.snackbar('Success', 'User registered successfully');
+  //       ToastUtil.showToast('Success', 'User registered successfully');
   //     }).then((value) {
   //       addUserToDatabase(auth.currentUser!.uid);
   //       sendVerificationEmail();
   //     }).catchError((e) {
-  //       Get.snackbar('Error', e.toString());
+  //       ToastUtil.showToast('Error', e.toString());
   //     });
   //   }
   // }
@@ -153,7 +153,7 @@ class HomeController extends GetxController
   //   final snapshot = await firestore.collection('users').doc(email).get();
   //   // if the user exists
   //   if (snapshot.exists) {
-  //     Get.snackbar('Error', 'User already exists');
+  //     ToastUtil.showToast('Error', 'User already exists');
 
   //     return true;
   //   } else {
@@ -175,7 +175,7 @@ class HomeController extends GetxController
   // // send me a verification email
   // void sendVerificationEmail() {
   //   auth.currentUser!.sendEmailVerification();
-  //   Get.snackbar('Success', 'Verification email sent');
+  //   ToastUtil.showToast('Success', 'Verification email sent');
   //   Get.toNamed(AppRoutes.EMAIL, arguments: emailController.text);
   // }
 }

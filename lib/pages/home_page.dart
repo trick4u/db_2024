@@ -68,13 +68,14 @@ class MyHomePage extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 SizedBox(height: ScaleUtil.height(10)),
-                Text('Get Started', style: appTheme.titleLarge),
+                Text('Get started', style: appTheme.titleLarge),
                 Spacer(),
                 Text(
                   'Register for events, subscribe to calendars and manage events you\'re going to.',
                   style: appTheme.bodyMedium,
                 ),
-                Spacer(),
+                SizedBox(height: ScaleUtil.height(10)),
+
                 ElevatedButton(
                   child: Text('Continue with Email'),
                   onPressed: () {
@@ -82,7 +83,7 @@ class MyHomePage extends StatelessWidget {
                   },
                   style: appTheme.primaryButtonStyle,
                 ),
-                SizedBox(height: ScaleUtil.height(30)),
+                SizedBox(height: ScaleUtil.height(10)),
                 // Row(
                 //   children: [
                 //     Expanded(

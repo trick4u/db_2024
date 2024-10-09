@@ -6,6 +6,7 @@ import '../models/reminder_model.dart';
 import '../projectController/page_one_controller.dart';
 import '../services/app_theme.dart';
 import '../services/scale_util.dart';
+import '../services/toast_util.dart';
 
 class QuickReminderBottomSheet extends StatefulWidget {
   final PageOneController reminderController;
@@ -274,7 +275,7 @@ class _QuickReminderBottomSheetState extends State<QuickReminderBottomSheet> {
     );
   }
 
- void _handleSave() async {
+  void _handleSave() async {
     if (_formKey.currentState!.validate()) {
       int interval =
           _getMinutesFromValue(widget.reminderController.timeSelected.value);
@@ -312,29 +313,30 @@ class _QuickReminderBottomSheetState extends State<QuickReminderBottomSheet> {
             print(
                 'New reminder created and scheduled: $documentId, Interval: $interval minutes, Repeat: $repeat');
           } else {
-            throw Exception('Failed to create reminder. Limit may have been reached.');
+            throw Exception(
+                'Failed to create reminder. Limit may have been reached.');
           }
         }
 
         Get.back();
-        Get.snackbar(
+        ToastUtil.showToast(
           'Success',
           widget.reminderToEdit != null
               ? 'Reminder updated successfully'
               : 'Reminder added successfully',
-          snackPosition: SnackPosition.BOTTOM,
+        
           backgroundColor: Colors.green,
-          colorText: Colors.white,
+       
           duration: Duration(seconds: 2),
         );
       } catch (e) {
         print('Error saving reminder: $e');
-        Get.snackbar(
+        ToastUtil.showToast(
           'Error',
           'Failed to save reminder. ${e.toString()}',
-          snackPosition: SnackPosition.BOTTOM,
+        
           backgroundColor: Colors.red,
-          colorText: Colors.white,
+       
           duration: Duration(seconds: 3),
         );
       }

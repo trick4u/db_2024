@@ -68,7 +68,6 @@ class AddTaskController extends GetxController {
   }
 
   String hintText() {
- 
     switch (selectedChipIndex.value) {
       case 0:
         return 'Enter your goals';
@@ -105,13 +104,13 @@ class AddTaskController extends GetxController {
 
 //   //check if the task title is empty
 //   if (taskTitle.isEmpty) {
-//     Get.snackbar("Error", "Task title cannot be empty");
+//     ToastUtil.showToast("Error", "Task title cannot be empty");
 //     return;
 //   }
 
 //   //check if the task description is empty
 //   // if (taskDescription.isEmpty) {
-//   //   Get.snackbar("Error", "Task description cannot be empty");
+//   //   ToastUtil.showToast("Error", "Task description cannot be empty");
 //   //   return;
 //   // }
 
@@ -123,7 +122,7 @@ class AddTaskController extends GetxController {
 //   descriptionController.clear();
 
 //   //show a snackbar
-//   Get.snackbar("Success", "Task added successfully");
+//   ToastUtil.showToast("Success", "Task added successfully");
 // }
 
 // //add task to database function

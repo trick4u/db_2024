@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../app_routes.dart';
-
+import '../services/toast_util.dart';
 
 class OtpController extends GetxController {
   final RxBool isLoading = false.obs;
@@ -33,7 +33,7 @@ class OtpController extends GetxController {
       Get.offAllNamed(AppRoutes.MAIN);
     } catch (e) {
       isLoading.value = false;
-      Get.snackbar('Error', e.toString());
+      ToastUtil.showToast('Error', e.toString());
     }
   }
 }

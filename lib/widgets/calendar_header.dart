@@ -5,6 +5,7 @@ import 'package:intl/intl.dart';
 import 'package:table_calendar/table_calendar.dart';
 
 import '../projectController/calendar_controller.dart';
+import '../services/toast_util.dart';
 
 class CustomCalendarHeader extends GetView<CalendarController> {
   @override
@@ -66,17 +67,17 @@ class CustomCalendarHeader extends GetView<CalendarController> {
                 if (controller.canAddMoreEvents(controller.selectedDay.value)) {
                   controller.showEventBottomSheet(context);
                 } else {
-                  Get.snackbar(
+                  ToastUtil.showToast(
                     'Event Limit Reached',
                     'You can only add up to 10 events per day.',
-                    snackPosition: SnackPosition.BOTTOM,
+                  
                   );
                 }
               } else {
-                Get.snackbar(
+                ToastUtil.showToast(
                   'Cannot Add Event',
                   'Events cannot be added to past dates.',
-                  snackPosition: SnackPosition.BOTTOM,
+                
                 );
               }
             },

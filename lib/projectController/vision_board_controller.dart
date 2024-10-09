@@ -14,6 +14,7 @@ import 'package:path/path.dart' as path;
 import 'package:image/image.dart' as img;
 import 'package:http/http.dart' as http;
 
+import '../services/toast_util.dart';
 import '../widgets/vision_bottom_sheet.dart';
 
 class VisionBoardController extends GetxController {
@@ -150,24 +151,22 @@ class VisionBoardController extends GetxController {
     return _scheduledNotifications[itemId] ?? false;
   }
 
-
-
   Future<void> scheduleNotification(
       VisionBoardItem item, bool isMorning) async {
-   // _optimizeMemoryUsage();
+    // _optimizeMemoryUsage();
     if (isMorning && !canScheduleMorningNotification()) {
-      Get.snackbar(
+      ToastUtil.showToast(
         'Morning Notification Limit Reached',
         'You can only have 5 active morning notifications. Please cancel an existing morning notification to schedule a new one.',
-        snackPosition: SnackPosition.BOTTOM,
+     
       );
       return;
     }
     if (!isMorning && !canScheduleNightNotification()) {
-      Get.snackbar(
+      ToastUtil.showToast(
         'Night Notification Limit Reached',
         'You can only have 5 active night notifications. Please cancel an existing night notification to schedule a new one.',
-        snackPosition: SnackPosition.BOTTOM,
+     
       );
       return;
     }
@@ -263,17 +262,17 @@ class VisionBoardController extends GetxController {
 
     _scheduleNotificationStateUpdate(item.id, scheduledTime);
 
-    Get.snackbar(
+    ToastUtil.showToast(
       'Notification Scheduled',
       'You will be reminded at ${scheduledTime.hour}:${scheduledTime.minute.toString().padLeft(2, '0')}',
-      snackPosition: SnackPosition.BOTTOM,
+   
     );
   }
 
   DateTime _getNextAvailableTime(bool isMorning) {
     DateTime now = DateTime.now();
     DateTime baseTime = isMorning
-        ? DateTime(now.year, now.month, now.day, 08,00)
+        ? DateTime(now.year, now.month, now.day, 08, 00)
         : DateTime(now.year, now.month, now.day, 22, 00);
 
     if (baseTime.isBefore(now)) {
@@ -351,10 +350,10 @@ class VisionBoardController extends GetxController {
       visionBoardItems.refresh();
     }
 
-    Get.snackbar(
+    ToastUtil.showToast(
       'Notification Cancelled',
       'The reminder for this item has been cancelled',
-      snackPosition: SnackPosition.BOTTOM,
+   
     );
   }
 
@@ -522,12 +521,12 @@ class VisionBoardController extends GetxController {
       }
 
       Get.back();
-      Get.snackbar('Success', 'Vision board item updated successfully',
-          snackPosition: SnackPosition.TOP);
+      ToastUtil.showToast('Success', 'Vision board item updated successfully',
+       );
     } catch (e) {
       print("Error updating item: $e");
-      Get.snackbar('Error', 'Failed to update vision board item',
-          snackPosition: SnackPosition.BOTTOM);
+      ToastUtil.showToast('Error', 'Failed to update vision board item',
+         );
     }
   }
 
@@ -658,7 +657,7 @@ class VisionBoardController extends GetxController {
       }
     } catch (e) {
       print('Error picking images: $e');
-      Get.snackbar('Error', 'Failed to pick images');
+      ToastUtil.showToast('Error', 'Failed to pick images');
     } finally {
       isPickingImages.value = false;
     }
@@ -695,14 +694,14 @@ class VisionBoardController extends GetxController {
         await saveNewItem();
       }
       Get.back();
-      Get.snackbar(
+      ToastUtil.showToast(
           'Success',
           isEditing.value
               ? 'Vision board item updated successfully'
               : 'New vision board item added successfully');
     } catch (e) {
       print('Error saving/updating note: $e');
-      Get.snackbar('Error', 'Failed to save/update vision board item');
+      ToastUtil.showToast('Error', 'Failed to save/update vision board item');
     } finally {
       isSaving.value = false;
       isEditing.value = false;
@@ -795,28 +794,28 @@ class VisionBoardController extends GetxController {
     }
   }
 
- Future<void> saveToFirestore(List<String> imageUrls, String userId) async {
-  final newItem = VisionBoardItem(
-    id: '',
-    title: titleController.text.trim(),
-    date: selectedDate.value,
-    imageUrls: imageUrls,
-    userId: userId,
-    createdAt: DateTime.now(),
-  );
-  
-  // Use the correct path for the vision board subcollection
-  final docRef = await FirebaseFirestore.instance
-      .collection('users')
-      .doc(userId)
-      .collection('vision_board')
-      .add(newItem.toMap());
-  
-  newItem.id = docRef.id;
+  Future<void> saveToFirestore(List<String> imageUrls, String userId) async {
+    final newItem = VisionBoardItem(
+      id: '',
+      title: titleController.text.trim(),
+      date: selectedDate.value,
+      imageUrls: imageUrls,
+      userId: userId,
+      createdAt: DateTime.now(),
+    );
 
-  // Clear the form
-  resetForm();
-}
+    // Use the correct path for the vision board subcollection
+    final docRef = await FirebaseFirestore.instance
+        .collection('users')
+        .doc(userId)
+        .collection('vision_board')
+        .add(newItem.toMap());
+
+    newItem.id = docRef.id;
+
+    // Clear the form
+    resetForm();
+  }
 
   Future<void> deleteItem(String itemId) async {
     if (currentUser == null) return;
@@ -845,8 +844,8 @@ class VisionBoardController extends GetxController {
       print('Vision board item deleted: $itemId');
     } catch (e) {
       print('Error deleting vision board item: $e');
-      Get.snackbar('Error', 'Failed to delete vision board item',
-          snackPosition: SnackPosition.BOTTOM);
+      ToastUtil.showToast('Error', 'Failed to delete vision board item',
+         );
     }
   }
 

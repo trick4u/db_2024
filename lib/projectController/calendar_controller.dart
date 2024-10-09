@@ -12,6 +12,7 @@ import 'package:table_calendar/table_calendar.dart';
 import '../models/quick_event_model.dart';
 import '../projectPages/page_two_calendar.dart';
 import '../services/pexels_service.dart';
+import '../services/toast_util.dart';
 import '../services/work_manager.dart';
 import '../widgets/event_bottomSheet.dart';
 import 'package:flutter/services.dart';
@@ -176,8 +177,7 @@ class CalendarController extends GetxController {
   }
 
   Future<void> fetchRandomBackgroundImage() async {
-    if (isChangingBackground.value ) {
-     
+    if (isChangingBackground.value) {
       return;
     }
 
@@ -366,25 +366,25 @@ class CalendarController extends GetxController {
       }
     } catch (e) {
       print('Error deleting event: $e');
-      Get.snackbar('Error', 'Failed to delete event');
+      ToastUtil.showToast('Error', 'Failed to delete event');
     }
   }
 
   void showEventBottomSheet(BuildContext context, {QuickEventModel? event}) {
     if (event == null) {
       if (!canAddEvent(selectedDay.value)) {
-        Get.snackbar(
+        ToastUtil.showToast(
           'Cannot Add Event',
           'Events cannot be added to past dates.',
-          snackPosition: SnackPosition.BOTTOM,
+        
         );
         return;
       }
       if (!canAddMoreEvents(selectedDay.value)) {
-        Get.snackbar(
+        ToastUtil.showToast(
           'Event Limit Reached',
           'You can only add up to 10 events per day.',
-          snackPosition: SnackPosition.BOTTOM,
+        
         );
         return;
       }
@@ -425,10 +425,10 @@ class CalendarController extends GetxController {
                 addEvent(title, description, date, startDateTime, endDateTime,
                     color, hasReminder, reminderTime, false, repetition);
               } else {
-                Get.snackbar(
+                ToastUtil.showToast(
                   'Cannot Add Event',
                   'Events cannot be added to past dates.',
-                  snackPosition: SnackPosition.BOTTOM,
+                
                 );
               }
             } else {
@@ -465,10 +465,10 @@ class CalendarController extends GetxController {
     if (currentUser == null) return;
 
     if (!canAddMoreEvents(date)) {
-      Get.snackbar(
+      ToastUtil.showToast(
         'Event Limit Reached',
         'You can only add up to 10 events per day.',
-        snackPosition: SnackPosition.BOTTOM,
+      
       );
       return;
     }

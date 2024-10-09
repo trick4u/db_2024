@@ -14,6 +14,7 @@ import 'package:tushar_db/services/scale_util.dart';
 
 import '../models/quick_event_model.dart';
 import '../projectController/calendar_controller.dart';
+import '../services/toast_util.dart';
 import '../widgets/calendar_header.dart';
 import '../widgets/event_card.dart';
 import '../services/app_theme.dart';
@@ -515,21 +516,21 @@ class calendarpageWidget extends StatelessWidget {
                                   controller.selectedDay.value)) {
                                 controller.showEventBottomSheet(context);
                               } else {
-                                Get.snackbar(
+                                ToastUtil.showToast(
                                   'Event Limit Reached',
                                   'You can only add up to 10 events per day.',
-                                  snackPosition: SnackPosition.BOTTOM,
+                                
                                   backgroundColor: appTheme.colorScheme.surface,
-                                  colorText: appTheme.colorScheme.onSurface,
+                                
                                 );
                               }
                             } else {
-                              Get.snackbar(
+                              ToastUtil.showToast(
                                 'Cannot Add Event',
                                 'Events cannot be added to past dates.',
-                                snackPosition: SnackPosition.BOTTOM,
+                              
                                 backgroundColor: appTheme.colorScheme.surface,
-                                colorText: appTheme.colorScheme.onSurface,
+                              
                               );
                             }
                           },

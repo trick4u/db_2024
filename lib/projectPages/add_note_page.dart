@@ -2,6 +2,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import '../services/toast_util.dart';
+
 class AddNotePage extends StatelessWidget {
   final AddNoteController controller = Get.put(AddNoteController());
   @override
@@ -142,18 +144,18 @@ class AddNotePage extends StatelessWidget {
                       'timestamp': FieldValue.serverTimestamp(),
                     });
 
-                    Get.snackbar(
+                    ToastUtil.showToast(
                       'Success',
                       'Note added successfully',
-                      snackPosition: SnackPosition.BOTTOM,
+                     
                     );
 
                     Navigator.pop(context);
                   } else {
-                    Get.snackbar(
+                    ToastUtil.showToast(
                       'Error',
                       'Please fill in the title',
-                      snackPosition: SnackPosition.BOTTOM,
+                     
                     );
                   }
                 },

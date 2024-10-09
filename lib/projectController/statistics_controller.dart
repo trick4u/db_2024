@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import '../models/quick_event_model.dart';
+import '../services/toast_util.dart';
 import 'calendar_controller.dart';
 import 'dart:math' as math;
 
@@ -45,7 +46,7 @@ class StatisticsController extends GetxController with WidgetsBindingObserver {
     super.onClose();
   }
 
-    @override
+  @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.resumed) {
       updateStatistics();
@@ -77,7 +78,8 @@ class StatisticsController extends GetxController with WidgetsBindingObserver {
       updateStatistics();
     } else {
       // Optionally, show a message to the user
-      Get.snackbar('Limit Reached', 'Cannot view data older than 3 months');
+      ToastUtil.showToast(
+          'Limit Reached', 'Cannot view data older than 3 months');
     }
   }
 
@@ -97,7 +99,7 @@ class StatisticsController extends GetxController with WidgetsBindingObserver {
     return '$startDate-$endDate';
   }
 
-   void updateStatistics() {
+  void updateStatistics() {
     isLoading.value = true;
     try {
       updateTasksOverview();
