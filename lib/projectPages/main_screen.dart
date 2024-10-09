@@ -11,7 +11,7 @@ import 'package:tushar_db/services/scale_util.dart';
 
 import '../constants/colors.dart';
 import '../controller/main_screen_controller.dart';
-import 'package:animate_gradient/animate_gradient.dart';
+
 
 import '../controller/network_controller.dart';
 import '../services/app_theme.dart';

@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
 import 'package:tushar_db/app_routes.dart';
 
@@ -74,10 +75,8 @@ class LoginController extends GetxController {
 
       Get.offAllNamed(AppRoutes.MAIN);
     } catch (e) {
-      Get.snackbar(
-        'Login Error',
-        e.toString(),
-        snackPosition: SnackPosition.BOTTOM,
+      Fluttertoast.showToast(
+        msg: 'Login Error',
       );
     } finally {
       isLoading.value = false;
@@ -98,7 +97,7 @@ class LoginController extends GetxController {
     // For example, query Firestore to get the email associated with the username
     QuerySnapshot query = await FirebaseFirestore.instance
         .collection('users')
-        .where('username', isEqualTo: "@"+username)
+        .where('username', isEqualTo: "@" + username)
         .limit(1)
         .get();
 
