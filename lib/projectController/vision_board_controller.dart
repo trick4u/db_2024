@@ -622,14 +622,41 @@ class VisionBoardController extends GetxController {
     update();
   }
 
-  Future<void> saveNewItem() async {
+ Future<void> saveNewItem() async {
     final user = FirebaseAuth.instance.currentUser;
     if (user == null) {
       throw Exception('You must be logged in to save a vision board item');
     }
-    final List<String> imageUrls = await uploadImages();
-    await saveToFirestore(imageUrls, user.uid);
+    isSaving.value = true;
+
+    try {
+      // Compress images in parallel
+      List<Future<File>> compressionFutures = selectedImages.map((image) => 
+        compressImageInBackground(image)
+      ).toList();
+      List<File> compressedImages = await Future.wait(compressionFutures);
+
+      // Upload images in parallel
+      List<Future<String>> uploadFutures = compressedImages.map((image) => 
+        uploadSingleImage(image)
+      ).toList();
+      List<String> imageUrls = await Future.wait(uploadFutures);
+
+      // Filter out any failed uploads
+      imageUrls = imageUrls.where((url) => url.isNotEmpty).toList();
+
+      // Save to Firestore
+      await saveToFirestore(imageUrls, user.uid);
+
+      ToastUtil.showToast('Success', 'New vision board item added successfully');
+    } catch (e) {
+      print('Error saving new item: $e');
+      ToastUtil.showToast('Error', 'Failed to save vision board item');
+    } finally {
+      isSaving.value = false;
+    }
   }
+
 
   void loadMoreItems() {
     if (isLoadingMore.value || !hasMoreItems) return;
@@ -872,26 +899,27 @@ static void _isolateCompress(Map<String, dynamic> message) {
     return updatedImageUrls;
   }
 
-  Future<String> uploadSingleImage(File image) async {
+Future<String> uploadSingleImage(File image) async {
     final user = FirebaseAuth.instance.currentUser;
     if (user == null) return '';
 
-    final String fileName =
-        '${DateTime.now().millisecondsSinceEpoch}_${path.basename(image.path)}';
-    final Reference ref = FirebaseStorage.instance
-        .ref()
-        .child('users/${user.uid}/vision_board_images/$fileName');
-    final UploadTask uploadTask = ref.putFile(image);
-    final TaskSnapshot snapshot = await uploadTask;
-    final String downloadUrl = await snapshot.ref.getDownloadURL();
+    try {
+      final String fileName = '${DateTime.now().millisecondsSinceEpoch}_${path.basename(image.path)}';
+      final Reference ref = FirebaseStorage.instance
+          .ref()
+          .child('users/${user.uid}/vision_board_images/$fileName');
+      
+      final UploadTask uploadTask = ref.putFile(image);
+      final TaskSnapshot snapshot = await uploadTask;
+      final String downloadUrl = await snapshot.ref.getDownloadURL();
 
-    if (await _isValidImageUrl(downloadUrl)) {
       return downloadUrl;
-    } else {
-      print('Invalid image URL: $downloadUrl');
+    } catch (e) {
+      print('Error uploading image: $e');
       return '';
     }
   }
+
 
   Future<List<String>> uploadImages() async {
     final List<String> imageUrls = [];
@@ -939,18 +967,29 @@ static void _isolateCompress(Map<String, dynamic> message) {
       createdAt: DateTime.now(),
     );
 
-    // Use the correct path for the vision board subcollection
-    final docRef = await FirebaseFirestore.instance
+    // Use a batched write for better performance
+    final batch = FirebaseFirestore.instance.batch();
+    final docRef = FirebaseFirestore.instance
         .collection('users')
         .doc(userId)
         .collection('vision_board')
-        .add(newItem.toMap());
+        .doc();
+    
+    batch.set(docRef, newItem.toMap());
+
+    // Commit the batch
+    await batch.commit();
 
     newItem.id = docRef.id;
+
+    // Update local state
+    visionBoardItems.add(newItem);
+    _updateDisplayedItems();
 
     // Clear the form
     resetForm();
   }
+
 
   Future<void> deleteItem(String itemId) async {
     if (currentUser == null) return;

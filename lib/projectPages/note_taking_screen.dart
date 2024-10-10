@@ -29,9 +29,17 @@ class NoteTakingScreen extends GetWidget<NoteTakingController> {
           ),
           child: Scaffold(
             appBar: AppBar(
+              leading: IconButton(onPressed: (){
+                Get.back();
+              }, icon: Icon(Icons.arrow_back_ios),),
+              centerTitle: false,
               elevation: 0,
-              title: Text('your notes',
-                  style: TextStyle(fontSize: ScaleUtil.fontSize(20))),
+              title: Text(
+                'your notes',
+                style: TextStyle(
+                  fontSize: ScaleUtil.fontSize(20),
+                ),
+              ),
               actions: [
                 if (controller.notes.isNotEmpty)
                   IconButton(
