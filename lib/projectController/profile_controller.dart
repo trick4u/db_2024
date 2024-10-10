@@ -39,6 +39,7 @@ class ProfileController extends GetxController with WidgetsBindingObserver {
 
   static const int MAX_USERNAME_LENGTH = 20; // Including "@" symbol
   static const int MIN_USERNAME_LENGTH = 4;
+  List<StreamSubscription> _firestoreListeners = [];
 
   RxList<NotificationModel> notifications = <NotificationModel>[].obs;
 
@@ -63,6 +64,7 @@ class ProfileController extends GetxController with WidgetsBindingObserver {
   @override
   void onClose() {
     WidgetsBinding.instance.removeObserver(this);
+    cancelAllFirestoreListeners();
     super.onClose();
   }
 
@@ -71,6 +73,10 @@ class ProfileController extends GetxController with WidgetsBindingObserver {
     if (state == AppLifecycleState.resumed) {
       loadUserData();
     }
+  }
+
+  void addFirestoreListener(StreamSubscription subscription) {
+    _firestoreListeners.add(subscription);
   }
 
   void toggleGradientDirection() {
@@ -98,6 +104,7 @@ class ProfileController extends GetxController with WidgetsBindingObserver {
 
     if (shouldLogout == true) {
       try {
+        await cancelAllFirestoreListeners();
         await FirebaseAuth.instance.signOut();
         await Get.offAllNamed(AppRoutes.HOME);
         ToastUtil.showToast('Success', 'You have been logged out');
@@ -105,6 +112,13 @@ class ProfileController extends GetxController with WidgetsBindingObserver {
         ToastUtil.showToast('Error', 'Failed to log out: $error');
       }
     }
+  }
+
+  Future<void> cancelAllFirestoreListeners() async {
+    for (var listener in _firestoreListeners) {
+      await listener.cancel();
+    }
+    _firestoreListeners.clear();
   }
 
   Future<void> deleteAccount() async {

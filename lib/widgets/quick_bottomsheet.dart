@@ -28,6 +28,8 @@ class QuickReminderBottomSheet extends StatefulWidget {
 class _QuickReminderBottomSheetState extends State<QuickReminderBottomSheet> {
   bool _isTitleEmpty = true;
   final _formKey = GlobalKey<FormState>();
+  OverlayEntry? _overlayEntry;
+  final LayerLink _layerLink = LayerLink();
 
   @override
   void initState() {
@@ -36,6 +38,7 @@ class _QuickReminderBottomSheetState extends State<QuickReminderBottomSheet> {
     widget.reminderController.reminderTextController
         .addListener(_updateTitleState);
   }
+  
 
   void _initializeFields() {
     if (widget.reminderToEdit != null) {
@@ -57,13 +60,13 @@ class _QuickReminderBottomSheetState extends State<QuickReminderBottomSheet> {
         widget.reminderController.reminderTextController.text.isEmpty;
   }
 
-  @override
+   @override
   void dispose() {
+    _removeOverlay();
     widget.reminderController.reminderTextController
         .removeListener(_updateTitleState);
     super.dispose();
   }
-
   void _updateTitleState() {
     setState(() {
       _isTitleEmpty =
@@ -115,6 +118,57 @@ class _QuickReminderBottomSheetState extends State<QuickReminderBottomSheet> {
     );
   }
 
+   void _showOverlay(BuildContext context) {
+    // Ensure any existing overlay is removed
+    _removeOverlay();
+
+    _overlayEntry = OverlayEntry(
+      builder: (context) => Positioned(
+        width: ScaleUtil.scale(120),
+        child: CompositedTransformFollower(
+          link: _layerLink,
+          showWhenUnlinked: false,
+          offset: Offset(0, ScaleUtil.scale(30)),
+          child: Material(
+            elevation: 8,
+            borderRadius: BorderRadius.circular(ScaleUtil.scale(8)),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                _buildOverlayItem(15, '15 minutes'),
+                _buildOverlayItem(30, '30 minutes'),
+                _buildOverlayItem(60, '60 minutes'),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+
+    Overlay.of(context).insert(_overlayEntry!);
+  }
+
+
+   Widget _buildOverlayItem(int minutes, String text) {
+    return InkWell(
+      onTap: () {
+        int value = _getValueFromMinutes(minutes);
+        widget.reminderController.timeSelected.value = value;
+        widget.reminderController.calculateTriggerTime(minutes);
+        _removeOverlay();
+      },
+      child: Container(
+        padding: ScaleUtil.symmetric(vertical: 8, horizontal: 16),
+        child: Text(text, style: TextStyle(fontSize: ScaleUtil.fontSize(12))),
+      ),
+    );
+  }
+
+  void _removeOverlay() {
+    _overlayEntry?.remove();
+    _overlayEntry = null;
+  }
+
   Widget _buildHeader(BuildContext context) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -159,38 +213,21 @@ class _QuickReminderBottomSheetState extends State<QuickReminderBottomSheet> {
   }
 
   Widget _buildTimeSelectionPopup(BuildContext context) {
-    return Obx(() => PopupMenuButton<int>(
-          child: Chip(
-            label: Text(
-              '${_getMinutesFromValue(widget.reminderController.timeSelected.value)} min',
-              style: TextStyle(fontSize: ScaleUtil.fontSize(12)),
-            ),
-            backgroundColor: Theme.of(context).chipTheme.backgroundColor,
-          ),
-          onSelected: (int value) {
-            widget.reminderController.timeSelected.value = value;
-            widget.reminderController
-                .calculateTriggerTime(_getMinutesFromValue(value));
-          },
-          itemBuilder: (BuildContext context) => <PopupMenuEntry<int>>[
-            PopupMenuItem<int>(
-              value: 1,
-              child: Text('15 minutes',
-                  style: TextStyle(fontSize: ScaleUtil.fontSize(12))),
-            ),
-            PopupMenuItem<int>(
-              value: 2,
-              child: Text('30 minutes',
-                  style: TextStyle(fontSize: ScaleUtil.fontSize(12))),
-            ),
-            PopupMenuItem<int>(
-              value: 3,
-              child: Text('60 minutes',
-                  style: TextStyle(fontSize: ScaleUtil.fontSize(12))),
-            ),
-          ],
-          tooltip: 'Select reminder time',
-        ));
+    return CompositedTransformTarget(
+      link: _layerLink,
+      child: GestureDetector(
+        onTap: () {
+          _showOverlay(context);
+        },
+        child: Chip(
+          label: Obx(() => Text(
+                '${_getMinutesFromValue(widget.reminderController.timeSelected.value)} min',
+                style: TextStyle(fontSize: ScaleUtil.fontSize(12)),
+              )),
+          backgroundColor: Theme.of(context).chipTheme.backgroundColor,
+        ),
+      ),
+    );
   }
 
   int _getMinutesFromValue(int value) {
@@ -320,13 +357,11 @@ class _QuickReminderBottomSheetState extends State<QuickReminderBottomSheet> {
 
         Get.back();
         ToastUtil.showToast(
-          'Success',
+          '',
           widget.reminderToEdit != null
               ? 'Reminder updated successfully'
               : 'Reminder added successfully',
-        
           backgroundColor: Colors.green,
-       
           duration: Duration(seconds: 2),
         );
       } catch (e) {
@@ -334,9 +369,7 @@ class _QuickReminderBottomSheetState extends State<QuickReminderBottomSheet> {
         ToastUtil.showToast(
           'Error',
           'Failed to save reminder. ${e.toString()}',
-        
           backgroundColor: Colors.red,
-       
           duration: Duration(seconds: 3),
         );
       }

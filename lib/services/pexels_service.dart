@@ -7,10 +7,9 @@ class PexelsService {
   final String apiKey =
       'Rp6TdzbMOsLxt45N8sNYdVuP9J6UxkV1u8bQyUj2OIDTl0aeJ4RQfZPN';
   final String baseUrl = 'https://api.pexels.com/v1/';
-   // final String baseUrl = 'https://api.pexels.com/videos/';
+  // final String baseUrl = 'https://api.pexels.com/videos/';
 
-
-Future<String> getRandomImageUrl() async {
+  Future<String> getRandomImageUrl() async {
     final prefs = await SharedPreferences.getInstance();
     final usedImages = prefs.getStringList('used_background_images') ?? [];
 
@@ -21,7 +20,7 @@ Future<String> getRandomImageUrl() async {
     do {
       final response = await http.get(
         Uri.parse(
-          '${baseUrl}search?query=nature+landscape&orientation=landscape&per_page=1&page=${_getRandomPage()}&size=large'),
+            '${baseUrl}search?query=nature+landscape&orientation=landscape&per_page=1&page=${_getRandomPage()}&size=large'),
         headers: {'Authorization': apiKey},
       );
 
@@ -33,13 +32,15 @@ Future<String> getRandomImageUrl() async {
         imageUrl = data['photos'][0]['src']['large2x'];
         attempts++;
       } else {
-        throw Exception('Failed to load image. Status code: ${response.statusCode}');
+        throw Exception(
+            'Failed to load image. Status code: ${response.statusCode}');
       }
     } while (usedImages.contains(imageUrl) && attempts < maxAttempts);
 
     if (!usedImages.contains(imageUrl)) {
       usedImages.add(imageUrl);
-      if (usedImages.length > 50) {  // Keep track of last 50 images
+      if (usedImages.length > 50) {
+        // Keep track of last 50 images
         usedImages.removeAt(0);
       }
       await prefs.setStringList('used_background_images', usedImages);
@@ -59,7 +60,7 @@ Future<String> getRandomImageUrl() async {
     do {
       final response = await http.get(
         Uri.parse(
-          '${baseUrl}search?query=abstract+landscape&orientation=landscape+illustrations&per_page=1&page=${_getRandomPage()}&size=large'),
+            '${baseUrl}search?query=abstract+landscape&orientation=landscape+illustrations&per_page=1&page=${_getRandomPage()}&size=large'),
         headers: {'Authorization': apiKey},
       );
 
@@ -71,13 +72,15 @@ Future<String> getRandomImageUrl() async {
         imageUrl = data['photos'][0]['src']['large2x'];
         attempts++;
       } else {
-        throw Exception('Failed to load image. Status code: ${response.statusCode}');
+        throw Exception(
+            'Failed to load image. Status code: ${response.statusCode}');
       }
     } while (usedImages.contains(imageUrl) && attempts < maxAttempts);
 
     if (!usedImages.contains(imageUrl)) {
       usedImages.add(imageUrl);
-      if (usedImages.length > 50) {  // Keep track of last 50 images
+      if (usedImages.length > 50) {
+        // Keep track of last 50 images
         usedImages.removeAt(0);
       }
       await prefs.setStringList('used_background_images', usedImages);
@@ -85,7 +88,6 @@ Future<String> getRandomImageUrl() async {
 
     return imageUrl;
   }
-
 
   // Future<String> getRandomVideoUrl() async {
   //   try {
@@ -101,7 +103,7 @@ Future<String> getRandomImageUrl() async {
   //         print('No vertical videos found');
   //         return '';
   //       }
-        
+
   //       final videoFiles = data['videos'][0]['video_files'];
   //       final hdVideo = videoFiles.firstWhere(
   //         (file) => file['quality'] == 'hd' && file['width'] < file['height'],
@@ -130,5 +132,4 @@ Future<String> getRandomImageUrl() async {
   int _getRandomPage() {
     return 1 + Random().nextInt(10);
   }
-  
 }
