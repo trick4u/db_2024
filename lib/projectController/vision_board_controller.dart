@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:awesome_notifications/awesome_notifications.dart';
@@ -16,6 +17,9 @@ import 'package:http/http.dart' as http;
 
 import '../services/toast_util.dart';
 import '../widgets/vision_bottom_sheet.dart';
+import 'dart:isolate';
+import 'package:flutter/foundation.dart';
+
 
 class VisionBoardController extends GetxController {
   final titleController = TextEditingController();
@@ -52,6 +56,7 @@ class VisionBoardController extends GetxController {
 
   final _canSave = false.obs;
   bool get canSave => _canSave.value;
+  final RxSet<String> _selectedImagePaths = <String>{}.obs;
 
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   User? currentUser = FirebaseAuth.instance.currentUser;
@@ -158,7 +163,6 @@ class VisionBoardController extends GetxController {
       ToastUtil.showToast(
         'Morning Notification Limit Reached',
         'You can only have 5 active morning notifications. Please cancel an existing morning notification to schedule a new one.',
-     
       );
       return;
     }
@@ -166,7 +170,6 @@ class VisionBoardController extends GetxController {
       ToastUtil.showToast(
         'Night Notification Limit Reached',
         'You can only have 5 active night notifications. Please cancel an existing night notification to schedule a new one.',
-     
       );
       return;
     }
@@ -265,7 +268,6 @@ class VisionBoardController extends GetxController {
     ToastUtil.showToast(
       'Notification Scheduled',
       'You will be reminded at ${scheduledTime.hour}:${scheduledTime.minute.toString().padLeft(2, '0')}',
-   
     );
   }
 
@@ -353,7 +355,6 @@ class VisionBoardController extends GetxController {
     ToastUtil.showToast(
       'Notification Cancelled',
       'The reminder for this item has been cancelled',
-   
     );
   }
 
@@ -380,6 +381,7 @@ class VisionBoardController extends GetxController {
     selectedImages.clear();
     selectedNetworkImages.clear();
     selectedDate.value = DateTime.now();
+    _initializeSelectedImagePaths();
     isEditing.value = false;
     editingItem.value = null;
     _originalTitle = null;
@@ -387,6 +389,8 @@ class VisionBoardController extends GetxController {
     _originalImageUrls = null;
     _checkForChanges();
     _imageHashes.clear();
+    _selectedImagePaths.clear();
+    onImagesChanged();
   }
 
   Future<String> computeImageHash(File image) async {
@@ -464,6 +468,7 @@ class VisionBoardController extends GetxController {
     _originalTitle = item.title.trim();
     _originalDate = item.date;
     _originalImageUrls = List<String>.from(item.imageUrls);
+    onImagesChanged();
     for (String url in item.imageUrls) {
       _imageHashes.add(url); // Use URL as a simple hash for network images
     }
@@ -511,6 +516,7 @@ class VisionBoardController extends GetxController {
       );
 
       await updateItem(updatedItem);
+      onImagesChanged();
 
       // Update the local state while maintaining the order
       int index =
@@ -521,12 +527,16 @@ class VisionBoardController extends GetxController {
       }
 
       Get.back();
-      ToastUtil.showToast('Success', 'Vision board item updated successfully',
-       );
+      ToastUtil.showToast(
+        'Success',
+        'Vision board item updated successfully',
+      );
     } catch (e) {
       print("Error updating item: $e");
-      ToastUtil.showToast('Error', 'Failed to update vision board item',
-         );
+      ToastUtil.showToast(
+        'Error',
+        'Failed to update vision board item',
+      );
     }
   }
 
@@ -544,19 +554,15 @@ class VisionBoardController extends GetxController {
 
   void removeNetworkImage(int index) {
     if (index >= 0 && index < selectedNetworkImages.length) {
-      String removedUrl = selectedNetworkImages.removeAt(index);
-      _imageHashes.remove(removedUrl);
-      _updateCanSave();
-      update();
+      selectedNetworkImages.removeAt(index);
+      onImagesChanged();
     }
   }
 
   void removeImage(int index) {
     if (index >= 0 && index < selectedImages.length) {
-      File removedImage = selectedImages.removeAt(index);
-      _imageHashes.remove(computeImageHash(removedImage));
-      _updateCanSave();
-      update();
+      selectedImages.removeAt(index);
+      onImagesChanged();
     }
   }
 
@@ -642,24 +648,153 @@ class VisionBoardController extends GetxController {
     isPickingImages.value = true;
     try {
       final ImagePicker picker = ImagePicker();
-      final List<XFile> images = await picker.pickMultiImage();
-      if (images.isNotEmpty) {
-        for (var image in images
-            .take(8 - selectedImages.length - selectedNetworkImages.length)) {
-          File compressedImage = await compressImage(File(image.path));
-          String imageHash = await computeImageHash(compressedImage);
+      final List<XFile> pickedImages = await picker.pickMultiImage();
 
-          if (!_imageHashes.contains(imageHash)) {
-            selectedImages.add(compressedImage);
-            _imageHashes.add(imageHash);
-          }
+      if (pickedImages.isNotEmpty) {
+        for (var image in pickedImages) {
+          File compressedImage = await compressImageInBackground(File(image.path),);
+          selectedImages.add(compressedImage);
         }
+
+        // Ensure uniqueness after adding all images
+        ensureUniqueImages();
+        onImagesChanged();
+
+        update();
       }
     } catch (e) {
       print('Error picking images: $e');
       ToastUtil.showToast('Error', 'Failed to pick images');
     } finally {
       isPickingImages.value = false;
+    }
+  }
+
+   Future<File> compressImageInBackground(File file) async {
+    final Completer<File> completer = Completer();
+    
+    final ReceivePort receivePort = ReceivePort();
+    await Isolate.spawn(_isolateCompress, {
+      'sendPort': receivePort.sendPort,
+      'path': file.path,
+    });
+
+    receivePort.listen((dynamic message) {
+      if (message is String) {
+        completer.complete(File(message));
+      } else {
+        completer.completeError('Compression failed');
+      }
+      receivePort.close();
+    });
+
+    return completer.future;
+  }
+
+static void _isolateCompress(Map<String, dynamic> message) {
+    String imagePath = message['path'];
+    SendPort sendPort = message['sendPort'];
+
+    try {
+      final File file = File(imagePath);
+      final img.Image? image = img.decodeImage(file.readAsBytesSync());
+      if (image == null) {
+        sendPort.send(imagePath); // If decoding fails, return original path
+        return;
+      }
+
+      final img.Image compressedImage = img.copyResize(image, width: 800);
+      final String dir = path.dirname(imagePath);
+      final String newPath = path.join(dir, 'compressed_${path.basename(imagePath)}');
+      final File result = File(newPath)
+        ..writeAsBytesSync(img.encodeJpg(compressedImage, quality: 70));
+      
+      sendPort.send(result.path);
+    } catch (e) {
+      print('Error in isolate: $e');
+      sendPort.send(imagePath); // If compression fails, return original path
+    }
+  }
+  void ensureUniqueImages() {
+    // Create a map to store unique images
+    Map<String, File> uniqueImages = {};
+
+    // Process selected images
+    for (var image in selectedImages) {
+      String baseName = path.basename(image.path);
+      uniqueImages[baseName] = image;
+    }
+
+    // Process network images
+    for (var networkImage in selectedNetworkImages) {
+      String baseName = path.basename(networkImage);
+      // If a network image with the same name exists, we keep it and remove any local duplicate
+      uniqueImages.remove(baseName);
+    }
+
+    // Update selectedImages with unique local images
+    selectedImages.value = uniqueImages.values.toList();
+
+    // Limit total images to 8
+    if (selectedImages.length + selectedNetworkImages.length > 8) {
+      int localImagesToKeep = 8 - selectedNetworkImages.length;
+      if (localImagesToKeep > 0) {
+        selectedImages.value = selectedImages.sublist(0, localImagesToKeep);
+      } else {
+        selectedImages.clear();
+      }
+    }
+
+    update();
+  }
+
+  void onImagesChanged() {
+    ensureUniqueImages();
+  }
+
+  Future<bool> isDuplicateImage(XFile image) async {
+    // Check if the image path is already in _selectedImagePaths
+    if (_selectedImagePaths.contains(image.path)) {
+      return true;
+    }
+
+    // Compare with existing selected images
+    for (var existingImage in selectedImages) {
+      if (await _areImagesIdentical(File(image.path), existingImage)) {
+        return true;
+      }
+    }
+
+    // Compare with network images (this is a basic check, might need improvement)
+    for (var networkImageUrl in selectedNetworkImages) {
+      if (path.basename(image.path) == path.basename(networkImageUrl)) {
+        return true;
+      }
+    }
+
+    return false;
+  }
+
+  Future<bool> _areImagesIdentical(File image1, File image2) async {
+    // This is a basic comparison using file size and last modified date
+    // For a more accurate comparison, consider using image hashing techniques
+    if (image1.lengthSync() != image2.lengthSync()) {
+      return false;
+    }
+
+    DateTime lastModified1 = await image1.lastModified();
+    DateTime lastModified2 = await image2.lastModified();
+
+    return lastModified1 == lastModified2;
+  }
+
+  void _initializeSelectedImagePaths() {
+    _selectedImagePaths.clear();
+    for (var image in selectedImages) {
+      _selectedImagePaths.add(image.path);
+    }
+    for (var imageUrl in selectedNetworkImages) {
+      _selectedImagePaths.add(imageUrl);
     }
   }
 
@@ -844,8 +979,10 @@ class VisionBoardController extends GetxController {
       print('Vision board item deleted: $itemId');
     } catch (e) {
       print('Error deleting vision board item: $e');
-      ToastUtil.showToast('Error', 'Failed to delete vision board item',
-         );
+      ToastUtil.showToast(
+        'Error',
+        'Failed to delete vision board item',
+      );
     }
   }
 
