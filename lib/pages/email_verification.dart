@@ -7,6 +7,7 @@ import '../controller/email_controller.dart';
 import '../services/toast_util.dart';
 
 class EmailVerificationPage extends StatelessWidget {
+  final RxBool isLoading = false.obs;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -17,21 +18,28 @@ class EmailVerificationPage extends StatelessWidget {
           children: [
             Text('Please verify your email address'),
             SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: () async {
-                User? user = FirebaseAuth.instance.currentUser;
-                if (user != null) {
-                  await user.reload();
-                  if (user.emailVerified) {
-                    Get.offAllNamed(AppRoutes.MAIN);
-                  } else {
-                    ToastUtil.showToast('Not Verified',
-                        'Please check your email and verify your account');
-                  }
-                }
-              },
-              child: Text('I have verified my email'),
-            ),
+            Obx(() => ElevatedButton(
+                  onPressed: isLoading.value
+                      ? null
+                      : () async {
+                          isLoading.value = true;
+                          User? user = FirebaseAuth.instance.currentUser;
+                          if (user != null) {
+                            await user.reload();
+                            user = FirebaseAuth.instance.currentUser;
+                            if (user != null && user.emailVerified) {
+                              Get.offAllNamed(AppRoutes.MAIN);
+                            } else {
+                              ToastUtil.showToast('Not Verified',
+                                  'Please check your email and verify your account');
+                            }
+                          }
+                          isLoading.value = false;
+                        },
+                  child: isLoading.value
+                      ? CircularProgressIndicator()
+                      : Text('I have verified my email'),
+                )),
             SizedBox(height: 20),
             TextButton(
               onPressed: () async {
@@ -50,3 +58,4 @@ class EmailVerificationPage extends StatelessWidget {
     );
   }
 }
+
