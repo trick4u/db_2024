@@ -13,7 +13,7 @@ import 'package:intl/intl.dart';
 import 'package:just_audio/just_audio.dart';
 
 import '../app_routes.dart';
-import '../models/goals_model.dart';
+
 import '../models/quick_event_model.dart';
 import '../models/reminder_model.dart';
 import '../projectPages/awesome_noti.dart';
@@ -43,7 +43,7 @@ class PageOneController extends GetxController {
   RxInt carouselPageIndex = 0.obs;
   final RxInt animationTrigger = 0.obs;
 
-  final RxList<GoalsModel> allGoals = RxList<GoalsModel>([]);
+ 
   RxList<ReminderModel> allReminders = <ReminderModel>[].obs;
   //rx status
   Rx<RxStatus> goalsStatus = RxStatus.loading().obs;
