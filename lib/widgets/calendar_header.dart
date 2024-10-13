@@ -53,7 +53,7 @@ class CustomCalendarHeader extends GetView<CalendarController> {
             icon: Icon(
               controller.calendarFormat == CalendarFormat.month
                   ? FontAwesomeIcons.calendarWeek
-                  : FontAwesomeIcons.calendarAlt,
+                  : FontAwesomeIcons.calendarDays,
               size: 20,
             ),
             onPressed: () {

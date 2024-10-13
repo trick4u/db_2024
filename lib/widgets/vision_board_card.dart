@@ -1,4 +1,4 @@
-import 'package:awesome_notifications/awesome_notifications.dart';
+
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 
@@ -8,20 +8,13 @@ import 'package:get/get.dart';
 
 import 'package:photo_view/photo_view.dart';
 import 'package:photo_view/photo_view_gallery.dart';
-import 'package:tushar_db/services/app_text_style.dart';
+
 
 import '../projectController/vision_board_controller.dart';
 import '../services/app_theme.dart';
 import '../services/scale_util.dart';
 
-import 'package:cached_network_image/cached_network_image.dart';
-import 'package:carousel_slider/carousel_slider.dart';
 
-import 'package:flutter/material.dart';
-import 'package:get/get.dart';
-
-import '../projectController/vision_board_controller.dart';
-import '../services/scale_util.dart';
 import 'package:timeago/timeago.dart' as timeago;
 
 class VisionBoardItemCard extends StatelessWidget {
@@ -30,7 +23,7 @@ class VisionBoardItemCard extends StatelessWidget {
   final RxInt _currentImageIndex = 0.obs;
 
   VisionBoardItemCard({required this.item, required this.onEdit});
-  final RxBool _isExpanded = false.obs;
+
 
   @override
   Widget build(BuildContext context) {

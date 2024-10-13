@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../app_routes.dart';
-import '../controller/email_controller.dart';
+
 import '../services/toast_util.dart';
 
 class EmailVerificationPage extends StatelessWidget {

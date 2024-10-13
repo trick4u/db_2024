@@ -1,16 +1,17 @@
-import 'dart:math';
+
 
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
-import 'package:tushar_db/app_routes.dart';
-import 'package:tushar_db/widgets/pomodoro.dart';
 
+
+
+import '../app_routes.dart';
 import '../projectController/page_one_controller.dart';
 import '../services/app_text_style.dart';
 import '../services/app_theme.dart';
 import '../services/scale_util.dart';
-import 'quick_bottomsheet.dart';
+
 
 
 class AllSixCards extends GetWidget<PageOneController> {

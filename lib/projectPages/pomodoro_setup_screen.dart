@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
-import 'package:tushar_db/services/app_text_style.dart';
+
 
 import '../projectController/pomodoro_controller.dart';
 import '../services/app_theme.dart';
 import '../services/scale_util.dart';
-import '../widgets/pomodoro.dart';
+
 
 class PomodoroSetupScreen extends GetWidget<PomodoroController> {
   final AppTheme appTheme = Get.find<AppTheme>();

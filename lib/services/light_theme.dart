@@ -55,7 +55,7 @@ class DarkTheme {
       bodyMedium: TextStyle(color: Colors.white70),
     ),
     colorScheme: ColorScheme(
-      background: Colors.black,
+     
       surface: Colors.black,
       onSurface: Colors.white,
       primary: Colors.red,

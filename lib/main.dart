@@ -1,37 +1,30 @@
-import 'dart:developer';
-import 'dart:io';
+
 
 import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter/widgets.dart';
+
 
 import 'package:get/get.dart';
-import 'package:get/route_manager.dart';
+
 import 'package:get_storage/get_storage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import 'package:timezone/data/latest_10y.dart';
-import 'package:tushar_db/controller/network_controller.dart';
-import 'package:tushar_db/controller/theme_controller.dart';
+
 import 'package:tushar_db/firebase_options.dart';
 import 'package:tushar_db/pages/splash_screen.dart';
-import 'package:tushar_db/projectPages/main_screen.dart';
-import 'package:tushar_db/services/auth_wrapper.dart';
+
 
 import 'app_routes.dart';
 import 'bindings/initial_binding.dart';
 
-import 'projectPages/awesome_noti.dart';
 
-import 'package:timezone/timezone.dart' as tz;
-import 'package:workmanager/workmanager.dart';
 
-import 'services/app_text_style.dart';
+
 import 'services/app_theme.dart';
 import 'services/auth_service.dart';
 

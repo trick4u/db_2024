@@ -1,19 +1,18 @@
 import 'package:animate_do/animate_do.dart';
-import 'package:dough/dough.dart';
 
-import 'package:firebase_auth/firebase_auth.dart';
+
+
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
+
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
 
 import 'package:tushar_db/services/scale_util.dart';
 
-import '../constants/colors.dart';
+
 import '../controller/main_screen_controller.dart';
 
 
-import '../controller/network_controller.dart';
 import '../services/app_theme.dart';
 
 class MainScreen extends GetWidget<MainScreenController> {
@@ -115,11 +114,5 @@ class MainScreen extends GetWidget<MainScreenController> {
     );
   }
 
-  void _updateStatusBarColor() {
-    SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
-      statusBarColor: Colors.transparent,
-      statusBarIconBrightness:
-          appTheme.isDarkMode ? Brightness.light : Brightness.dark,
-    ));
-  }
+
 }

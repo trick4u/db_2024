@@ -1,26 +1,24 @@
 import 'dart:io';
 
 import 'package:awesome_notifications/awesome_notifications.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/foundation.dart';
+
+
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+
 import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:tushar_db/constants/colors.dart';
+
 import 'package:tushar_db/projectController/calendar_controller.dart';
 import 'package:tushar_db/projectController/profile_controller.dart';
 import 'package:tushar_db/projectPages/statistics_screen.dart';
 
-import '../models/quick_event_model.dart';
+
 import '../projectController/page_one_controller.dart';
 
 import '../projectController/statistics_controller.dart';
-import '../projectPages/awesome_noti.dart';
-import '../projectPages/main_screen.dart';
+
 
 import '../projectPages/page_one.dart';
 
@@ -92,15 +90,7 @@ class MainScreenController extends GetxController
     }
   }
 
-  void _setupBackgroundChannel() {
-    platform.setMethodCallHandler((call) async {
-      if (call.method == 'triggerDailyNotification') {
-        // Ensure we're on the main thread
-        await _showNotificationOnMainThread();
-      }
-      return null;
-    });
-  }
+
 
   Future<void> checkAndScheduleNotification() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -152,10 +142,6 @@ class MainScreenController extends GetxController
     print("Daily notification scheduled for Android");
   }
 
-  Future<void> _showNotificationOnMainThread() async {
-    // Use compute to run the notification creation on a separate isolate
-    await compute(_isolateNotification, null);
-  }
 
   static Future<void> _isolateNotification(_) async {
     // Ensure we're on the main thread before creating the notification

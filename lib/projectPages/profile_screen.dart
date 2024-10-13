@@ -3,7 +3,7 @@ import 'package:dough/dough.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
-import 'package:tushar_db/app_routes.dart';
+
 import 'package:tushar_db/services/app_text_style.dart';
 import 'package:tushar_db/services/scale_util.dart';
 

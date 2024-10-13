@@ -3,8 +3,7 @@ import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import '../models/quick_event_model.dart';
 import '../services/toast_util.dart';
-import 'calendar_controller.dart';
-import 'dart:math' as math;
+
 
 import 'page_one_controller.dart';
 

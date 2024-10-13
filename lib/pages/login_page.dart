@@ -7,7 +7,7 @@ import 'package:tushar_db/app_routes.dart';
 import 'package:tushar_db/services/scale_util.dart';
 
 import '../controller/login_controller.dart';
-import '../controller/theme_controller.dart';
+
 import '../services/app_text_style.dart';
 import '../services/app_theme.dart';
 import '../services/toast_util.dart';

@@ -1,14 +1,14 @@
 import 'package:animate_do/animate_do.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:tushar_db/services/scale_util.dart';
 
 import '../models/note_model.dart';
 import '../projectController/note_taking_controller.dart';
-import '../projectPages/note_taking_screen.dart';
+
 import '../services/app_theme.dart';
 import 'note_bottom_sheet.dart';
 

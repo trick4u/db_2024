@@ -10,7 +10,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:omni_datetime_picker/omni_datetime_picker.dart';
+
 import 'package:path/path.dart' as path;
 import 'package:image/image.dart' as img;
 import 'package:http/http.dart' as http;
@@ -18,7 +18,7 @@ import 'package:http/http.dart' as http;
 import '../services/toast_util.dart';
 import '../widgets/vision_bottom_sheet.dart';
 import 'dart:isolate';
-import 'package:flutter/foundation.dart';
+
 
 class VisionBoardController extends GetxController {
   final titleController = TextEditingController();

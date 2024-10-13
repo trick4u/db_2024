@@ -2,7 +2,7 @@ import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
+
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:just_audio/just_audio.dart';
@@ -10,14 +10,14 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:table_calendar/table_calendar.dart';
 
 import '../models/quick_event_model.dart';
-import '../projectPages/page_two_calendar.dart';
+
 import '../services/pexels_service.dart';
 import '../services/toast_util.dart';
 import '../services/work_manager.dart';
 import '../widgets/event_bottomSheet.dart';
 import 'package:flutter/services.dart';
 
-import 'profile_controller.dart';
+
 
 class CalendarController extends GetxController {
   CalendarFormat calendarFormat = CalendarFormat.week;

@@ -4,10 +4,9 @@ import 'package:dough/dough.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_blurhash/flutter_blurhash.dart';
 import 'package:get/get.dart';
-import 'package:just_audio/just_audio.dart';
-import 'package:http/http.dart' as http;
+
 import 'package:tushar_db/services/scale_util.dart';
-import 'dart:convert';
+
 
 import '../projectController/pomodoro_controller.dart';
 import '../services/app_theme.dart';

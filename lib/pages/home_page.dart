@@ -1,17 +1,14 @@
-import 'dart:math';
+
 
 import 'package:dough/dough.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/scheduler.dart';
+
 import 'package:get/get.dart';
-import 'package:get/get_connect/http/src/utils/utils.dart';
-import 'package:get/get_state_manager/get_state_manager.dart';
-import 'package:google_fonts/google_fonts.dart';
-import 'package:tushar_db/services/app_text_style.dart';
+
 
 import '../app_routes.dart';
-import '../controller/home_controller.dart';
-import '../controller/theme_controller.dart';
+
+
 import '../services/app_theme.dart';
 import '../services/scale_util.dart';
 

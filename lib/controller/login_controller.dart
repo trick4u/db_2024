@@ -18,8 +18,7 @@ class LoginController extends GetxController {
   var isLoginButtonActive = false.obs;
   final TextEditingController passwordController = TextEditingController();
   var formKey = GlobalKey<FormState>();
-  final FirebaseAuth _auth = FirebaseAuth.instance;
-  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+
   RxBool isLoading = false.obs;
   @override
   void onInit() {

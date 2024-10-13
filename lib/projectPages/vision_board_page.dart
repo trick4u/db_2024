@@ -1,13 +1,13 @@
 import 'dart:ui';
 
 import 'package:animate_do/animate_do.dart';
-import 'package:carousel_slider/carousel_slider.dart';
+
 
 import 'package:dough/dough.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
-import 'package:omni_datetime_picker/omni_datetime_picker.dart';
+
 import 'package:tushar_db/services/app_text_style.dart';
 import 'package:tushar_db/services/app_theme.dart';
 

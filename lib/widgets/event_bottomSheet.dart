@@ -9,7 +9,7 @@ import 'package:time_picker_spinner_pop_up/time_picker_spinner_pop_up.dart';
 import 'package:tushar_db/services/scale_util.dart';
 
 import '../models/quick_event_model.dart';
-import '../projectController/calendar_controller.dart';
+
 import '../services/app_text_style.dart';
 import '../services/app_theme.dart';
 
@@ -369,33 +369,7 @@ class _EventBottomSheetState extends State<EventBottomSheet> {
     );
   }
 
-  Widget _buildSelectColorButton(BuildContext context, AppTheme appTheme) {
-    return Container(
-      decoration: BoxDecoration(
-        color: _selectedColor,
-        borderRadius: BorderRadius.circular(8),
-      ),
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
-          borderRadius: BorderRadius.circular(8),
-          onTap: () => showColorPickerDialog(context),
-          child: Padding(
-            padding: EdgeInsets.symmetric(vertical: 10, horizontal: 15),
-            child: Text(
-              'Color',
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                color: _selectedColor.computeLuminance() > 0.5
-                    ? Colors.black
-                    : Colors.white,
-              ),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
+
 
   void showColorPickerDialog(BuildContext context) {
     showDialog(

@@ -3,12 +3,12 @@ import 'package:dough/dough.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:google_fonts/google_fonts.dart';
+
 import 'package:intl/intl.dart';
-import 'package:tushar_db/constants/colors.dart';
+
 
 import '../projectController/statistics_controller.dart';
-import '../services/app_text_style.dart';
+
 import '../services/app_theme.dart';
 import '../services/scale_util.dart';
 

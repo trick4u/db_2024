@@ -5,14 +5,14 @@ import 'package:tushar_db/projectController/calendar_controller.dart';
 import 'package:tushar_db/projectController/profile_controller.dart';
 import 'package:tushar_db/projectController/statistics_controller.dart';
 
-import '../controller/home_controller.dart';
+
 import '../controller/main_screen_controller.dart';
 import '../controller/network_controller.dart';
 import '../controller/splash_controller.dart';
-import '../controller/work_manager_controller.dart';
+
 import '../projectController/page_one_controller.dart';
 import '../projectController/pomodoro_controller.dart';
-import '../services/scale_util.dart';
+
 
 class InitialBinding extends Bindings {
   @override

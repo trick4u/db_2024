@@ -2,10 +2,10 @@ import 'package:get/get.dart';
 import 'package:tushar_db/bindings/register_binding.dart';
 import 'package:tushar_db/pages/register_page.dart';
 import 'package:tushar_db/projectPages/vision_board_page.dart';
-import 'package:tushar_db/services/auth_service.dart';
+
 import 'package:tushar_db/services/auth_wrapper.dart';
 
-import 'bindings/email_binding.dart';
+
 import 'bindings/home_binding.dart';
 import 'bindings/login_binding.dart';
 import 'bindings/main_screen_binding.dart';

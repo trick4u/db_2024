@@ -10,7 +10,7 @@ import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import 'package:tushar_db/app_routes.dart';
-import 'package:tushar_db/constants/colors.dart';
+
 import 'package:tushar_db/services/app_text_style.dart';
 import 'package:tushar_db/services/scale_util.dart';
 import 'package:tushar_db/widgets/pomodoro.dart';

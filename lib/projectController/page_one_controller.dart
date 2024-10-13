@@ -1,5 +1,5 @@
 import 'dart:async';
-import 'dart:convert';
+
 import 'dart:math';
 
 import 'package:awesome_notifications/awesome_notifications.dart';
@@ -16,14 +16,14 @@ import '../app_routes.dart';
 
 import '../models/quick_event_model.dart';
 import '../models/reminder_model.dart';
-import '../projectPages/awesome_noti.dart';
+
 import '../services/app_theme.dart';
-import '../services/notification_service.dart';
+
 import '../services/toast_util.dart';
 import '../services/work_manager.dart';
 import '../widgets/quick_bottomsheet.dart';
 
-import 'package:http/http.dart' as http;
+
 
 
 import 'calendar_controller.dart';
@@ -38,7 +38,7 @@ class PageOneController extends GetxController {
   var repeat = false.obs;
   var text = "".obs;
 
-  final FirebaseAuth _auth = FirebaseAuth.instance;
+
 
   RxInt carouselPageIndex = 0.obs;
   final RxInt animationTrigger = 0.obs;
@@ -89,7 +89,7 @@ class PageOneController extends GetxController {
   late AudioPlayer audioPlayer;
   final Color startColor = Color(0xFF2196F3);
   final Color endColor = Color(0xFFF44336);
-  late Timer _colorTimer;
+ 
   var backgroundColor = Color(0xFF2196F3).obs;
 
   var isPlaying = false.obs;
@@ -820,7 +820,7 @@ class PageOneController extends GetxController {
 
   void updateAllReminders() {
     for (var reminder in allReminders) {
-      updateNextTriggerTime(reminder.id ?? "");
+      updateNextTriggerTime(reminder.id);
     }
   }
 

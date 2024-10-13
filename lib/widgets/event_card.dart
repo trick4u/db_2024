@@ -6,7 +6,7 @@ import 'package:intl/intl.dart';
 import 'package:tushar_db/projectController/calendar_controller.dart';
 
 import '../models/quick_event_model.dart';
-import '../projectPages/page_two_calendar.dart';
+
 import '../services/app_text_style.dart';
 import '../services/scale_util.dart';
 
@@ -307,17 +307,7 @@ class EventCard extends StatelessWidget {
     );
   }
 
-  bool _shouldShowNotificationIcon() {
-    if (event.isCompleted == true) return false;
 
-    if (event.lastNotificationDisplayed == null) {
-      return true;
-    }
-
-    // Show the icon if the last notification was displayed more than 5 minutes ago
-    return DateTime.now().difference(event.lastNotificationDisplayed!) >
-        Duration(minutes: 5);
-  }
 
   bool _shouldShowNotificationInfo() {
     if (event.isCompleted == true) return false;
@@ -334,32 +324,5 @@ class EventCard extends StatelessWidget {
     return scheduledDate.isAfter(DateTime.now());
   }
 
-  String _formatScheduledTime() {
-    if (event.reminderTime == null) return '';
 
-    DateTime scheduledDate = DateTime(
-      event.date.year,
-      event.date.month,
-      event.date.day,
-      event.reminderTime!.hour,
-      event.reminderTime!.minute,
-    );
-
-    final now = DateTime.now();
-
-    if (scheduledDate.year == now.year &&
-        scheduledDate.month == now.month &&
-        scheduledDate.day == now.day) {
-      // If the scheduled date is today, just show the time
-      return 'Today at ${DateFormat('h:mm a').format(scheduledDate)}';
-    } else if (scheduledDate.year == now.year &&
-        scheduledDate.month == now.month &&
-        scheduledDate.day == now.day + 1) {
-      // If the scheduled date is tomorrow, show "Tomorrow" and the time
-      return ' ${DateFormat('h:mm a').format(scheduledDate)}';
-    } else {
-      // Otherwise, show the full date and time
-      return DateFormat(' h:mm a').format(scheduledDate);
-    }
-  }
 }

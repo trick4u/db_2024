@@ -2,8 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 
-import '../app_routes.dart';
-import '../pages/home_page.dart';
+
 import '../projectPages/main_screen.dart';
 
 class SplashController extends GetxController

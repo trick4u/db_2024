@@ -1,14 +1,14 @@
-import 'dart:typed_data';
+
 
 import 'package:animate_do/animate_do.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
+
 import 'package:get/get.dart';
-import 'package:get/get_state_manager/get_state_manager.dart';
+
 import 'package:google_fonts/google_fonts.dart';
 import 'package:tushar_db/app_routes.dart';
 
-import '../controller/splash_controller.dart';
+
 import '../services/app_theme.dart';
 import '../services/scale_util.dart';
 
