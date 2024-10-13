@@ -25,38 +25,45 @@ class _SplashScreenState extends State<SplashScreen> {
   }
 
   _navigateToNextScreen() async {
-    await Future.delayed(Duration(seconds: 3)); // Adjust duration as needed
+    await Future.delayed(Duration(seconds: 3),); // Adjust duration as needed
     Get.offNamed(AppRoutes.AUTHWRAPPER);
   }
 
   @override
   Widget build(BuildContext context) {
+     final appTheme = Get.put(AppTheme());
+  appTheme.updateStatusBarColorSplash();
+
     return Scaffold(
       body: Container(
         decoration: BoxDecoration(
           gradient: LinearGradient(
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
-            colors: [Colors.blue, Colors.deepPurpleAccent],
+            colors: [const Color.fromARGB(255, 100, 176, 238), Colors.deepPurpleAccent],
           ),
         ),
         child: Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(
-                Icons.dashboard,
-                size: ScaleUtil.height(100),
-                color: Colors.white,
+              SlideInDown(
+                child: Icon(
+                  Icons.dashboard,
+                  size: ScaleUtil.height(100),
+                  color: Colors.white,
+                ),
               ),
               SizedBox(height: ScaleUtil.height(20)),
-              Text(
-                'doBoard',
-                style: TextStyle(
-                  fontFamily: GoogleFonts.pacifico().fontFamily,
-                  fontSize: 30,
-                  fontWeight: FontWeight.w500,
-                  color: Colors.white,
+              FadeIn(
+                child: Text(
+                  'doBoard',
+                  style: TextStyle(
+                    fontFamily: GoogleFonts.pacifico().fontFamily,
+                    fontSize: 30,
+                    fontWeight: FontWeight.w500,
+                    color: Colors.white,
+                  ),
                 ),
               ),
             ],

@@ -41,7 +41,16 @@ class AppTheme extends GetxController {
       statusBarIconBrightness: _isDarkMode.value ? Brightness.light : Brightness.dark,
       systemNavigationBarColor: _isDarkMode.value ? Colors.black : Colors.white,
       systemNavigationBarIconBrightness: _isDarkMode.value ? Brightness.light : Brightness.dark,
-    ));
+    ),);
+  }
+
+   void updateStatusBarColorSplash() {
+    SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
+      statusBarColor: Colors.transparent,
+      statusBarIconBrightness: _isDarkMode.value ? Brightness.light : Brightness.dark,
+      systemNavigationBarColor: Colors.transparent,
+      systemNavigationBarIconBrightness: _isDarkMode.value ? Brightness.light : Brightness.dark,
+    ),);
   }
 
   static const ColorScheme lightColorScheme = ColorScheme.light(

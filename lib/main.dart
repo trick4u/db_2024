@@ -102,6 +102,7 @@ void main() async {
         channelDescription: 'Notification channel for basic tests',
         defaultColor: const Color(0xFF9D50DD),
         ledColor: Colors.blue,
+        icon: 'resource://drawable/notification_icon',
       ),
       NotificationChannel(
         channelKey: 'quickschedule',
@@ -114,6 +115,7 @@ void main() async {
         enableVibration: true,
         playSound: true,
         criticalAlerts: true,
+        icon: 'resource://drawable/notification_icon',
       ),
       NotificationChannel(
         channelKey: 'event_reminders',
@@ -129,6 +131,7 @@ void main() async {
         // soundSource: soundSource,
         enableLights: true,
         enableVibration: true,
+        icon: 'resource://drawable/notification_icon',
       ),
       NotificationChannel(
         channelKey: 'vision_board_reminders',
@@ -145,6 +148,7 @@ void main() async {
         // soundSource: soundSource,
         enableLights: true,
         enableVibration: true,
+        icon: 'resource://drawable/notification_icon',
       ),
     ],
   );

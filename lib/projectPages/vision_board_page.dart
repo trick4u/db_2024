@@ -36,7 +36,7 @@ class VisionBoardPage extends GetWidget<VisionBoardController> {
                 _showAddItemSheet(context);
               },
               child: Text(
-                'Create your vision..',
+                'create your vision..',
                 style: AppTextTheme.textTheme.bodyMedium,
               ),
             ),
