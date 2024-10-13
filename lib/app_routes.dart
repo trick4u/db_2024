@@ -22,18 +22,18 @@ import 'projectBinding/add_taskBinding.dart';
 
 import 'projectBinding/note_taking_binding.dart';
 import 'projectBinding/statistics_binding.dart';
-import 'projectBinding/journal_binding.dart';
+
 import 'projectBinding/notes_binding.dart';
 import 'projectBinding/notification_binding.dart';
 import 'projectBinding/page_one_binding.dart';
 import 'projectBinding/profile_bindings.dart';
-import 'projectBinding/three_tasks_binding.dart';
+
 import 'projectBinding/vision_board_binding.dart';
 import 'projectController/journal_controller.dart';
 import 'projectPages/add_everyting.dart';
 import 'projectPages/add_task.dart';
 
-import 'projectPages/journalEntryScreen.dart';
+
 import 'projectPages/note_taking_screen.dart';
 import 'projectPages/statistics_screen.dart';
 
@@ -93,13 +93,7 @@ class AppRoutes {
   static const String JOURNALENTRYSCREEN = '/journalEntryScreen';
 
   static List<GetPage> routes = [
-    GetPage(
-      name: JOURNALENTRYSCREEN,
-      page: () => JournalEntryScreen(),
-      binding: BindingsBuilder(() {
-        Get.lazyPut<JournalController>(() => JournalController());
-      }),
-    ),
+ 
     GetPage(
         name: NOTIFICAION,
         page: () => DisplayedNotificationsScreen(),
@@ -188,12 +182,7 @@ class AppRoutes {
     //eat the frog
 
     //three tasksscreen
-    GetPage(
-      name: THREETASKSSCREEN,
-      page: () => CommentScreen(),
-      binding: ThreeTasksBinding(),
-      transition: Transition.cupertinoDialog,
-    ),
+
     // profile
     GetPage(
       name: PROFILE,

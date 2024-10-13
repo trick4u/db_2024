@@ -170,7 +170,7 @@ packages:
     source: hosted
     version: "1.18.0"
   connectivity_plus:
-    dependency: "direct main"
+    dependency: transitive
     description:
       name: connectivity_plus
       sha256: db7a4e143dc72cc3cb2044ef9b052a7ebfe729513e6a82943bc3526f784365b8
@@ -217,14 +217,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.7.10"
-  dots_indicator:
-    dependency: "direct main"
-    description:
-      name: dots_indicator
-      sha256: "58b6a365744aa62aa1b70c4ea29e5106fbe064f5edaf7e9652e9b856edbfd9bb"
-      url: "https://pub.dev"
-    source: hosted
-    version: "3.0.0"
   dough:
     dependency: "direct main"
     description:
@@ -446,14 +438,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.1.0"
-  flutter_floating_bottom_bar:
-    dependency: "direct main"
-    description:
-      name: flutter_floating_bottom_bar
-      sha256: "5aff247b2015837bd121b6c694fb30107ed5677cd74e3088f6a5a18e369bc0ec"
-      url: "https://pub.dev"
-    source: hosted
-    version: "1.2.1+1"
   flutter_launcher_icons:
     dependency: "direct dev"
     description:
@@ -470,14 +454,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.0.22"
-  flutter_rating_bar:
-    dependency: "direct main"
-    description:
-      name: flutter_rating_bar
-      sha256: d2af03469eac832c591a1eba47c91ecc871fe5708e69967073c043b2d775ed93
-      url: "https://pub.dev"
-    source: hosted
-    version: "4.0.1"
   flutter_slidable:
     dependency: "direct main"
     description:
@@ -486,14 +462,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "3.1.1"
-  flutter_spinkit:
-    dependency: "direct main"
-    description:
-      name: flutter_spinkit
-      sha256: d2696eed13732831414595b98863260e33e8882fc069ee80ec35d4ac9ddb0472
-      url: "https://pub.dev"
-    source: hosted
-    version: "5.2.1"
   flutter_test:
     dependency: "direct dev"
     description: flutter
@@ -536,14 +504,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.1.1"
-  glassmorphism_ui:
-    dependency: "direct main"
-    description:
-      name: glassmorphism_ui
-      sha256: "4a28b45fedb74c2b30e25495980394e3cf5b3634c74ec1ebedaef4d4c295f46f"
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.3.0"
   google_fonts:
     dependency: "direct main"
     description:
@@ -552,14 +512,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "6.2.1"
-  home_widget:
-    dependency: "direct main"
-    description:
-      name: home_widget
-      sha256: "2a0fdd6267ff975bd07bedf74686bd5577200f504f5de36527ac1b56bdbe68e3"
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.6.0"
   http:
     dependency: "direct main"
     description:
@@ -652,10 +604,10 @@ packages:
     dependency: "direct main"
     description:
       name: internet_connection_checker_plus
-      sha256: "45d33532937eb931a14fb1f885c4b0ade6332983ba98349920fca0a23751d7c9"
+      sha256: "95da3194bdb98cb606b921f0e0007cbe55c32d6a7fa92d5debe59ef4183ce2a6"
       url: "https://pub.dev"
     source: hosted
-    version: "2.4.2"
+    version: "2.5.2"
   intl:
     dependency: "direct main"
     description:

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:tushar_db/projectController/page_one_controller.dart';
+
+import '../projectController/page_one_controller.dart';
+
 
 class ChipWidgets extends StatelessWidget {
   final PageOneController pageOneController;

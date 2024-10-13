@@ -1,5 +1,5 @@
 import 'package:get/get.dart';
-import 'package:internet_connection_checker_plus/internet_connection_checker_plus.dart';
+
 import 'package:tushar_db/bindings/network_binding.dart';
 import 'package:tushar_db/projectController/calendar_controller.dart';
 import 'package:tushar_db/projectController/profile_controller.dart';
