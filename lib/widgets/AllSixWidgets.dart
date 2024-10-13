@@ -11,7 +11,7 @@ import '../services/app_text_style.dart';
 import '../services/app_theme.dart';
 import '../services/scale_util.dart';
 import 'quick_bottomsheet.dart';
-import 'quick_reminder_chips.dart';
+
 
 class AllSixCards extends GetWidget<PageOneController> {
   final double? height;

@@ -25,7 +25,7 @@ import '../widgets/quick_bottomsheet.dart';
 
 import 'package:http/http.dart' as http;
 
-import 'add_task_controller.dart';
+
 import 'calendar_controller.dart';
 
 class PageOneController extends GetxController {
@@ -612,47 +612,47 @@ class PageOneController extends GetxController {
 
   //get all goals
 
-  var chips = <ChipProperties>[
-    ChipProperties(
-        text: '15 min', fontColor: Colors.white, backgroundColor: Colors.grey),
-    ChipProperties(
-        text: '30 min', fontColor: Colors.white, backgroundColor: Colors.grey),
-    ChipProperties(
-        text: '1 hour', fontColor: Colors.white, backgroundColor: Colors.grey),
-  ].obs;
+  // var chips = <ChipProperties>[
+  //   ChipProperties(
+  //       text: '15 min', fontColor: Colors.white, backgroundColor: Colors.grey),
+  //   ChipProperties(
+  //       text: '30 min', fontColor: Colors.white, backgroundColor: Colors.grey),
+  //   ChipProperties(
+  //       text: '1 hour', fontColor: Colors.white, backgroundColor: Colors.grey),
+  // ].obs;
 
-  ChipProperties? originalChipProperties;
-  var selectedChipIndex = 0.obs;
-  var originalFontColor = Colors.white.obs;
-  MaterialColor originalBackgroundColor = Colors.blue;
+  // ChipProperties? originalChipProperties;
+  // var selectedChipIndex = 0.obs;
+  // var originalFontColor = Colors.white.obs;
+  // MaterialColor originalBackgroundColor = Colors.blue;
 
-  void updateChipColor(
-      int index, Color newFontColor, Color newBackgroundColor) {
-    if (index >= 0 && index < chips.length) {
-      if (selectedChipIndex.value == index) {
-        // Revert to original properties
-        chips[index].fontColor = originalFontColor.value;
-        chips[index].backgroundColor = originalBackgroundColor;
-        selectedChipIndex.value = -1; // Deselect the chip
-      } else {
-        if (selectedChipIndex.value != -1) {
-          // Revert previously selected chip to original properties
-          chips[selectedChipIndex.value].fontColor = originalFontColor.value;
-          chips[selectedChipIndex.value].backgroundColor =
-              originalBackgroundColor;
-        }
-        // Store the original properties of the new chip
-        originalFontColor.value = chips[index].fontColor!;
-        originalBackgroundColor = chips[index].backgroundColor as MaterialColor;
+  // void updateChipColor(
+  //     int index, Color newFontColor, Color newBackgroundColor) {
+  //   if (index >= 0 && index < chips.length) {
+  //     if (selectedChipIndex.value == index) {
+  //       // Revert to original properties
+  //       chips[index].fontColor = originalFontColor.value;
+  //       chips[index].backgroundColor = originalBackgroundColor;
+  //       selectedChipIndex.value = -1; // Deselect the chip
+  //     } else {
+  //       if (selectedChipIndex.value != -1) {
+  //         // Revert previously selected chip to original properties
+  //         chips[selectedChipIndex.value].fontColor = originalFontColor.value;
+  //         chips[selectedChipIndex.value].backgroundColor =
+  //             originalBackgroundColor;
+  //       }
+  //       // Store the original properties of the new chip
+  //       originalFontColor.value = chips[index].fontColor!;
+  //       originalBackgroundColor = chips[index].backgroundColor as MaterialColor;
 
-        // Update to new properties
-        chips[index].fontColor = newFontColor;
-        chips[index].backgroundColor = newBackgroundColor;
-        selectedChipIndex.value = index; // Select the new chip
-      }
-      chips.refresh(); // Notify listeners
-    }
-  }
+  //       // Update to new properties
+  //       chips[index].fontColor = newFontColor;
+  //       chips[index].backgroundColor = newBackgroundColor;
+  //       selectedChipIndex.value = index; // Select the new chip
+  //     }
+  //     chips.refresh(); // Notify listeners
+  //   }
+  // }
 
   Future<void> updateNextTriggerTime(String reminderId) async {
     try {

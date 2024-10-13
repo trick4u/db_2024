@@ -20,7 +20,6 @@ import '../widgets/vision_bottom_sheet.dart';
 import 'dart:isolate';
 import 'package:flutter/foundation.dart';
 
-
 class VisionBoardController extends GetxController {
   final titleController = TextEditingController();
   final selectedDate = DateTime.now().obs;
@@ -572,7 +571,7 @@ class VisionBoardController extends GetxController {
     update();
   }
 
-  void fetchVisionBoardItems() {
+   void fetchVisionBoardItems() {
     if (currentUser == null) return;
 
     isLoading.value = true;
@@ -581,23 +580,29 @@ class VisionBoardController extends GetxController {
         .snapshots()
         .listen((querySnapshot) {
       List<VisionBoardItem> allItems = [];
+      Set<String> itemIds = Set<String>(); // To keep track of unique items
 
       for (var doc in querySnapshot.docs) {
         VisionBoardItem item = VisionBoardItem.fromFirestore(doc);
-        allItems.add(item);
-        _notificationActiveStates[item.id] = item.hasNotification;
-        if (!_expandedStates.containsKey(item.id)) {
-          _expandedStates[item.id] = false;
-        }
+        
+        // Check if the item is already in the list
+        if (!itemIds.contains(item.id)) {
+          allItems.add(item);
+          itemIds.add(item.id);
+          _notificationActiveStates[item.id] = item.hasNotification;
+          if (!_expandedStates.containsKey(item.id)) {
+            _expandedStates[item.id] = false;
+          }
 
-        // Schedule state update for future notifications
-        if (item.hasNotification && item.scheduledNotificationTime != null) {
-          if (item.scheduledNotificationTime!.isAfter(DateTime.now())) {
-            _scheduleNotificationStateUpdate(
-                item.id, item.scheduledNotificationTime!);
-          } else {
-            // If the scheduled time has passed, update the state immediately
-            _updateNotificationStateAfterFiring(item.id);
+          // Schedule state update for future notifications
+          if (item.hasNotification && item.scheduledNotificationTime != null) {
+            if (item.scheduledNotificationTime!.isAfter(DateTime.now())) {
+              _scheduleNotificationStateUpdate(
+                  item.id, item.scheduledNotificationTime!);
+            } else {
+              // If the scheduled time has passed, update the state immediately
+              _updateNotificationStateAfterFiring(item.id);
+            }
           }
         }
       }
@@ -614,6 +619,7 @@ class VisionBoardController extends GetxController {
     _updateNotificationIcons();
   }
 
+
   void _updateNotificationIcons() {
     for (var item in visionBoardItems) {
       bool canNotify = canScheduleAnyNotification() || item.hasNotification;
@@ -622,7 +628,7 @@ class VisionBoardController extends GetxController {
     update();
   }
 
- Future<void> saveNewItem() async {
+  Future<void> saveNewItem() async {
     final user = FirebaseAuth.instance.currentUser;
     if (user == null) {
       throw Exception('You must be logged in to save a vision board item');
@@ -631,15 +637,14 @@ class VisionBoardController extends GetxController {
 
     try {
       // Compress images in parallel
-      List<Future<File>> compressionFutures = selectedImages.map((image) => 
-        compressImageInBackground(image)
-      ).toList();
+      List<Future<File>> compressionFutures = selectedImages
+          .map((image) => compressImageInBackground(image))
+          .toList();
       List<File> compressedImages = await Future.wait(compressionFutures);
 
       // Upload images in parallel
-      List<Future<String>> uploadFutures = compressedImages.map((image) => 
-        uploadSingleImage(image)
-      ).toList();
+      List<Future<String>> uploadFutures =
+          compressedImages.map((image) => uploadSingleImage(image)).toList();
       List<String> imageUrls = await Future.wait(uploadFutures);
 
       // Filter out any failed uploads
@@ -648,7 +653,8 @@ class VisionBoardController extends GetxController {
       // Save to Firestore
       await saveToFirestore(imageUrls, user.uid);
 
-      ToastUtil.showToast('Success', 'New vision board item added successfully');
+      ToastUtil.showToast(
+          'Success', 'New vision board item added successfully');
     } catch (e) {
       print('Error saving new item: $e');
       ToastUtil.showToast('Error', 'Failed to save vision board item');
@@ -656,7 +662,6 @@ class VisionBoardController extends GetxController {
       isSaving.value = false;
     }
   }
-
 
   void loadMoreItems() {
     if (isLoadingMore.value || !hasMoreItems) return;
@@ -679,7 +684,9 @@ class VisionBoardController extends GetxController {
 
       if (pickedImages.isNotEmpty) {
         for (var image in pickedImages) {
-          File compressedImage = await compressImageInBackground(File(image.path),);
+          File compressedImage = await compressImageInBackground(
+            File(image.path),
+          );
           selectedImages.add(compressedImage);
         }
 
@@ -697,9 +704,9 @@ class VisionBoardController extends GetxController {
     }
   }
 
-   Future<File> compressImageInBackground(File file) async {
+  Future<File> compressImageInBackground(File file) async {
     final Completer<File> completer = Completer();
-    
+
     final ReceivePort receivePort = ReceivePort();
     await Isolate.spawn(_isolateCompress, {
       'sendPort': receivePort.sendPort,
@@ -718,7 +725,7 @@ class VisionBoardController extends GetxController {
     return completer.future;
   }
 
-static void _isolateCompress(Map<String, dynamic> message) {
+  static void _isolateCompress(Map<String, dynamic> message) {
     String imagePath = message['path'];
     SendPort sendPort = message['sendPort'];
 
@@ -732,16 +739,18 @@ static void _isolateCompress(Map<String, dynamic> message) {
 
       final img.Image compressedImage = img.copyResize(image, width: 800);
       final String dir = path.dirname(imagePath);
-      final String newPath = path.join(dir, 'compressed_${path.basename(imagePath)}');
+      final String newPath =
+          path.join(dir, 'compressed_${path.basename(imagePath)}');
       final File result = File(newPath)
         ..writeAsBytesSync(img.encodeJpg(compressedImage, quality: 70));
-      
+
       sendPort.send(result.path);
     } catch (e) {
       print('Error in isolate: $e');
       sendPort.send(imagePath); // If compression fails, return original path
     }
   }
+
   void ensureUniqueImages() {
     // Create a map to store unique images
     Map<String, File> uniqueImages = {};
@@ -899,16 +908,17 @@ static void _isolateCompress(Map<String, dynamic> message) {
     return updatedImageUrls;
   }
 
-Future<String> uploadSingleImage(File image) async {
+  Future<String> uploadSingleImage(File image) async {
     final user = FirebaseAuth.instance.currentUser;
     if (user == null) return '';
 
     try {
-      final String fileName = '${DateTime.now().millisecondsSinceEpoch}_${path.basename(image.path)}';
+      final String fileName =
+          '${DateTime.now().millisecondsSinceEpoch}_${path.basename(image.path)}';
       final Reference ref = FirebaseStorage.instance
           .ref()
           .child('users/${user.uid}/vision_board_images/$fileName');
-      
+
       final UploadTask uploadTask = ref.putFile(image);
       final TaskSnapshot snapshot = await uploadTask;
       final String downloadUrl = await snapshot.ref.getDownloadURL();
@@ -919,7 +929,6 @@ Future<String> uploadSingleImage(File image) async {
       return '';
     }
   }
-
 
   Future<List<String>> uploadImages() async {
     final List<String> imageUrls = [];
@@ -957,7 +966,7 @@ Future<String> uploadSingleImage(File image) async {
     }
   }
 
-  Future<void> saveToFirestore(List<String> imageUrls, String userId) async {
+    Future<void> saveToFirestore(List<String> imageUrls, String userId) async {
     final newItem = VisionBoardItem(
       id: '',
       title: titleController.text.trim(),
@@ -980,16 +989,11 @@ Future<String> uploadSingleImage(File image) async {
     // Commit the batch
     await batch.commit();
 
-    newItem.id = docRef.id;
-
-    // Update local state
-    visionBoardItems.add(newItem);
-    _updateDisplayedItems();
-
     // Clear the form
     resetForm();
-  }
 
+    // The new item will be added by the Firestore listener
+  }
 
   Future<void> deleteItem(String itemId) async {
     if (currentUser == null) return;

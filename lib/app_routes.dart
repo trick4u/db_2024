@@ -17,8 +17,8 @@ import 'pages/email_verification.dart';
 import 'pages/home_page.dart';
 import 'pages/login_page.dart';
 import 'pages/network_screen.dart';
-import 'projectBinding/add_everything_binding.dart';
-import 'projectBinding/add_taskBinding.dart';
+
+
 
 import 'projectBinding/note_taking_binding.dart';
 import 'projectBinding/statistics_binding.dart';
@@ -30,8 +30,8 @@ import 'projectBinding/profile_bindings.dart';
 
 import 'projectBinding/vision_board_binding.dart';
 
-import 'projectPages/add_everyting.dart';
-import 'projectPages/add_task.dart';
+
+
 
 
 import 'projectPages/note_taking_screen.dart';
@@ -125,11 +125,7 @@ class AppRoutes {
       transition: Transition.noTransition,
     ),
    
-    GetPage(
-      name: ADDEVERYTHING,
-      page: () => AddEveryting(),
-      binding: AddEverythingBinding(),
-    ),
+  
 
     GetPage(
       name: PAGEONE,
@@ -174,11 +170,7 @@ class AppRoutes {
        transition: Transition.noTransition,
     ),
 
-    GetPage(
-      name: ADDTASK,
-      page: () => AddTaskScreen(),
-      binding: AddTaskbinding(),
-    ),
+
     //eat the frog
 
     //three tasksscreen
