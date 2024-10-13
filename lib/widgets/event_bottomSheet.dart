@@ -82,6 +82,8 @@ class _EventBottomSheetState extends State<EventBottomSheet> {
     super.dispose();
   }
 
+
+
   void _updateTitleState() {
     setState(() {
       _isTitleEmpty = _titleController.text.isEmpty;

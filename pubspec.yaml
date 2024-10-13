@@ -112,9 +112,9 @@ dev_dependencies:
 flutter_launcher_icons:
   android: true
   ios: true
-  image_path: "assets/doboard5.png"
+  image_path: "assets/doboard6.png"
   adaptive_icon_background: "#FFFFFF" # White background, you can change this color
-  adaptive_icon_foreground: "assets/doboard5.png" # Using the same image for foreground
+  adaptive_icon_foreground: "assets/doboard6.png" # Using the same image for foreground
 
   
   min_sdk_android: 21 
@@ -144,8 +144,8 @@ flutter:
   assets:
     - assets/success.mp3
     - assets/dbIcon.png
-    - assets/doboard1.png
-    - assets/doboard5.png
+  
+    - assets/doboard6.png
     
   #   - images/a_dot_burr.jpeg
   #   - images/a_dot_ham.jpeg

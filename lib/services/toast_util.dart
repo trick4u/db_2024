@@ -17,7 +17,6 @@ class ToastUtil {
       backgroundColor: backgroundColor ?? Colors.grey,
       textColor: textColor ?? Colors.white,
       fontSize: 16.0,
-      
     );
   }
 }

@@ -22,6 +22,7 @@ class DisplayedNotificationsScreen
           return Center(child: Text('No notifications'));
         } else {
           return ListView.builder(
+            
             shrinkWrap: true,
             physics: NeverScrollableScrollPhysics(),
             itemCount: controller.notifications.length,
