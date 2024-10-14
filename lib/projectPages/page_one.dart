@@ -103,45 +103,47 @@ class PageOneScreen extends GetWidget<PageOneController> {
                           await _showQuoteDialog(context);
                           controller.toggleGradientDirection();
                         },
-                        child: Row(
-                          children: [
-                            Icon(FontAwesomeIcons.handPeace, size: 25),
-                            SizedBox(width: 8),
-                            Obx(
-                              () => _hasAnimated.value
-                                  ? Text(
-                                      'goalKeep',
-                                      style: TextStyle(
-                                        fontFamily:
-                                            GoogleFonts.pacifico().fontFamily,
-                                        fontSize: 30,
-                                        fontWeight: FontWeight.w300,
+                        child: RepaintBoundary(
+                          child: Row(
+                            children: [
+                              Icon(FontAwesomeIcons.handPeace, size: 25),
+                              SizedBox(width: 8),
+                              Obx(
+                                () => _hasAnimated.value
+                                    ? Text(
+                                        'goalKeep',
+                                        style: TextStyle(
+                                          fontFamily:
+                                              GoogleFonts.pacifico().fontFamily,
+                                          fontSize: 30,
+                                          fontWeight: FontWeight.w300,
+                                        ),
+                                      )
+                                    : AnimatedBouncingText(
+                                        text: 'goalKeep',
+                                        textStyle: TextStyle(
+                                          fontFamily:
+                                              GoogleFonts.pacifico().fontFamily,
+                                          fontSize: 30,
+                                          fontWeight: FontWeight.w300,
+                                        ),
+                                        onEnd: () {
+                                          _hasAnimated.value = true;
+                                        },
                                       ),
-                                    )
-                                  : AnimatedBouncingText(
-                                      text: 'goalKeep',
-                                      textStyle: TextStyle(
-                                        fontFamily:
-                                            GoogleFonts.pacifico().fontFamily,
-                                        fontSize: 30,
-                                        fontWeight: FontWeight.w300,
-                                      ),
-                                      onEnd: () {
-                                        _hasAnimated.value = true;
-                                      },
-                                    ),
-                            ),
-                            SizedBox(
-                              width: 50,
-                            ),
-                            GestureDetector(
-                              onTap: () {
-                                Get.toNamed(AppRoutes.NOTIFICAION);
-                              },
-                              child: Text("Noti",
-                                  style: AppTextTheme.textTheme.bodySmall),
-                            ),
-                          ],
+                              ),
+                              SizedBox(
+                                width: 50,
+                              ),
+                              GestureDetector(
+                                onTap: () {
+                                  Get.toNamed(AppRoutes.NOTIFICAION);
+                                },
+                                child: Text("Noti",
+                                    style: AppTextTheme.textTheme.bodySmall),
+                              ),
+                            ],
+                          ),
                         ),
                       ),
                     ),

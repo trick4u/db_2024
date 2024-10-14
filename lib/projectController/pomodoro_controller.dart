@@ -61,6 +61,9 @@ class PomodoroController extends GetxController with WidgetsBindingObserver {
   RxBool isSessionActive = false.obs;
   RxBool isBreakActive = false.obs;
 
+  RxInt trackSwitchCount = 0.obs;
+  final int requiredSwitchesBeforeGenreChange = 5;
+
   @override
   void onInit() {
     super.onInit();
@@ -272,15 +275,23 @@ class PomodoroController extends GetxController with WidgetsBindingObserver {
     isBreakTime.value = false;
     currentSession.value = 1;
   }
-
-  void switchGenre() {
+ void switchGenre() {
     if (isBreakTime.value) return; // Prevent switching genre during break
 
-    int nextGenreIndex = (availableGenres.indexOf(currentGenre.value) + 1) %
-        availableGenres.length;
-    currentGenre.value = availableGenres[nextGenreIndex];
-    fetchTracks();
+    if (trackSwitchCount.value < requiredSwitchesBeforeGenreChange) {
+      // Switch track within the same genre
+      switchTrack();
+      trackSwitchCount.value++;
+    } else {
+      // Switch to a new genre
+      int nextGenreIndex = (availableGenres.indexOf(currentGenre.value) + 1) %
+          availableGenres.length;
+      currentGenre.value = availableGenres[nextGenreIndex];
+      fetchTracks();
+      trackSwitchCount.value = 0; // Reset the track switch count
+    }
   }
+
 
   void switchTrack() {
     if (tracks.isEmpty) return;
