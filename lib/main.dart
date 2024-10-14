@@ -1,140 +1,171 @@
-import 'dart:developer';
+
 
 import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_core/firebase_core.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
-import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'package:flutter_native_timezone_updated_gradle/flutter_native_timezone.dart';
-import 'package:get/get.dart';
-import 'package:get/route_manager.dart';
-import 'package:get_storage/get_storage.dart';
 
-import 'package:timezone/data/latest_10y.dart';
-import 'package:tushar_db/controller/network_controller.dart';
-import 'package:tushar_db/controller/theme_controller.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+
+
+import 'package:get/get.dart';
+
+import 'package:get_storage/get_storage.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+
 import 'package:tushar_db/firebase_options.dart';
 import 'package:tushar_db/pages/splash_screen.dart';
-import 'package:tushar_db/projectPages/main_screen.dart';
-import 'package:tushar_db/theme.dart';
+
 
 import 'app_routes.dart';
 import 'bindings/initial_binding.dart';
-import 'controller/home_controller.dart';
-import 'controller/work_manager_controller.dart';
-import 'loading_screen.dart';
-import 'pages/home_page.dart';
-import 'projectPages/awesome_noti.dart';
-import 'projectPages/page_three.dart';
-import 'package:timezone/timezone.dart' as tz;
-import 'package:workmanager/workmanager.dart';
+
+
+
+
+import 'services/app_theme.dart';
+import 'services/auth_service.dart';
 
 import 'services/notification_service.dart';
+import 'services/notification_tracking_service.dart';
 
-FlutterLocalNotificationsPlugin notificationsPlugin =
-    FlutterLocalNotificationsPlugin();
+import 'services/scale_util.dart';
+import 'services/work_manager.dart';
 
-// void callbackDispatcher() {
-//   print('Periodic notification callback fired!');
-
-//   Workmanager().executeTask((task, inputData) async {
-//     AwesomeNotifications().createNotification(
-//         content: NotificationContent(
-//           id: 10,
-//           channelKey: 'basic_channel',
-//           title: 'Periodic Reminder',
-//           body: 'This is your reminder notification! okay',
-//         ),
-//         schedule: NotificationInterval(
-//             interval: 5 * 60, // 15 minutes in seconds
-//             timeZone: await AwesomeNotifications().getLocalTimeZoneIdentifier(),
-//             repeats: true));
-//     return Future.value(true);
-//   });
-
-// }
 void callbackDispatcher() {
-  Workmanager().executeTask((task, inputData) async {
-    NotificationController().fetchAndDisplayQuote();
-    return Future.value(true);
-  });
+  // Workmanager().executeTask((task, inputData) async {
+  //   if (task == 'fetchAndDisplayQuote') {
+  //     final now = DateTime.now();
+  //     final scheduledHour = inputData?['hour'] as int? ?? 9;
+  //     final scheduledMinute = inputData?['minute'] as int? ?? 30;
+
+  //     if (now.hour == scheduledHour && now.minute == scheduledMinute) {
+  //       final controller = Get.put(NotificationController());
+  //       await controller.fetchAndDisplayQuote();
+  //     }
+  //   }
+  //   return Future.value(true);
+  // });
 }
 
 void main() async {
-  await GetStorage.init();
+  if (kDebugMode) {
+    FlutterError.onError = (FlutterErrorDetails details) {
+      if (!details.toString().contains('awesome_notifications')) {
+        FlutterError.presentError(details);
+      }
+    };
+  }
 
   WidgetsFlutterBinding.ensureInitialized();
+  await SystemChrome.setPreferredOrientations([
+    DeviceOrientation.portraitUp,
+    DeviceOrientation.portraitDown,
+  ]);
+  await SharedPreferences.getInstance();
+
+  // Initialize NotificationService
+
+  await GetStorage.init();
+
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  await WorkmanagerNotificationService.initialize();
+  await BootReceiver.initialize();
+  FirebaseFirestore.instance.settings = Settings(persistenceEnabled: true);
 
-  await initializeTimeZone();
-  Workmanager().initialize(callbackDispatcher, isInDebugMode: false);
-  // Workmanager().registerPeriodicTask(
-  //   "1",
-  //   "simplePeriodicTask",
-  //   frequency: Duration(minutes: 15),
-  //   inputData: {"data": "TusharPeriodicTask"},
-  // );
+  Get.put(AuthService());
+  final appTheme = Get.put(AppTheme());
+  appTheme.updateStatusBarColor();
 
-  // await Workmanager().registerOneOffTask(
-  //   "2",
-  //   "simpleOneOffTask",
-  //   initialDelay: Duration(minutes: 1),
-  //   inputData: {"data": "TusharOneOffTask"},
-  // );
-
-  // print('Registered all tasks!');
+  // if (Platform.isAndroid) {
+  //   await Workmanager().initialize(callbackDispatcher, isInDebugMode: true);
+  // }
+  // String soundSource =
+  //     Platform.isIOS ? 'success.wav' : 'resource://raw/notification_sound';
+  print('WorkManager initialized!');
 
   await AwesomeNotifications().initialize(
-      null,
-      [
-        NotificationChannel(
-            channelKey: 'basic_channel',
-            channelName: 'Basic notifications',
-            channelDescription: 'Notification channel for basic tests',
-            defaultColor: const Color(0xFF9D50DD),
-            ledColor: Colors.blue),
-        NotificationChannel(
-          channelKey: 'quote_channel',
-          channelName: 'Daily Quote Notifications',
-          channelDescription:
-              'Notification channel for daily motivational quotes',
-          defaultColor: Color(0xFF9D50DD),
-          ledColor: Colors.white,
-          importance: NotificationImportance.High,
-          channelShowBadge: true,
-        ),
-        NotificationChannel(
-          channelKey: 'quickschedule',
-          channelName: 'Reminder Notifications',
-          channelDescription:
-              'Notification channel for daily motivational quotes',
-          defaultColor: Color(0xFF9D50DD),
-          ledColor: Colors.white,
-          importance: NotificationImportance.Low,
-          channelShowBadge: true,
-        ),
-      ],
-      debug: true);
+    null,
+    [
+      NotificationChannel(
+        channelKey: 'basic_channel',
+        channelName: 'Basic notifications',
+        channelDescription: 'Notification channel for basic tests',
+        defaultColor: const Color(0xFF9D50DD),
+        ledColor: Colors.blue,
+        icon: 'resource://drawable/notification_icon',
+      ),
+      NotificationChannel(
+        channelKey: 'quickschedule',
+        channelName: 'Reminder Notifications',
+        channelDescription: 'Notification channel for reminders and events',
+        defaultColor: Color(0xFF9D50DD),
+        ledColor: Colors.white,
+        importance: NotificationImportance.High,
+        enableLights: true,
+        enableVibration: true,
+        playSound: true,
+        criticalAlerts: true,
+        icon: 'resource://drawable/notification_icon',
+      ),
+      NotificationChannel(
+        channelKey: 'event_reminders',
+        channelName: 'Reminder Notifications',
+        channelDescription:
+            'Notification channel for daily motivational quotes',
+        defaultColor: Color(0xFF9D50DD),
+        ledColor: Colors.white,
+        importance: NotificationImportance.Max,
+        defaultRingtoneType: DefaultRingtoneType.Notification,
+        // channelShowBadge: false,
+        playSound: true,
+        // soundSource: soundSource,
+        enableLights: true,
+        enableVibration: true,
+        icon: 'resource://drawable/notification_icon',
+      ),
+      NotificationChannel(
+        channelKey: 'vision_board_reminders',
+        channelName: 'Vision Board Reminders',
+        channelDescription:
+            'Notification channel for vision board item reminders',
+        defaultColor: Color(0xFF9D50DD),
+        ledColor: Colors.purple,
+        importance: NotificationImportance.Max,
+        defaultPrivacy: NotificationPrivacy.Public,
+        defaultRingtoneType: DefaultRingtoneType.Notification,
+        // channelShowBadge: true,
+        playSound: true,
+        // soundSource: soundSource,
+        enableLights: true,
+        enableVibration: true,
+        icon: 'resource://drawable/notification_icon',
+      ),
+    ],
+  );
 
-  AndroidInitializationSettings androidSettings =
-      AndroidInitializationSettings("@mipmap/ic_launcher");
+  // Initialize NotificationTrackingService
+  await Get.putAsync(() => NotificationTrackingService().init());
 
-  DarwinInitializationSettings iosSettings = DarwinInitializationSettings(
-      requestAlertPermission: true,
-      requestBadgePermission: true,
-      requestCriticalPermission: true,
-      requestSoundPermission: true);
+  // AndroidInitializationSettings androidSettings =
+  //     AndroidInitializationSettings("@mipmap/ic_launcher");
 
-  InitializationSettings initializationSettings =
-      InitializationSettings(android: androidSettings, iOS: iosSettings);
+  // DarwinInitializationSettings iosSettings = DarwinInitializationSettings(
+  //     requestAlertPermission: true,
+  //     requestBadgePermission: true,
+  //     requestCriticalPermission: true,
+  //     requestSoundPermission: true);
 
-  bool? initialized = await notificationsPlugin.initialize(
-      initializationSettings, onDidReceiveNotificationResponse: (response) {
-    log(response.payload.toString());
-  });
+  // InitializationSettings initializationSettings =
+  //     InitializationSettings(android: androidSettings, iOS: iosSettings);
 
-  log("Notifications: $initialized");
+  // bool? initialized = await notificationsPlugin.initialize(
+  //     initializationSettings, onDidReceiveNotificationResponse: (response) {
+  //   log(response.payload.toString());
+  // });
+
   AwesomeNotifications().setListeners(
     onActionReceivedMethod: NotificationService.onActionReceivedMethod,
     onNotificationCreatedMethod:
@@ -152,17 +183,9 @@ void main() async {
       print('Notification Allowed');
     }
   });
+  AwesomeNotifications().setGlobalBadgeCounter(0);
 
   runApp(const MyApp());
-}
-
-Future<void> initializeTimeZone() async {
-  // Initialize the timezone data
-  initializeTimeZones();
-  // Get the device's current timezone
-  String timeZoneName = await FlutterNativeTimezone.getLocalTimezone();
-  // Set the local timezone
-  tz.setLocalLocation(tz.getLocation(timeZoneName));
 }
 
 class MyApp extends StatelessWidget {
@@ -170,19 +193,27 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final HomeController homeController = Get.put(HomeController());
-    final ThemeController themeController = Get.put(ThemeController());
+    final appTheme = Get.find<AppTheme>();
 
     return Obx(() => GetMaterialApp(
           title: 'DoBoard Demo',
           debugShowCheckedModeBanner: false,
-          darkTheme: ThemeData.dark(),
-          theme: ThemeData.light(),
-           themeMode: themeController.isDarkMode.value ? ThemeMode.dark : ThemeMode.light,
+          theme: appTheme.themeData,
+          darkTheme: appTheme.themeData,
+          themeMode: appTheme.isDarkMode ? ThemeMode.dark : ThemeMode.light,
           initialBinding: InitialBinding(),
-          initialRoute: AppRoutes.HOME,
-          getPages: AppRoutes.routes,
-          // home: MyHomePage(),
+          home: SplashScreen(), // Change this line
+          getPages: [
+            ...AppRoutes.routes,
+          ],
+          builder: (context, child) {
+            ScaleUtil.init(context);
+            return MediaQuery(
+              data: MediaQuery.of(context)
+                  .copyWith(textScaler: TextScaler.linear(1.0)),
+              child: child!,
+            );
+          },
         ));
   }
 }

@@ -1,167 +1,108 @@
+
+
 import 'package:dough/dough.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/scheduler.dart';
+
 import 'package:get/get.dart';
-import 'package:get/get_connect/http/src/utils/utils.dart';
-import 'package:get/get_state_manager/get_state_manager.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 
 import '../app_routes.dart';
-import '../controller/home_controller.dart';
-import '../widgets/registration_form.dart';
 
-class MyHomePage extends GetWidget<HomeController> {
-  const MyHomePage({super.key});
 
-  //dispose the tab controller
+import '../services/app_theme.dart';
+import '../services/scale_util.dart';
+
+
+class MyHomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    // timeDilation = 10.0;
-
+    ScaleUtil.init(context);
     return Scaffold(
-        backgroundColor:
-            controller.isDarkMode.value ? Colors.black : Colors.white,
-        resizeToAvoidBottomInset: false,
-        appBar: AppBar(
-          centerTitle: false,
-          title: Hero(
-            tag: 'logo',
-            child: PressableDough(
-              onReleased: (s) {
-                controller.changeTheme();
-              },
-              child: AbsorbPointer(
-                child: Obx(() => Text(
-                      'doBoard',
-                      style: TextStyle(
-                        fontFamily: GoogleFonts.inder().fontFamily,
-                        fontSize: 40,
-                        fontWeight: FontWeight.bold,
-                        color: controller.isDarkMode.value
-                            ? Colors.white
-                            : Colors.black,
-                        decoration: TextDecoration.none,
-                        inherit: false,
-                      ),
-                    )),
-              ),
-            ),
+      body: Stack(
+        children: [
+          _buildBackground(),
+          //   _buildCircularIcons(),
+          Positioned(
+            bottom: ScaleUtil.height(20),
+            left: 0,
+            right: 0,
+            child: _buildGetStartedWidget(context),
           ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildBackground() {
+    return Container(
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [Colors.blue[50]!, Colors.pink[50]!],
         ),
-        body: SafeArea(
+      ),
+    );
+  }
+
+  Widget _buildGetStartedWidget(BuildContext context) {
+    final appTheme = Get.find<AppTheme>();
+
+    return Obx(() => PressableDough(
+          onReleased: (s) {
+            appTheme.toggleTheme();
+          },
           child: Container(
-            height: MediaQuery.of(context).size.height,
-            width: MediaQuery.of(context).size.width,
-            margin: EdgeInsets.all(10),
-            color: controller.isDarkMode.value ? Colors.black : Colors.white,
+            height: ScaleUtil.height(200),
+            margin: ScaleUtil.all(20),
+            padding: ScaleUtil.all(20),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(20),
+              color: appTheme.cardColor,
+            ),
             child: Column(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Center(
-                  child: Text(
-                    'Welcome to doBoard!',
-                    style: TextStyle(
-                      fontFamily: GoogleFonts.ubuntu().fontFamily,
-                      fontSize: 20,
-                    ),
-                  ),
+                SizedBox(height: ScaleUtil.height(10)),
+                Text('Get started', style: appTheme.titleLarge),
+                Spacer(),
+                Text(
+                  'Register for events, subscribe to calendars and manage events you\'re going to.',
+                  style: appTheme.bodyMedium,
                 ),
-                SizedBox(height: 20),
-                Container(
-                  height: 100,
-                  width: 200,
-                  decoration: BoxDecoration(
-                    color: controller.isDarkMode.value
-                        ? Colors.white
-                        : Colors.black,
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  child: TabBar(
-                    controller: controller.tabController,
-                    indicatorColor: Colors.transparent,
-                    labelColor: Colors.white,
-                    unselectedLabelColor: Colors.white70,
-                    onTap: (index) {
-                      controller.tabController.animateTo(index);
-                    },
-                    labelStyle: TextStyle(
-                      color: Colors.black,
-                    ),
-                    tabs: [
-                      Tab(
-                        text: 'Login',
-                      ),
-                      Tab(
-                        text: 'Register',
-                      ),
-                    ],
-                  ),
-                ),
+                SizedBox(height: ScaleUtil.height(10)),
 
-                //sized box
-                SizedBox(height: 20),
-                // tab bar view
-                Expanded(
-                  child: TabBarView(
-                    controller: controller.tabController,
-                    clipBehavior: Clip.none,
-                    children: [
-                      //login
-                      LoginForm(controller: controller),
-                      //register
-                      RegistrationForm(controller: controller),
-                    ],
-                  ),
-                ),
-
-                TextButton(
+                ElevatedButton(
+                  child: Text('Continue with Email'),
                   onPressed: () {
-                    Get.toNamed(AppRoutes.PHONEAUTH);
+                    Get.toNamed(AppRoutes.LOGIN);
                   },
-                  child: Text("Phone Auth"),
+                  style: appTheme.primaryButtonStyle,
                 ),
+                SizedBox(height: ScaleUtil.height(10)),
+                // Row(
+                //   children: [
+                //     Expanded(
+                //       child: ElevatedButton(
+                //         child: Icon(Icons.apple),
+                //         onPressed: () {},
+                //         style: appTheme.primaryButtonStyle,
+                //       ),
+                //     ),
+                //     SizedBox(width: ScaleUtil.width(10)),
+                //     Expanded(
+                //       child: ElevatedButton(
+                //         child: Text('G'),
+                //         onPressed: () {},
+                //         style: appTheme.primaryButtonStyle,
+                //       ),
+                //     ),
+                //   ],
+                // ),
               ],
             ),
           ),
         ));
-  }
-}
-
-
-class LoginForm extends StatelessWidget {
-  const LoginForm({
-    super.key,
-    required this.controller,
-  });
-
-  final HomeController controller;
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      children: [
-        //email
-        TextField(
-          controller: controller.emailController,
-          decoration: InputDecoration(
-            hintText: 'Email',
-          ),
-        ),
-        //password
-        TextField(
-          controller: controller.passwordController,
-          decoration: InputDecoration(
-            hintText: 'Password',
-          ),
-        ),
-        //login button
-        TextButton(
-          onPressed: () {
-            controller.login();
-          },
-          child: Text('Login'),
-        ),
-      ],
-    );
   }
 }

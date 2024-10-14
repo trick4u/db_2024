@@ -1,235 +1,160 @@
+import 'dart:io';
+
+import 'package:awesome_notifications/awesome_notifications.dart';
+
+
 import 'package:flutter/material.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:flutter/scheduler.dart';
+import 'package:flutter/services.dart';
+
 import 'package:get/get.dart';
-import 'package:tushar_db/constants/colors.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
 import 'package:tushar_db/projectController/calendar_controller.dart';
-import 'package:tushar_db/projectPages/goals.dart';
+import 'package:tushar_db/projectController/profile_controller.dart';
+import 'package:tushar_db/projectPages/statistics_screen.dart';
 
-import '../projectController/page_threeController.dart';
-import '../projectPages/awesome_noti.dart';
-import '../projectPages/main_screen.dart';
 
-import 'package:popover/popover.dart';
+import '../projectController/page_one_controller.dart';
+
+import '../projectController/statistics_controller.dart';
+
 
 import '../projectPages/page_one.dart';
-import '../projectPages/page_three.dart';
+
 import '../projectPages/page_two_calendar.dart';
+import '../projectPages/profile_screen.dart';
+import '../services/work_manager.dart';
 
 class MainScreenController extends GetxController
-    with GetSingleTickerProviderStateMixin {
+    with GetSingleTickerProviderStateMixin, WidgetsBindingObserver {
   //variables
   final RxInt currentIndex = 0.obs;
   var selectedIndex = 0.obs;
+  static const platform =
+      MethodChannel('com.example.tushar_db/background_fetch');
+  final Rx<DateTime> lastBackgroundFetchTime = Rx<DateTime>(DateTime.now());
 
   void changeIndex(int index) {
     selectedIndex.value = index;
+    if (selectedIndex.value == 2) {
+      Get.find<StatisticsController>().updateStatistics();
+    }
   }
 
-  final RxList<Widget> pages = [
+  void incrementIndex() {
+    selectedIndex.value = (selectedIndex.value + 1) % 4;
+  }
+
+  final List<Widget> pages = [
     PageOneScreen(),
     CalendarPage(),
-    GoalsScreen(),
-    AwesomeNoti(),
-  ].obs;
+    StatisticsScreen(),
+    ProfileScreen(),
+  ];
 
-  void changePage(
-    int index,
-    BuildContext context,
-  ) {
-    currentIndex.value = index;
-    if (currentIndex.value == 1){
-      Get.lazyPut<CalendarController>(() => CalendarController());
-    }
-
-   else if (currentIndex.value == 2) {
-      Get.lazyPut<PageThreecontroller>(() => PageThreecontroller());
-      showDialog(context);
-    } else if (currentIndex.value == 3) {
-      //  Get.lazyPut<AwesomeNoti>(() => AwesomeNoti());
-    }
+  @override
+  void onInit() async {
+    super.onInit();
+    WidgetsBinding.instance.addObserver(this);
+    Get.put(PageOneController()); // Ensure this is initialized first
+    Get.lazyPut(() => ProfileController());
+    Get.lazyPut(() => StatisticsController());
+    Get.lazyPut<CalendarController>(() => CalendarController());
+    WorkmanagerNotificationService.initialize();
+    await checkAndScheduleNotification();
+    _scheduleAndroidNotification();
   }
 
   @override
-  void onInit() {
-    super.onInit();
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      refreshCurrentScreen();
+    }
   }
 
-  Color scaffoldBackgroundColor() {
+  void refreshCurrentScreen() {
     switch (selectedIndex.value) {
       case 0:
-        return ColorsConstants().lightPurple;
+        // Get.find<PageOneController>().refreshData();
+        break;
       case 1:
-        return ColorsConstants().lightPink;
+        //  Get.find<CalendarController>().refreshData();
+        break;
       case 2:
-        return ColorsConstants().lightOrange;
+        Get.find<StatisticsController>().updateStatistics();
+        break;
       case 3:
-        return Colors.grey[200]!;
-      default:
-        return Colors.black;
+        Get.find<ProfileController>().loadUserData();
+        break;
     }
   }
 
-  // if page index ==2 then show dialog
-  void showDialog(BuildContext context) {
-    showMenu(
-        context: context,
-        position: RelativeRect.fromLTRB(200, 700, 20, 0),
-        popUpAnimationStyle: AnimationStyle(
-          curve: Curves.bounceInOut,
-          duration: Duration(milliseconds: 500),
-          reverseCurve: Curves.linear,
-          reverseDuration: Duration(milliseconds: 500),
+
+
+  Future<void> checkAndScheduleNotification() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    bool isNotificationScheduled =
+        prefs.getBool('isNotificationScheduled') ?? false;
+
+    if (!isNotificationScheduled) {
+      await scheduleDailyNotification();
+      await prefs.setBool('isNotificationScheduled', true);
+    }
+  }
+
+  Future<void> scheduleDailyNotification() async {
+    try {
+      if (Platform.isAndroid) {
+        await _scheduleAndroidNotification();
+      } else if (Platform.isIOS) {
+        print("Daily notification scheduled for iOS via background fetch");
+        // Implement iOS-specific scheduling if needed
+      }
+      print("Daily notification scheduled successfully");
+    } catch (e) {
+      print("Error scheduling daily notification: $e");
+      // Handle the error appropriately
+    }
+  }
+
+  Future<void> _scheduleAndroidNotification() async {
+    await AwesomeNotifications().cancelSchedule(10);
+
+    await AwesomeNotifications().createNotification(
+      content: NotificationContent(
+        id: 10,
+        channelKey: 'basic_channel',
+        title: 'Daily Reminder',
+        body: 'Start your day with purpose!',
+        notificationLayout: NotificationLayout.Default,
+      ),
+      schedule: NotificationCalendar(
+        hour: 11,
+        minute: 15,
+        second: 0,
+        millisecond: 0,
+        repeats: true,
+        timeZone: await AwesomeNotifications().getLocalTimeZoneIdentifier(),
+        preciseAlarm: true,
+      ),
+    );
+    print("Daily notification scheduled for Android");
+  }
+
+
+  static Future<void> _isolateNotification(_) async {
+    // Ensure we're on the main thread before creating the notification
+    SchedulerBinding.instance.addPostFrameCallback((_) async {
+      await AwesomeNotifications().createNotification(
+        content: NotificationContent(
+          id: 10,
+          channelKey: 'basic_channel',
+          title: 'Daily Reminder',
+          body: 'Start your day with purpose!',
+          notificationLayout: NotificationLayout.Default,
         ),
-        items: [
-          PopupMenuItem(
-            child: Text('Settings'),
-          ),
-          PopupMenuItem(
-            child: Text('Log Out'),
-          ),
-        ]);
-  }
-
-  //persistent bottom navigation bar
-  final List<PersistentBottomNavBarItem> navBarItems = [
-    PersistentBottomNavBarItem(
-      icon: FontAwesomeIcons.calendarDay,
-      title: "Calendar",
-      activeColor: ColorsConstants().deepPurple,
-      inactiveColor: Colors.grey,
-    ),
-    PersistentBottomNavBarItem(
-      icon: FontAwesomeIcons.rectangleList,
-      title: "Tasks",
-      activeColor: ColorsConstants().deepPurple,
-      inactiveColor: Colors.grey,
-    ),
-    PersistentBottomNavBarItem(
-      icon: FontAwesomeIcons.noteSticky,
-      title: "Clock",
-      activeColor: ColorsConstants().deepPurple,
-      inactiveColor: Colors.grey,
-    ),
-    PersistentBottomNavBarItem(
-      icon: FontAwesomeIcons.user,
-      title: "Profile",
-      activeColor: ColorsConstants().deepPurple,
-      inactiveColor: Colors.grey,
-      onTap: () {
-        showPopover(
-          context: Get.context!,
-          bodyBuilder: (context) => const ListItems(),
-          onPop: () => print('Popover was popped!'),
-          direction: PopoverDirection.top,
-          width: 200,
-          height: 200,
-          arrowHeight: 15,
-          arrowWidth: 30,
-        );
-      },
-    ),
-  ];
-}
-
-class PersistentBottomNavBarItem {
-  PersistentBottomNavBarItem({
-    required this.icon,
-    required this.title,
-    required this.activeColor,
-    required this.inactiveColor,
-    this.onTap,
-  });
-
-  final IconData icon;
-  final String title;
-  final Color activeColor;
-  final Color inactiveColor;
-  VoidCallback? onTap;
-}
-
-//
-class SecondRoute extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Second Route'),
-        automaticallyImplyLeading: false,
-      ),
-      body: Center(
-        child: ElevatedButton(
-          onPressed: () => Navigator.pop(context),
-          child: const Text('Go back!'),
-        ),
-      ),
-    );
-  }
-}
-
-class ListItems extends StatelessWidget {
-  const ListItems({Key? key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8),
-      child: ListView(
-        padding: const EdgeInsets.all(8),
-        children: [
-          InkWell(
-            onTap: () {},
-            child: Container(
-              height: 50,
-              color: Colors.amber[100],
-              child: const Center(child: Text('Entry A')),
-            ),
-          ),
-          const Divider(),
-          Container(
-            height: 50,
-            color: Colors.amber[200],
-            child: const Center(child: Text('Entry B')),
-          ),
-          const Divider(),
-          Container(
-            height: 50,
-            color: Colors.amber[300],
-            child: const Center(child: Text('Entry C')),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class Button extends StatelessWidget {
-  const Button({Key? key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: 80,
-      height: 40,
-      decoration: const BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.all(Radius.circular(5)),
-        boxShadow: [BoxShadow(color: Colors.black26, blurRadius: 5)],
-      ),
-      child: GestureDetector(
-        child: const Center(child: Text('Click Me')),
-        onTap: () {
-          showPopover(
-            context: context,
-            bodyBuilder: (context) => const ListItems(),
-            onPop: () => print('Popover was popped!'),
-            direction: PopoverDirection.top,
-            width: 200,
-            height: 200,
-            arrowHeight: 15,
-            arrowWidth: 30,
-          );
-        },
-      ),
-    );
+      );
+    });
   }
 }

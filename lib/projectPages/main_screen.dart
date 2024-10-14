@@ -1,208 +1,118 @@
-import 'dart:ui';
+import 'package:animate_do/animate_do.dart';
 
-import 'package:dough/dough.dart';
-import 'package:dough_sensors/dough_sensors.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+
+
 import 'package:flutter/material.dart';
+
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
-import 'package:glassmorphism_ui/glassmorphism_ui.dart';
-import 'package:tushar_db/app_routes.dart';
-import 'package:tushar_db/pages/network_screen.dart';
 
-import '../constants/colors.dart';
+import 'package:tushar_db/services/scale_util.dart';
+
+
 import '../controller/main_screen_controller.dart';
-import 'package:animate_gradient/animate_gradient.dart';
 
-import '../controller/network_controller.dart';
+
+import '../services/app_theme.dart';
 
 class MainScreen extends GetWidget<MainScreenController> {
-  const MainScreen({super.key});
+  final appTheme = Get.find<AppTheme>();
 
   @override
   Widget build(BuildContext context) {
-    return Obx(() => Scaffold(
-          resizeToAvoidBottomInset: false,
-          backgroundColor: controller.scaffoldBackgroundColor(),
-          floatingActionButtonLocation:
-              FloatingActionButtonLocation.centerDocked,
-          // floatingActionButton: Padding(
-          //   padding: const EdgeInsets.all(10.0),
-          //   child: FabButton(),
-          // ),
-          body: Obx(() => controller.pages[controller.selectedIndex.value]),
-          bottomNavigationBar: Obx(() {
-            return GlassContainer(
-              blur: 10,
-              height: 100,
-              color: Colors.black,
-              shadowColor: Colors.black.withOpacity(0.2),
-              borderRadius: BorderRadius.circular(30),
-              child: Padding(
-                padding: const EdgeInsets.only(
-                    bottom: 20, top: 20, left: 20, right: 20),
-                child: Container(
-                  height: 60,
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.all(
-                      Radius.circular(30),
-                    ),
-                  ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceAround,
-                    children: [
-                      _buildNavItem(Icons.home, 0),
-                      _buildNavItem(Icons.article, 1),
-                      _buildNavItem(Icons.search, 2),
-                      _buildNavItem(Icons.add_box, 3),
-                    ],
-                  ),
-                ),
-              ),
-            );
-          }),
-        ));
-  }
+    ScaleUtil.init(context);
 
-  Widget _buildNavItem(IconData icon, int index) {
-    return GestureDetector(
-      onTap: () => controller.changeIndex(index),
-      child: AnimatedContainer(
-        duration: Duration(milliseconds: 300),
-        curve: Curves.easeOutCubic,
-        padding: EdgeInsets.all(8),
-        decoration: BoxDecoration(
-          color: controller.selectedIndex.value == index
-              ? Colors.black
-              : Colors.white,
-          borderRadius: BorderRadius.circular(30),
+    // Add this to update status bar color when the screen builds
+
+    final appTheme = Get.find<AppTheme>();
+    appTheme.updateStatusBarColor();
+
+    return Obx(
+      () => Scaffold(
+        extendBodyBehindAppBar: true,
+        resizeToAvoidBottomInset: false,
+        body: SafeArea(
+          child: controller.pages[controller.selectedIndex.value],
         ),
-        child: Icon(
-          icon,
-          color: controller.selectedIndex.value == index
-              ? Colors.white
-              : Colors.black,
-          size: 30,
-        ),
+        bottomNavigationBar: _buildBottomNavigationBar(),
       ),
     );
   }
-}
 
-class BottomBar extends StatelessWidget {
-  const BottomBar({
-    super.key,
-    required this.controller,
-  });
-
-  final MainScreenController controller;
-
-  @override
-  Widget build(BuildContext context) {
-    return Obx(() => ClipRRect(
-          borderRadius: BorderRadius.only(
-            topLeft: Radius.circular(20),
-            topRight: Radius.circular(20),
+  Widget _buildBottomNavigationBar() {
+    return SlideInUp(
+      child: Padding(
+        padding: ScaleUtil.only(left: 10, right: 10, bottom: 5),
+        child: Container(
+          width: ScaleUtil.width(50),
+          decoration: BoxDecoration(
+            color: appTheme.isDarkMode ? Colors.black : Colors.white,
+            borderRadius: BorderRadius.circular(10),
+            boxShadow: [
+              BoxShadow(
+                color: appTheme.isDarkMode
+                    ? Colors.white.withOpacity(0.1)
+                    : Colors.black.withOpacity(0.1),
+                blurRadius: 10,
+                offset: Offset(0, 5),
+              ),
+            ],
           ),
-          child: BottomAppBar(
-            color: Colors.white,
-            //  shadowColor: Colors.grey.withOpacity(0.7),
-            shape: const CircularNotchedRectangle(),
-            notchMargin: 6,
+          height:
+              ScaleUtil.height(50), // Increased height for larger touch area
+          child: Padding(
+            padding: ScaleUtil.symmetric(horizontal: 10, vertical: 5),
             child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
-                Row(
-                  children: controller.navBarItems
-                      .sublist(0, 2)
-                      .map((item) => Padding(
-                            padding:
-                                const EdgeInsets.symmetric(horizontal: 8.0),
-                            child: IconButton(
-                              onPressed: () => controller.changePage(
-                                controller.navBarItems.indexOf(item),
-                                context,
-                              ),
-                              icon: Icon(
-                                item.icon,
-                                color: controller.currentIndex.value ==
-                                        controller.navBarItems.indexOf(item)
-                                    ? item.activeColor
-                                    : null,
-                              ),
-                            ),
-                          ))
-                      .toList(),
-
-                  // Row 2
-                ),
-                Row(
-                  children: controller.navBarItems
-                      .sublist(2, 4)
-                      .map((item) => Padding(
-                            padding:
-                                const EdgeInsets.symmetric(horizontal: 8.0),
-                            child: IconButton(
-                              onPressed: () => controller.changePage(
-                                controller.navBarItems.indexOf(item),
-                                context,
-                              ),
-                              icon: Icon(
-                                item.icon,
-                                color: controller.currentIndex.value ==
-                                        controller.navBarItems.indexOf(item)
-                                    ? item.activeColor
-                                    : null,
-                              ),
-                            ),
-                          ))
-                      .toList(),
-                ),
+                _buildNavItem(FontAwesomeIcons.house, 0),
+                _buildNavItem(FontAwesomeIcons.calendarCheck, 1),
+                _buildNavItem(FontAwesomeIcons.chartSimple, 2),
+                _buildNavItem(FontAwesomeIcons.userGear, 3),
               ],
             ),
           ),
-        ));
+        ),
+      ),
+    );
   }
-}
 
-class FabButton extends StatelessWidget {
-  final MainScreenController controller = Get.find<MainScreenController>();
-
-  @override
-  Widget build(BuildContext context) {
-    return PressableDough(
-      onReleased: (details) {
-        Get.toNamed(AppRoutes.ADDTASK);
-      },
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(30),
-        child: Container(
-          height: 60,
-          width: 60,
-          //box shadow
-
-          child: AnimateGradient(
-            animateAlignments: false,
-            duration: const Duration(seconds: 10),
-            primaryColors: [
-              Colors.pink,
-              Colors.pinkAccent,
-              ColorsConstants().deepPurple,
-            ],
-            secondaryColors: [
-              Colors.blue,
-              Colors.blueAccent,
-              ColorsConstants().deepPurple,
-            ],
-            child: Icon(
-              FontAwesomeIcons.plus,
-              size: 30,
-              color: Colors.white,
+  Widget _buildNavItem(IconData icon, int index) {
+    return SlideInDown(
+      child: GestureDetector(
+        onTap: () => controller.changeIndex(index),
+        child: Center(
+          child: AnimatedContainer(
+            width:
+                ScaleUtil.width(35), // Increased width for larger touch area
+            height: ScaleUtil.height(35),
+            duration: Duration(milliseconds: 300),
+            curve: Curves.easeIn,
+            padding: ScaleUtil.all(8), // Adjust padding as needed
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(15),
+              color: controller.selectedIndex.value == index
+                  ? (appTheme.isDarkMode
+                      ? Colors.white.withOpacity(0.1)
+                      : Colors.black.withOpacity(0.1))
+                  : Colors.transparent,
+            ),
+            child: Center(
+              child: Icon(
+                icon,
+                color: controller.selectedIndex.value == index
+                    ? (appTheme.isDarkMode ? Colors.white : Colors.black)
+                    : Colors.grey,
+                size: controller.selectedIndex.value == index
+                    ? ScaleUtil.height(20)
+                    : ScaleUtil.height(16),
+              ),
             ),
           ),
         ),
       ),
     );
   }
+
+
 }
