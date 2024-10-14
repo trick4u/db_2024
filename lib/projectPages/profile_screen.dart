@@ -123,7 +123,9 @@ class ProfileScreen extends GetWidget<ProfileController> {
       body: SafeArea(
         child: Obx(() {
           if (controller.isLoading.value) {
-            return Center(child: CircularProgressIndicator());
+            return Center(child: CircularProgressIndicator(
+               color: Colors.deepPurpleAccent,
+            ),);
           } else if (controller.hasError.value) {
             return Center(
               child: Text('An error occurred. Please try again.'),

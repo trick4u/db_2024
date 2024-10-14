@@ -177,7 +177,9 @@ class VisionBottomSheet extends GetWidget<VisionBoardController> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           if (controller.isPickingImages.value)
-            Center(child: CircularProgressIndicator())
+            Center(child: CircularProgressIndicator(
+               color: Colors.deepPurpleAccent,
+            ),)
           else if (totalImages == 0)
             Text(
               'No images selected',
@@ -235,7 +237,9 @@ class VisionBottomSheet extends GetWidget<VisionBoardController> {
                     width: ScaleUtil.width(80),
                     height: ScaleUtil.height(80),
                     color: appTheme.textFieldFillColor,
-                    child: Center(child: CircularProgressIndicator()),
+                    child: Center(child: CircularProgressIndicator(
+                       color: Colors.deepPurpleAccent,
+                    ),),
                   ),
                   errorWidget: (context, url, error) => Container(
                     width: ScaleUtil.width(80),

@@ -17,7 +17,9 @@ class DisplayedNotificationsScreen
       ),
       body: Obx(() {
         if (controller.isLoading.value) {
-          return Center(child: CircularProgressIndicator());
+          return Center(child: CircularProgressIndicator(
+             color: Colors.deepPurpleAccent,
+          ),);
         } else if (controller.notifications.isEmpty) {
           return Center(child: Text('No notifications'));
         } else {

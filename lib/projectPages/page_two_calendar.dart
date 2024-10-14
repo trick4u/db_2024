@@ -27,7 +27,9 @@ class CalendarPage extends GetWidget<CalendarController> {
       builder: (controller) => Obx(
         () {
           if (controller.isLoading.value) {
-            return Center(child: CircularProgressIndicator());
+            return Center(child: CircularProgressIndicator(
+               color: Colors.deepPurpleAccent,
+            ),);
           } else if (controller.hasError.value) {
             return Center(
               child: Text(

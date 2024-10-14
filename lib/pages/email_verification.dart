@@ -37,7 +37,9 @@ class EmailVerificationPage extends StatelessWidget {
                           isLoading.value = false;
                         },
                   child: isLoading.value
-                      ? CircularProgressIndicator()
+                      ? CircularProgressIndicator(
+                         color: Colors.deepPurpleAccent,
+                      )
                       : Text('I have verified my email'),
                 )),
             SizedBox(height: 20),
