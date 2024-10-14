@@ -14,6 +14,7 @@ import 'package:just_audio/just_audio.dart';
 
 import '../app_routes.dart';
 
+import '../constants/colors.dart';
 import '../models/quick_event_model.dart';
 import '../models/reminder_model.dart';
 
@@ -22,9 +23,6 @@ import '../services/app_theme.dart';
 import '../services/toast_util.dart';
 import '../services/work_manager.dart';
 import '../widgets/quick_bottomsheet.dart';
-
-
-
 
 import 'calendar_controller.dart';
 
@@ -38,12 +36,9 @@ class PageOneController extends GetxController {
   var repeat = false.obs;
   var text = "".obs;
 
-
-
   RxInt carouselPageIndex = 0.obs;
   final RxInt animationTrigger = 0.obs;
 
- 
   RxList<ReminderModel> allReminders = <ReminderModel>[].obs;
   //rx status
   Rx<RxStatus> goalsStatus = RxStatus.loading().obs;
@@ -89,7 +84,7 @@ class PageOneController extends GetxController {
   late AudioPlayer audioPlayer;
   final Color startColor = Color(0xFF2196F3);
   final Color endColor = Color(0xFFF44336);
- 
+
   var backgroundColor = Color(0xFF2196F3).obs;
 
   var isPlaying = false.obs;
@@ -718,6 +713,7 @@ class PageOneController extends GetxController {
           criticalAlert: true,
           wakeUpScreen: true,
           autoDismissible: false,
+          largeIcon: ImageAssets().iconLogo,
           payload: {
             'repeat': repeat.toString(),
             'interval': interval.toString(),

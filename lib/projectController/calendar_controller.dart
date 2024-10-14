@@ -9,6 +9,7 @@ import 'package:just_audio/just_audio.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:table_calendar/table_calendar.dart';
 
+import '../constants/colors.dart';
 import '../models/quick_event_model.dart';
 
 import '../services/pexels_service.dart';
@@ -16,8 +17,6 @@ import '../services/toast_util.dart';
 import '../services/work_manager.dart';
 import '../widgets/event_bottomSheet.dart';
 import 'package:flutter/services.dart';
-
-
 
 class CalendarController extends GetxController {
   CalendarFormat calendarFormat = CalendarFormat.week;
@@ -376,7 +375,6 @@ class CalendarController extends GetxController {
         ToastUtil.showToast(
           'Cannot Add Event',
           'Events cannot be added to past dates.',
-        
         );
         return;
       }
@@ -384,7 +382,6 @@ class CalendarController extends GetxController {
         ToastUtil.showToast(
           'Event Limit Reached',
           'You can only add up to 10 events per day.',
-        
         );
         return;
       }
@@ -428,7 +425,6 @@ class CalendarController extends GetxController {
                 ToastUtil.showToast(
                   'Cannot Add Event',
                   'Events cannot be added to past dates.',
-                
                 );
               }
             } else {
@@ -468,7 +464,6 @@ class CalendarController extends GetxController {
       ToastUtil.showToast(
         'Event Limit Reached',
         'You can only add up to 10 events per day.',
-      
       );
       return;
     }
@@ -746,6 +741,7 @@ class CalendarController extends GetxController {
           notificationLayout: NotificationLayout.Default,
           criticalAlert: true,
           wakeUpScreen: true,
+          largeIcon: ImageAssets().iconLogo,
         ),
         schedule: NotificationCalendar(
           year: scheduledDate.year,

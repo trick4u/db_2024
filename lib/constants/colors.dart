@@ -16,3 +16,7 @@ class ColorsConstants {
   Color lightOrange = Color(0xffF8E3D4);
   Color lightTeal = Color(0xffB8F2E6);
 }
+
+class ImageAssets {
+  String iconLogo = 'assests/gk.png';
+}

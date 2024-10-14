@@ -14,6 +14,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:path/path.dart' as path;
 import 'package:image/image.dart' as img;
 import 'package:http/http.dart' as http;
+import 'package:tushar_db/constants/colors.dart';
 
 import '../services/toast_util.dart';
 import '../widgets/vision_bottom_sheet.dart';
@@ -193,6 +194,7 @@ class VisionBoardController extends GetxController {
           payload: {'time': isMorning ? 'morning' : 'night'},
           criticalAlert: true,
           wakeUpScreen: true,
+         largeIcon: ImageAssets().iconLogo,
         ),
         schedule: NotificationCalendar(
           year: scheduledTime.year,
