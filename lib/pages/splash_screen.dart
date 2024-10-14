@@ -57,7 +57,7 @@ class _SplashScreenState extends State<SplashScreen> {
               SizedBox(height: ScaleUtil.height(20)),
               FadeIn(
                 child: Text(
-                  'doBoard',
+                  'goalKeep',
                   style: TextStyle(
                     fontFamily: GoogleFonts.pacifico().fontFamily,
                     fontSize: 30,

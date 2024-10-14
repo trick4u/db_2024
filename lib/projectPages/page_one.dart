@@ -110,7 +110,7 @@ class PageOneScreen extends GetWidget<PageOneController> {
                             Obx(
                               () => _hasAnimated.value
                                   ? Text(
-                                      'doBoard',
+                                      'goalKeep',
                                       style: TextStyle(
                                         fontFamily:
                                             GoogleFonts.pacifico().fontFamily,
@@ -119,7 +119,7 @@ class PageOneScreen extends GetWidget<PageOneController> {
                                       ),
                                     )
                                   : AnimatedBouncingText(
-                                      text: 'doBoard',
+                                      text: 'goalKeep',
                                       textStyle: TextStyle(
                                         fontFamily:
                                             GoogleFonts.pacifico().fontFamily,
@@ -152,11 +152,13 @@ class PageOneScreen extends GetWidget<PageOneController> {
             ScaleUtil.sizedBox(height: 10),
             Expanded(
               child: FadeIn(
-                child: AllSixCards(
-                  useFixedHeight: true,
-                  onListTypeSelected: (listType) {
-                    controller.setSelectedListType(listType);
-                  },
+                child: RepaintBoundary(
+                  child: AllSixCards(
+                    useFixedHeight: true,
+                    onListTypeSelected: (listType) {
+                      controller.setSelectedListType(listType);
+                    },
+                  ),
                 ),
               ),
             ),
