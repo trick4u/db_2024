@@ -33,7 +33,7 @@ class CalendarPage extends GetWidget<CalendarController> {
           } else if (controller.hasError.value) {
             return Center(
               child: Text(
-                'Error loading calendar data. Please try again.',
+                'error loading calendar data. Please try again.',
                 style: appTheme.bodyMedium,
               ),
             );
@@ -518,8 +518,8 @@ class calendarpageWidget extends StatelessWidget {
                                 controller.showEventBottomSheet(context);
                               } else {
                                 ToastUtil.showToast(
-                                  'Event Limit Reached',
-                                  'You can only add up to 10 events per day.',
+                                  'event limit reached',
+                                  'you can only add up to 10 events per day.',
                                 
                                   backgroundColor: appTheme.colorScheme.surface,
                                 
@@ -527,8 +527,8 @@ class calendarpageWidget extends StatelessWidget {
                               }
                             } else {
                               ToastUtil.showToast(
-                                'Cannot Add Event',
-                                'Events cannot be added to past dates.',
+                                'cannot Add Event',
+                                'events cannot be added to past dates.',
                               
                                 backgroundColor: appTheme.colorScheme.surface,
                               
@@ -536,7 +536,7 @@ class calendarpageWidget extends StatelessWidget {
                             }
                           },
                           child: Text(
-                            'No tasks for ${DateFormat('MMMM dd yyyy').format(controller.selectedDay.value)} ',
+                            'no tasks for ${DateFormat('MMMM dd yyyy').format(controller.selectedDay.value)} ',
                             style: appTheme.bodyMedium,
                           ),
                         ),
@@ -552,12 +552,12 @@ class calendarpageWidget extends StatelessWidget {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  'Total events : $eventCount',
+                                  'total events : $eventCount',
                                   style: appTheme.bodyMedium.copyWith(),
                                 ),
                                 if (completedEventCount > 0)
                                   Text(
-                                    'Completed events : $completedEventCount',
+                                    'completed events : $completedEventCount',
                                     style: appTheme.bodyMedium.copyWith(
                                       color: appTheme.colorScheme.primary,
                                     ),
@@ -589,16 +589,16 @@ class calendarpageWidget extends StatelessWidget {
                                         return AlertDialog(
                                           backgroundColor:
                                               appTheme.colorScheme.surface,
-                                          title: Text('Confirm Delete',
+                                          title: Text('confirm delete',
                                               style: TextStyle(
                                                   color: appTheme.textColor)),
                                           content: Text(
-                                              'Are you sure you want to delete this event?',
+                                              'are you sure you want to delete this event?',
                                               style: TextStyle(
                                                   color: appTheme.textColor)),
                                           actions: <Widget>[
                                             TextButton(
-                                              child: Text('Cancel',
+                                              child: Text('cancel',
                                                   style: TextStyle(
                                                       color: appTheme
                                                           .colorScheme
@@ -608,7 +608,7 @@ class calendarpageWidget extends StatelessWidget {
                                               },
                                             ),
                                             TextButton(
-                                              child: Text('Delete',
+                                              child: Text('delete',
                                                   style: TextStyle(
                                                       color: appTheme
                                                           .colorScheme.error)),

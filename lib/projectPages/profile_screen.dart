@@ -82,35 +82,35 @@ class ProfileScreen extends GetWidget<ProfileController> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text('Profile Info',
+                        Text('profile Info',
                             style: TextStyle(
                                 fontSize: ScaleUtil.fontSize(18),
                                 fontWeight: FontWeight.bold)),
                         ScaleUtil.sizedBox(height: 12),
-                        _buildSettingTile('Username', Icons.person,
+                        _buildSettingTile('username', Icons.person,
                             valueBuilder: () =>
                                 "@" + controller.username.value),
-                        _buildSettingTile('Email', Icons.email,
+                        _buildSettingTile('email', Icons.email,
                             valueBuilder: () => controller.email.value ?? ''),
                       ],
                     ),
                   ),
                 ),
                 ScaleUtil.sizedBox(height: 24),
-                Text('Settings',
+                Text('settings',
                     style: TextStyle(
                         fontSize: ScaleUtil.fontSize(18),
-                        fontWeight: FontWeight.bold)),
+                        fontWeight: FontWeight.bold),),
                 ScaleUtil.sizedBox(height: 12),
-                _buildSettingTile('Theme', Icons.brightness_6, onTap: () {
+                _buildSettingTile('theme', Icons.brightness_6, onTap: () {
                   appTheme.toggleTheme();
                   appTheme.updateStatusBarColor();
                 }),
-                _buildSettingTile('Change Password', Icons.lock,
+                _buildSettingTile('change password', Icons.lock,
                     onTap: () => _showChangePasswordBottomSheet(context)),
-                _buildSettingTile('Logout', Icons.exit_to_app,
+                _buildSettingTile('logout', Icons.exit_to_app,
                     onTap: () => controller.logout()),
-                _buildSettingTile('Delete Account', Icons.delete_forever,
+                _buildSettingTile('delete cccount', Icons.delete_forever,
                     onTap: () => controller.deleteAccount(), color: Colors.red),
               ],
             ),
@@ -128,7 +128,7 @@ class ProfileScreen extends GetWidget<ProfileController> {
             ),);
           } else if (controller.hasError.value) {
             return Center(
-              child: Text('An error occurred. Please try again.'),
+              child: Text('an error occurred. please try again.'),
             );
           } else {
             return customScrollView;
@@ -236,7 +236,7 @@ class EditProfileBottomSheet extends GetWidget<ProfileController> {
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Text(
-          'Edit Profile',
+          'edit profile',
           style: appTheme.titleLarge.copyWith(
             fontSize: ScaleUtil.fontSize(15),
           ),
@@ -245,7 +245,7 @@ class EditProfileBottomSheet extends GetWidget<ProfileController> {
           icon: Icon(Icons.close,
               color: appTheme.textColor, size: ScaleUtil.iconSize(18)),
           onPressed: () => Get.back(),
-          tooltip: 'Close',
+          tooltip: 'close',
         ),
       ],
     );
@@ -261,7 +261,7 @@ class EditProfileBottomSheet extends GetWidget<ProfileController> {
             fontSize: ScaleUtil.fontSize(12),
           ),
           decoration: InputDecoration(
-            labelText: 'Name',
+            labelText: 'name',
             labelStyle: TextStyle(fontSize: ScaleUtil.fontSize(12)),
             filled: true,
             fillColor: appTheme.textFieldFillColor,
@@ -271,7 +271,7 @@ class EditProfileBottomSheet extends GetWidget<ProfileController> {
           onChanged: (_) => _updateCanSave(),
           validator: (value) {
             if (value == null || value.isEmpty) {
-              return 'Please enter your name';
+              return 'please enter your name';
             }
             return null;
           },
@@ -290,7 +290,7 @@ class EditProfileBottomSheet extends GetWidget<ProfileController> {
             fontSize: ScaleUtil.fontSize(12),
           ),
           decoration: InputDecoration(
-            labelText: 'Username',
+            labelText: 'username',
             labelStyle: TextStyle(fontSize: ScaleUtil.fontSize(12)),
             filled: true,
             fillColor: appTheme.textFieldFillColor,
@@ -300,7 +300,7 @@ class EditProfileBottomSheet extends GetWidget<ProfileController> {
           onChanged: (_) => _updateCanSave(),
           validator: (value) {
             if (value == null || value.isEmpty) {
-              return 'Please enter a username';
+              return 'please enter a username';
             }
             return null;
           },

@@ -116,7 +116,7 @@ class _EventBottomSheetState extends State<EventBottomSheet> {
                   Row(
                     children: [
                       Text(
-                        widget.event == null ? 'Add Event' : 'Edit Event',
+                        widget.event == null ? 'add event' : 'edit event',
                         style: appTheme.titleLarge.copyWith(
                           fontSize: ScaleUtil.fontSize(15),
                         ),
@@ -144,7 +144,7 @@ class _EventBottomSheetState extends State<EventBottomSheet> {
                       style: appTheme.bodyMedium,
                       maxLength: TITLE_MAX_LENGTH,
                       decoration: InputDecoration(
-                        labelText: 'Event Title',
+                        labelText: 'event title',
                         filled: true,
                         fillColor: appTheme.textFieldFillColor,
                         labelStyle: appTheme.bodyMedium.copyWith(
@@ -246,11 +246,11 @@ class _EventBottomSheetState extends State<EventBottomSheet> {
       itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
         PopupMenuItem<String>(
           value: 'week',
-          child: Text('This Week'),
+          child: Text('this week'),
         ),
         PopupMenuItem<String>(
           value: 'month',
-          child: Text('This Month'),
+          child: Text('this month'),
         ),
       ],
     );
@@ -259,9 +259,9 @@ class _EventBottomSheetState extends State<EventBottomSheet> {
   String _getRepetitionText() {
     switch (_selectedRepetition) {
       case 'week':
-        return 'This Week';
+        return 'this week';
       case 'month':
-        return 'This Month';
+        return 'this month';
       default:
         return '';
     }
@@ -376,15 +376,15 @@ class _EventBottomSheetState extends State<EventBottomSheet> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: const Text('Pick a color'),
+          title: const Text('pick a color'),
           content: SingleChildScrollView(
             child: ColorPicker(
               color: _selectedColor,
               onColorChanged: (Color color) {
                 setState(() => _selectedColor = color);
               },
-              heading: Text('Select color'),
-              subheading: Text('Select color shade'),
+              heading: Text('select color'),
+              subheading: Text('select color shade'),
               pickersEnabled: const <ColorPickerType, bool>{
                 ColorPickerType.both: false,
                 ColorPickerType.primary: true,
@@ -397,7 +397,7 @@ class _EventBottomSheetState extends State<EventBottomSheet> {
           ),
           actions: <Widget>[
             TextButton(
-              child: const Text('OK'),
+              child: const Text('ok'),
               onPressed: () {
                 Navigator.of(context).pop();
               },
@@ -431,8 +431,8 @@ class _EventBottomSheetState extends State<EventBottomSheet> {
       barrierColor: Colors.black26,
       minuteInterval: 1,
       padding: const EdgeInsets.fromLTRB(12, 10, 12, 10),
-      cancelText: 'Cancel',
-      confirmText: 'OK',
+      cancelText: 'cancel',
+      confirmText: 'ok',
       pressType: PressType.singlePress,
       timeFormat: 'hh:mm a',
     );
@@ -516,8 +516,8 @@ class ReminderButton extends StatelessWidget {
             SizedBox(width: 8),
             Text(
               isReminderSet && reminderTime != null
-                  ? 'Reminder: ${_formatTime(reminderTime!)}'
-                  : 'Set Reminder',
+                  ? 'reminder: ${_formatTime(reminderTime!)}'
+                  : 'set reminder',
               style: TextStyle(color: appTheme.colorScheme.onSecondary),
             ),
           ],

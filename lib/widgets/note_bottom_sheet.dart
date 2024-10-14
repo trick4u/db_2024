@@ -40,7 +40,7 @@ class NoteBottomSheet extends GetView<NoteTakingController> {
               Row(
                 children: [
                   Text(
-                    note == null ? 'Add Note' : 'Edit Note',
+                    note == null ? 'add note' : 'edit note',
                     style: appTheme.titleLarge.copyWith(
                       fontSize: ScaleUtil.fontSize(15),
                     ),
@@ -62,7 +62,7 @@ class NoteBottomSheet extends GetView<NoteTakingController> {
                   controller: controller.titleController,
                   style: appTheme.bodyMedium,
                   decoration: InputDecoration(
-                    labelText: 'Note Title',
+                    labelText: 'note title',
                     filled: true,
                     fillColor: appTheme.textFieldFillColor,
                     labelStyle: appTheme.bodyMedium.copyWith(
@@ -100,7 +100,7 @@ class NoteBottomSheet extends GetView<NoteTakingController> {
                                 style: appTheme.bodyMedium,
                                 maxLength: 70,
                                 decoration: InputDecoration(
-                                  hintText: 'Input the sub-task',
+                                  hintText: 'input the sub-task',
                                   hintStyle: appTheme.bodyMedium.copyWith(
                                     color: appTheme.secondaryTextColor,
                                     fontSize: ScaleUtil.fontSize(10),

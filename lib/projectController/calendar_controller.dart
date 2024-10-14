@@ -373,15 +373,15 @@ class CalendarController extends GetxController {
     if (event == null) {
       if (!canAddEvent(selectedDay.value)) {
         ToastUtil.showToast(
-          'Cannot Add Event',
-          'Events cannot be added to past dates.',
+          'cannot add event',
+          'events cannot be added to past dates.',
         );
         return;
       }
       if (!canAddMoreEvents(selectedDay.value)) {
         ToastUtil.showToast(
-          'Event Limit Reached',
-          'You can only add up to 10 events per day.',
+          'event limit reached',
+          'you can only add up to 10 events per day.',
         );
         return;
       }
@@ -423,8 +423,8 @@ class CalendarController extends GetxController {
                     color, hasReminder, reminderTime, false, repetition);
               } else {
                 ToastUtil.showToast(
-                  'Cannot Add Event',
-                  'Events cannot be added to past dates.',
+                  'cannot add event',
+                  'events cannot be added to past dates.',
                 );
               }
             } else {

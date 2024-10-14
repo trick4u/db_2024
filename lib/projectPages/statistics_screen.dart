@@ -47,7 +47,7 @@ class StatisticsScreen extends GetView<StatisticsController> {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Text(
-                          'Tasks in Next 7 Days',
+                          'tasks in Next 7 Days',
                           style: appTheme.titleLarge.copyWith(
                             fontSize: ScaleUtil.fontSize(16),
                           ),
@@ -55,7 +55,7 @@ class StatisticsScreen extends GetView<StatisticsController> {
                         Obx(() {
                           if (controller.upcomingTasks.isNotEmpty) {
                             return Text(
-                              'Total upcoming tasks: ${controller.upcomingTasks.length}',
+                              'total upcoming tasks: ${controller.upcomingTasks.length}',
                               style: appTheme.bodyMedium.copyWith(
                                 fontSize: ScaleUtil.fontSize(12),
                                 color: appTheme.secondaryTextColor,
@@ -219,8 +219,8 @@ Widget _buildWeeklyTaskChart(
               children: [
                 Obx(() => Text(
                       controller.showCompletedTasks.value
-                          ? 'Completion of Daily Tasks'
-                          : 'Pending Daily Tasks',
+                          ? 'completed tasks'
+                          : 'pending tasks',
                       style: appTheme.bodyMedium.copyWith(
                           fontWeight: FontWeight.bold,
                           fontSize: ScaleUtil.fontSize(12)),
@@ -372,7 +372,7 @@ Widget _buildWeeklyTaskChart(
                               color: appTheme.secondaryTextColor,
                               fontSize: ScaleUtil.fontSize(14),
                             ),
-                            labelResolver: (line) => 'No data present',
+                            labelResolver: (line) => 'no data present',
                           ),
                         ),
                       ],
@@ -398,7 +398,7 @@ Widget _buildUpcomingTasks(AppTheme appTheme, StatisticsController controller) {
   return Obx(() {
     if (controller.upcomingTasks.isEmpty) {
       return Padding(
-        padding: ScaleUtil.only(top: 30),
+        padding: ScaleUtil.only(top: 30,left: 10),
         child: Text(
           'no upcoming tasks in the next 7 days',
           style: appTheme.bodyMedium.copyWith(

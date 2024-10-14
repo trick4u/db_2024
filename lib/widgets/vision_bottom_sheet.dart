@@ -40,8 +40,8 @@ class VisionBottomSheet extends GetWidget<VisionBoardController> {
                     children: [
                       Obx(() => Text(
                             controller.isEditing.value
-                                ? 'Edit Vision'
-                                : 'Add Vision',
+                                ? 'edit vision'
+                                : 'add vision',
                             style: appTheme.titleLarge.copyWith(
                               fontSize: ScaleUtil.fontSize(15),
                             ),
@@ -63,7 +63,7 @@ class VisionBottomSheet extends GetWidget<VisionBoardController> {
                       controller: controller.titleController,
                       style: appTheme.bodyMedium,
                       decoration: InputDecoration(
-                        labelText: 'Vision Board Item Title',
+                        labelText: 'vision board item title',
                         filled: true,
                         fillColor: appTheme.textFieldFillColor,
                         labelStyle: appTheme.bodyMedium.copyWith(
@@ -254,7 +254,7 @@ class VisionBottomSheet extends GetWidget<VisionBoardController> {
                   height: ScaleUtil.height(80),
                   fit: BoxFit.cover,
                   errorBuilder: (context, error, stackTrace) {
-                    print("Error loading local image: $error");
+                    print("error loading local image: $error");
                     return Container(
                       width: ScaleUtil.width(80),
                       height: ScaleUtil.height(80),

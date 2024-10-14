@@ -46,11 +46,11 @@ class PageOneScreen extends GetWidget<PageOneController> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text('Daily Inspiration'),
+          title: Text('daily inspiration'),
           content: Text(quote),
           actions: <Widget>[
             TextButton(
-              child: Text('Close'),
+              child: Text('close'),
               onPressed: () {
                 Get.back();
               },
@@ -88,7 +88,7 @@ class PageOneScreen extends GetWidget<PageOneController> {
             Row(
               children: [
                 Tooltip(
-                  message: 'Tap for daily inspiration!',
+                  message: 'tap for daily inspiration!',
                   child: PressableDough(
                     onReleased: (d) async {
                       await _showQuoteDialog(context);

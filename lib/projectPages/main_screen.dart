@@ -1,18 +1,11 @@
 import 'package:animate_do/animate_do.dart';
 
-
-
 import 'package:flutter/material.dart';
 
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
-
 import 'package:tushar_db/services/scale_util.dart';
-
-
 import '../controller/main_screen_controller.dart';
-
-
 import '../services/app_theme.dart';
 
 class MainScreen extends GetWidget<MainScreenController> {
@@ -22,7 +15,7 @@ class MainScreen extends GetWidget<MainScreenController> {
   Widget build(BuildContext context) {
     ScaleUtil.init(context);
 
-    // Add this to update status bar color when the screen builds
+ 
 
     final appTheme = Get.find<AppTheme>();
     appTheme.updateStatusBarColor();
@@ -83,8 +76,7 @@ class MainScreen extends GetWidget<MainScreenController> {
         onTap: () => controller.changeIndex(index),
         child: Center(
           child: AnimatedContainer(
-            width:
-                ScaleUtil.width(35), // Increased width for larger touch area
+            width: ScaleUtil.width(35), // Increased width for larger touch area
             height: ScaleUtil.height(35),
             duration: Duration(milliseconds: 300),
             curve: Curves.easeIn,
@@ -113,6 +105,4 @@ class MainScreen extends GetWidget<MainScreenController> {
       ),
     );
   }
-
-
 }

@@ -229,7 +229,7 @@ Widget _buildNotificationButton(BuildContext context,
               children: [
                 Icon(Icons.cancel, color: Colors.red),
                 SizedBox(width: 8),
-                Text('Cancel Notification'),
+                Text('cancel Notification'),
               ],
             ),
           ));
@@ -242,7 +242,7 @@ Widget _buildNotificationButton(BuildContext context,
                 children: [
                   Icon(Icons.wb_sunny, color: Colors.orange),
                   SizedBox(width: 8),
-                  Text('At Morning'),
+                  Text('at morning'),
                 ],
               ),
             ));
@@ -255,7 +255,7 @@ Widget _buildNotificationButton(BuildContext context,
                 children: [
                   Icon(Icons.nightlight_round, color: Colors.indigo),
                   SizedBox(width: 8),
-                  Text('At Night'),
+                  Text('at night'),
                 ],
               ),
             ));
@@ -292,17 +292,17 @@ Widget _buildNotificationButton(BuildContext context,
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text('Delete Vision Board Item'),
-          content: Text('Are you sure you want to delete this item?'),
+          title: Text('delete vision board item'),
+          content: Text('are you sure you want to delete this item?'),
           actions: <Widget>[
             TextButton(
-              child: Text('Cancel'),
+              child: Text('cancel'),
               onPressed: () {
                 Navigator.of(context).pop();
               },
             ),
             TextButton(
-              child: Text('Delete'),
+              child: Text('delete'),
               onPressed: () {
                 controller.deleteItem(item.id);
                 Navigator.of(context).pop();

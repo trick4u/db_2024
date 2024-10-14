@@ -1,5 +1,3 @@
-
-
 import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
@@ -8,22 +6,16 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-
 import 'package:get/get.dart';
 
 import 'package:get_storage/get_storage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-
 import 'package:tushar_db/firebase_options.dart';
 import 'package:tushar_db/pages/splash_screen.dart';
 
-
 import 'app_routes.dart';
 import 'bindings/initial_binding.dart';
-
-
-
 
 import 'services/app_theme.dart';
 import 'services/auth_service.dart';
@@ -87,7 +79,7 @@ void main() async {
   print('WorkManager initialized!');
 
   await AwesomeNotifications().initialize(
-    null,
+    'resource://drawable/notification_icon',
     [
       NotificationChannel(
         channelKey: 'basic_channel',
