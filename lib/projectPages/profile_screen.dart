@@ -3,6 +3,7 @@ import 'package:dough/dough.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 import 'package:tushar_db/services/app_text_style.dart';
 import 'package:tushar_db/services/scale_util.dart';
@@ -67,15 +68,16 @@ class ProfileScreen extends GetWidget<ProfileController> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text('Profile Info',
+                            Text('profile info',
                                 style: TextStyle(
+                                    fontFamily: GoogleFonts.afacad().fontFamily,
                                     fontSize: ScaleUtil.fontSize(18),
                                     fontWeight: FontWeight.bold)),
                             ScaleUtil.sizedBox(height: 12),
-                            _buildSettingTile('Username', Icons.person,
+                            _buildSettingTile('username', Icons.person,
                                 valueBuilder: () =>
                                     "@" + controller.username.value),
-                            _buildSettingTile('Email', Icons.email,
+                            _buildSettingTile('email', Icons.email,
                                 valueBuilder: () =>
                                     controller.email.value ?? ''),
                           ],
@@ -84,21 +86,22 @@ class ProfileScreen extends GetWidget<ProfileController> {
                     ),
                     ScaleUtil.sizedBox(height: 24),
                     Text(
-                      'Settings',
+                      'settings',
                       style: TextStyle(
+                          fontFamily: GoogleFonts.afacad().fontFamily,
                           fontSize: ScaleUtil.fontSize(18),
                           fontWeight: FontWeight.bold),
                     ),
                     ScaleUtil.sizedBox(height: 12),
-                    _buildSettingTile('Theme', Icons.brightness_6, onTap: () {
+                    _buildSettingTile('theme', Icons.brightness_6, onTap: () {
                       appTheme.toggleTheme();
                       appTheme.updateStatusBarColor();
                     }),
-                    _buildSettingTile('Change Password', Icons.lock,
+                    _buildSettingTile('change password', Icons.lock,
                         onTap: () => _showChangePasswordBottomSheet(context)),
-                    _buildSettingTile('Logout', Icons.exit_to_app,
+                    _buildSettingTile('logout', Icons.exit_to_app,
                         onTap: () => controller.logout()),
-                    _buildSettingTile('Delete Account', Icons.delete_forever,
+                    _buildSettingTile('delete account', Icons.delete_forever,
                         onTap: () => controller.deleteAccount(),
                         color: Colors.red),
                   ],
@@ -373,13 +376,13 @@ class ChangePasswordBottomSheet extends GetWidget<ProfileController> {
               children: [
                 _buildHeader(context),
                 ScaleUtil.sizedBox(height: 16),
-                _buildPasswordField(context, 'Current Password',
+                _buildPasswordField(context, 'current password',
                     currentPasswordController, showCurrentPassword),
                 ScaleUtil.sizedBox(height: 16),
-                _buildPasswordField(context, 'New Password',
+                _buildPasswordField(context, 'new password',
                     newPasswordController, showNewPassword),
                 ScaleUtil.sizedBox(height: 16),
-                _buildPasswordField(context, 'Confirm New Password',
+                _buildPasswordField(context, 'confirm new password',
                     confirmNewPasswordController, showConfirmNewPassword),
                 ScaleUtil.sizedBox(height: 16),
                 _buildActionButtons(context),
@@ -396,7 +399,7 @@ class ChangePasswordBottomSheet extends GetWidget<ProfileController> {
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Text(
-          'Change Password',
+          'change password',
           style: appTheme.titleLarge.copyWith(
             fontSize: ScaleUtil.fontSize(15),
           ),
@@ -405,7 +408,7 @@ class ChangePasswordBottomSheet extends GetWidget<ProfileController> {
           icon: Icon(Icons.close,
               color: appTheme.textColor, size: ScaleUtil.iconSize(18)),
           onPressed: () => Get.back(),
-          tooltip: 'Close',
+          tooltip: 'close',
         ),
       ],
     );
