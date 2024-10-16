@@ -1,4 +1,3 @@
-
 import 'package:animate_do/animate_do.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 
@@ -7,6 +6,7 @@ import 'package:dough/dough.dart';
 import 'package:flutter/material.dart';
 
 import 'package:get/get.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:table_calendar/table_calendar.dart';
 import 'package:tushar_db/services/scale_util.dart';
@@ -27,9 +27,11 @@ class CalendarPage extends GetWidget<CalendarController> {
       builder: (controller) => Obx(
         () {
           if (controller.isLoading.value) {
-            return Center(child: CircularProgressIndicator(
-               color: Colors.deepPurpleAccent,
-            ),);
+            return Center(
+              child: CircularProgressIndicator(
+                color: Colors.deepPurpleAccent,
+              ),
+            );
           } else if (controller.hasError.value) {
             return Center(
               child: Text(
@@ -307,7 +309,8 @@ class calendarpageWidget extends StatelessWidget {
                                             day.day.toString(),
                                             style: TextStyle(
                                               fontWeight: FontWeight.bold,
-                                              fontFamily: 'Euclid',
+                                              fontFamily: GoogleFonts.afacad()
+                                                  .fontFamily,
                                               fontSize: ScaleUtil.fontSize(12),
                                               color:
                                                   Colors.white, // Always white
@@ -344,7 +347,9 @@ class calendarpageWidget extends StatelessWidget {
                                                     color: Colors.white,
                                                     fontSize:
                                                         ScaleUtil.fontSize(7),
-                                                    fontFamily: 'Euclid',
+                                                    fontFamily:
+                                                        GoogleFonts.afacad()
+                                                            .fontFamily,
                                                   ),
                                                 ),
                                               ),
@@ -384,7 +389,8 @@ class calendarpageWidget extends StatelessWidget {
                                             date.day.toString(),
                                             style: TextStyle(
                                               color: Colors.white,
-                                              fontFamily: 'Euclid',
+                                              fontFamily: GoogleFonts.afacad()
+                                                  .fontFamily,
                                               fontSize: ScaleUtil.fontSize(14),
                                             ),
                                           ),
@@ -409,7 +415,9 @@ class calendarpageWidget extends StatelessWidget {
                                                   eventCount.toString(),
                                                   style: TextStyle(
                                                     color: Colors.blue,
-                                                    fontFamily: 'Euclid',
+                                                    fontFamily:
+                                                        GoogleFonts.afacad()
+                                                            .fontFamily,
                                                     fontSize:
                                                         ScaleUtil.fontSize(9),
                                                   ),
@@ -523,18 +531,14 @@ class calendarpageWidget extends StatelessWidget {
                                 ToastUtil.showToast(
                                   'event limit reached',
                                   'you can only add up to 10 events per day.',
-                                
                                   backgroundColor: appTheme.colorScheme.surface,
-                                
                                 );
                               }
                             } else {
                               ToastUtil.showToast(
                                 'cannot Add Event',
                                 'events cannot be added to past dates.',
-                              
                                 backgroundColor: appTheme.colorScheme.surface,
-                              
                               );
                             }
                           },

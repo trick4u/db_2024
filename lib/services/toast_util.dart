@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class ToastUtil {
   static void showToast(
@@ -17,6 +18,7 @@ class ToastUtil {
       backgroundColor: backgroundColor ?? Colors.grey,
       textColor: textColor ?? Colors.white,
       fontSize: 16.0,
+      fontAsset: GoogleFonts.afacad().fontFamily,
     );
   }
 }

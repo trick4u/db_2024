@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:table_calendar/table_calendar.dart';
 
@@ -42,7 +43,10 @@ class CustomCalendarHeader extends GetView<CalendarController> {
                 },
                 child: Text(
                   headerText,
-                  style: TextStyle(fontSize: 20, fontFamily: 'Euclid'),
+                  style: TextStyle(
+                    fontSize: 20,
+                    fontFamily: GoogleFonts.afacad().fontFamily,
+                  ),
                   overflow: TextOverflow.ellipsis,
                 ),
               );
@@ -70,14 +74,12 @@ class CustomCalendarHeader extends GetView<CalendarController> {
                   ToastUtil.showToast(
                     'Event Limit Reached',
                     'You can only add up to 10 events per day.',
-                  
                   );
                 }
               } else {
                 ToastUtil.showToast(
                   'Cannot Add Event',
                   'Events cannot be added to past dates.',
-                
                 );
               }
             },
