@@ -66,10 +66,13 @@ class calendarpageWidget extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            'schedule tasks .',
-            style: appTheme.titleLarge.copyWith(
-              letterSpacing: 1.5,
+          Padding(
+            padding: ScaleUtil.only(left: 10),
+            child: Text(
+              'schedule tasks .',
+              style: appTheme.titleLarge.copyWith(
+                letterSpacing: 1.5,
+              ),
             ),
           ),
           CustomCalendarHeader(),

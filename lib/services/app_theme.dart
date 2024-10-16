@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 import 'scale_util.dart';
 
@@ -83,14 +84,14 @@ class AppTheme extends GetxController {
   TextStyle get titleLarge => TextStyle(
         fontSize: ScaleUtil.fontSize(20),
         fontWeight: FontWeight.bold,
-        fontFamily: "Euclid",
+         fontFamily: GoogleFonts.afacad().fontFamily,
         color: textColor,
       );
 
   TextStyle get bodyMedium => TextStyle(
         fontSize: ScaleUtil.fontSize(14),
         color: textColor,
-        fontFamily: "Euclid",
+        fontFamily: GoogleFonts.afacad().fontFamily,
       );
 
   ButtonStyle get primaryButtonStyle => ElevatedButton.styleFrom(

@@ -18,120 +18,93 @@ class ProfileScreen extends GetWidget<ProfileController> {
   Widget build(BuildContext context) {
     ScaleUtil.init(context);
     appTheme.updateStatusBarColor();
-    var customScrollView = CustomScrollView(
-      slivers: [
-        SliverAppBar(
-          expandedHeight: ScaleUtil.height(80),
-          floating: false,
-          pinned: true,
-          flexibleSpace: PressableDough(
-            onReleased: (d) {
-              controller.toggleGradientDirection();
-            },
-            child: Obx(() => FlexibleSpaceBar(
-                  background: AnimatedContainer(
-                    duration: Duration(milliseconds: 500),
-                    curve: Curves.easeIn,
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        begin: controller.isGradientReversed.value
-                            ? Alignment.bottomRight
-                            : Alignment.topLeft,
-                        end: controller.isGradientReversed.value
-                            ? Alignment.topLeft
-                            : Alignment.bottomRight,
-                        colors: [
-                          appTheme.colorScheme.primary,
-                          Colors.deepPurpleAccent,
-                        ],
-                      ),
-                    ),
-                  ),
-                  title: Obx(() => Text(
-                        controller.name.value,
-                        style: TextStyle(
-                          fontSize: ScaleUtil.fontSize(15),
-                        ),
-                      )),
-                  centerTitle: true,
-                )),
-          ),
-          actions: [
-            IconButton(
-              icon: Icon(
-                Icons.edit,
-                size: ScaleUtil.iconSize(15),
-              ),
-              onPressed: () => _showEditBottomSheet(context),
-            ),
-          ],
-        ),
-        SliverToBoxAdapter(
-          child: Padding(
-            padding: ScaleUtil.all(16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Card(
-                  elevation: 1,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: ScaleUtil.circular(12),
-                  ),
-                  child: Padding(
-                    padding: ScaleUtil.all(16),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text('profile Info',
-                            style: TextStyle(
-                                fontSize: ScaleUtil.fontSize(18),
-                                fontWeight: FontWeight.bold)),
-                        ScaleUtil.sizedBox(height: 12),
-                        _buildSettingTile('username', Icons.person,
-                            valueBuilder: () =>
-                                "@" + controller.username.value),
-                        _buildSettingTile('email', Icons.email,
-                            valueBuilder: () => controller.email.value ?? ''),
-                      ],
-                    ),
-                  ),
-                ),
-                ScaleUtil.sizedBox(height: 24),
-                Text('settings',
-                    style: TextStyle(
-                        fontSize: ScaleUtil.fontSize(18),
-                        fontWeight: FontWeight.bold),),
-                ScaleUtil.sizedBox(height: 12),
-                _buildSettingTile('theme', Icons.brightness_6, onTap: () {
-                  appTheme.toggleTheme();
-                  appTheme.updateStatusBarColor();
-                }),
-                _buildSettingTile('change password', Icons.lock,
-                    onTap: () => _showChangePasswordBottomSheet(context)),
-                _buildSettingTile('logout', Icons.exit_to_app,
-                    onTap: () => controller.logout()),
-                _buildSettingTile('delete cccount', Icons.delete_forever,
-                    onTap: () => controller.deleteAccount(), color: Colors.red),
-              ],
-            ),
-          ),
-        ),
-      ],
-    );
     return Scaffold(
-      resizeToAvoidBottomInset: false,
+      appBar: AppBar(
+        centerTitle: true,
+        elevation: 2,
+        title: Obx(
+          () => Text(
+            controller.name.value,
+            style: AppTextTheme.textTheme.headlineLarge,
+          ),
+        ),
+        actions: [
+          IconButton(
+            icon: Icon(
+              Icons.edit,
+              size: ScaleUtil.iconSize(15),
+            ),
+            onPressed: () => _showEditBottomSheet(context),
+          ),
+        ],
+      ),
       body: SafeArea(
         child: Obx(() {
           if (controller.isLoading.value) {
-            return Center(child: CircularProgressIndicator(
-               color: Colors.deepPurpleAccent,
-            ),);
+            return Center(
+              child: CircularProgressIndicator(
+                color: Colors.deepPurpleAccent,
+              ),
+            );
           } else if (controller.hasError.value) {
             return Center(
-              child: Text('an error occurred. please try again.'),
+              child: Text('An error occurred. Please try again.'),
             );
           } else {
-            return customScrollView;
+            return SingleChildScrollView(
+              child: Padding(
+                padding: ScaleUtil.all(16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Card(
+                      elevation: 1,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: ScaleUtil.circular(12),
+                      ),
+                      child: Padding(
+                        padding: ScaleUtil.all(16),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text('Profile Info',
+                                style: TextStyle(
+                                    fontSize: ScaleUtil.fontSize(18),
+                                    fontWeight: FontWeight.bold)),
+                            ScaleUtil.sizedBox(height: 12),
+                            _buildSettingTile('Username', Icons.person,
+                                valueBuilder: () =>
+                                    "@" + controller.username.value),
+                            _buildSettingTile('Email', Icons.email,
+                                valueBuilder: () =>
+                                    controller.email.value ?? ''),
+                          ],
+                        ),
+                      ),
+                    ),
+                    ScaleUtil.sizedBox(height: 24),
+                    Text(
+                      'Settings',
+                      style: TextStyle(
+                          fontSize: ScaleUtil.fontSize(18),
+                          fontWeight: FontWeight.bold),
+                    ),
+                    ScaleUtil.sizedBox(height: 12),
+                    _buildSettingTile('Theme', Icons.brightness_6, onTap: () {
+                      appTheme.toggleTheme();
+                      appTheme.updateStatusBarColor();
+                    }),
+                    _buildSettingTile('Change Password', Icons.lock,
+                        onTap: () => _showChangePasswordBottomSheet(context)),
+                    _buildSettingTile('Logout', Icons.exit_to_app,
+                        onTap: () => controller.logout()),
+                    _buildSettingTile('Delete Account', Icons.delete_forever,
+                        onTap: () => controller.deleteAccount(),
+                        color: Colors.red),
+                  ],
+                ),
+              ),
+            );
           }
         }),
       ),
@@ -359,9 +332,7 @@ class EditProfileBottomSheet extends GetWidget<ProfileController> {
       ToastUtil.showToast(
         'Success',
         'Profile updated successfully',
-     
         backgroundColor: Colors.green,
-      
         duration: Duration(seconds: 2),
       );
     }

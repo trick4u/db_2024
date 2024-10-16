@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 import 'scale_util.dart';
 
@@ -21,77 +22,77 @@ class AppTextTheme {
   static TextTheme get textTheme {
     return TextTheme(
       displayLarge: TextStyle(
-        fontFamily: 'Euclid',
+        fontFamily: GoogleFonts.afacad().fontFamily,
         fontSize: ScaleUtil.fontSize(32),
         fontWeight: FontWeight.bold,
       ),
       displayMedium: TextStyle(
-        fontFamily: 'Euclid',
+        fontFamily: GoogleFonts.afacad().fontFamily,
         fontSize: ScaleUtil.fontSize(28),
         fontWeight: FontWeight.bold,
       ),
       displaySmall: TextStyle(
-        fontFamily: 'Euclid',
+        fontFamily: GoogleFonts.afacad().fontFamily,
         fontSize: ScaleUtil.fontSize(24),
         fontWeight: FontWeight.bold,
       ),
       headlineLarge: TextStyle(
-        fontFamily: 'Euclid',
+        fontFamily: GoogleFonts.afacad().fontFamily,
         fontSize: ScaleUtil.fontSize(22),
         fontWeight: FontWeight.w600,
       ),
       headlineMedium: TextStyle(
-        fontFamily: 'Euclid',
+        fontFamily: GoogleFonts.afacad().fontFamily,
         fontSize: ScaleUtil.fontSize(20),
         fontWeight: FontWeight.w600,
       ),
       headlineSmall: TextStyle(
-        fontFamily: 'Euclid',
+        fontFamily: GoogleFonts.afacad().fontFamily,
         fontSize: ScaleUtil.fontSize(18),
         fontWeight: FontWeight.w600,
       ),
       titleLarge: TextStyle(
-        fontFamily: 'Euclid',
+        fontFamily: GoogleFonts.afacad().fontFamily,
         fontSize: ScaleUtil.fontSize(16),
         fontWeight: FontWeight.w600,
       ),
       titleMedium: TextStyle(
-        fontFamily: 'Euclid',
+        fontFamily: GoogleFonts.afacad().fontFamily,
         fontSize: ScaleUtil.fontSize(14),
         fontWeight: FontWeight.w500,
       ),
       titleSmall: TextStyle(
-        fontFamily: 'Euclid',
+        fontFamily: GoogleFonts.afacad().fontFamily,
         fontSize: ScaleUtil.fontSize(12),
         fontWeight: FontWeight.w600,
       ),
       bodyLarge: TextStyle(
-        fontFamily: 'Euclid',
+        fontFamily: GoogleFonts.afacad().fontFamily,
         fontSize: ScaleUtil.fontSize(16),
         fontWeight: FontWeight.normal,
       ),
       bodyMedium: TextStyle(
-        fontFamily: 'Euclid',
+        fontFamily: GoogleFonts.afacad().fontFamily,
         fontSize: ScaleUtil.fontSize(14),
         fontWeight: FontWeight.normal,
       ),
       bodySmall: TextStyle(
-        fontFamily: 'Euclid',
+        fontFamily: GoogleFonts.afacad().fontFamily,
         fontSize: ScaleUtil.fontSize(12),
         fontWeight: FontWeight.normal,
       ),
       labelLarge: TextStyle(
-        fontFamily: 'Euclid',
+        fontFamily: GoogleFonts.afacad().fontFamily,
         fontSize: ScaleUtil.fontSize(14),
         fontWeight: FontWeight.w500,
       ),
       labelMedium: TextStyle(
-        fontFamily: 'Euclid',
+        fontFamily: GoogleFonts.afacad().fontFamily,
         fontSize: ScaleUtil.fontSize(12),
         fontWeight: FontWeight.w500,
       ),
       labelSmall: TextStyle(
-        fontFamily: 'Euclid',
+        fontFamily: GoogleFonts.afacad().fontFamily,
         fontSize: ScaleUtil.fontSize(10),
         fontWeight: FontWeight.w500,
       ),
