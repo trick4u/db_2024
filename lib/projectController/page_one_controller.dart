@@ -713,7 +713,9 @@ class PageOneController extends GetxController {
           criticalAlert: true,
           wakeUpScreen: true,
           autoDismissible: false,
-          largeIcon: ImageAssets().iconLogo,
+              largeIcon: 'resource://drawable/notification_icon',
+          color: Colors.blue,
+          icon: 'resource://drawable/notification_icon',
           payload: {
             'repeat': repeat.toString(),
             'interval': interval.toString(),

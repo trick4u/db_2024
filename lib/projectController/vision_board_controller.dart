@@ -20,7 +20,6 @@ import '../services/toast_util.dart';
 import '../widgets/vision_bottom_sheet.dart';
 import 'dart:isolate';
 
-
 class VisionBoardController extends GetxController {
   final titleController = TextEditingController();
   final selectedDate = DateTime.now().obs;
@@ -194,7 +193,7 @@ class VisionBoardController extends GetxController {
           payload: {'time': isMorning ? 'morning' : 'night'},
           criticalAlert: true,
           wakeUpScreen: true,
-         largeIcon: ImageAssets().iconLogo,
+          largeIcon: 'resource://drawable/notification_icon',
         ),
         schedule: NotificationCalendar(
           year: scheduledTime.year,
@@ -573,7 +572,7 @@ class VisionBoardController extends GetxController {
     update();
   }
 
-   void fetchVisionBoardItems() {
+  void fetchVisionBoardItems() {
     if (currentUser == null) return;
 
     isLoading.value = true;
@@ -586,7 +585,7 @@ class VisionBoardController extends GetxController {
 
       for (var doc in querySnapshot.docs) {
         VisionBoardItem item = VisionBoardItem.fromFirestore(doc);
-        
+
         // Check if the item is already in the list
         if (!itemIds.contains(item.id)) {
           allItems.add(item);
@@ -620,7 +619,6 @@ class VisionBoardController extends GetxController {
     });
     _updateNotificationIcons();
   }
-
 
   void _updateNotificationIcons() {
     for (var item in visionBoardItems) {
@@ -968,7 +966,7 @@ class VisionBoardController extends GetxController {
     }
   }
 
-    Future<void> saveToFirestore(List<String> imageUrls, String userId) async {
+  Future<void> saveToFirestore(List<String> imageUrls, String userId) async {
     final newItem = VisionBoardItem(
       id: '',
       title: titleController.text.trim(),
@@ -985,7 +983,7 @@ class VisionBoardController extends GetxController {
         .doc(userId)
         .collection('vision_board')
         .doc();
-    
+
     batch.set(docRef, newItem.toMap());
 
     // Commit the batch

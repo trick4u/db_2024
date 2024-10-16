@@ -130,8 +130,8 @@ class MainScreenController extends GetxController
         notificationLayout: NotificationLayout.Default,
       ),
       schedule: NotificationCalendar(
-        hour: 11,
-        minute: 15,
+        hour: 08,
+        minute: 05,
         second: 0,
         millisecond: 0,
         repeats: true,

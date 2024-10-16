@@ -153,7 +153,7 @@ class RegisterPage extends GetView<RegisterController> {
                           child: controller.isLoading.value
                               ? CircularProgressIndicator(color: Colors.white)
                               : Text(
-                                  'Register',
+                                  'register',
                                   style: AppTextTheme.textTheme.bodyMedium
                                       ?.copyWith(
                                     fontWeight: FontWeight.w500,
@@ -174,7 +174,7 @@ class RegisterPage extends GetView<RegisterController> {
                         backgroundColor: Colors.white,
                       ),
                       child: Text(
-                        'Login',
+                        'login',
                         style: AppTextTheme.textTheme.bodyMedium?.copyWith(
                           fontWeight: FontWeight.w500,
                           color: Colors.deepPurpleAccent,

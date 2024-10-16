@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:awesome_notifications/awesome_notifications.dart';
+import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:workmanager/workmanager.dart';
 
@@ -93,9 +94,9 @@ class WorkmanagerNotificationService {
     );
   }
 
- static Duration _getInitialDelay() {
+  static Duration _getInitialDelay() {
     final now = DateTime.now();
-    final eightAM = DateTime(now.year, now.month, now.day, 8, 0);
+    final eightAM = DateTime(now.year, now.month, now.day, 07, 45);
     if (now.isAfter(eightAM)) {
       return eightAM.add(Duration(days: 1)).difference(now);
     } else {
@@ -111,17 +112,21 @@ class WorkmanagerNotificationService {
         title: 'Daily Reminder',
         body: 'Start your day with purpose!',
         notificationLayout: NotificationLayout.Default,
+        largeIcon: 'resource://drawable/notification_icon',
+        color: Colors.blue,
+        icon: 'resource://drawable/notification_icon',
       ),
     );
   }
-  
 
- static Future<void> scheduleNotification(Map<String, dynamic> notificationData) async {
+  static Future<void> scheduleNotification(
+      Map<String, dynamic> notificationData) async {
     final prefs = await SharedPreferences.getInstance();
     String key = 'notification_${notificationData['id']}';
     await prefs.setString(key, jsonEncode(notificationData));
 
-    List<String> notificationKeys = prefs.getStringList('notification_keys') ?? [];
+    List<String> notificationKeys =
+        prefs.getStringList('notification_keys') ?? [];
     if (!notificationKeys.contains(key)) {
       notificationKeys.add(key);
       await prefs.setStringList('notification_keys', notificationKeys);
@@ -155,14 +160,16 @@ class WorkmanagerNotificationService {
     await prefs.setStringList('notification_keys', notificationKeys);
   }
 
- static Future<void> rescheduleNotifications() async {
+  static Future<void> rescheduleNotifications() async {
     final prefs = await SharedPreferences.getInstance();
-    List<String> notificationKeys = prefs.getStringList('notification_keys') ?? [];
+    List<String> notificationKeys =
+        prefs.getStringList('notification_keys') ?? [];
 
     for (String key in notificationKeys) {
       String? notificationDataString = prefs.getString(key);
       if (notificationDataString != null) {
-        Map<String, dynamic> notificationData = jsonDecode(notificationDataString);
+        Map<String, dynamic> notificationData =
+            jsonDecode(notificationDataString);
         await scheduleNotification(notificationData);
       }
     }
@@ -256,7 +263,6 @@ void callbackDispatcher() {
         await WorkmanagerNotificationService
             .rescheduleVisionBoardNotifications();
         break;
-        
     }
 
     return Future.value(true);
