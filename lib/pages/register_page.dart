@@ -48,7 +48,7 @@ class RegisterPage extends GetView<RegisterController> {
                   children: [
                     Obx(() => _buildTextField(
                           controller: controller.usernameController,
-                          hintText: 'Enter username (7-15 characters)',
+                          hintText: 'enter username (7-15 characters)',
                           prefixIcon: Icons.person,
                           suffixIcon: controller.canCheckUsername.value
                               ? IconButton(
@@ -63,7 +63,7 @@ class RegisterPage extends GetView<RegisterController> {
                               : null,
                           errorText: controller.hasCheckedUsername.value &&
                                   !controller.isUsernameAvailable.value
-                              ? 'Username unavailable'
+                              ? 'username unavailable'
                               : null,
                           inputFormatters: [
                             LengthLimitingTextInputFormatter(15),
@@ -73,7 +73,7 @@ class RegisterPage extends GetView<RegisterController> {
                     SizedBox(height: ScaleUtil.height(10.0)),
                     Obx(() => _buildTextField(
                           controller: controller.nameController,
-                          hintText: 'Enter name (5-20 characters)',
+                          hintText: 'enter name (5-20 characters)',
                           prefixIcon: FontAwesomeIcons.user,
                           inputFormatters: [
                             LengthLimitingTextInputFormatter(20),
@@ -82,17 +82,17 @@ class RegisterPage extends GetView<RegisterController> {
                     SizedBox(height: ScaleUtil.height(10.0)),
                     Obx(() => _buildTextField(
                           controller: controller.emailController,
-                          hintText: 'Enter email',
+                          hintText: 'enter email',
                           prefixIcon: Icons.email,
                           keyboardType: TextInputType.emailAddress,
                           errorText: controller.isEmailValid.value
                               ? null
-                              : 'Invalid email',
+                              : 'invalid email',
                         )),
                     SizedBox(height: ScaleUtil.height(10.0)),
                     Obx(() => _buildTextField(
                           controller: controller.passwordController,
-                          hintText: 'Enter password (7-30 characters)',
+                          hintText: 'enter password (7-30 characters)',
                           prefixIcon: Icons.lock,
                           obscureText: !controller.isPasswordVisible.value,
                           suffixIcon: IconButton(
@@ -112,7 +112,7 @@ class RegisterPage extends GetView<RegisterController> {
                     SizedBox(height: ScaleUtil.height(10.0)),
                     Obx(() => _buildTextField(
                           controller: controller.confirmPasswordController,
-                          hintText: 'Confirm password',
+                          hintText: 'confirm password',
                           prefixIcon: Icons.lock,
                           obscureText:
                               !controller.isConfirmPasswordVisible.value,
@@ -129,7 +129,7 @@ class RegisterPage extends GetView<RegisterController> {
                           ),
                           errorText: controller.doPasswordsMatch.value
                               ? null
-                              : 'Passwords do not match',
+                              : 'passwords do not match',
                         )),
                     SizedBox(height: ScaleUtil.height(20.0)),
                     Obx(() => ElevatedButton(

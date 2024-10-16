@@ -25,7 +25,7 @@ class ProfileScreen extends GetWidget<ProfileController> {
         elevation: 2,
         title: Obx(
           () => Text(
-            controller.name.value,
+            controller.name.value.toLowerCase(),
             style: AppTextTheme.textTheme.headlineLarge,
           ),
         ),
@@ -75,8 +75,7 @@ class ProfileScreen extends GetWidget<ProfileController> {
                                     fontWeight: FontWeight.bold)),
                             ScaleUtil.sizedBox(height: 12),
                             _buildSettingTile('username', Icons.person,
-                                valueBuilder: () =>
-                                    "@" + controller.username.value),
+                                valueBuilder: () => controller.username.value),
                             _buildSettingTile('email', Icons.email,
                                 valueBuilder: () =>
                                     controller.email.value ?? ''),

@@ -87,15 +87,15 @@ class ProfileController extends GetxController with WidgetsBindingObserver {
   Future<void> logout() async {
     bool? shouldLogout = await Get.dialog<bool>(
       AlertDialog(
-        title: Text('Confirm Logout'),
-        content: Text('Are you sure you want to log out?'),
+        title: Text('confirm logout'),
+        content: Text('are you sure you want to log out?'),
         actions: [
           TextButton(
-            child: Text('Cancel'),
+            child: Text('cancel'),
             onPressed: () => Get.back(result: false),
           ),
           TextButton(
-            child: Text('Logout'),
+            child: Text('logout'),
             onPressed: () => Get.back(result: true),
           ),
         ],
@@ -107,9 +107,9 @@ class ProfileController extends GetxController with WidgetsBindingObserver {
         await cancelAllFirestoreListeners();
         await FirebaseAuth.instance.signOut();
         await Get.offAllNamed(AppRoutes.HOME);
-        ToastUtil.showToast('Success', 'You have been logged out');
+        ToastUtil.showToast('success', 'you have been logged out');
       } catch (error) {
-        ToastUtil.showToast('Error', 'Failed to log out: $error');
+        ToastUtil.showToast('error', 'failed to log out: $error');
       }
     }
   }
@@ -135,16 +135,16 @@ class ProfileController extends GetxController with WidgetsBindingObserver {
       // Show re-authentication dialog
       bool? shouldProceed = await Get.dialog<bool>(
         AlertDialog(
-          title: Text('Confirm Account Deletion'),
+          title: Text('confirm Account Deletion'),
           content: Text(
-              'Please re-enter your password to delete your account. This action cannot be undone.'),
+              'please re-enter your password to delete your account. This action cannot be undone.'),
           actions: [
             TextButton(
-              child: Text('Cancel'),
+              child: Text('cancel'),
               onPressed: () => Get.back(result: false),
             ),
             TextButton(
-              child: Text('Proceed'),
+              child: Text('proceed'),
               onPressed: () => Get.back(result: true),
             ),
           ],
@@ -158,15 +158,15 @@ class ProfileController extends GetxController with WidgetsBindingObserver {
       // Get the user's password
       String? password = await Get.dialog<String>(
         AlertDialog(
-          title: Text('Enter Password'),
+          title: Text('enter password'),
           content: TextField(
             controller: passwordController,
             obscureText: true,
-            decoration: InputDecoration(hintText: "Password"),
+            decoration: InputDecoration(hintText: "password"),
           ),
           actions: [
             TextButton(
-              child: Text('Submit'),
+              child: Text('submit'),
               onPressed: () => Get.back(result: passwordController.text),
             ),
           ],
@@ -174,7 +174,7 @@ class ProfileController extends GetxController with WidgetsBindingObserver {
       );
 
       if (password == null || password.isEmpty) {
-        ToastUtil.showToast('Error', 'Password is required to delete account');
+        ToastUtil.showToast('error', 'password is required to delete account');
         return;
       }
 

@@ -45,7 +45,7 @@ class LoginPage extends GetWidget<LoginController> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(
-                    'Welcome back!',
+                    'welcome back!',
                     style: AppTextTheme.textTheme.bodyLarge?.copyWith(
                       fontWeight: FontWeight.bold,
                     ),
@@ -53,14 +53,14 @@ class LoginPage extends GetWidget<LoginController> {
                   SizedBox(height: ScaleUtil.height(20.0)),
                   _buildTextField(
                     controller: controller.userInputController,
-                    hintText: 'Enter username or email',
+                    hintText: 'enter username or email',
                     prefixIcon: Icons.person,
                   ),
                   SizedBox(height: ScaleUtil.height(10.0)),
                   Obx(
                     () => _buildTextField(
                       controller: controller.passwordController,
-                      hintText: 'Enter password',
+                      hintText: 'enter password',
                       obscureText: !controller.isPasswordVisible.value,
                       prefixIcon: Icons.lock,
                       suffixIcon: IconButton(
@@ -82,7 +82,7 @@ class LoginPage extends GetWidget<LoginController> {
                         _showForgotPasswordBottomSheet(context);
                       },
                       child: Text(
-                        'Forgot Password',
+                        'forgot password',
                         style: AppTextTheme.textTheme.bodySmall,
                       ),
                     ),
@@ -332,8 +332,8 @@ class ForgotPasswordBottomSheet extends GetWidget<LoginController> {
       controller.forgotPassword(emailController.text.trim());
       Get.back();
       ToastUtil.showToast(
-        'Success',
-        'Password reset email sent successfully',
+        'success',
+        'password reset email sent successfully',
         backgroundColor: Colors.green,
         duration: Duration(seconds: 2),
       );

@@ -47,7 +47,7 @@ class StatisticsScreen extends GetView<StatisticsController> {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Text(
-                          'tasks in Next 7 Days',
+                          'tasks in next 7 days',
                           style: appTheme.titleLarge.copyWith(
                             fontSize: ScaleUtil.fontSize(16),
                           ),
@@ -286,13 +286,13 @@ Widget _buildWeeklyTaskChart(
                           showTitles: true,
                           getTitlesWidget: (value, meta) {
                             const titles = [
-                              'Sun',
-                              'Mon',
-                              'Tue',
-                              'Wed',
-                              'Thur',
-                              'Fri',
-                              'Sat'
+                              'sun',
+                              'mon',
+                              'tue',
+                              'wed',
+                              'thur',
+                              'fri',
+                              'sat'
                             ];
                             return Padding(
                               padding: ScaleUtil.only(top: 8.0),

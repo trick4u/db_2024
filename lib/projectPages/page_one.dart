@@ -113,19 +113,19 @@ class PageOneScreen extends GetWidget<PageOneController> {
                                     ? Text(
                                         'goalKeep',
                                         style: TextStyle(
-                                          fontFamily:
-                                              GoogleFonts.badScript().fontFamily,
-                                          fontSize: 30,
-                                          fontWeight: FontWeight.w500,
+                                          fontFamily: GoogleFonts.shantellSans()
+                                              .fontFamily,
+                                          fontSize: ScaleUtil.fontSize(25),
+                                          fontWeight: FontWeight.bold,
                                         ),
                                       )
                                     : AnimatedBouncingText(
                                         text: 'goalKeep',
                                         textStyle: TextStyle(
-                                          fontFamily:
-                                              GoogleFonts.badScript().fontFamily,
-                                          fontSize: 30,
-                                          fontWeight: FontWeight.w500,
+                                          fontFamily: GoogleFonts.shantellSans()
+                                              .fontFamily,
+                                          fontSize: ScaleUtil.fontSize(25),
+                                          fontWeight: FontWeight.bold,
                                         ),
                                         onEnd: () {
                                           _hasAnimated.value = true;
@@ -278,7 +278,9 @@ class PageOneScreen extends GetWidget<PageOneController> {
     final pomodoroController = Get.find<PomodoroController>();
 
     return Obx(() => pomodoroController.isSetupComplete.value
-        ? FadeIn(child: PomodoroMusicPlayer(),)
+        ? FadeIn(
+            child: PomodoroMusicPlayer(),
+          )
         : PomodoroSetupScreen(
             onStart: () {
               pomodoroController.startPomodoroSession();

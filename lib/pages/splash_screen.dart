@@ -61,7 +61,7 @@ class _SplashScreenState extends State<SplashScreen> {
                 child: Text(
                   'goalKeep',
                   style: TextStyle(
-                    fontFamily: GoogleFonts.badScript().fontFamily,
+                    fontFamily: GoogleFonts.shantellSans().fontFamily,
                     fontSize: 30,
                     fontWeight: FontWeight.w500,
                     color: Colors.white,

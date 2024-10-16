@@ -1,17 +1,13 @@
-
-
 import 'package:dough/dough.dart';
 import 'package:flutter/material.dart';
 
 import 'package:get/get.dart';
-
+import 'package:tushar_db/services/app_text_style.dart';
 
 import '../app_routes.dart';
 
-
 import '../services/app_theme.dart';
 import '../services/scale_util.dart';
-
 
 class MyHomePage extends StatelessWidget {
   @override
@@ -53,7 +49,7 @@ class MyHomePage extends StatelessWidget {
             appTheme.toggleTheme();
           },
           child: Container(
-            height: ScaleUtil.height(200),
+            height: ScaleUtil.height(225),
             margin: ScaleUtil.all(20),
             padding: ScaleUtil.all(20),
             decoration: BoxDecoration(
@@ -74,7 +70,10 @@ class MyHomePage extends StatelessWidget {
                 SizedBox(height: ScaleUtil.height(10)),
 
                 ElevatedButton(
-                  child: Text('Continue with Email'),
+                  child: Text(
+                    'Continue with Email',
+                    style: AppTextTheme.textTheme.bodyMedium,
+                  ),
                   onPressed: () {
                     Get.toNamed(AppRoutes.LOGIN);
                   },
