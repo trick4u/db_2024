@@ -66,7 +66,7 @@ class RemindersList extends GetWidget<PageOneController> {
           ),
           ScaleUtil.sizedBox(height: 16),
           Text(
-            'No reminders yet',
+            'no reminders yet',
             style: TextStyle(
               fontSize: ScaleUtil.fontSize(18),
               fontWeight: FontWeight.bold,
@@ -94,7 +94,7 @@ class RemindersList extends GetWidget<PageOneController> {
               );
             },
             child: Text(
-              'Tap "add reminders +" to create a new reminder',
+              'tap "add reminders +" to create a new reminder',
               textAlign: TextAlign.center,
               style: TextStyle(
                 color: Colors.grey,

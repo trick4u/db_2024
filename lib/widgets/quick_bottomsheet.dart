@@ -174,7 +174,7 @@ class _QuickReminderBottomSheetState extends State<QuickReminderBottomSheet> {
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Text(
-          widget.reminderToEdit != null ? 'Edit Reminder' : 'Add Reminder',
+          widget.reminderToEdit != null ? 'edit reminder' : 'add reminder',
           style: Theme.of(context).textTheme.titleLarge?.copyWith(
                 fontSize: ScaleUtil.fontSize(15),
               ),
@@ -196,7 +196,7 @@ class _QuickReminderBottomSheetState extends State<QuickReminderBottomSheet> {
                     widget.reminderController
                         .toggleSwitch(!widget.reminderController.repeat.value);
                   },
-                  tooltip: 'Toggle repeat',
+                  tooltip: 'toggle repeat',
                 )),
             _buildTimeSelectionPopup(context),
             IconButton(
@@ -204,7 +204,7 @@ class _QuickReminderBottomSheetState extends State<QuickReminderBottomSheet> {
                   color: Theme.of(context).iconTheme.color,
                   size: ScaleUtil.iconSize(18)),
               onPressed: () => Get.back(),
-              tooltip: 'Close',
+              tooltip: 'close',
             ),
           ],
         ),
@@ -253,7 +253,7 @@ class _QuickReminderBottomSheetState extends State<QuickReminderBottomSheet> {
                 fontSize: ScaleUtil.fontSize(12),
               ),
           decoration: InputDecoration(
-            labelText: 'Reminder Title',
+            labelText: 'reminder title',
             labelStyle: TextStyle(fontSize: ScaleUtil.fontSize(12)),
             filled: true,
             fillColor: Theme.of(context).inputDecorationTheme.fillColor ??
@@ -265,7 +265,7 @@ class _QuickReminderBottomSheetState extends State<QuickReminderBottomSheet> {
           ),
           validator: (value) {
             if (value == null || value.isEmpty) {
-              return 'Please enter a reminder title';
+              return 'please enter a reminder title';
             }
             return null;
           },
@@ -279,7 +279,7 @@ class _QuickReminderBottomSheetState extends State<QuickReminderBottomSheet> {
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Obx(() => Text(
-              'Next reminder: ${widget.reminderController.getFormattedNextNotificationTime()}',
+              'next reminder: ${widget.reminderController.getFormattedNextNotificationTime()}',
               style: TextStyle(fontSize: ScaleUtil.fontSize(12)),
             )),
         _buildSaveButton(context),
@@ -359,8 +359,8 @@ class _QuickReminderBottomSheetState extends State<QuickReminderBottomSheet> {
         ToastUtil.showToast(
           '',
           widget.reminderToEdit != null
-              ? 'Reminder updated successfully'
-              : 'Reminder added successfully',
+              ? 'reminder updated successfully'
+              : 'reminder added successfully',
           backgroundColor: Colors.green,
           duration: Duration(seconds: 2),
         );

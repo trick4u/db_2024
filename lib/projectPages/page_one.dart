@@ -114,18 +114,18 @@ class PageOneScreen extends GetWidget<PageOneController> {
                                         'goalKeep',
                                         style: TextStyle(
                                           fontFamily:
-                                              GoogleFonts.pacifico().fontFamily,
+                                              GoogleFonts.badScript().fontFamily,
                                           fontSize: 30,
-                                          fontWeight: FontWeight.w300,
+                                          fontWeight: FontWeight.w500,
                                         ),
                                       )
                                     : AnimatedBouncingText(
                                         text: 'goalKeep',
                                         textStyle: TextStyle(
                                           fontFamily:
-                                              GoogleFonts.pacifico().fontFamily,
+                                              GoogleFonts.badScript().fontFamily,
                                           fontSize: 30,
-                                          fontWeight: FontWeight.w300,
+                                          fontWeight: FontWeight.w500,
                                         ),
                                         onEnd: () {
                                           _hasAnimated.value = true;

@@ -182,7 +182,7 @@ class VisionBottomSheet extends GetWidget<VisionBoardController> {
             ),)
           else if (totalImages == 0)
             Text(
-              'No images selected',
+              'no images selected',
               style: appTheme.bodyMedium.copyWith(
                 color: appTheme.secondaryTextColor,
                 fontSize: ScaleUtil.fontSize(14),

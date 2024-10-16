@@ -23,7 +23,7 @@ class LoginPage extends GetWidget<LoginController> {
         title: Text(
           'login here',
           style: TextStyle(
-            fontFamily: GoogleFonts.pacifico().fontFamily,
+            fontFamily: GoogleFonts.badScript().fontFamily,
             fontSize: ScaleUtil.fontSize(25),
             fontWeight: FontWeight.w100,
           ),
@@ -109,7 +109,7 @@ class LoginPage extends GetWidget<LoginController> {
                         child: controller.isLoading.value
                             ? CircularProgressIndicator(color: Colors.white)
                             : Text(
-                                'Login',
+                                'login',
                                 style:
                                     AppTextTheme.textTheme.bodyMedium?.copyWith(
                                   fontWeight: FontWeight.w500,
@@ -132,7 +132,7 @@ class LoginPage extends GetWidget<LoginController> {
                       backgroundColor: Colors.white,
                     ),
                     child: Text(
-                      'Register now',
+                      'register now',
                       style: AppTextTheme.textTheme.bodyMedium?.copyWith(
                         fontWeight: FontWeight.w500,
                         color: Colors.deepPurpleAccent,
@@ -241,7 +241,7 @@ class ForgotPasswordBottomSheet extends GetWidget<LoginController> {
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Text(
-          'Forgot Password',
+          'forgot password',
           style: appTheme.titleLarge.copyWith(
             fontSize: ScaleUtil.fontSize(15),
           ),
@@ -250,7 +250,7 @@ class ForgotPasswordBottomSheet extends GetWidget<LoginController> {
           icon: Icon(Icons.close,
               color: appTheme.textColor, size: ScaleUtil.iconSize(18)),
           onPressed: () => Get.back(),
-          tooltip: 'Close',
+          tooltip: 'close',
         ),
       ],
     );
@@ -266,7 +266,7 @@ class ForgotPasswordBottomSheet extends GetWidget<LoginController> {
             fontSize: ScaleUtil.fontSize(12),
           ),
           decoration: InputDecoration(
-            labelText: 'Email',
+            labelText: 'email',
             labelStyle: TextStyle(fontSize: ScaleUtil.fontSize(12)),
             filled: true,
             fillColor: appTheme.textFieldFillColor,
@@ -276,10 +276,10 @@ class ForgotPasswordBottomSheet extends GetWidget<LoginController> {
           onChanged: (_) => _updateCanSave(),
           validator: (value) {
             if (value == null || value.isEmpty) {
-              return 'Please enter your email';
+              return 'please enter your email';
             }
             if (!GetUtils.isEmail(value)) {
-              return 'Please enter a valid email';
+              return 'please enter a valid email';
             }
             return null;
           },
@@ -334,9 +334,7 @@ class ForgotPasswordBottomSheet extends GetWidget<LoginController> {
       ToastUtil.showToast(
         'Success',
         'Password reset email sent successfully',
-
         backgroundColor: Colors.green,
-     
         duration: Duration(seconds: 2),
       );
     }

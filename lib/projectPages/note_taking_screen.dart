@@ -85,18 +85,18 @@ class NoteTakingScreen extends GetWidget<NoteTakingController> {
           backgroundColor:
               appTheme.isDarkMode ? Colors.grey[900] : Colors.white,
           title: Text(
-            'Delete all notes',
+            'delete all notes',
             style: TextStyle(
                 color: appTheme.isDarkMode ? Colors.white : Colors.black),
           ),
           content: Text(
-            'Are you sure you want to delete all notes? This action cannot be undone.',
+            'are you sure you want to delete all notes? this action cannot be undone.',
             style: TextStyle(
                 color: appTheme.isDarkMode ? Colors.white70 : Colors.black87),
           ),
           actions: <Widget>[
             TextButton(
-              child: Text('Cancel',
+              child: Text('cancel',
                   style: TextStyle(
                       color: appTheme.isDarkMode
                           ? Colors.white70
@@ -106,7 +106,7 @@ class NoteTakingScreen extends GetWidget<NoteTakingController> {
               },
             ),
             TextButton(
-              child: Text('Delete All', style: TextStyle(color: Colors.red)),
+              child: Text('delete all', style: TextStyle(color: Colors.red)),
               onPressed: () {
                 controller.deleteAllNotes();
                 Navigator.of(context).pop();

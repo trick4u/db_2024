@@ -25,7 +25,7 @@ class RegisterPage extends GetView<RegisterController> {
           title: Text(
             'register here',
             style: TextStyle(
-              fontFamily: GoogleFonts.pacifico().fontFamily,
+              fontFamily: GoogleFonts.badScript().fontFamily,
               fontSize: ScaleUtil.fontSize(25),
               fontWeight: FontWeight.w100,
             ),

@@ -208,7 +208,7 @@ class NoteListView extends GetWidget<NoteTakingController> {
             ),
             SizedBox(height: ScaleUtil.height(16)),
             Text(
-              'Add Note',
+              'add note',
               style: appTheme.titleLarge.copyWith(
                 color: appTheme.colorScheme.primary,
               ),
@@ -225,9 +225,9 @@ class NoteListView extends GetWidget<NoteTakingController> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          _buildCountText('Completed', controller.completedNotesCount,
+          _buildCountText('completed', controller.completedNotesCount,
               Colors.green, appTheme),
-          _buildCountText('Incomplete', controller.incompleteNotesCount,
+          _buildCountText('incomplete', controller.incompleteNotesCount,
               Colors.orange, appTheme),
         ],
       ),
