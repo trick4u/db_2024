@@ -18,7 +18,7 @@ class ToastUtil {
       backgroundColor: backgroundColor ?? Colors.grey,
       textColor: textColor ?? Colors.white,
       fontSize: 16.0,
-      fontAsset: GoogleFonts.afacad().fontFamily,
+
     );
   }
 }

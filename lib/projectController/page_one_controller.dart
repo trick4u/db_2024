@@ -705,15 +705,15 @@ class PageOneController extends GetxController {
       await AwesomeNotifications().createNotification(
         content: NotificationContent(
           id: notificationId,
-          channelKey: 'quickschedule',
-          title: 'DoBoard Reminder 📅',
+          channelKey: 'event_reminders',
+          title: 'goalKeep Reminder 📅',
           body: body,
           category: NotificationCategory.Reminder,
           notificationLayout: NotificationLayout.Default,
           criticalAlert: true,
           wakeUpScreen: true,
           autoDismissible: false,
-              largeIcon: 'resource://drawable/notification_icon',
+          largeIcon: 'resource://drawable/notification_icon',
           color: Colors.blue,
           icon: 'resource://drawable/notification_icon',
           payload: {
@@ -724,22 +724,22 @@ class PageOneController extends GetxController {
           },
         ),
         schedule: NotificationCalendar.fromDate(date: scheduledDate),
-        actionButtons: [
-          NotificationActionButton(
-            key: 'MARK_DONE',
-            label: 'Mark as Done',
-          ),
-          NotificationActionButton(
-            key: 'DISMISS',
-            label: 'Dismiss',
-            actionType: ActionType.DismissAction,
-          ),
-        ],
+        // actionButtons: [
+        //   NotificationActionButton(
+        //     key: 'MARK_DONE',
+        //     label: 'Mark as Done',
+        //   ),
+        //   NotificationActionButton(
+        //     key: 'DISMISS',
+        //     label: 'Dismiss',
+        //     actionType: ActionType.DismissAction,
+        //   ),
+        // ],
       );
       Map<String, dynamic> notificationData = {
         'id': notificationId,
         'channelKey': 'quickschedule',
-        'title': 'DoBoard Reminder 📅',
+        'title': 'goalKeep Reminder 📅',
         'body': body,
         'scheduledTime': scheduledDate.toIso8601String(),
         'repeat': repeat,

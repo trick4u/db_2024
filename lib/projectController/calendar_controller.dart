@@ -741,10 +741,10 @@ class CalendarController extends GetxController {
           notificationLayout: NotificationLayout.Default,
           criticalAlert: true,
           wakeUpScreen: true,
-            largeIcon: 'resource://drawable/notification_icon',
+          largeIcon: 'resource://drawable/notification_icon',
           color: Colors.blue,
           icon: 'resource://drawable/notification_icon',
-
+          customSound: 'resource://raw/notification_sound',
         ),
         schedule: NotificationCalendar(
           year: scheduledDate.year,
