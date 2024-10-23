@@ -47,11 +47,10 @@ Future<void> initializeAudioService() async {
     await JustAudioBackground.init(
       androidNotificationChannelId: 'com.example.tushar_db.audio',
       androidNotificationChannelName: 'Audio playback',
-      
       androidNotificationOngoing: true,
       androidShowNotificationBadge: true,
       preloadArtwork: true,
-      androidStopForegroundOnPause: false,
+      androidStopForegroundOnPause: true,
       notificationColor: const Color(0xFF2196f3),
       androidNotificationIcon: 'mipmap/ic_launcher',
     );
@@ -61,21 +60,22 @@ Future<void> initializeAudioService() async {
     // Attempt to recover
     try {
       await Future.delayed(Duration(seconds: 1));
-      await JustAudioBackground.init(
-        androidNotificationChannelId: 'com.example.tushar_db.audio.retry',
-        androidNotificationChannelName: 'Audio playback',
-        androidNotificationOngoing: true,
-        androidShowNotificationBadge: true,
-        preloadArtwork: true,
-        androidStopForegroundOnPause: false,
-        notificationColor: const Color(0xFF2196f3),
-        androidNotificationIcon: 'mipmap/ic_launcher',
-      );
+      // await JustAudioBackground.init(
+      //   androidNotificationChannelId: 'com.example.tushar_db.audio.retry',
+      //   androidNotificationChannelName: 'Audio playback',
+      //   androidNotificationOngoing: true,
+      //   androidShowNotificationBadge: true,
+      //   preloadArtwork: true,
+      //   androidStopForegroundOnPause: true,
+      //   notificationColor: const Color(0xFF2196f3),
+      //   androidNotificationIcon: 'mipmap/ic_launcher',
+      // );
     } catch (e) {
       print('Failed to initialize audio service after retry: $e');
     }
   }
 }
+
 void main() async {
   if (kDebugMode) {
     FlutterError.onError = (FlutterErrorDetails details) {

@@ -2,6 +2,7 @@ import 'dart:math';
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:http/http.dart' as http;
@@ -34,6 +35,11 @@ class PomodoroController extends GetxController with WidgetsBindingObserver {
   RxBool isSetupComplete = false.obs;
   RxInt totalSessions = 4.obs; // Default to 4 sessions
   RxInt currentSession = 1.obs;
+
+  //new variables
+  static const int maxRetries = 3;
+  static const Duration retryDelay = Duration(milliseconds: 500);
+  final RxBool isLoadingTrack = false.obs;
 
   RxList<String> availableGenres = <String>[
     'chill',
@@ -69,6 +75,7 @@ class PomodoroController extends GetxController with WidgetsBindingObserver {
   void onInit() {
     super.onInit();
     WidgetsBinding.instance.addObserver(this);
+    _initializePlayer();
     randomizeInitialGenre();
     fetchTracks();
     fetchBackgroundImage();
@@ -99,6 +106,16 @@ class PomodoroController extends GetxController with WidgetsBindingObserver {
         break;
       default:
         break;
+    }
+  }
+
+  Future<void> _initializePlayer() async {
+    try {
+      await audioPlayer.setVolume(volume.value);
+      await audioPlayer.setAutomaticallyWaitsToMinimizeStalling(true);
+      setupAudioPlayerListeners();
+    } catch (e) {
+      print('Error initializing player: $e');
     }
   }
 
@@ -180,12 +197,169 @@ class PomodoroController extends GetxController with WidgetsBindingObserver {
         availableGenres[random.nextInt(availableGenres.length)];
   }
 
-  void setupAudioPlayerListeners() {
-    audioPlayer.playerStateStream.listen((playerState) {
-      if (playerState.processingState == ProcessingState.completed) {
-        playNextTrack();
+ void setupAudioPlayerListeners() {
+    // Listen for playback state changes
+    audioPlayer.playerStateStream.listen(
+      (playerState) async {
+        if (playerState.processingState == ProcessingState.completed) {
+          await _safePlayNextTrack();
+        }
+      },
+      onError: (error) {
+        print('Player state stream error: $error');
+        _handlePlaybackError();
+      },
+    );
+
+    // Listen for errors
+    audioPlayer.playbackEventStream.listen(
+      (event) {},
+      onError: (Object e, StackTrace stackTrace) {
+        print('Playback event stream error: $e');
+        _handlePlaybackError();
+      },
+    );
+  }
+   Future<void> _handlePlaybackError() async {
+    if (isPlaying.value && !isLoadingTrack.value) {
+      await _safePlayNextTrack();
+    }
+  }
+
+   Future<void> _safePlayNextTrack() async {
+    try {
+      if (tracks.isEmpty) return;
+      
+      int nextIndex = (currentTrackIndex.value + 1) % tracks.length;
+      currentTrackIndex.value = nextIndex;
+      
+      await _safePlayTrack(tracks[nextIndex]);
+    } catch (e) {
+      print('Error in safe play next track: $e');
+    }
+  }
+
+  Future<void> _safePlayTrack(Map<String, dynamic> track) async {
+    if (isLoadingTrack.value) return;
+    
+    isLoadingTrack.value = true;
+    int attemptCount = 0;
+
+    try {
+      while (attemptCount < maxRetries) {
+        try {
+          final success = await _attemptPlayTrack(track);
+          if (success) {
+            isLoadingTrack.value = false;
+            return;
+          }
+        } catch (e) {
+          print('Attempt ${attemptCount + 1} failed: $e');
+        }
+
+        attemptCount++;
+        if (attemptCount < maxRetries) {
+          await Future.delayed(retryDelay);
+        }
       }
-    });
+
+      // If all attempts failed, try next track
+      print('All attempts failed, trying next track');
+      isLoadingTrack.value = false;
+      await _safePlayNextTrack();
+    } finally {
+      isLoadingTrack.value = false;
+    }
+  }
+ Future<bool> _attemptPlayTrack(Map<String, dynamic> track) async {
+    try {
+      final artUri = Uri.parse(
+        backgroundImageUrl.value ?? 
+        'https://cdn.pixabay.com/photo/2024/04/09/22/28/trees-8686902_1280.jpg'
+      );
+
+      final mediaItem = MediaItem(
+        id: track['id']?.toString() ?? DateTime.now().toString(),
+        album: 'Pomodoro Focus',
+        title: track['name'] ?? 'Unknown Track',
+        artist: track['artist_name'] ?? 'Unknown Artist',
+        duration: Duration(seconds: int.tryParse(track['duration']?.toString() ?? '0') ?? 0),
+        artUri: artUri,
+        displayDescription: 'Genre: ${currentGenre.value}',
+        extras: {
+          'url': track['audio'],
+          'genre': currentGenre.value,
+          'keepPlaying': true,
+        },
+      );
+
+      // Create and set the audio source
+      final audioSource = AudioSource.uri(
+        Uri.parse(track['audio']),
+        tag: mediaItem,
+      );
+
+      // Set the audio source with a timeout
+      bool sourceSet = await _setAudioSourceWithTimeout(audioSource);
+      if (!sourceSet) return false;
+
+      // Start playback
+      if (!isBreakTime.value) {
+        await audioPlayer.play();
+        isPlaying.value = true;
+        updateOverlayOpacity();
+      }
+
+      return true;
+    } on PlatformException catch (e) {
+      print('Platform Exception in attempt play track: ${e.message}');
+      return false;
+    } catch (e) {
+      print('Error in attempt play track: $e');
+      return false;
+    }
+  }
+
+  Future<bool> _setAudioSourceWithTimeout(AudioSource source) async {
+    try {
+      await audioPlayer.setAudioSource(source)
+          .timeout(Duration(seconds: 5), onTimeout: () {
+        throw TimeoutException('Setting audio source timed out');
+      });
+      return true;
+    } on TimeoutException {
+      print('Setting audio source timed out');
+      return false;
+    } catch (e) {
+      print('Error setting audio source: $e');
+      return false;
+    }
+  }
+
+
+  Future<void> _recoverPlayback() async {
+    try {
+      if (tracks.isNotEmpty) {
+        await playTrack(tracks[currentTrackIndex.value], retry: true);
+      }
+    } catch (e) {
+      print('Error recovering playback: $e');
+    }
+  }
+
+  Future<bool> _trySetAudioSource(AudioSource source,
+      {int retryCount = 0}) async {
+    try {
+      await audioPlayer.setAudioSource(source);
+      return true;
+    } catch (e) {
+      print('Error setting audio source (attempt ${retryCount + 1}): $e');
+      if (retryCount < maxRetries) {
+        await Future.delayed(retryDelay);
+        return _trySetAudioSource(source, retryCount: retryCount + 1);
+      }
+      return false;
+    }
   }
 
   void startPomodoroSession() {
@@ -258,10 +432,19 @@ class PomodoroController extends GetxController with WidgetsBindingObserver {
     isVolumeMuted.value = false;
   }
 
-  void playNextTrack() {
+  Future<void> playNextTrack() async {
     if (tracks.isEmpty) return;
-    currentTrackIndex.value = (currentTrackIndex.value + 1) % tracks.length;
-    playTrack(tracks[currentTrackIndex.value]);
+    try {
+      int nextIndex = (currentTrackIndex.value + 1) % tracks.length;
+      currentTrackIndex.value = nextIndex;
+      await playTrack(tracks[nextIndex]);
+    } catch (e) {
+      print('Error switching to next track: $e');
+      // If error occurs, try the next track after a delay
+      await Future.delayed(Duration(seconds: 1));
+      currentTrackIndex.value = (currentTrackIndex.value + 1) % tracks.length;
+      await playTrack(tracks[currentTrackIndex.value], retry: true);
+    }
   }
 
   void playCurrentTrack() {
@@ -294,27 +477,31 @@ class PomodoroController extends GetxController with WidgetsBindingObserver {
     }
   }
 
-  void switchTrack() {
+  Future<void> switchTrack() async {
     if (tracks.isEmpty) return;
 
-    if (!isLimitedMode.value && switchCount.value < 5) {
-      int nextIndex = (currentTrackIndex.value + 1) % tracks.length;
-      currentTrackIndex.value = nextIndex;
-      updateLastFiveTracks(nextIndex);
-      playTrack(tracks[nextIndex]);
-      switchCount.value++;
+    try {
+      if (!isLimitedMode.value && switchCount.value < 5) {
+        int nextIndex = (currentTrackIndex.value + 1) % tracks.length;
+        currentTrackIndex.value = nextIndex;
+        updateLastFiveTracks(nextIndex);
+        await playTrack(tracks[nextIndex]);
+        switchCount.value++;
 
-      if (switchCount.value == 5) {
-        isLimitedMode.value = true;
+        if (switchCount.value == 5) {
+          isLimitedMode.value = true;
+        }
+      } else {
+        if (lastFiveTracks.length < 2) return;
+        int randomIndex = Random().nextInt(lastFiveTracks.length);
+        while (lastFiveTracks[randomIndex] == currentTrackIndex.value) {
+          randomIndex = Random().nextInt(lastFiveTracks.length);
+        }
+        currentTrackIndex.value = lastFiveTracks[randomIndex];
+        await playTrack(tracks[currentTrackIndex.value]);
       }
-    } else {
-      if (lastFiveTracks.length < 2) return;
-      int randomIndex = Random().nextInt(lastFiveTracks.length);
-      while (lastFiveTracks[randomIndex] == currentTrackIndex.value) {
-        randomIndex = Random().nextInt(lastFiveTracks.length);
-      }
-      currentTrackIndex.value = lastFiveTracks[randomIndex];
-      playTrack(tracks[currentTrackIndex.value]);
+    } catch (e) {
+      print('Error switching track: $e');
     }
   }
 
@@ -425,7 +612,6 @@ class PomodoroController extends GetxController with WidgetsBindingObserver {
 
   Future<void> preloadTrack(Map<String, dynamic> track) async {
     try {
-      // Get the current background image or use a fallback
       final artUri = Uri.parse(backgroundImageUrl.value ??
           'https://cdn.pixabay.com/photo/2024/04/09/22/28/trees-8686902_1280.jpg');
 
@@ -445,50 +631,63 @@ class PomodoroController extends GetxController with WidgetsBindingObserver {
         tag: mediaItem,
       );
 
-      await audioPlayer.setAudioSource(audioSource);
+      await _trySetAudioSource(audioSource);
     } catch (e) {
       print('Error preloading track: $e');
     }
   }
 
-  Future<void> playTrack(Map<String, dynamic> track) async {
-    try {
-      if (audioPlayer.audioSource?.toString() != track['audio']) {
-        // Get the current background image or use a fallback
-        final artUri = Uri.parse(backgroundImageUrl.value ??
-            'https://cdn.pixabay.com/photo/2024/04/09/22/28/trees-8686902_1280.jpg');
-
-        final mediaItem = MediaItem(
-          id: track['id']?.toString() ?? DateTime.now().toString(),
-          album: 'Pomodoro Focus',
-          title: track['name'] ?? 'Unknown Track',
-          artist: track['artist_name'] ?? 'Unknown Artist',
-          duration: Duration(
-              seconds: int.tryParse(track['duration']?.toString() ?? '0') ?? 0),
-          artUri: artUri,
-          displayDescription: 'Genre: ${currentGenre.value}',
-          extras: {
-            'url': track['audio'],
-            'genre': currentGenre.value,
-            'keepPlaying': true,
-          },
-        );
-
-        final audioSource = AudioSource.uri(
-          Uri.parse(track['audio']),
-          tag: mediaItem,
-        );
-
-        await audioPlayer.setAudioSource(audioSource);
-      }
-
-      await audioPlayer.play();
+  Future<void> playTrack(Map<String, dynamic> track,
+      {bool retry = false}) async {
+    if (!retry) {
+      // Only update state if this isn't a retry attempt
       isPlaying.value = true;
       updateOverlayOpacity();
+    }
+
+    try {
+      final artUri = Uri.parse(backgroundImageUrl.value ??
+          'https://cdn.pixabay.com/photo/2024/04/09/22/28/trees-8686902_1280.jpg');
+
+      final mediaItem = MediaItem(
+        id: track['id']?.toString() ?? DateTime.now().toString(),
+        album: 'Pomodoro Focus',
+        title: track['name'] ?? 'Unknown Track',
+        artist: track['artist_name'] ?? 'Unknown Artist',
+        duration: Duration(
+            seconds: int.tryParse(track['duration']?.toString() ?? '0') ?? 0),
+        artUri: artUri,
+        displayDescription: 'Genre: ${currentGenre.value}',
+        extras: {
+          'url': track['audio'],
+          'genre': currentGenre.value,
+          'keepPlaying': true,
+        },
+      );
+
+      final audioSource = AudioSource.uri(
+        Uri.parse(track['audio']),
+        tag: mediaItem,
+      );
+
+      // Try to set the audio source with retries
+      final success = await _trySetAudioSource(audioSource);
+      if (success) {
+        await audioPlayer.play();
+      } else {
+        // If setting audio source failed after retries, try next track
+        print('Failed to set audio source after retries, trying next track');
+        if (!retry) {
+          await playNextTrack();
+        }
+      }
     } catch (e) {
       print('Error playing track: $e');
-      // Try to recover by fetching new tracks
-      await fetchTracks();
+      if (!retry) {
+        // Only try next track if this wasn't already a retry attempt
+        await Future.delayed(Duration(seconds: 1));
+        await playNextTrack();
+      }
     }
   }
 
