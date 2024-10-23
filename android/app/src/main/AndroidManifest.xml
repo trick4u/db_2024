@@ -28,6 +28,23 @@
         </activity>
         <!-- Don't delete the meta-data below.
              This is used by the Flutter tool to generate GeneratedPluginRegistrant.java -->
+             <service
+            android:name="com.ryanheise.audioservice.AudioService"
+            android:foregroundServiceType="mediaPlayback"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.media.browse.MediaBrowserService" />
+            </intent-filter>
+        </service>
+
+          <receiver
+            android:name="com.ryanheise.audioservice.MediaButtonReceiver"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MEDIA_BUTTON" />
+            </intent-filter>
+        </receiver>
+        
         <meta-data
             android:name="flutterEmbedding"
             android:value="2" />
@@ -48,7 +65,7 @@
 <uses-permission android:name="android.permission.USE_FULL_SCREEN_INTENT" />
 <uses-permission android:name="android.permission.WAKE_LOCK" />
 <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
-
+  <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK"/>
 
 
     <!-- Required to query activities that can process text, see:

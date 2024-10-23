@@ -9,6 +9,7 @@ import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 
 import 'package:get_storage/get_storage.dart';
+import 'package:just_audio_background/just_audio_background.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:tushar_db/firebase_options.dart';
@@ -41,7 +42,40 @@ void callbackDispatcher() {
   //   return Future.value(true);
   // });
 }
-
+Future<void> initializeAudioService() async {
+  try {
+    await JustAudioBackground.init(
+      androidNotificationChannelId: 'com.example.tushar_db.audio',
+      androidNotificationChannelName: 'Audio playback',
+      
+      androidNotificationOngoing: true,
+      androidShowNotificationBadge: true,
+      preloadArtwork: true,
+      androidStopForegroundOnPause: false,
+      notificationColor: const Color(0xFF2196f3),
+      androidNotificationIcon: 'mipmap/ic_launcher',
+    );
+    print('Audio service initialized successfully');
+  } catch (e) {
+    print('Failed to initialize audio service: $e');
+    // Attempt to recover
+    try {
+      await Future.delayed(Duration(seconds: 1));
+      await JustAudioBackground.init(
+        androidNotificationChannelId: 'com.example.tushar_db.audio.retry',
+        androidNotificationChannelName: 'Audio playback',
+        androidNotificationOngoing: true,
+        androidShowNotificationBadge: true,
+        preloadArtwork: true,
+        androidStopForegroundOnPause: false,
+        notificationColor: const Color(0xFF2196f3),
+        androidNotificationIcon: 'mipmap/ic_launcher',
+      );
+    } catch (e) {
+      print('Failed to initialize audio service after retry: $e');
+    }
+  }
+}
 void main() async {
   if (kDebugMode) {
     FlutterError.onError = (FlutterErrorDetails details) {
@@ -52,6 +86,7 @@ void main() async {
   }
 
   WidgetsFlutterBinding.ensureInitialized();
+  await initializeAudioService();
   await SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitUp,
     DeviceOrientation.portraitDown,
@@ -120,7 +155,6 @@ void main() async {
           enableVibration: true,
           icon: 'resource://drawable/notification_icon',
           soundSource: 'resource://raw/notification_sound',
-          
           defaultRingtoneType: DefaultRingtoneType.Ringtone),
       NotificationChannel(
         channelKey: 'vision_board_reminders',

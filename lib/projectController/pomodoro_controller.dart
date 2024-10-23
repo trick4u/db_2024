@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:http/http.dart' as http;
+import 'package:just_audio_background/just_audio_background.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
 
@@ -275,7 +276,8 @@ class PomodoroController extends GetxController with WidgetsBindingObserver {
     isBreakTime.value = false;
     currentSession.value = 1;
   }
- void switchGenre() {
+
+  void switchGenre() {
     if (isBreakTime.value) return; // Prevent switching genre during break
 
     if (trackSwitchCount.value < requiredSwitchesBeforeGenreChange) {
@@ -291,7 +293,6 @@ class PomodoroController extends GetxController with WidgetsBindingObserver {
       trackSwitchCount.value = 0; // Reset the track switch count
     }
   }
-
 
   void switchTrack() {
     if (tracks.isEmpty) return;
@@ -349,6 +350,11 @@ class PomodoroController extends GetxController with WidgetsBindingObserver {
     try {
       final imageUrl = await _pexelsService.getRandomImageUrlAbs();
       backgroundImageUrl.value = imageUrl;
+
+      // Update the current media item with the new background image if playing
+      if (isPlaying.value && tracks.isNotEmpty) {
+        await playTrack(tracks[currentTrackIndex.value]);
+      }
     } catch (e) {
       print('Error fetching background image: $e');
     }
@@ -382,27 +388,64 @@ class PomodoroController extends GetxController with WidgetsBindingObserver {
   }
 
   Future<void> fetchTracks() async {
-    final response = await http.get(
-      Uri.parse(
-          'https://api.jamendo.com/v3.0/tracks/?client_id=6b572951&format=json&limit=20&tags=${currentGenre.value}&include=musicinfo&groupby=artist_id'),
-    );
+    try {
+      final response = await http.get(
+        Uri.parse(
+            'https://api.jamendo.com/v3.0/tracks/?client_id=6b572951&format=json&limit=20&tags=${currentGenre.value}&include=musicinfo&groupby=artist_id'),
+      );
 
-    if (response.statusCode == 200) {
-      final data = json.decode(response.body);
-      tracks.value = List<Map<String, dynamic>>.from(data['results']);
-      if (tracks.isNotEmpty) {
-        currentTrackIndex.value = 0;
-        // Preload the first track without playing it
-        await preloadTrack(tracks[0]);
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        final results = data['results'] as List<dynamic>;
+
+        tracks.value = results
+            .map((track) => {
+                  'id': track['id']?.toString() ?? DateTime.now().toString(),
+                  'name': track['name'] ?? 'Unknown Track',
+                  'artist_name': track['artist_name'] ?? 'Unknown Artist',
+                  'duration': track['duration'] ?? 0,
+                  'audio': track['audio'] ?? '',
+                  'image':
+                      track['image'] ?? 'https://example.com/placeholder.png',
+                })
+            .toList()
+            .cast<Map<String, dynamic>>();
+
+        if (tracks.isNotEmpty) {
+          currentTrackIndex.value = 0;
+          await preloadTrack(tracks[0]);
+        }
+      } else {
+        print('Failed to load tracks: ${response.statusCode}');
       }
-    } else {
-      print('Failed to load tracks: ${response.statusCode}');
+    } catch (e) {
+      print('Error fetching tracks: $e');
     }
   }
 
   Future<void> preloadTrack(Map<String, dynamic> track) async {
     try {
-      await audioPlayer.setUrl(track['audio']);
+      // Get the current background image or use a fallback
+      final artUri = Uri.parse(backgroundImageUrl.value ??
+          'https://cdn.pixabay.com/photo/2024/04/09/22/28/trees-8686902_1280.jpg');
+
+      final mediaItem = MediaItem(
+        id: track['id']?.toString() ?? DateTime.now().toString(),
+        album: 'Pomodoro Focus',
+        title: track['name'] ?? 'Unknown Track',
+        artist: track['artist_name'] ?? 'Unknown Artist',
+        duration: Duration(
+            seconds: int.tryParse(track['duration']?.toString() ?? '0') ?? 0),
+        artUri: artUri,
+        displayDescription: 'Genre: ${currentGenre.value}',
+      );
+
+      final audioSource = AudioSource.uri(
+        Uri.parse(track['audio']),
+        tag: mediaItem,
+      );
+
+      await audioPlayer.setAudioSource(audioSource);
     } catch (e) {
       print('Error preloading track: $e');
     }
@@ -411,12 +454,41 @@ class PomodoroController extends GetxController with WidgetsBindingObserver {
   Future<void> playTrack(Map<String, dynamic> track) async {
     try {
       if (audioPlayer.audioSource?.toString() != track['audio']) {
-        await audioPlayer.setUrl(track['audio']);
+        // Get the current background image or use a fallback
+        final artUri = Uri.parse(backgroundImageUrl.value ??
+            'https://cdn.pixabay.com/photo/2024/04/09/22/28/trees-8686902_1280.jpg');
+
+        final mediaItem = MediaItem(
+          id: track['id']?.toString() ?? DateTime.now().toString(),
+          album: 'Pomodoro Focus',
+          title: track['name'] ?? 'Unknown Track',
+          artist: track['artist_name'] ?? 'Unknown Artist',
+          duration: Duration(
+              seconds: int.tryParse(track['duration']?.toString() ?? '0') ?? 0),
+          artUri: artUri,
+          displayDescription: 'Genre: ${currentGenre.value}',
+          extras: {
+            'url': track['audio'],
+            'genre': currentGenre.value,
+            'keepPlaying': true,
+          },
+        );
+
+        final audioSource = AudioSource.uri(
+          Uri.parse(track['audio']),
+          tag: mediaItem,
+        );
+
+        await audioPlayer.setAudioSource(audioSource);
       }
-      audioPlayer.play();
+
+      await audioPlayer.play();
       isPlaying.value = true;
+      updateOverlayOpacity();
     } catch (e) {
       print('Error playing track: $e');
+      // Try to recover by fetching new tracks
+      await fetchTracks();
     }
   }
 

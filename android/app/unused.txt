@@ -95,10 +95,6 @@ android.support.v4.app.INotificationSideChannel$Stub:
 android.support.v4.app.INotificationSideChannel$_Parcel:
     public void <init>()
 android.support.v4.media.MediaBrowserCompat$Api21Impl
-android.support.v4.media.MediaBrowserCompat$CallbackHandler
-android.support.v4.media.MediaBrowserCompat$ConnectionCallback$ConnectionCallbackApi21
-android.support.v4.media.MediaBrowserCompat$ConnectionCallback$ConnectionCallbackInternal
-android.support.v4.media.MediaBrowserCompat$ConnectionCallback
 android.support.v4.media.MediaBrowserCompat$CustomActionCallback:
     public void <init>()
 android.support.v4.media.MediaBrowserCompat$CustomActionResultReceiver:
@@ -109,7 +105,17 @@ android.support.v4.media.MediaBrowserCompat$ItemCallback:
     public void <init>()
 android.support.v4.media.MediaBrowserCompat$ItemReceiver:
     void <init>(java.lang.String,android.support.v4.media.MediaBrowserCompat$ItemCallback,android.os.Handler)
-android.support.v4.media.MediaBrowserCompat$MediaBrowserImpl
+android.support.v4.media.MediaBrowserCompat$MediaBrowserImpl:
+    public abstract android.os.Bundle getExtras()
+    public abstract void getItem(java.lang.String,android.support.v4.media.MediaBrowserCompat$ItemCallback)
+    public abstract android.os.Bundle getNotifyChildrenChangedOptions()
+    public abstract java.lang.String getRoot()
+    public abstract android.content.ComponentName getServiceComponent()
+    public abstract boolean isConnected()
+    public abstract void search(java.lang.String,android.os.Bundle,android.support.v4.media.MediaBrowserCompat$SearchCallback)
+    public abstract void sendCustomAction(java.lang.String,android.os.Bundle,android.support.v4.media.MediaBrowserCompat$CustomActionCallback)
+    public abstract void subscribe(java.lang.String,android.os.Bundle,android.support.v4.media.MediaBrowserCompat$SubscriptionCallback)
+    public abstract void unsubscribe(java.lang.String,android.support.v4.media.MediaBrowserCompat$SubscriptionCallback)
 android.support.v4.media.MediaBrowserCompat$MediaBrowserImplApi21$1
 android.support.v4.media.MediaBrowserCompat$MediaBrowserImplApi21$2
 android.support.v4.media.MediaBrowserCompat$MediaBrowserImplApi21$3
@@ -117,20 +123,41 @@ android.support.v4.media.MediaBrowserCompat$MediaBrowserImplApi21$4
 android.support.v4.media.MediaBrowserCompat$MediaBrowserImplApi21$5
 android.support.v4.media.MediaBrowserCompat$MediaBrowserImplApi21$6
 android.support.v4.media.MediaBrowserCompat$MediaBrowserImplApi21$7
-android.support.v4.media.MediaBrowserCompat$MediaBrowserImplApi21
-android.support.v4.media.MediaBrowserCompat$MediaBrowserImplApi23
-android.support.v4.media.MediaBrowserCompat$MediaBrowserImplApi26
-android.support.v4.media.MediaBrowserCompat$MediaBrowserImplBase$1
-android.support.v4.media.MediaBrowserCompat$MediaBrowserImplBase$2
+android.support.v4.media.MediaBrowserCompat$MediaBrowserImplApi21:
+    public android.os.Bundle getExtras()
+    public void getItem(java.lang.String,android.support.v4.media.MediaBrowserCompat$ItemCallback)
+    public android.os.Bundle getNotifyChildrenChangedOptions()
+    public java.lang.String getRoot()
+    public android.content.ComponentName getServiceComponent()
+    public boolean isConnected()
+    public void search(java.lang.String,android.os.Bundle,android.support.v4.media.MediaBrowserCompat$SearchCallback)
+    public void sendCustomAction(java.lang.String,android.os.Bundle,android.support.v4.media.MediaBrowserCompat$CustomActionCallback)
+    public void subscribe(java.lang.String,android.os.Bundle,android.support.v4.media.MediaBrowserCompat$SubscriptionCallback)
+    public void unsubscribe(java.lang.String,android.support.v4.media.MediaBrowserCompat$SubscriptionCallback)
+android.support.v4.media.MediaBrowserCompat$MediaBrowserImplApi23:
+    public void getItem(java.lang.String,android.support.v4.media.MediaBrowserCompat$ItemCallback)
+android.support.v4.media.MediaBrowserCompat$MediaBrowserImplApi26:
+    public void subscribe(java.lang.String,android.os.Bundle,android.support.v4.media.MediaBrowserCompat$SubscriptionCallback)
+    public void unsubscribe(java.lang.String,android.support.v4.media.MediaBrowserCompat$SubscriptionCallback)
 android.support.v4.media.MediaBrowserCompat$MediaBrowserImplBase$3
 android.support.v4.media.MediaBrowserCompat$MediaBrowserImplBase$4
 android.support.v4.media.MediaBrowserCompat$MediaBrowserImplBase$5
 android.support.v4.media.MediaBrowserCompat$MediaBrowserImplBase$6
-android.support.v4.media.MediaBrowserCompat$MediaBrowserImplBase$MediaServiceConnection$1
-android.support.v4.media.MediaBrowserCompat$MediaBrowserImplBase$MediaServiceConnection$2
-android.support.v4.media.MediaBrowserCompat$MediaBrowserImplBase$MediaServiceConnection
-android.support.v4.media.MediaBrowserCompat$MediaBrowserImplBase
-android.support.v4.media.MediaBrowserCompat$MediaBrowserServiceCallbackImpl
+android.support.v4.media.MediaBrowserCompat$MediaBrowserImplBase:
+    static final int CONNECT_STATE_CONNECTED
+    static final int CONNECT_STATE_CONNECTING
+    static final int CONNECT_STATE_DISCONNECTED
+    static final int CONNECT_STATE_DISCONNECTING
+    static final int CONNECT_STATE_SUSPENDED
+    public android.os.Bundle getExtras()
+    public void getItem(java.lang.String,android.support.v4.media.MediaBrowserCompat$ItemCallback)
+    public android.os.Bundle getNotifyChildrenChangedOptions()
+    public java.lang.String getRoot()
+    public android.content.ComponentName getServiceComponent()
+    public void search(java.lang.String,android.os.Bundle,android.support.v4.media.MediaBrowserCompat$SearchCallback)
+    public void sendCustomAction(java.lang.String,android.os.Bundle,android.support.v4.media.MediaBrowserCompat$CustomActionCallback)
+    public void subscribe(java.lang.String,android.os.Bundle,android.support.v4.media.MediaBrowserCompat$SubscriptionCallback)
+    public void unsubscribe(java.lang.String,android.support.v4.media.MediaBrowserCompat$SubscriptionCallback)
 android.support.v4.media.MediaBrowserCompat$MediaItem:
     public static final int FLAG_BROWSABLE
     public static final int FLAG_PLAYABLE
@@ -145,31 +172,37 @@ android.support.v4.media.MediaBrowserCompat$SearchCallback:
     public void <init>()
 android.support.v4.media.MediaBrowserCompat$SearchResultReceiver:
     void <init>(java.lang.String,android.os.Bundle,android.support.v4.media.MediaBrowserCompat$SearchCallback,android.os.Handler)
-android.support.v4.media.MediaBrowserCompat$ServiceBinderWrapper
-android.support.v4.media.MediaBrowserCompat$Subscription
+android.support.v4.media.MediaBrowserCompat$ServiceBinderWrapper:
+    void getMediaItem(java.lang.String,android.support.v4.os.ResultReceiver,android.os.Messenger)
+    void removeSubscription(java.lang.String,android.os.IBinder,android.os.Messenger)
+    void search(java.lang.String,android.os.Bundle,android.support.v4.os.ResultReceiver,android.os.Messenger)
+    void sendCustomAction(java.lang.String,android.os.Bundle,android.support.v4.os.ResultReceiver,android.os.Messenger)
+android.support.v4.media.MediaBrowserCompat$Subscription:
+    private final java.util.List mCallbacks
+    private final java.util.List mOptionsList
+    public void <init>()
+    public boolean isEmpty()
+    public void putCallback(android.os.Bundle,android.support.v4.media.MediaBrowserCompat$SubscriptionCallback)
 android.support.v4.media.MediaBrowserCompat$SubscriptionCallback$SubscriptionCallbackApi21
 android.support.v4.media.MediaBrowserCompat$SubscriptionCallback$SubscriptionCallbackApi26
-android.support.v4.media.MediaBrowserCompat$SubscriptionCallback
+android.support.v4.media.MediaBrowserCompat$SubscriptionCallback:
+    final android.media.browse.MediaBrowser$SubscriptionCallback mSubscriptionCallbackFwk
+    java.lang.ref.WeakReference mSubscriptionRef
+    public void <init>()
+    void setSubscription(android.support.v4.media.MediaBrowserCompat$Subscription)
 android.support.v4.media.MediaBrowserCompat:
     public static final java.lang.String CUSTOM_ACTION_DOWNLOAD
     public static final java.lang.String CUSTOM_ACTION_REMOVE_DOWNLOADED_FILE
-    static final boolean DEBUG
     public static final java.lang.String EXTRA_DOWNLOAD_PROGRESS
     public static final java.lang.String EXTRA_MEDIA_ID
     public static final java.lang.String EXTRA_PAGE
     public static final java.lang.String EXTRA_PAGE_SIZE
     static final java.lang.String TAG
-    private final android.support.v4.media.MediaBrowserCompat$MediaBrowserImpl mImpl
-    static void <clinit>()
-    public void <init>(android.content.Context,android.content.ComponentName,android.support.v4.media.MediaBrowserCompat$ConnectionCallback,android.os.Bundle)
-    public void connect()
-    public void disconnect()
     public android.os.Bundle getExtras()
     public void getItem(java.lang.String,android.support.v4.media.MediaBrowserCompat$ItemCallback)
     public android.os.Bundle getNotifyChildrenChangedOptions()
     public java.lang.String getRoot()
     public android.content.ComponentName getServiceComponent()
-    public android.support.v4.media.session.MediaSessionCompat$Token getSessionToken()
     public boolean isConnected()
     public void search(java.lang.String,android.os.Bundle,android.support.v4.media.MediaBrowserCompat$SearchCallback)
     public void sendCustomAction(java.lang.String,android.os.Bundle,android.support.v4.media.MediaBrowserCompat$CustomActionCallback)
@@ -197,15 +230,7 @@ android.support.v4.media.MediaDescriptionCompat:
     public static final long STATUS_DOWNLOADING
     public static final long STATUS_NOT_DOWNLOADED
     private static final java.lang.String TAG
-    public java.lang.CharSequence getDescription()
-    public android.os.Bundle getExtras()
-    public android.graphics.Bitmap getIconBitmap()
-    public android.net.Uri getIconUri()
-    public android.net.Uri getMediaUri()
-    public java.lang.CharSequence getSubtitle()
-    public java.lang.CharSequence getTitle()
 android.support.v4.media.MediaMetadataCompat$Builder:
-    public android.support.v4.media.MediaMetadataCompat$Builder putRating(java.lang.String,android.support.v4.media.RatingCompat)
     public android.support.v4.media.MediaMetadataCompat$Builder putText(java.lang.String,java.lang.CharSequence)
 android.support.v4.media.MediaMetadataCompat:
     public static final java.lang.String METADATA_KEY_ADVERTISEMENT
@@ -244,13 +269,6 @@ android.support.v4.media.MediaMetadataCompat:
     static final int METADATA_TYPE_RATING
     static final int METADATA_TYPE_TEXT
     private static final java.lang.String TAG
-    private android.support.v4.media.MediaDescriptionCompat mDescription
-    public static android.support.v4.media.MediaMetadataCompat fromMediaMetadata(java.lang.Object)
-    public android.graphics.Bitmap getBitmap(java.lang.String)
-    public android.support.v4.media.MediaDescriptionCompat getDescription()
-    public android.support.v4.media.RatingCompat getRating(java.lang.String)
-    public java.lang.String getString(java.lang.String)
-    public java.lang.CharSequence getText(java.lang.String)
     public java.util.Set keySet()
     public int size()
 android.support.v4.media.RatingCompat$Api19Impl:
@@ -267,26 +285,14 @@ android.support.v4.media.RatingCompat:
     public static final int RATING_PERCENTAGE
     public static final int RATING_THUMB_UP_DOWN
     private static final java.lang.String TAG
-    public float getPercentRating()
-    public java.lang.Object getRating()
-    public int getRatingStyle()
-    public float getStarRating()
-    public boolean hasHeart()
-    public boolean isRated()
-    public boolean isThumbUp()
 android.support.v4.media.session.IMediaControllerCallback$Default
 android.support.v4.media.session.IMediaControllerCallback$Stub$Proxy:
     public java.lang.String getInterfaceDescriptor()
-    public void onCaptioningEnabledChanged(boolean)
     public void onEvent(java.lang.String,android.os.Bundle)
     public void onExtrasChanged(android.os.Bundle)
-    public void onQueueChanged(java.util.List)
     public void onQueueTitleChanged(java.lang.CharSequence)
-    public void onRepeatModeChanged(int)
     public void onSessionReady()
-    public void onShuffleModeChanged(int)
     public void onShuffleModeChangedRemoved(boolean)
-    public void onVolumeInfoChanged(android.support.v4.media.session.ParcelableVolumeInfo)
 android.support.v4.media.session.IMediaControllerCallback$Stub:
     static final int TRANSACTION_onCaptioningEnabledChanged
     static final int TRANSACTION_onEvent
@@ -303,8 +309,6 @@ android.support.v4.media.session.IMediaControllerCallback$Stub:
     static final int TRANSACTION_onVolumeInfoChanged
 android.support.v4.media.session.IMediaControllerCallback$_Parcel:
     public void <init>()
-    static synthetic void access$200(android.os.Parcel,java.util.List,int)
-    private static void writeTypedList(android.os.Parcel,java.util.List,int)
 android.support.v4.media.session.IMediaControllerCallback:
     public static final java.lang.String DESCRIPTOR
 android.support.v4.media.session.IMediaSession$Default
@@ -316,7 +320,6 @@ android.support.v4.media.session.IMediaSession$Stub$Proxy:
     public android.os.Bundle getExtras()
     public long getFlags()
     public java.lang.String getInterfaceDescriptor()
-    public android.app.PendingIntent getLaunchPendingIntent()
     public android.support.v4.media.MediaMetadataCompat getMetadata()
     public java.lang.String getPackageName()
     public android.support.v4.media.session.PlaybackStateCompat getPlaybackState()
@@ -358,7 +361,6 @@ android.support.v4.media.session.IMediaSession$Stub$Proxy:
     public void setVolumeTo(int,int,java.lang.String)
     public void skipToQueueItem(long)
     public void stop()
-    public void unregisterCallbackListener(android.support.v4.media.session.IMediaControllerCallback)
 android.support.v4.media.session.IMediaSession$Stub:
     static final int TRANSACTION_addQueueItem
     static final int TRANSACTION_addQueueItemAt
@@ -415,34 +417,21 @@ android.support.v4.media.session.IMediaSession$_Parcel:
     public void <init>()
 android.support.v4.media.session.IMediaSession:
     public static final java.lang.String DESCRIPTOR
-android.support.v4.media.session.MediaControllerCompat$Callback$MediaControllerCallbackApi21
-android.support.v4.media.session.MediaControllerCompat$Callback$MessageHandler
-android.support.v4.media.session.MediaControllerCompat$Callback$StubCompat:
-    public void onExtrasChanged(android.os.Bundle)
-    public void onMetadataChanged(android.support.v4.media.MediaMetadataCompat)
-    public void onQueueChanged(java.util.List)
-    public void onQueueTitleChanged(java.lang.CharSequence)
-    public void onSessionDestroyed()
-    public void onVolumeInfoChanged(android.support.v4.media.session.ParcelableVolumeInfo)
+android.support.v4.media.session.MediaControllerCompat$Callback$MessageHandler:
+    private static final int MSG_DESTROYED
+    private static final int MSG_EVENT
+    private static final int MSG_SESSION_READY
+    private static final int MSG_UPDATE_CAPTIONING_ENABLED
+    private static final int MSG_UPDATE_EXTRAS
+    private static final int MSG_UPDATE_METADATA
+    private static final int MSG_UPDATE_PLAYBACK_STATE
+    private static final int MSG_UPDATE_QUEUE
+    private static final int MSG_UPDATE_QUEUE_TITLE
+    private static final int MSG_UPDATE_REPEAT_MODE
+    private static final int MSG_UPDATE_SHUFFLE_MODE
+    private static final int MSG_UPDATE_VOLUME
 android.support.v4.media.session.MediaControllerCompat$Callback:
-    final android.media.session.MediaController$Callback mCallbackFwk
-    android.support.v4.media.session.MediaControllerCompat$Callback$MessageHandler mHandler
-    public void <init>()
-    public void binderDied()
     public android.support.v4.media.session.IMediaControllerCallback getIControllerCallback()
-    public void onAudioInfoChanged(android.support.v4.media.session.MediaControllerCompat$PlaybackInfo)
-    public void onCaptioningEnabledChanged(boolean)
-    public void onExtrasChanged(android.os.Bundle)
-    public void onMetadataChanged(android.support.v4.media.MediaMetadataCompat)
-    public void onPlaybackStateChanged(android.support.v4.media.session.PlaybackStateCompat)
-    public void onQueueChanged(java.util.List)
-    public void onQueueTitleChanged(java.lang.CharSequence)
-    public void onRepeatModeChanged(int)
-    public void onSessionDestroyed()
-    public void onSessionEvent(java.lang.String,android.os.Bundle)
-    public void onSessionReady()
-    public void onShuffleModeChanged(int)
-    void setHandler(android.os.Handler)
 android.support.v4.media.session.MediaControllerCompat$MediaControllerImpl:
     public abstract void addQueueItem(android.support.v4.media.MediaDescriptionCompat)
     public abstract void addQueueItem(android.support.v4.media.MediaDescriptionCompat,int)
@@ -458,17 +447,14 @@ android.support.v4.media.session.MediaControllerCompat$MediaControllerImpl:
     public abstract java.lang.CharSequence getQueueTitle()
     public abstract int getRatingType()
     public abstract int getRepeatMode()
-    public abstract android.app.PendingIntent getSessionActivity()
     public abstract android.os.Bundle getSessionInfo()
     public abstract int getShuffleMode()
     public abstract android.support.v4.media.session.MediaControllerCompat$TransportControls getTransportControls()
     public abstract boolean isCaptioningEnabled()
     public abstract boolean isSessionReady()
-    public abstract void registerCallback(android.support.v4.media.session.MediaControllerCompat$Callback,android.os.Handler)
     public abstract void removeQueueItem(android.support.v4.media.MediaDescriptionCompat)
     public abstract void sendCommand(java.lang.String,android.os.Bundle,android.os.ResultReceiver)
     public abstract void setVolumeTo(int,int)
-    public abstract void unregisterCallback(android.support.v4.media.session.MediaControllerCompat$Callback)
 android.support.v4.media.session.MediaControllerCompat$MediaControllerImplApi21:
     protected android.os.Bundle mSessionInfo
     public void addQueueItem(android.support.v4.media.MediaDescriptionCompat)
@@ -486,17 +472,13 @@ android.support.v4.media.session.MediaControllerCompat$MediaControllerImplApi21:
     public java.lang.CharSequence getQueueTitle()
     public int getRatingType()
     public int getRepeatMode()
-    public android.app.PendingIntent getSessionActivity()
     public android.os.Bundle getSessionInfo()
     public int getShuffleMode()
     public android.support.v4.media.session.MediaControllerCompat$TransportControls getTransportControls()
     public boolean isCaptioningEnabled()
     public boolean isSessionReady()
-    public final void registerCallback(android.support.v4.media.session.MediaControllerCompat$Callback,android.os.Handler)
     public void removeQueueItem(android.support.v4.media.MediaDescriptionCompat)
-    static void setMediaController(android.app.Activity,android.support.v4.media.session.MediaControllerCompat)
     public void setVolumeTo(int,int)
-    public final void unregisterCallback(android.support.v4.media.session.MediaControllerCompat$Callback)
 android.support.v4.media.session.MediaControllerCompat$MediaControllerImplApi29:
     public android.os.Bundle getSessionInfo()
 android.support.v4.media.session.MediaControllerCompat$MediaControllerImplBase:
@@ -516,18 +498,23 @@ android.support.v4.media.session.MediaControllerCompat$MediaControllerImplBase:
     public java.lang.CharSequence getQueueTitle()
     public int getRatingType()
     public int getRepeatMode()
-    public android.app.PendingIntent getSessionActivity()
     public android.os.Bundle getSessionInfo()
     public int getShuffleMode()
     public android.support.v4.media.session.MediaControllerCompat$TransportControls getTransportControls()
     public boolean isCaptioningEnabled()
     public boolean isSessionReady()
-    public void registerCallback(android.support.v4.media.session.MediaControllerCompat$Callback,android.os.Handler)
     public void removeQueueItem(android.support.v4.media.MediaDescriptionCompat)
     public void sendCommand(java.lang.String,android.os.Bundle,android.os.ResultReceiver)
     public void setVolumeTo(int,int)
-    public void unregisterCallback(android.support.v4.media.session.MediaControllerCompat$Callback)
-android.support.v4.media.session.MediaControllerCompat$PlaybackInfo
+android.support.v4.media.session.MediaControllerCompat$PlaybackInfo:
+    public static final int PLAYBACK_TYPE_LOCAL
+    public static final int PLAYBACK_TYPE_REMOTE
+    public androidx.media.AudioAttributesCompat getAudioAttributes()
+    public int getAudioStream()
+    public int getCurrentVolume()
+    public int getMaxVolume()
+    public int getPlaybackType()
+    public int getVolumeControl()
 android.support.v4.media.session.MediaControllerCompat$TransportControls
 android.support.v4.media.session.MediaControllerCompat$TransportControlsApi21
 android.support.v4.media.session.MediaControllerCompat$TransportControlsApi23
@@ -559,67 +546,35 @@ android.support.v4.media.session.MediaControllerCompat:
     public int getRatingType()
     public int getRepeatMode()
     public androidx.versionedparcelable.VersionedParcelable getSession2Token()
-    public android.app.PendingIntent getSessionActivity()
     public android.os.Bundle getSessionInfo()
-    public android.support.v4.media.session.MediaSessionCompat$Token getSessionToken()
     public int getShuffleMode()
     public android.support.v4.media.session.MediaControllerCompat$TransportControls getTransportControls()
     public boolean isCaptioningEnabled()
     public boolean isSessionReady()
-    public void registerCallback(android.support.v4.media.session.MediaControllerCompat$Callback)
-    public void registerCallback(android.support.v4.media.session.MediaControllerCompat$Callback,android.os.Handler)
     public void removeQueueItem(android.support.v4.media.MediaDescriptionCompat)
     public void removeQueueItemAt(int)
     public void sendCommand(java.lang.String,android.os.Bundle,android.os.ResultReceiver)
-    public static void setMediaController(android.app.Activity,android.support.v4.media.session.MediaControllerCompat)
     public void setVolumeTo(int,int)
-    public void unregisterCallback(android.support.v4.media.session.MediaControllerCompat$Callback)
     static void validateCustomAction(java.lang.String,android.os.Bundle)
 android.support.v4.media.session.MediaSessionCompat$Callback$CallbackHandler:
     private static final int MSG_MEDIA_PLAY_PAUSE_KEY_DOUBLE_TAP_TIMEOUT
 android.support.v4.media.session.MediaSessionCompat$MediaSessionImpl:
     public abstract java.lang.Object getMediaSession()
     public abstract java.lang.Object getRemoteControlClient()
-    public abstract boolean isActive()
-    public abstract void release()
     public abstract void sendSessionEvent(java.lang.String,android.os.Bundle)
-    public abstract void setActive(boolean)
-    public abstract void setCaptioningEnabled(boolean)
     public abstract void setExtras(android.os.Bundle)
-    public abstract void setFlags(int)
-    public abstract void setPlaybackToLocal(int)
-    public abstract void setPlaybackToRemote(androidx.media.VolumeProviderCompat)
-    public abstract void setQueue(java.util.List)
     public abstract void setQueueTitle(java.lang.CharSequence)
     public abstract void setRatingType(int)
     public abstract void setRegistrationCallback(android.support.v4.media.session.MediaSessionCompat$RegistrationCallback,android.os.Handler)
-    public abstract void setRepeatMode(int)
-    public abstract void setSessionActivity(android.app.PendingIntent)
-    public abstract void setShuffleMode(int)
-android.support.v4.media.session.MediaSessionCompat$MediaSessionImplApi18:
-    void registerMediaButtonEventReceiver(android.app.PendingIntent,android.content.ComponentName)
-    void unregisterMediaButtonEventReceiver(android.app.PendingIntent,android.content.ComponentName)
-android.support.v4.media.session.MediaSessionCompat$MediaSessionImplApi21$ExtraSession:
-    public void release()
 android.support.v4.media.session.MediaSessionCompat$MediaSessionImplApi21:
     void <init>(java.lang.Object)
     public java.lang.Object getMediaSession()
     public java.lang.Object getRemoteControlClient()
-    public boolean isActive()
-    public void release()
     public void sendSessionEvent(java.lang.String,android.os.Bundle)
-    public void setActive(boolean)
-    public void setCaptioningEnabled(boolean)
     public void setExtras(android.os.Bundle)
-    public void setPlaybackToLocal(int)
-    public void setPlaybackToRemote(androidx.media.VolumeProviderCompat)
-    public void setQueue(java.util.List)
     public void setQueueTitle(java.lang.CharSequence)
     public void setRatingType(int)
     public void setRegistrationCallback(android.support.v4.media.session.MediaSessionCompat$RegistrationCallback,android.os.Handler)
-    public void setRepeatMode(int)
-    public void setSessionActivity(android.app.PendingIntent)
-    public void setShuffleMode(int)
 android.support.v4.media.session.MediaSessionCompat$MediaSessionImplApi22:
     void <init>(java.lang.Object)
     public void setRatingType(int)
@@ -627,8 +582,6 @@ android.support.v4.media.session.MediaSessionCompat$MediaSessionImplApi28:
     void <init>(java.lang.Object)
 android.support.v4.media.session.MediaSessionCompat$MediaSessionImplApi29:
     void <init>(java.lang.Object)
-android.support.v4.media.session.MediaSessionCompat$MediaSessionImplBase$1:
-    public void onVolumeChanged(androidx.media.VolumeProviderCompat)
 android.support.v4.media.session.MediaSessionCompat$MediaSessionImplBase$MessageHandler:
     private static final int KEYCODE_MEDIA_PAUSE
     private static final int KEYCODE_MEDIA_PLAY
@@ -667,45 +620,18 @@ android.support.v4.media.session.MediaSessionCompat$MediaSessionImplBase:
     static final int RCC_PLAYSTATE_NONE
     public java.lang.Object getMediaSession()
     public java.lang.Object getRemoteControlClient()
-    public boolean isActive()
-    void registerMediaButtonEventReceiver(android.app.PendingIntent,android.content.ComponentName)
-    public void release()
-    private void sendCaptioningEnabled(boolean)
     private void sendEvent(java.lang.String,android.os.Bundle)
     private void sendExtras(android.os.Bundle)
-    private void sendQueue(java.util.List)
     private void sendQueueTitle(java.lang.CharSequence)
-    private void sendRepeatMode(int)
-    private void sendSessionDestroyed()
     public void sendSessionEvent(java.lang.String,android.os.Bundle)
-    private void sendShuffleMode(int)
-    void sendVolumeInfoChanged(android.support.v4.media.session.ParcelableVolumeInfo)
-    public void setActive(boolean)
-    public void setCaptioningEnabled(boolean)
     public void setExtras(android.os.Bundle)
-    public void setFlags(int)
-    public void setPlaybackToLocal(int)
-    public void setPlaybackToRemote(androidx.media.VolumeProviderCompat)
-    public void setQueue(java.util.List)
     public void setQueueTitle(java.lang.CharSequence)
     public void setRatingType(int)
     public void setRegistrationCallback(android.support.v4.media.session.MediaSessionCompat$RegistrationCallback,android.os.Handler)
-    public void setRepeatMode(int)
-    public void setSessionActivity(android.app.PendingIntent)
-    public void setShuffleMode(int)
-    void unregisterMediaButtonEventReceiver(android.app.PendingIntent,android.content.ComponentName)
-    void updateMbrAndRcc()
-android.support.v4.media.session.MediaSessionCompat$OnActiveChangeListener
-android.support.v4.media.session.MediaSessionCompat$QueueItem$Api21Impl
+android.support.v4.media.session.MediaSessionCompat$QueueItem$Api21Impl:
+    private void <init>()
 android.support.v4.media.session.MediaSessionCompat$QueueItem:
     public static final int UNKNOWN_ID
-    private android.media.session.MediaSession$QueueItem mItemFwk
-    private void <init>(android.media.session.MediaSession$QueueItem,android.support.v4.media.MediaDescriptionCompat,long)
-    public void <init>(android.support.v4.media.MediaDescriptionCompat,long)
-    public static android.support.v4.media.session.MediaSessionCompat$QueueItem fromQueueItem(java.lang.Object)
-    public static java.util.List fromQueueItemList(java.util.List)
-    public long getQueueId()
-    public java.lang.Object getQueueItem()
 android.support.v4.media.session.MediaSessionCompat$RegistrationCallback
 android.support.v4.media.session.MediaSessionCompat$RegistrationCallbackHandler:
     private static final int MSG_CALLBACK_REGISTERED
@@ -715,10 +641,6 @@ android.support.v4.media.session.MediaSessionCompat$RegistrationCallbackHandler:
     public void handleMessage(android.os.Message)
 android.support.v4.media.session.MediaSessionCompat$ResultReceiverWrapper:
     public void <init>(android.os.ResultReceiver)
-android.support.v4.media.session.MediaSessionCompat$Token:
-    void <init>(java.lang.Object,android.support.v4.media.session.IMediaSession)
-    public static android.support.v4.media.session.MediaSessionCompat$Token fromToken(java.lang.Object)
-    public static android.support.v4.media.session.MediaSessionCompat$Token fromToken(java.lang.Object,android.support.v4.media.session.IMediaSession)
 android.support.v4.media.session.MediaSessionCompat:
     public static final java.lang.String ACTION_ARGUMENT_CAPTIONING_ENABLED
     public static final java.lang.String ACTION_ARGUMENT_EXTRAS
@@ -767,24 +689,12 @@ android.support.v4.media.session.MediaSessionCompat:
     public final androidx.media.MediaSessionManager$RemoteUserInfo getCurrentControllerInfo()
     public java.lang.Object getMediaSession()
     public java.lang.Object getRemoteControlClient()
-    public boolean isActive()
-    public void release()
     public void removeOnActiveChangeListener(android.support.v4.media.session.MediaSessionCompat$OnActiveChangeListener)
     public void sendSessionEvent(java.lang.String,android.os.Bundle)
-    public void setActive(boolean)
-    public void setCaptioningEnabled(boolean)
     public void setExtras(android.os.Bundle)
-    public void setFlags(int)
-    public void setMediaButtonReceiver(android.app.PendingIntent)
-    public void setPlaybackToLocal(int)
-    public void setPlaybackToRemote(androidx.media.VolumeProviderCompat)
-    public void setQueue(java.util.List)
     public void setQueueTitle(java.lang.CharSequence)
     public void setRatingType(int)
     public void setRegistrationCallback(android.support.v4.media.session.MediaSessionCompat$RegistrationCallback,android.os.Handler)
-    public void setRepeatMode(int)
-    public void setSessionActivity(android.app.PendingIntent)
-    public void setShuffleMode(int)
 android.support.v4.media.session.PlaybackStateCompat$Actions
 android.support.v4.media.session.PlaybackStateCompat$Api21Impl:
     private void <init>()
@@ -792,15 +702,9 @@ android.support.v4.media.session.PlaybackStateCompat$Api22Impl:
     private void <init>()
 android.support.v4.media.session.PlaybackStateCompat$Builder:
     public android.support.v4.media.session.PlaybackStateCompat$Builder addCustomAction(java.lang.String,java.lang.String,int)
-    public android.support.v4.media.session.PlaybackStateCompat$Builder setActions(long)
-    public android.support.v4.media.session.PlaybackStateCompat$Builder setActiveQueueItemId(long)
-    public android.support.v4.media.session.PlaybackStateCompat$Builder setBufferedPosition(long)
-    public android.support.v4.media.session.PlaybackStateCompat$Builder setErrorMessage(int,java.lang.CharSequence)
     public android.support.v4.media.session.PlaybackStateCompat$Builder setErrorMessage(java.lang.CharSequence)
-    public android.support.v4.media.session.PlaybackStateCompat$Builder setExtras(android.os.Bundle)
     public android.support.v4.media.session.PlaybackStateCompat$Builder setState(int,long,float)
 android.support.v4.media.session.PlaybackStateCompat$CustomAction:
-    public static android.support.v4.media.session.PlaybackStateCompat$CustomAction fromCustomAction(java.lang.Object)
     public java.lang.String getAction()
     public android.os.Bundle getExtras()
     public int getIcon()
@@ -869,7 +773,6 @@ android.support.v4.media.session.PlaybackStateCompat:
     public static final int STATE_SKIPPING_TO_PREVIOUS
     public static final int STATE_SKIPPING_TO_QUEUE_ITEM
     public static final int STATE_STOPPED
-    public static android.support.v4.media.session.PlaybackStateCompat fromPlaybackState(java.lang.Object)
     public long getActiveQueueItemId()
     public long getBufferedPosition()
     public long getCurrentPosition(java.lang.Long)
@@ -11930,7 +11833,6 @@ androidx.media.AudioAttributesCompat$AttributeUsage
 androidx.media.AudioAttributesCompat$AudioManagerHidden
 androidx.media.AudioAttributesCompat$Builder:
     public void <init>(androidx.media.AudioAttributesCompat)
-    public androidx.media.AudioAttributesCompat$Builder setLegacyStreamType(int)
 androidx.media.AudioAttributesCompat:
     public static final int CONTENT_TYPE_MOVIE
     public static final int CONTENT_TYPE_MUSIC
@@ -11976,9 +11878,6 @@ androidx.media.AudioAttributesCompat:
     public int getUsage()
     public int getVolumeControlStream()
     public static void setForceLegacyBehavior(boolean)
-    public static androidx.media.AudioAttributesCompat wrap(java.lang.Object)
-androidx.media.AudioAttributesImpl$Builder:
-    public abstract androidx.media.AudioAttributesImpl$Builder setLegacyStreamType(int)
 androidx.media.AudioAttributesImpl:
     public abstract int getContentType()
     public abstract int getFlags()
@@ -11987,8 +11886,6 @@ androidx.media.AudioAttributesImpl:
     public abstract int getVolumeControlStream()
 androidx.media.AudioAttributesImplApi21$Builder:
     void <init>(java.lang.Object)
-    public synthetic bridge androidx.media.AudioAttributesImpl$Builder setLegacyStreamType(int)
-    public androidx.media.AudioAttributesImplApi21$Builder setLegacyStreamType(int)
 androidx.media.AudioAttributesImplApi21:
     public int getContentType()
     public int getRawLegacyStreamType()
@@ -11999,13 +11896,9 @@ androidx.media.AudioAttributesImplApi26:
     public int getVolumeControlStream()
 androidx.media.AudioAttributesImplBase$Builder:
     void <init>(androidx.media.AudioAttributesCompat)
-    private androidx.media.AudioAttributesImplBase$Builder setInternalLegacyStreamType(int)
-    public synthetic bridge androidx.media.AudioAttributesImpl$Builder setLegacyStreamType(int)
-    public androidx.media.AudioAttributesImplBase$Builder setLegacyStreamType(int)
 androidx.media.AudioAttributesImplBase:
     public int getRawLegacyStreamType()
     public int getVolumeControlStream()
-    static int usageForStreamType(int)
 androidx.media.AudioFocusRequestCompat$Api26Impl:
     private void <init>()
 androidx.media.AudioFocusRequestCompat$Builder:
@@ -12031,7 +11924,6 @@ androidx.media.AudioManagerCompat:
     public static boolean isVolumeFixed(android.media.AudioManager)
 androidx.media.MediaBrowserCompatUtils:
     private void <init>()
-    public static boolean hasDuplicatedItems(android.os.Bundle,android.os.Bundle)
 androidx.media.MediaBrowserProtocol
 androidx.media.MediaBrowserServiceCompat$4:
     void onProgressUpdateSent(android.os.Bundle)
@@ -12043,33 +11935,17 @@ androidx.media.MediaBrowserServiceCompat$BrowserRoot:
 androidx.media.MediaBrowserServiceCompat$MediaBrowserServiceImpl:
     public abstract android.os.Bundle getBrowserRootHints()
     public abstract void notifyChildrenChanged(androidx.media.MediaSessionManager$RemoteUserInfo,java.lang.String,android.os.Bundle)
-    public abstract void notifyChildrenChanged(java.lang.String,android.os.Bundle)
-    public abstract void setSessionToken(android.support.v4.media.session.MediaSessionCompat$Token)
-androidx.media.MediaBrowserServiceCompat$MediaBrowserServiceImplApi21$1
-androidx.media.MediaBrowserServiceCompat$MediaBrowserServiceImplApi21$3
 androidx.media.MediaBrowserServiceCompat$MediaBrowserServiceImplApi21$4
 androidx.media.MediaBrowserServiceCompat$MediaBrowserServiceImplApi21:
     public android.os.Bundle getBrowserRootHints()
     public void notifyChildrenChanged(androidx.media.MediaSessionManager$RemoteUserInfo,java.lang.String,android.os.Bundle)
-    public void notifyChildrenChanged(java.lang.String,android.os.Bundle)
     void notifyChildrenChangedForCompat(androidx.media.MediaSessionManager$RemoteUserInfo,java.lang.String,android.os.Bundle)
-    void notifyChildrenChangedForCompat(java.lang.String,android.os.Bundle)
-    void notifyChildrenChangedForCompatOnHandler(androidx.media.MediaBrowserServiceCompat$ConnectionRecord,java.lang.String,android.os.Bundle)
-    void notifyChildrenChangedForFramework(java.lang.String,android.os.Bundle)
-    public void setSessionToken(android.support.v4.media.session.MediaSessionCompat$Token)
-    void setSessionTokenOnHandler(android.support.v4.media.session.MediaSessionCompat$Token)
 androidx.media.MediaBrowserServiceCompat$MediaBrowserServiceImplApi26:
     public android.os.Bundle getBrowserRootHints()
-    void notifyChildrenChangedForFramework(java.lang.String,android.os.Bundle)
-androidx.media.MediaBrowserServiceCompat$MediaBrowserServiceImplBase$1
-androidx.media.MediaBrowserServiceCompat$MediaBrowserServiceImplBase$2
 androidx.media.MediaBrowserServiceCompat$MediaBrowserServiceImplBase$3
 androidx.media.MediaBrowserServiceCompat$MediaBrowserServiceImplBase:
     public android.os.Bundle getBrowserRootHints()
     public void notifyChildrenChanged(androidx.media.MediaSessionManager$RemoteUserInfo,java.lang.String,android.os.Bundle)
-    public void notifyChildrenChanged(java.lang.String,android.os.Bundle)
-    void notifyChildrenChangedOnHandler(androidx.media.MediaBrowserServiceCompat$ConnectionRecord,java.lang.String,android.os.Bundle)
-    public void setSessionToken(android.support.v4.media.session.MediaSessionCompat$Token)
 androidx.media.MediaBrowserServiceCompat$Result:
     private void checkExtraFields(android.os.Bundle)
     void onProgressUpdateSent(android.os.Bundle)
@@ -12091,8 +11967,6 @@ androidx.media.MediaBrowserServiceCompat:
     public android.support.v4.media.session.MediaSessionCompat$Token getSessionToken()
     public void notifyChildrenChanged(androidx.media.MediaSessionManager$RemoteUserInfo,java.lang.String,android.os.Bundle)
     public void notifyChildrenChanged(java.lang.String)
-    public void notifyChildrenChanged(java.lang.String,android.os.Bundle)
-    public void setSessionToken(android.support.v4.media.session.MediaSessionCompat$Token)
 androidx.media.MediaSessionManager$MediaSessionManagerImpl:
     public abstract android.content.Context getContext()
 androidx.media.MediaSessionManager$RemoteUserInfo:
@@ -12116,7 +11990,6 @@ androidx.media.R$id:
     public static int info
     public static int line1
     public static int line3
-    public static int media_controller_compat_view_tag
     public static int notification_main_column
     public static int notification_main_column_container
     public static int right_side
@@ -12137,28 +12010,14 @@ androidx.media.R$layout:
     private void <init>()
 androidx.media.R$style
 androidx.media.R
-androidx.media.VolumeProviderCompat$1
-androidx.media.VolumeProviderCompat$2
-androidx.media.VolumeProviderCompat$Api21Impl
-androidx.media.VolumeProviderCompat$Callback:
-    public abstract void onVolumeChanged(androidx.media.VolumeProviderCompat)
+androidx.media.VolumeProviderCompat$Api21Impl:
+    private void <init>()
 androidx.media.VolumeProviderCompat$ControlType
 androidx.media.VolumeProviderCompat:
     public static final int VOLUME_CONTROL_ABSOLUTE
     public static final int VOLUME_CONTROL_FIXED
     public static final int VOLUME_CONTROL_RELATIVE
-    private androidx.media.VolumeProviderCompat$Callback mCallback
-    private final java.lang.String mControlId
-    private final int mControlType
-    private int mCurrentVolume
-    private final int mMaxVolume
-    private android.media.VolumeProvider mVolumeProviderFwk
-    public void <init>(int,int,int)
-    public void <init>(int,int,int,java.lang.String)
     public final java.lang.String getVolumeControlId()
-    public java.lang.Object getVolumeProvider()
-    public void setCallback(androidx.media.VolumeProviderCompat$Callback)
-    public final void setCurrentVolume(int)
 androidx.media.app.NotificationCompat$Api15Impl:
     private void <init>()
 androidx.media.app.NotificationCompat$Api21Impl:
@@ -12174,17 +12033,12 @@ androidx.media.app.NotificationCompat$MediaStyle:
     public static android.support.v4.media.session.MediaSessionCompat$Token getMediaSession(android.app.Notification)
     public androidx.media.app.NotificationCompat$MediaStyle setRemotePlaybackInfo(java.lang.CharSequence,int,android.app.PendingIntent)
 androidx.media.app.NotificationCompat
-androidx.media.session.MediaButtonReceiver$Api31
-androidx.media.session.MediaButtonReceiver$MediaButtonConnectionCallback
+androidx.media.session.MediaButtonReceiver$Api31:
+    private void <init>()
 androidx.media.session.MediaButtonReceiver:
     private static final java.lang.String TAG
-    public void <init>()
     public static android.app.PendingIntent buildMediaButtonPendingIntent(android.content.Context,long)
     public static android.app.PendingIntent buildMediaButtonPendingIntent(android.content.Context,android.content.ComponentName,long)
-    private static android.content.ComponentName getServiceComponentByAction(android.content.Context,java.lang.String)
-    public static android.view.KeyEvent handleIntent(android.support.v4.media.session.MediaSessionCompat,android.content.Intent)
-    protected void onForegroundServiceStartNotAllowedException(android.content.Intent,android.app.ForegroundServiceStartNotAllowedException)
-    public void onReceive(android.content.Context,android.content.Intent)
 androidx.media.utils.MediaConstants
 androidx.media2.common.BaseResult
 androidx.media2.common.CallbackMediaItem$Builder
@@ -39390,6 +39244,71 @@ com.google.type.TimeZoneOrBuilder
 com.ryanheise.audio_session.AndroidAudioManager:
     static java.util.ArrayList doubleArrayToList(double[])
 com.ryanheise.audio_session.R
+com.ryanheise.audioservice.AudioService$MediaSessionCallback:
+    public void onPlayMediaItem(android.support.v4.media.MediaDescriptionCompat)
+com.ryanheise.audioservice.AudioService$ServiceListener:
+    public abstract void onPlayMediaItem(android.support.v4.media.MediaMetadataCompat)
+    public abstract void onRemoveQueueItemAt(int)
+com.ryanheise.audioservice.AudioService:
+    private static final long AUTO_ENABLED_ACTIONS
+    private static final java.lang.String BROWSABLE_ROOT_ID
+    public static final java.lang.String CONTENT_STYLE_BROWSABLE_HINT
+    public static final int CONTENT_STYLE_CATEGORY_GRID_ITEM_HINT_VALUE
+    public static final int CONTENT_STYLE_CATEGORY_LIST_ITEM_HINT_VALUE
+    public static final int CONTENT_STYLE_GRID_ITEM_HINT_VALUE
+    public static final int CONTENT_STYLE_LIST_ITEM_HINT_VALUE
+    public static final java.lang.String CONTENT_STYLE_PLAYABLE_HINT
+    public static final java.lang.String CONTENT_STYLE_SUPPORTED
+    public static final java.lang.String CUSTOM_ACTION_FAST_FORWARD
+    public static final java.lang.String CUSTOM_ACTION_REWIND
+    public static final java.lang.String CUSTOM_ACTION_STOP
+    public static final int KEYCODE_BYPASS_PAUSE
+    public static final int KEYCODE_BYPASS_PLAY
+    public static final int MAX_COMPACT_ACTIONS
+    public static final java.lang.String NOTIFICATION_CLICK_ACTION
+    private static final int NOTIFICATION_ID
+    private static final java.lang.String RECENT_ROOT_ID
+    private static final int REQUEST_CONTENT_INTENT
+    private static final java.lang.String SHARED_PREFERENCES_NAME
+    private void activateMediaSession()
+    public com.ryanheise.audioservice.AudioServiceConfig getConfig()
+    public com.ryanheise.audioservice.AudioProcessingState getProcessingState()
+    public int getRepeatMode()
+    public int getShuffleMode()
+    public boolean isPlaying()
+    private boolean needCustomMediaControl(com.ryanheise.audioservice.MediaControl)
+    void playMediaItem(android.support.v4.media.MediaDescriptionCompat)
+com.ryanheise.audioservice.AudioServiceConfig:
+    private static final java.lang.String KEY_ACTIVITY_CLASS_NAME
+    private static final java.lang.String KEY_ANDROID_NOTIFICATION_CHANNEL_DESCRIPTION
+    private static final java.lang.String KEY_ANDROID_NOTIFICATION_CHANNEL_ID
+    private static final java.lang.String KEY_ANDROID_NOTIFICATION_CHANNEL_NAME
+    private static final java.lang.String KEY_ANDROID_NOTIFICATION_CLICK_STARTS_ACTIVITY
+    private static final java.lang.String KEY_ANDROID_NOTIFICATION_ICON
+    private static final java.lang.String KEY_ANDROID_NOTIFICATION_ONGOING
+    private static final java.lang.String KEY_ANDROID_RESUME_ON_CLICK
+    private static final java.lang.String KEY_ANDROID_SHOW_NOTIFICATION_BADGE
+    private static final java.lang.String KEY_ANDROID_STOP_FOREGROUND_ON_PAUSE
+    private static final java.lang.String KEY_ART_DOWNSCALE_HEIGHT
+    private static final java.lang.String KEY_ART_DOWNSCALE_WIDTH
+    private static final java.lang.String KEY_BROWSABLE_ROOT_EXTRAS
+    private static final java.lang.String KEY_NOTIFICATION_COLOR
+    private static final java.lang.String SHARED_PREFERENCES_NAME
+com.ryanheise.audioservice.AudioServicePlugin$AudioHandlerInterface:
+    private static final int SILENCE_SAMPLE_RATE
+    public void onPlayMediaItem(android.support.v4.media.MediaMetadataCompat)
+    public void onRemoveQueueItemAt(int)
+com.ryanheise.audioservice.AudioServicePlugin:
+    private static final java.lang.String CHANNEL_CLIENT
+    private static final java.lang.String CHANNEL_HANDLER
+    static com.ryanheise.audioservice.AudioServicePlugin$AudioHandlerInterface audioHandlerInterface()
+    private static java.util.List mediaItems2raw(java.util.List)
+    private static java.util.List queue2raw(java.util.List)
+    public static void setFlutterEngineId(java.lang.String)
+com.ryanheise.audioservice.MediaButtonReceiver:
+    public static final java.lang.String ACTION_NOTIFICATION_DELETE
+com.ryanheise.audioservice.R$drawable
+com.ryanheise.audioservice.R
 com.ryanheise.just_audio.AudioPlayer:
     static final java.lang.String TAG
     private com.google.android.exoplayer2.source.ShuffleOrder createShuffleOrder(int,java.lang.Integer)
@@ -49009,33 +48928,43 @@ android.support.v4.media.MediaBrowserCompat$ItemCallback
 android.support.v4.media.MediaBrowserCompat$ItemReceiver:
     public final android.support.v4.media.MediaBrowserCompat$ItemCallback mCallback
     public final java.lang.String mMediaId
-android.support.v4.media.MediaBrowserCompat$MediaItem:
-    public void <init>(android.support.v4.media.MediaDescriptionCompat,int)
+android.support.v4.media.MediaBrowserCompat$MediaBrowserImplApi21:
+    public android.os.Bundle mNotifyChildrenChangedOptions
+android.support.v4.media.MediaBrowserCompat$MediaBrowserImplBase$$InternalSyntheticThrowCCEIfNotNull$10$6ee75467646ff8f5ff7d994de3067fdb0177b7ba9656652a4a54e6ba7c896d14$0
+android.support.v4.media.MediaBrowserCompat$MediaBrowserImplBase$$InternalSyntheticThrowCCEIfNotNull$10$6ee75467646ff8f5ff7d994de3067fdb0177b7ba9656652a4a54e6ba7c896d14$1
+android.support.v4.media.MediaBrowserCompat$MediaBrowserImplBase$$InternalSyntheticThrowCCEIfNotNull$10$ea6b7c856a2f303dfaf6d2b4781e802cc506942cad362d4343deb10f0b9be874$0
+android.support.v4.media.MediaBrowserCompat$MediaBrowserImplBase$1
+android.support.v4.media.MediaBrowserCompat$MediaBrowserImplBase$2
+android.support.v4.media.MediaBrowserCompat$MediaBrowserImplBase$MediaServiceConnection$1
+android.support.v4.media.MediaBrowserCompat$MediaBrowserImplBase$MediaServiceConnection$2
+android.support.v4.media.MediaBrowserCompat$MediaBrowserImplBase$MediaServiceConnection
+android.support.v4.media.MediaBrowserCompat$MediaBrowserImplBase
 android.support.v4.media.MediaBrowserCompat$SearchCallback
 android.support.v4.media.MediaBrowserCompat$SearchResultReceiver:
     public final android.support.v4.media.MediaBrowserCompat$SearchCallback mCallback
     public final android.os.Bundle mExtras
     public final java.lang.String mQuery
+android.support.v4.media.MediaBrowserCompat$ServiceBinderWrapper:
+    public void addSubscription(java.lang.String,android.os.IBinder,android.os.Bundle,android.os.Messenger)
+    public void connect(android.content.Context,android.os.Messenger)
+    public void disconnect(android.os.Messenger)
+android.support.v4.media.MediaBrowserCompat$Subscription
+android.support.v4.media.MediaBrowserCompat$SubscriptionCallback
 android.support.v4.media.MediaDescriptionCompat:
     public void <init>(android.os.Parcel)
-    public java.lang.String getMediaId()
 android.support.v4.media.MediaMetadataCompat$Builder:
-    public void <init>(android.support.v4.media.MediaMetadataCompat)
     public void <init>(android.support.v4.media.MediaMetadataCompat,int)
-    public android.support.v4.media.MediaMetadataCompat$Builder putBitmap(java.lang.String,android.graphics.Bitmap)
     public final android.graphics.Bitmap scaleBitmap(android.graphics.Bitmap,int)
-android.support.v4.media.MediaMetadataCompat:
-    public android.os.Bundle getBundle()
-android.support.v4.media.session.MediaControllerCompat$Callback:
-    public android.support.v4.media.session.IMediaControllerCallback mIControllerCallback
-    public abstract void postToHandler(int,java.lang.Object,android.os.Bundle)
-android.support.v4.media.session.MediaControllerCompat$MediaControllerImpl:
-    public abstract boolean dispatchMediaButtonEvent(android.view.KeyEvent)
-android.support.v4.media.session.MediaControllerCompat$MediaControllerImplApi21:
-    public boolean dispatchMediaButtonEvent(android.view.KeyEvent)
+android.support.v4.media.session.MediaControllerCompat$Callback$StubCompat:
+    public void onExtrasChanged(android.os.Bundle)
+    public void onMetadataChanged(android.support.v4.media.MediaMetadataCompat)
+    public void onQueueChanged(java.util.List)
+    public void onQueueTitleChanged(java.lang.CharSequence)
+    public void onSessionDestroyed()
+    public void onVolumeInfoChanged(android.support.v4.media.session.ParcelableVolumeInfo)
 android.support.v4.media.session.MediaControllerCompat$MediaControllerImplBase
-android.support.v4.media.session.MediaControllerCompat:
-    public boolean dispatchMediaButtonEvent(android.view.KeyEvent)
+android.support.v4.media.session.MediaControllerCompat$PlaybackInfo:
+    public void <init>(int,int,int,int,int)
 android.support.v4.media.session.MediaSessionCompat$MediaSessionImplApi18$1
 android.support.v4.media.session.MediaSessionCompat$MediaSessionImplApi18
 android.support.v4.media.session.MediaSessionCompat$MediaSessionImplApi19$1
@@ -49047,9 +48976,8 @@ android.support.v4.media.session.MediaSessionCompat$MediaSessionImplBase$Command
 android.support.v4.media.session.MediaSessionCompat$MediaSessionImplBase$MediaSessionStub
 android.support.v4.media.session.MediaSessionCompat$MediaSessionImplBase$MessageHandler
 android.support.v4.media.session.MediaSessionCompat$MediaSessionImplBase
+android.support.v4.media.session.MediaSessionCompat$OnActiveChangeListener
 android.support.v4.media.session.MediaSessionCompat$RegistrationCallbackHandler
-android.support.v4.media.session.MediaSessionCompat:
-    public android.support.v4.media.session.MediaControllerCompat getController()
 android.support.v4.media.session.ParcelableVolumeInfo:
     public void <init>(int,int,int,int,int)
 androidx.activity.result.contract.ActivityResultContracts$PickVisualMedia$Companion$$InternalSyntheticThrowCCEIfNotNull$10$46325fab861e1de21d0289c408a273b121cca052e58f7096972b86f0b97aa12c$0
@@ -49603,24 +49531,44 @@ androidx.lifecycle.ViewModelProvider$Factory:
     static void <clinit>()
 androidx.loader.content.Loader$OnLoadCanceledListener:
     public abstract void onLoadCanceled(androidx.loader.content.Loader)
+androidx.media.AudioAttributesCompat$Builder:
+    public androidx.media.AudioAttributesCompat$Builder setLegacyStreamType(int)
+androidx.media.AudioAttributesImpl$Builder:
+    public abstract androidx.media.AudioAttributesImpl$Builder setLegacyStreamType(int)
+androidx.media.AudioAttributesImplApi21$Builder:
+    public synthetic bridge androidx.media.AudioAttributesImpl$Builder setLegacyStreamType(int)
+    public androidx.media.AudioAttributesImplApi21$Builder setLegacyStreamType(int)
+androidx.media.AudioAttributesImplBase$Builder:
+    public final androidx.media.AudioAttributesImplBase$Builder setInternalLegacyStreamType(int)
+    public synthetic bridge androidx.media.AudioAttributesImpl$Builder setLegacyStreamType(int)
+    public androidx.media.AudioAttributesImplBase$Builder setLegacyStreamType(int)
+androidx.media.AudioAttributesImplBase:
+    public static int usageForStreamType(int)
 androidx.media.MediaBrowserServiceCompat$MediaBrowserServiceImplApi21:
     public void onCreate()
+androidx.media.MediaBrowserServiceCompat$MediaBrowserServiceImplBase$1
+androidx.media.MediaBrowserServiceCompat$MediaBrowserServiceImplBase$2
 androidx.media.MediaBrowserServiceCompat$MediaBrowserServiceImplBase
-androidx.media.R$id
+androidx.media.R$id:
+    public static int action0
+    public static int cancel_action
+    public static int end_padder
+    public static int media_actions
 androidx.media.R$integer
 androidx.media.R$layout
-androidx.media.VolumeProviderCompat$Callback
-androidx.media.VolumeProviderCompat
+androidx.media.VolumeProviderCompat$Callback:
+    public void <init>()
+androidx.media.VolumeProviderCompat:
+    public final int getCurrentVolume()
+    public void setCallback(androidx.media.VolumeProviderCompat$Callback)
 androidx.media.app.NotificationCompat$Api15Impl
 androidx.media.app.NotificationCompat$MediaStyle:
-    public android.app.PendingIntent mCancelButtonIntent
     public boolean mShowCancelButton
     public android.widget.RemoteViews generateBigContentView()
     public android.widget.RemoteViews generateContentView()
     public final android.widget.RemoteViews generateMediaActionButton(androidx.core.app.NotificationCompat$Action)
     public int getBigContentViewLayoutResource(int)
     public int getContentViewLayoutResource()
-    public androidx.media.app.NotificationCompat$MediaStyle setCancelButtonIntent(android.app.PendingIntent)
 androidx.media2.common.MediaMetadata:
     public android.graphics.Bitmap getBitmap(java.lang.String)
     public android.os.Bundle getExtras()

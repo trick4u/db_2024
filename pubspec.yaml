@@ -94,6 +94,7 @@ dependencies:
   flutter_bouncing_text: ^1.0.1
   shared_preferences: ^2.2.2
   fluttertoast: ^8.2.8
+  just_audio_background: ^0.0.1-beta.13
 
   
 
