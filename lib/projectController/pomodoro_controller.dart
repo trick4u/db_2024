@@ -3,6 +3,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:get/get.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:http/http.dart' as http;
@@ -13,6 +14,7 @@ import 'dart:convert';
 import '../services/pexels_service.dart';
 
 class PomodoroController extends GetxController with WidgetsBindingObserver {
+  final defaultImageUrl = dotenv.env['DEFAULT_IMAGE_URL'] ?? '';
   final AudioPlayer audioPlayer = AudioPlayer();
   RxList<Map<String, dynamic>> tracks = <Map<String, dynamic>>[].obs;
   RxInt currentTrackIndex = 0.obs;
@@ -197,7 +199,7 @@ class PomodoroController extends GetxController with WidgetsBindingObserver {
         availableGenres[random.nextInt(availableGenres.length)];
   }
 
- void setupAudioPlayerListeners() {
+  void setupAudioPlayerListeners() {
     // Listen for playback state changes
     audioPlayer.playerStateStream.listen(
       (playerState) async {
@@ -220,19 +222,20 @@ class PomodoroController extends GetxController with WidgetsBindingObserver {
       },
     );
   }
-   Future<void> _handlePlaybackError() async {
+
+  Future<void> _handlePlaybackError() async {
     if (isPlaying.value && !isLoadingTrack.value) {
       await _safePlayNextTrack();
     }
   }
 
-   Future<void> _safePlayNextTrack() async {
+  Future<void> _safePlayNextTrack() async {
     try {
       if (tracks.isEmpty) return;
-      
+
       int nextIndex = (currentTrackIndex.value + 1) % tracks.length;
       currentTrackIndex.value = nextIndex;
-      
+
       await _safePlayTrack(tracks[nextIndex]);
     } catch (e) {
       print('Error in safe play next track: $e');
@@ -241,7 +244,7 @@ class PomodoroController extends GetxController with WidgetsBindingObserver {
 
   Future<void> _safePlayTrack(Map<String, dynamic> track) async {
     if (isLoadingTrack.value) return;
-    
+
     isLoadingTrack.value = true;
     int attemptCount = 0;
 
@@ -271,7 +274,8 @@ class PomodoroController extends GetxController with WidgetsBindingObserver {
       isLoadingTrack.value = false;
     }
   }
- Future<bool> _attemptPlayTrack(Map<String, dynamic> track) async {
+
+  Future<bool> _attemptPlayTrack(Map<String, dynamic> track) async {
     try {
       final artUri = Uri.parse(
         backgroundImageUrl.value ?? 
@@ -283,7 +287,8 @@ class PomodoroController extends GetxController with WidgetsBindingObserver {
         album: 'Pomodoro Focus',
         title: track['name'] ?? 'Unknown Track',
         artist: track['artist_name'] ?? 'Unknown Artist',
-        duration: Duration(seconds: int.tryParse(track['duration']?.toString() ?? '0') ?? 0),
+        duration: Duration(
+            seconds: int.tryParse(track['duration']?.toString() ?? '0') ?? 0),
         artUri: artUri,
         displayDescription: 'Genre: ${currentGenre.value}',
         extras: {
@@ -322,8 +327,8 @@ class PomodoroController extends GetxController with WidgetsBindingObserver {
 
   Future<bool> _setAudioSourceWithTimeout(AudioSource source) async {
     try {
-      await audioPlayer.setAudioSource(source)
-          .timeout(Duration(seconds: 5), onTimeout: () {
+      await audioPlayer.setAudioSource(source).timeout(Duration(seconds: 5),
+          onTimeout: () {
         throw TimeoutException('Setting audio source timed out');
       });
       return true;
@@ -335,7 +340,6 @@ class PomodoroController extends GetxController with WidgetsBindingObserver {
       return false;
     }
   }
-
 
   Future<void> _recoverPlayback() async {
     try {
@@ -535,7 +539,7 @@ class PomodoroController extends GetxController with WidgetsBindingObserver {
 
   Future<void> fetchBackgroundImage() async {
     try {
-      final imageUrl = await _pexelsService.getRandomImageUrlAbs();
+      final imageUrl = await _pexelsService.getRandomImageUrl();
       backgroundImageUrl.value = imageUrl;
 
       // Update the current media item with the new background image if playing
@@ -576,9 +580,12 @@ class PomodoroController extends GetxController with WidgetsBindingObserver {
 
   Future<void> fetchTracks() async {
     try {
+      final clientId = dotenv.env['JAMENDO_CLIENT_ID'] ?? '';
+      final baseUrl = dotenv.env['JAMENDO_API_URL'] ?? '';
+
       final response = await http.get(
         Uri.parse(
-            'https://api.jamendo.com/v3.0/tracks/?client_id=6b572951&format=json&limit=20&tags=${currentGenre.value}&include=musicinfo&groupby=artist_id'),
+            '$baseUrl/tracks/?client_id=$clientId&format=json&limit=20&tags=${currentGenre.value}&include=musicinfo&groupby=artist_id'),
       );
 
       if (response.statusCode == 200) {
@@ -592,8 +599,7 @@ class PomodoroController extends GetxController with WidgetsBindingObserver {
                   'artist_name': track['artist_name'] ?? 'Unknown Artist',
                   'duration': track['duration'] ?? 0,
                   'audio': track['audio'] ?? '',
-                  'image':
-                      track['image'] ?? 'https://example.com/placeholder.png',
+                  'image': track['image'] ?? defaultImageUrl,
                 })
             .toList()
             .cast<Map<String, dynamic>>();

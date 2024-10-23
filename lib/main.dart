@@ -5,6 +5,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 import 'package:get/get.dart';
 
@@ -86,6 +87,8 @@ void main() async {
   }
 
   WidgetsFlutterBinding.ensureInitialized();
+  await dotenv.load(fileName: ".env");
+   validateEnvironmentVariables();
   await initializeAudioService();
   await SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitUp,
@@ -246,5 +249,30 @@ class MyApp extends StatelessWidget {
             );
           },
         ));
+  }
+}
+
+
+void validateEnvironmentVariables() {
+  final requiredEnvVars = {
+   
+    // Add other required variables
+    'JAMENDO_CLIENT_ID': dotenv.env['JAMENDO_CLIENT_ID'],
+    'PEXELS_API_KEY': dotenv.env['PEXELS_API_KEY'],
+    'JAMENDO_API_URL': dotenv.env['JAMENDO_API_URL'],
+    'PEXELS_API_URL': dotenv.env['PEXELS_API_URL'],
+    'DEFAULT_IMAGE_URL': dotenv.env['DEFAULT_IMAGE_URL'],
+  };
+
+  final missingEnvVars = requiredEnvVars.entries
+      .where((entry) => entry.value?.isEmpty ?? true)
+      .map((entry) => entry.key)
+      .toList();
+
+  if (missingEnvVars.isNotEmpty) {
+    throw Exception(
+      'Missing required environment variables: ${missingEnvVars.join(', ')}. '
+      'Please check your .env file.',
+    );
   }
 }

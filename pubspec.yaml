@@ -95,6 +95,7 @@ dependencies:
   shared_preferences: ^2.2.2
   fluttertoast: ^8.2.8
   just_audio_background: ^0.0.1-beta.13
+  flutter_dotenv: ^5.2.1
 
   
 
@@ -145,6 +146,7 @@ flutter:
   assets:
     - assets/success.mp3
     - assets/notification_sound.wav
+    - .env
     
   
     - assets/gk2.png

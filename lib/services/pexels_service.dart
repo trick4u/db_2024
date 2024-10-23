@@ -1,12 +1,12 @@
 import 'dart:convert';
 import 'dart:math';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
 class PexelsService {
-  final String apiKey =
-      'Rp6TdzbMOsLxt45N8sNYdVuP9J6UxkV1u8bQyUj2OIDTl0aeJ4RQfZPN';
-  final String baseUrl = 'https://api.pexels.com/v1/';
+  final String apiKey = dotenv.env['PEXELS_API_KEY'] ?? '';
+  final String baseUrl = dotenv.env['PEXELS_API_URL'] ?? '';
   // final String baseUrl = 'https://api.pexels.com/videos/';
 
   Future<String> getRandomImageUrl() async {
@@ -19,8 +19,8 @@ class PexelsService {
 
     do {
       final response = await http.get(
-        Uri.parse(
-            '${baseUrl}search?query=nature+landscape&orientation=landscape&per_page=1&page=${_getRandomPage()}&size=large'),
+         Uri.parse(
+            '$baseUrl/search?query=abstract+landscape&orientation=landscape+illustrations&per_page=1&page=${_getRandomPage()}&size=large'),
         headers: {'Authorization': apiKey},
       );
 
