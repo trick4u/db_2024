@@ -624,8 +624,9 @@ class PomodoroController extends GetxController with WidgetsBindingObserver {
       final mediaItem = MediaItem(
         id: track['id']?.toString() ?? DateTime.now().toString(),
         album: 'Pomodoro Focus',
-        title: track['name'] ?? 'Unknown Track',
-        artist: track['artist_name'] ?? 'Unknown Artist',
+        title: 'goalKeep',
+        // title: track['name'] ?? 'Unknown Track',
+        // artist: track['artist_name'] ?? 'Unknown Artist',
         duration: Duration(
             seconds: int.tryParse(track['duration']?.toString() ?? '0') ?? 0),
         artUri: artUri,
@@ -658,8 +659,9 @@ class PomodoroController extends GetxController with WidgetsBindingObserver {
       final mediaItem = MediaItem(
         id: track['id']?.toString() ?? DateTime.now().toString(),
         album: 'Pomodoro Focus',
-        title: track['name'] ?? 'Unknown Track',
-        artist: track['artist_name'] ?? 'Unknown Artist',
+        title: "goalKeep",
+        // title: track['name'] ?? 'Unknown Track',
+        // artist: track['artist_name'] ?? 'Unknown Artist',
         duration: Duration(
             seconds: int.tryParse(track['duration']?.toString() ?? '0') ?? 0),
         artUri: artUri,
