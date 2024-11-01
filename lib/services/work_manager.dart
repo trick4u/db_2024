@@ -115,6 +115,7 @@ class WorkmanagerNotificationService {
         largeIcon: 'resource://drawable/notification_icon',
         color: Colors.blue,
         icon: 'resource://drawable/notification_icon',
+        payload: {'navigation': '/main_screen'},
       ),
     );
   }
@@ -139,9 +140,10 @@ class WorkmanagerNotificationService {
         title: notificationData['title'],
         body: notificationData['body'],
         notificationLayout: NotificationLayout.Default,
-          largeIcon: 'resource://drawable/notification_icon',
+        largeIcon: 'resource://drawable/notification_icon',
         color: Colors.blue,
         icon: 'resource://drawable/notification_icon',
+        payload: {'navigation': '/main_screen'},
       ),
       schedule: NotificationCalendar.fromDate(
         date: DateTime.parse(notificationData['scheduledTime']),

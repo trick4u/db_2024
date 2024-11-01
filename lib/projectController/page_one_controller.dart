@@ -10,7 +10,7 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
-import 'package:just_audio/just_audio.dart';
+import 'package:audioplayers/audioplayers.dart';
 
 import '../app_routes.dart';
 
@@ -81,7 +81,7 @@ class PageOneController extends GetxController {
   var seconds = 0.obs;
   var workDuration = 25 * 60; // 25 minutes
   var breakDuration = 5 * 60; // 5 minutes
-  late AudioPlayer audioPlayer;
+
   final Color startColor = Color(0xFF2196F3);
   final Color endColor = Color(0xFFF44336);
 
@@ -93,7 +93,8 @@ class PageOneController extends GetxController {
   var isLoading = true.obs;
   final RxBool isGradientReversed = false.obs;
 
-  late AudioPlayer _audioPlayer;
+  final AudioPlayer _successPlayer = AudioPlayer();
+  bool _isSoundLoaded = false;
   final RxString selectedTile = ''.obs;
   final List<Map<String, dynamic>> items = [
     {'title': 'pomodoro', 'icon': FontAwesomeIcons.question},
@@ -107,12 +108,12 @@ class PageOneController extends GetxController {
   ];
 
   @override
-  void onInit() {
+  void onInit() async{
     //   getAllGoals();
     updateAllReminders();
     _initializeSelectedTile();
 
-    _audioPlayer = AudioPlayer();
+    await _loadSound();
     fetchAllEvents();
     fetchAllReminders();
 
@@ -133,16 +134,45 @@ class PageOneController extends GetxController {
   @override
   void dispose() {
     reminderTextController.dispose();
-    audioPlayer.dispose();
+      _successPlayer.dispose();
 
     super.dispose();
   }
 
   @override
   void onClose() {
-    _audioPlayer.dispose();
+       _successPlayer.dispose();
     super.onClose();
   }
+   Future<void> _loadSound() async {
+    try {
+      await _successPlayer.setSource(AssetSource('success.mp3'));
+      await _successPlayer.setVolume(1.0);
+      _isSoundLoaded = true;
+    } catch (e) {
+      print('Error loading sound: $e');
+      _isSoundLoaded = false;
+    }
+  }
+
+    Future<void> _playSuccessSound() async {
+    if (!_isSoundLoaded) return;
+    
+    try {
+      await _successPlayer.seek(Duration.zero);
+      await _successPlayer.resume();
+    } catch (e) {
+      print('Error playing success sound: $e');
+      // Try to reload and play again
+      try {
+        await _loadSound();
+        await _successPlayer.resume();
+      } catch (retryError) {
+        print('Error retrying success sound: $retryError');
+      }
+    }
+  }
+
 
   void toggleGradientDirectionReminder() {
     isGradientReversedReminder.toggle();
@@ -460,8 +490,7 @@ class PageOneController extends GetxController {
 
       if (isCompleted) {
         // Play sound when marking as complete
-        await _audioPlayer.setAsset('assets/success.mp3');
-        await _audioPlayer.play();
+        await _playSuccessSound();
       }
 
       fetchAllEvents(); // Refresh all lists after toggling completion
@@ -470,7 +499,7 @@ class PageOneController extends GetxController {
       ToastUtil.showToast('Error', 'Failed to update event completion status');
     }
   }
-
+  
   void fetchPendingEvents() {
     if (currentUser == null) return;
 

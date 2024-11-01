@@ -22,10 +22,17 @@ class _SplashScreenState extends State<SplashScreen> {
   }
 
   _navigateToNextScreen() async {
-    await Future.delayed(
-      Duration(seconds: 3),
-    ); // Adjust duration as needed
-    Get.offNamed(AppRoutes.AUTHWRAPPER);
+    // await Future.delayed(
+    //   Duration(seconds: 2),
+    // ); // Adjust duration as needed
+    // Get.offNamed(AppRoutes.AUTHWRAPPER);
+
+    Future.delayed(Duration(seconds: 2), () {
+       Get.offNamed(AppRoutes.AUTHWRAPPER);
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+       
+      });
+    });
   }
 
   @override

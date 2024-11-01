@@ -17,7 +17,7 @@ import '../projectController/pomodoro_controller.dart';
 class InitialBinding extends Bindings {
   @override
   void dependencies() {
-    Get.lazyPut<SplashController>(() => SplashController());
+//  Get.lazyPut<SplashController>(() => SplashController());
 
     Get.lazyPut<MainScreenController>(() => MainScreenController(),
         fenix: true);
@@ -29,6 +29,6 @@ class InitialBinding extends Bindings {
     Get.lazyPut<ProfileController>(() => ProfileController(), fenix: true);
     
        Get.lazyPut<PomodoroController>(() => PomodoroController(), fenix: true);
-    // Get.put(NetworkController(), permanent: true);
+     Get.put(NetworkController(), permanent: true);
   }
 }

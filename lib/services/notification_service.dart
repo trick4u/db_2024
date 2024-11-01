@@ -39,10 +39,37 @@ class NotificationService extends GetxController {
       print('Error scheduling notification: $e');
     }
   }
-
-  static Future<void> onActionReceivedMethod(
-      ReceivedAction receivedAction) async {
-    if (receivedAction.actionType == ActionType.DismissAction ||
+static Future<void> onActionReceivedMethod(ReceivedAction receivedAction) async {
+  try {
+    // Handle notification tap
+    if (receivedAction.actionType == ActionType.Default) {
+      // Check if there's a navigation payload
+      String? navigation = receivedAction.payload?['navigation'];
+      if (navigation != null) {
+        Get.offAllNamed(navigation);
+      } else {
+        // Navigate to main screen as default
+        Get.offAllNamed('/main_screen');
+      }
+      
+      // Add a small delay to ensure navigation completes
+      await Future.delayed(Duration(milliseconds: 500));
+      
+      // If there's a specific event ID, you might want to highlight it
+      String? notificationId = receivedAction.payload?['notification_id'];
+      if (notificationId != null) {
+        try {
+          final CalendarController calendarController = Get.find<CalendarController>();
+          calendarController.update();
+        
+        } catch (e) {
+          print('Error accessing calendar controller: $e');
+        }
+      }
+    }
+    
+    // Handle dismiss action
+    else if (receivedAction.actionType == ActionType.DismissAction ||
         receivedAction.buttonKeyPressed == 'MARK_DONE') {
       String? documentId = receivedAction.payload?['documentId'];
       if (documentId != null) {
@@ -51,7 +78,10 @@ class NotificationService extends GetxController {
         print('Reminder removed after user interaction: $documentId');
       }
     }
+  } catch (e) {
+    print('Error in onActionReceivedMethod: $e');
   }
+}
 
   static Future<void> onNotificationCreatedMethod(
       ReceivedNotification receivedNotification) async {
@@ -63,14 +93,18 @@ class NotificationService extends GetxController {
     }
   }
 
- static Future<void> onNotificationDisplayedMethod(
+static Future<void> onNotificationDisplayedMethod(
     ReceivedNotification receivedNotification) async {
   try {
     print('Notification displayed: ${receivedNotification.id}');
 
     if (receivedNotification.id != null) {
-      final CalendarController controller = Get.find<CalendarController>();
-      await controller.markNotificationAsDisplayed(receivedNotification.id!);
+      try {
+        final CalendarController controller = Get.find<CalendarController>();
+        await controller.markNotificationAsDisplayed(receivedNotification.id!);
+      } catch (e) {
+        print('Error accessing calendar controller: $e');
+      }
     }
 
     Map<String, String?>? payload = receivedNotification.payload;
@@ -88,17 +122,13 @@ class NotificationService extends GetxController {
     triggerCount++;
 
     if ((!repeat || triggerCount >= 6) && documentId != null) {
-      // Remove the reminder from the list and cancel future notifications
       final PageOneController controller = Get.find<PageOneController>();
       await controller.deleteReminder(documentId);
       print('Reminder removed after ${repeat ? '6 triggers' : 'triggering'}: $documentId');
     } else if (repeat && triggerCount < 6 && interval > 0 && documentId != null) {
       final PageOneController controller = Get.find<PageOneController>();
-
-      // Calculate the next trigger time
       DateTime nextTriggerTime = DateTime.now().add(Duration(minutes: interval));
-
-      // Schedule the next notification
+      
       await controller.schedulePeriodicNotifications(
         receivedNotification.body ?? '',
         interval,

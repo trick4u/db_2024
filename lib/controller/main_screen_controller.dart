@@ -24,6 +24,7 @@ import '../projectPages/page_one.dart';
 
 import '../projectPages/page_two_calendar.dart';
 import '../projectPages/profile_screen.dart';
+import '../services/notification_service.dart';
 import '../services/work_manager.dart';
 
 class MainScreenController extends GetxController
@@ -61,6 +62,12 @@ class MainScreenController extends GetxController
     Get.lazyPut(() => ProfileController());
     Get.lazyPut(() => StatisticsController());
     Get.lazyPut<CalendarController>(() => CalendarController());
+        AwesomeNotifications().setListeners(
+      onActionReceivedMethod: NotificationService.onActionReceivedMethod,
+      onNotificationCreatedMethod: NotificationService.onNotificationCreatedMethod,
+      onNotificationDisplayedMethod: NotificationService.onNotificationDisplayedMethod,
+      onDismissActionReceivedMethod: NotificationService.onDismissActionReceivedMethod,
+    );
     WorkmanagerNotificationService.initialize();
     await checkAndScheduleNotification();
     _scheduleAndroidNotification();
@@ -128,6 +135,7 @@ class MainScreenController extends GetxController
         title: 'Daily Reminder',
         body: 'Start your day with purpose!',
         notificationLayout: NotificationLayout.Default,
+         payload: {'navigation': '/main_screen'},
       ),
       schedule: NotificationCalendar(
         hour: 08,

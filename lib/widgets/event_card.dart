@@ -308,21 +308,21 @@ class EventCard extends StatelessWidget {
   }
 
 
+bool _shouldShowNotificationInfo() {
+  if (event.isCompleted == true) return false;
+  if (!event.hasReminder || event.reminderTime == null) return false;
+  
+  // Check if the notification has already been displayed
+  if (event.lastNotificationDisplayed != null) return false;
 
-  bool _shouldShowNotificationInfo() {
-    if (event.isCompleted == true) return false;
-    if (!event.hasReminder || event.reminderTime == null) return false;
+  DateTime scheduledDate = DateTime(
+    event.date.year,
+    event.date.month,
+    event.date.day,
+    event.reminderTime!.hour,
+    event.reminderTime!.minute,
+  );
 
-    DateTime scheduledDate = DateTime(
-      event.date.year,
-      event.date.month,
-      event.date.day,
-      event.reminderTime!.hour,
-      event.reminderTime!.minute,
-    );
-
-    return scheduledDate.isAfter(DateTime.now());
-  }
-
-
+  return scheduledDate.isAfter(DateTime.now());
+}
 }

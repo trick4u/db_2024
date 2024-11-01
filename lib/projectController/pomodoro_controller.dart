@@ -99,12 +99,15 @@ class PomodoroController extends GetxController with WidgetsBindingObserver {
     switch (state) {
       case AppLifecycleState.paused:
       case AppLifecycleState.inactive:
-        // App is in background or inactive
-        _pauseEverything();
+        // Only save the state but don't pause playback
+        _savedRemainingTime = remainingTime.value;
+        _wasPlaying = isPlaying.value;
         break;
       case AppLifecycleState.resumed:
-        // App is in foreground
         _resumeEverything();
+        break;
+      case AppLifecycleState.detached:
+        // Clean up resources if needed
         break;
       default:
         break;
@@ -150,15 +153,12 @@ class PomodoroController extends GetxController with WidgetsBindingObserver {
   }
 
   void _pauseEverything() {
+    // Only save state without affecting playback
     _savedRemainingTime = remainingTime.value;
     _wasPlaying = isPlaying.value;
-
-    // Pause the timer
+    
+    // Only pause the timer, not the music
     sessionTimer?.cancel();
-
-    // Pause the music
-    audioPlayer.pause();
-    isPlaying.value = false;
   }
 
   void _resumeEverything() {
@@ -277,10 +277,8 @@ class PomodoroController extends GetxController with WidgetsBindingObserver {
 
   Future<bool> _attemptPlayTrack(Map<String, dynamic> track) async {
     try {
-      final artUri = Uri.parse(
-        backgroundImageUrl.value ?? 
-        'https://cdn.pixabay.com/photo/2024/04/09/22/28/trees-8686902_1280.jpg'
-      );
+      final artUri = Uri.parse(backgroundImageUrl.value ??
+          'https://cdn.pixabay.com/photo/2024/04/09/22/28/trees-8686902_1280.jpg');
 
       final mediaItem = MediaItem(
         id: track['id']?.toString() ?? DateTime.now().toString(),
@@ -312,6 +310,7 @@ class PomodoroController extends GetxController with WidgetsBindingObserver {
       if (!isBreakTime.value) {
         await audioPlayer.play();
         isPlaying.value = true;
+        await audioPlayer.setAutomaticallyWaitsToMinimizeStalling(false);
         updateOverlayOpacity();
       }
 

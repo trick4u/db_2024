@@ -1,9 +1,10 @@
+import 'package:audioplayers/audioplayers.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 import 'package:get/get.dart';
-import 'package:just_audio/just_audio.dart';
+
 
 import '../models/note_model.dart';
 import '../services/toast_util.dart';
@@ -39,7 +40,8 @@ class NoteTakingController extends GetxController {
   bool get canAddMoreNotes => _notes.length < maxNotes;
   DocumentSnapshot? _lastDocument;
   bool _hasMoreNotes = true;
-  late AudioPlayer _audioPlayer;
+  final AudioPlayer _successPlayer = AudioPlayer();
+  bool _isSoundLoaded = false;
 
   int getSubtaskLength(String noteId) {
     final note = _notes.firstWhere((note) => note.id == noteId,
@@ -59,7 +61,7 @@ class NoteTakingController extends GetxController {
   @override
   void onInit() {
     super.onInit();
-    _audioPlayer = AudioPlayer();
+    _loadSound();
     ever(_notes, (_) {
       _updateSubtaskLengths(_);
       _updateNoteCounts();
@@ -70,12 +72,32 @@ class NoteTakingController extends GetxController {
     fetchNotes();
   }
 
-  Future<void> _playCompletionSound() async {
+  Future<void> _loadSound() async {
     try {
-      await _audioPlayer.setAsset('assets/success.mp3');
-      await _audioPlayer.play();
+      await _successPlayer.setSource(AssetSource('success.mp3'));
+      await _successPlayer.setVolume(1.0);
+      _isSoundLoaded = true;
+    } catch (e) {
+      print('Error loading sound: $e');
+      _isSoundLoaded = false;
+    }
+  }
+
+  Future<void> _playCompletionSound() async {
+    if (!_isSoundLoaded) return;
+    
+    try {
+      await _successPlayer.seek(Duration.zero);
+      await _successPlayer.resume();
     } catch (e) {
       print('Error playing completion sound: $e');
+      // Try to reload and play again
+      try {
+        await _loadSound();
+        await _successPlayer.resume();
+      } catch (retryError) {
+        print('Error retrying completion sound: $retryError');
+      }
     }
   }
 
@@ -86,7 +108,7 @@ class NoteTakingController extends GetxController {
         _notes.where((note) => !note.isCompleted).length;
   }
 
-  Future<void> toggleNoteCompletion(String noteId) async {
+ Future<void> toggleNoteCompletion(String noteId) async {
     try {
       int index = _notes.indexWhere((note) => note.id == noteId);
       if (index != -1) {
@@ -116,7 +138,6 @@ class NoteTakingController extends GetxController {
           newCompletionStatus
               ? "Note marked as completed"
               : "Note marked as incomplete",
-        
           duration: Duration(seconds: 2),
         );
       }
@@ -377,7 +398,7 @@ class NoteTakingController extends GetxController {
 
   @override
   void onClose() {
-    _audioPlayer.dispose();
+    _successPlayer.dispose();
     titleController.dispose();
     for (var controller in subTasks) {
       controller.dispose();

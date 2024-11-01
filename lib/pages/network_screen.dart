@@ -36,9 +36,14 @@ class NetworkScreen extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 20),
-              Text(
-                'Tap to check connectivity',
-                style: TextStyle(fontSize: 16, color: Colors.grey),
+              GestureDetector(
+                onTap: (){
+                  networkController.checkNetworkConnectivity();
+                },
+                child: Text(
+                  'Tap to check connectivity',
+                  style: TextStyle(fontSize: 16, color: Colors.grey),
+                ),
               ),
             ],
           );

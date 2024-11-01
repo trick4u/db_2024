@@ -1,3 +1,4 @@
+import 'package:audioplayers/audioplayers.dart';
 import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -5,7 +6,7 @@ import 'package:flutter/material.dart';
 
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
-import 'package:just_audio/just_audio.dart';
+
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:table_calendar/table_calendar.dart';
 
@@ -13,12 +14,14 @@ import '../constants/colors.dart';
 import '../models/quick_event_model.dart';
 
 import '../services/pexels_service.dart';
+
 import '../services/toast_util.dart';
 import '../services/work_manager.dart';
 import '../widgets/event_bottomSheet.dart';
 import 'package:flutter/services.dart';
 
-class CalendarController extends GetxController {
+
+class CalendarController extends GetxController with WidgetsBindingObserver {
   CalendarFormat calendarFormat = CalendarFormat.week;
   Rx<DateTime> focusedDay = DateTime.now().obs;
   Rx<DateTime> selectedDay = DateTime.now().obs;
@@ -32,7 +35,9 @@ class CalendarController extends GetxController {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   User? currentUser = FirebaseAuth.instance.currentUser;
 
-  late AudioPlayer _audioPlayer = AudioPlayer();
+  final AudioPlayer _successPlayer = AudioPlayer();
+  bool _isSoundLoaded = false;
+
 
   RxBool isLoading = true.obs;
   RxBool hasError = false.obs;
@@ -55,23 +60,92 @@ class CalendarController extends GetxController {
   RxInt backgroundChangeCount = 0.obs;
   RxBool isChangingBackground = false.obs;
 
-  @override
-  void onInit() {
+ @override
+  void onInit() async {
     super.onInit();
-    _audioPlayer = AudioPlayer();
-    loadInitialData();
-    fetchRandomBackgroundImage();
-    loadImageFetchData();
-    rescheduleNotifications();
-    loadSavedBackgroundImage();
-    loadBackgroundChangeCount();
-    //  fetchRandomBackgroundVideo();
+    WidgetsBinding.instance.addObserver(this);
+    await _loadSound();
+    await _initializeCalendar();
+  }
+
+ @override
+  void onClose() {
+    WidgetsBinding.instance.removeObserver(this);
+    _successPlayer.dispose();
+    super.onClose();
+  }
+
+Future<void> _loadSound() async {
+    try {
+      await _successPlayer.setSource(AssetSource('success.mp3'));
+      _isSoundLoaded = true;
+    } catch (e) {
+      print('Error loading sound: $e');
+    }
   }
 
   @override
-  void onClose() {
-    // backgroundVideoController.value?.dispose();
-    super.onClose();
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    switch (state) {
+      case AppLifecycleState.resumed:
+        // App is visible and running in foreground
+        _onAppResumed();
+        break;
+      case AppLifecycleState.inactive:
+        // App is in an inactive state (switching between views)
+        _onAppInactive();
+        break;
+      case AppLifecycleState.paused:
+        // App is in background but still running
+        _onAppPaused();
+        break;
+      case AppLifecycleState.detached:
+        // App is terminated or suspended
+        _onAppDetached();
+        break;
+      default:
+        break;
+    }
+  }
+
+  Future<void> _onAppResumed() async {
+    try {
+      // Refresh data when app comes to foreground
+      await fetchEvents(selectedDay.value);
+      await rescheduleNotifications();
+      await loadSavedBackgroundImage();
+    } catch (e) {
+      print('Error on app resume: $e');
+    }
+  }
+
+  void _onAppInactive() {
+    // Save any necessary state before app becomes inactive
+    print('App becoming inactive');
+  }
+
+  void _onAppPaused() {
+    // Clean up resources when app goes to background
+    print('App paused');
+  }
+
+  void _onAppDetached() {
+    // Perform cleanup when app is terminated
+    print('App detached');
+  }
+
+  Future<void> _initializeCalendar() async {
+    try {
+      await loadInitialData();
+      await fetchRandomBackgroundImage();
+      await loadImageFetchData();
+      await rescheduleNotifications();
+      await loadSavedBackgroundImage();
+      await loadBackgroundChangeCount();
+    } catch (e) {
+      print('Error initializing calendar: $e');
+      hasError.value = true;
+    }
   }
 
   // Future<void> fetchRandomBackgroundVideo() async {
@@ -672,16 +746,21 @@ class CalendarController extends GetxController {
         String eventId = eventQuery.docs.first.id;
         DateTime now = DateTime.now();
 
+        // Update Firestore
         await eventsCollection.doc(eventId).update({
           'lastNotificationDisplayed': Timestamp.fromDate(now),
+          'hasReminder':
+              false, // Set hasReminder to false when notification is displayed
+          'reminderTime': null // Clear the reminder time
         });
 
         // Update the local event model
         int index = events.indexWhere((e) => e.id == eventId);
         if (index != -1) {
           events[index] = events[index].copyWith(
-            lastNotificationDisplayed: now,
-          );
+              lastNotificationDisplayed: now,
+              hasReminder: false,
+              reminderTime: null);
 
           // Update the eventsGrouped map
           DateTime eventDate = DateTime(events[index].date.year,
@@ -694,7 +773,8 @@ class CalendarController extends GetxController {
           }
         }
 
-        print('Marked notification as displayed for event: $eventId');
+        print(
+            'Marked notification as displayed and updated reminder status for event: $eventId');
         update(); // This will trigger a rebuild of the UI
       } else {
         print('No event found for notification ID: $notificationId');
@@ -869,7 +949,7 @@ class CalendarController extends GetxController {
     };
   }
 
-  void toggleEventCompletion(String eventId) async {
+  Future<void> toggleEventCompletion(String eventId) async {
     if (currentUser == null) return;
     try {
       DocumentSnapshot eventDoc = await eventsCollection.doc(eventId).get();
@@ -880,30 +960,78 @@ class CalendarController extends GetxController {
         };
 
         if (!currentStatus) {
-          // If marking as complete, add completedAt timestamp and remove reminder
-          updateData['completedAt'] = FieldValue.serverTimestamp();
+          // If marking as complete
+          updateData['completedAt'] = Timestamp.fromDate(DateTime.now());
           updateData['hasReminder'] = false;
-          updateData['reminderTime'] = FieldValue.delete();
-          await _audioPlayer.setAsset('assets/success.mp3');
-          await _audioPlayer.play();
+          updateData['reminderTime'] = null;
+          
+          // Play success sound
+          if (_isSoundLoaded) {
+            try {
+              await _successPlayer.resume();
+            } catch (audioError) {
+              print('Error playing audio: $audioError');
+            }
+          }
         } else {
-          // If marking as incomplete, remove completedAt and editedAfterCompletion
-          updateData['completedAt'] = FieldValue.delete();
-          updateData['editedAfterCompletion'] = FieldValue.delete();
+          // If marking as incomplete
+          updateData['completedAt'] = null;
+          updateData['editedAfterCompletion'] = false;
         }
 
+        // Update Firestore
         await eventsCollection.doc(eventId).update(updateData);
 
+        // Update local state
         QuickEventModel event = QuickEventModel.fromFirestore(eventDoc);
+        
+        // If completing the event and it had a reminder, cancel it
         if (!currentStatus && event.hasReminder) {
           await cancelNotification(event);
         }
 
-        HapticFeedback.mediumImpact();
-        fetchEvents(selectedDay.value);
+        // Update the event in the events list
+        int eventIndex = events.indexWhere((e) => e.id == eventId);
+        if (eventIndex != -1) {
+          QuickEventModel updatedEvent = event.copyWith(
+            isCompleted: !currentStatus,
+            completedAt: !currentStatus ? DateTime.now() : null,
+            hasReminder: currentStatus ? event.hasReminder : false,
+            reminderTime: currentStatus ? event.reminderTime : null,
+            editedAfterCompletion: false,
+          );
+          events[eventIndex] = updatedEvent;
+
+          // Update the event in the eventsGrouped map
+          DateTime eventDate = DateTime(
+            event.date.year,
+            event.date.month,
+            event.date.day,
+          );
+          
+          if (eventsGrouped.containsKey(eventDate)) {
+            int groupIndex = eventsGrouped[eventDate]!.indexWhere((e) => e.id == eventId);
+            if (groupIndex != -1) {
+              eventsGrouped[eventDate]![groupIndex] = updatedEvent;
+            }
+          }
+        }
+
+        try {
+          await HapticFeedback.mediumImpact();
+        } catch (hapticError) {
+          print('Error with haptic feedback: $hapticError');
+        }
+
+        // Trigger UI update
+        update();
+        
+      } else {
+        print('Event document not found: $eventId');
       }
     } catch (e) {
       print('Error toggling event completion: $e');
+      ToastUtil.showToast('Error', 'Failed to update event completion status');
     }
   }
 

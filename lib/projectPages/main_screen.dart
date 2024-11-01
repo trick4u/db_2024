@@ -15,8 +15,6 @@ class MainScreen extends GetWidget<MainScreenController> {
   Widget build(BuildContext context) {
     ScaleUtil.init(context);
 
- 
-
     final appTheme = Get.find<AppTheme>();
     appTheme.updateStatusBarColor();
 
