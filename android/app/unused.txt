@@ -43717,7 +43717,6 @@ kotlin.collections.CollectionsKt___CollectionsKt:
     public static final java.lang.Object single(java.lang.Iterable,kotlin.jvm.functions.Function1)
     public static final java.lang.Object singleOrNull(java.lang.Iterable)
     public static final java.lang.Object singleOrNull(java.lang.Iterable,kotlin.jvm.functions.Function1)
-    public static final java.lang.Object singleOrNull(java.util.List)
     public static final java.util.List slice(java.util.List,java.lang.Iterable)
     public static final java.util.List slice(java.util.List,kotlin.ranges.IntRange)
     public static final void sortBy(java.util.List,kotlin.jvm.functions.Function1)
@@ -43830,7 +43829,6 @@ kotlin.collections.MapsKt__MapsKt:
     public static final java.lang.Object getOrElseNullable(java.util.Map,java.lang.Object,kotlin.jvm.functions.Function0)
     public static final java.lang.Object getOrPut(java.util.Map,java.lang.Object,kotlin.jvm.functions.Function0)
     private static final java.util.HashMap hashMapOf()
-    public static final varargs java.util.HashMap hashMapOf(kotlin.Pair[])
     private static final java.lang.Object ifEmpty(java.util.Map,kotlin.jvm.functions.Function0)
     private static final boolean isNotEmpty(java.util.Map)
     private static final boolean isNullOrEmpty(java.util.Map)
@@ -45548,7 +45546,6 @@ kotlin.text.Regex:
     public final kotlin.text.MatchResult matchAt(java.lang.CharSequence,int)
     public final kotlin.text.MatchResult matchEntire(java.lang.CharSequence)
     public final boolean matchesAt(java.lang.CharSequence,int)
-    public final java.lang.String replace(java.lang.CharSequence,java.lang.String)
     public final java.lang.String replace(java.lang.CharSequence,kotlin.jvm.functions.Function1)
     public final java.lang.String replaceFirst(java.lang.CharSequence,java.lang.String)
     public final java.util.List split(java.lang.CharSequence,int)
@@ -45804,7 +45801,6 @@ kotlin.text.StringsKt__StringsKt:
     public static synthetic java.lang.CharSequence padStart$default(java.lang.CharSequence,int,char,int,java.lang.Object)
     public static synthetic java.lang.String padStart$default(java.lang.String,int,char,int,java.lang.Object)
     public static final java.lang.CharSequence removePrefix(java.lang.CharSequence,java.lang.CharSequence)
-    public static final java.lang.String removePrefix(java.lang.String,java.lang.CharSequence)
     public static final java.lang.CharSequence removeRange(java.lang.CharSequence,int,int)
     public static final java.lang.CharSequence removeRange(java.lang.CharSequence,kotlin.ranges.IntRange)
     private static final java.lang.String removeRange(java.lang.String,int,int)
@@ -45850,10 +45846,8 @@ kotlin.text.StringsKt__StringsKt:
     public static synthetic kotlin.sequences.Sequence splitToSequence$default(java.lang.CharSequence,char[],boolean,int,int,java.lang.Object)
     public static final boolean startsWith(java.lang.CharSequence,char,boolean)
     public static final boolean startsWith(java.lang.CharSequence,java.lang.CharSequence,int,boolean)
-    public static final boolean startsWith(java.lang.CharSequence,java.lang.CharSequence,boolean)
     public static synthetic boolean startsWith$default(java.lang.CharSequence,char,boolean,int,java.lang.Object)
     public static synthetic boolean startsWith$default(java.lang.CharSequence,java.lang.CharSequence,int,boolean,int,java.lang.Object)
-    public static synthetic boolean startsWith$default(java.lang.CharSequence,java.lang.CharSequence,boolean,int,java.lang.Object)
     public static final java.lang.CharSequence subSequence(java.lang.CharSequence,kotlin.ranges.IntRange)
     private static final java.lang.CharSequence subSequence(java.lang.String,int,int)
     private static final java.lang.String substring(java.lang.CharSequence,int,int)
@@ -48904,6 +48898,47 @@ org.reactivestreams.Processor
 org.reactivestreams.Publisher
 org.reactivestreams.Subscriber
 org.reactivestreams.Subscription
+xyz.luan.audioplayers.AudioContextAndroid:
+    public final boolean component1()
+    public final boolean component2()
+    public final int component3()
+    public final int component4()
+    public final int component5()
+    public final int component6()
+    public final int getContentType()
+    public final int getUsageType()
+xyz.luan.audioplayers.AudioplayersPluginKt:
+    private static final synthetic java.lang.Enum enumArgument(io.flutter.plugin.common.MethodCall,java.lang.String)
+xyz.luan.audioplayers.PlayerMode:
+    public static kotlin.enums.EnumEntries getEntries()
+xyz.luan.audioplayers.R
+xyz.luan.audioplayers.ReleaseMode:
+    public static kotlin.enums.EnumEntries getEntries()
+xyz.luan.audioplayers.player.SoundPoolPlayerKt
+xyz.luan.audioplayers.player.WrappedPlayer:
+    public final float getBalance()
+    public final xyz.luan.audioplayers.PlayerMode getPlayerMode()
+    public final xyz.luan.audioplayers.ReleaseMode getReleaseMode()
+    public final boolean getReleased()
+    public final int getShouldSeekTo()
+    public final xyz.luan.audioplayers.source.Source getSource()
+    public final void setContext(xyz.luan.audioplayers.AudioContextAndroid)
+    public final void setPlaying(boolean)
+    public final void setReleased(boolean)
+    public final void setShouldSeekTo(int)
+xyz.luan.audioplayers.player.WrappedPlayerKt
+xyz.luan.audioplayers.source.BytesSource:
+    public final xyz.luan.audioplayers.ByteDataSource component1()
+    public final xyz.luan.audioplayers.source.BytesSource copy(xyz.luan.audioplayers.ByteDataSource)
+    public static synthetic xyz.luan.audioplayers.source.BytesSource copy$default(xyz.luan.audioplayers.source.BytesSource,xyz.luan.audioplayers.ByteDataSource,int,java.lang.Object)
+    public final xyz.luan.audioplayers.ByteDataSource getDataSource()
+xyz.luan.audioplayers.source.UrlSource:
+    public final java.lang.String component1()
+    public final boolean component2()
+    public final xyz.luan.audioplayers.source.UrlSource copy(java.lang.String,boolean)
+    public static synthetic xyz.luan.audioplayers.source.UrlSource copy$default(xyz.luan.audioplayers.source.UrlSource,java.lang.String,boolean,int,java.lang.Object)
+    public final java.lang.String getUrl()
+    public final boolean isLocal()
 _COROUTINE.CoroutineDebuggingKt:
     public static final java.lang.String getARTIFICIAL_FRAME_PACKAGE_NAME()
 android.support.v4.app.INotificationSideChannel$Stub$Proxy:
@@ -50637,3 +50672,7 @@ kotlinx.coroutines.sync.SemaphoreImpl$$InternalSyntheticThrowCCEIfNotNull$10$7d9
 kotlinx.coroutines.sync.SemaphoreImpl$$InternalSyntheticThrowCCEIfNotNull$10$c252e556c867cee1ac89fca692419e0d4b39bc94870e8b5ad42ffdb21485a953$0
 me.leolin.shortcutbadger.impl.OPPOHomeBader:
     public final void executeBadgeByBroadcast(android.content.Context,android.content.ComponentName,int)
+xyz.luan.audioplayers.AudioContextAndroid:
+    public final int getStreamType()
+xyz.luan.audioplayers.player.SoundPoolManager:
+    public xyz.luan.audioplayers.player.SoundPoolWrapper legacySoundPoolWrapper

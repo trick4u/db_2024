@@ -6,6 +6,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
 import 'package:tushar_db/services/scale_util.dart';
 import '../controller/main_screen_controller.dart';
+import '../pages/network_screen.dart';
 import '../services/app_theme.dart';
 
 class MainScreen extends GetWidget<MainScreenController> {
@@ -17,13 +18,26 @@ class MainScreen extends GetWidget<MainScreenController> {
 
     final appTheme = Get.find<AppTheme>();
     appTheme.updateStatusBarColor();
-
     return Obx(
       () => Scaffold(
         extendBodyBehindAppBar: true,
         resizeToAvoidBottomInset: false,
         body: SafeArea(
-          child: controller.pages[controller.selectedIndex.value],
+          child: Stack(
+            // Changed SafeArea to Stack
+            children: [
+              SafeArea(
+                child: controller.pages[controller.selectedIndex.value],
+              ),
+              Positioned(
+                bottom: ScaleUtil.height(
+                    30), // Adjust this value based on your bottom nav height
+                left: 0,
+                right: 0,
+                child: NetworkStatusBanner(),
+              ),
+            ],
+          ),
         ),
         bottomNavigationBar: _buildBottomNavigationBar(),
       ),

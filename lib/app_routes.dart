@@ -137,11 +137,7 @@ class AppRoutes {
       page: () => StatisticsScreen(),
       binding: StatisticsBinding(),
     ),
-    GetPage(
-      name: NETWORK,
-      page: () => NetworkScreen(),
-      binding: NetworkBinding(),
-    ),
+  
     GetPage(
       name: SPLASH,
       page: () => SplashScreen(),

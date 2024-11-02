@@ -2,11 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
 
-
 import '../projectController/pomodoro_controller.dart';
 import '../services/app_theme.dart';
 import '../services/scale_util.dart';
-
 
 class PomodoroSetupScreen extends GetWidget<PomodoroController> {
   final AppTheme appTheme = Get.find<AppTheme>();
@@ -22,13 +20,12 @@ class PomodoroSetupScreen extends GetWidget<PomodoroController> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            SizedBox(height: ScaleUtil.height(10)),
+            SizedBox(height: ScaleUtil.height(5)),
             _buildSessionDurationSlider(),
-            SizedBox(height: ScaleUtil.height(10)),
+            SizedBox(height: ScaleUtil.height(5)),
             _buildBreakDurationSlider(),
-            SizedBox(height: ScaleUtil.height(10)),
+            SizedBox(height: ScaleUtil.height(5)),
             _buildTotalSessionsSlider(),
-            SizedBox(height: ScaleUtil.height(0)),
             Align(
               alignment: Alignment.centerRight,
               child: _buildStartButton(),
