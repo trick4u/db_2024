@@ -14,6 +14,8 @@ class NetworkController extends GetxController {
   RxBool isOnline = true.obs;
   StreamSubscription? connectionStream;
   bool isInitialCheck = true;
+  // Add a debouncer to prevent rapid state changes
+  Timer? _navigationDebouncer;
 
   @override
   void onInit() {
@@ -31,21 +33,44 @@ class NetworkController extends GetxController {
   }
 
   void listenToConnectionChanges() {
-    connectionStream = InternetConnection().onStatusChange.listen((event) {
+    connectionStream = InternetConnection().onStatusChange.listen((event) async {
       switch (event) {
         case InternetStatus.connected:
           if (!isInitialCheck && !isOnline.value) {
             isOnline.value = true;
-            navigateToMainScreen();
+            // Cancel any pending navigation
+            _navigationDebouncer?.cancel();
+            // Add a small delay before navigation to allow UI to update
+            _navigationDebouncer = Timer(const Duration(milliseconds: 300), () {
+              if (isOnline.value) {
+                // Only navigate if we're still online after the delay
+                if (!Get.currentRoute.contains('MainScreen')) {
+                  Get.off(
+                    () => MainScreen(),
+                    transition: Transition.fadeIn,
+                    duration: const Duration(milliseconds: 500),
+                  );
+                }
+              }
+            });
           }
           break;
         case InternetStatus.disconnected:
           isOnline.value = false;
           if (!isInitialCheck) {
+            // Cancel any pending navigation
+            _navigationDebouncer?.cancel();
             ToastUtil.showToast(
-                'No Internet', 'Please check your internet connection',
-             );
-            Get.offNamedUntil(AppRoutes.NETWORK, (route) => false);
+              'No Internet',
+              'Please check your internet connection',
+            );
+            if (!Get.currentRoute.contains('NETWORK')) {
+              Get.offNamedUntil(
+                AppRoutes.NETWORK,
+                (route) => false,
+          
+              );
+            }
           }
           break;
       }
@@ -56,27 +81,28 @@ class NetworkController extends GetxController {
     bool hasInternet = await InternetConnection().hasInternetAccess;
     isOnline.value = hasInternet;
     if (hasInternet) {
-      // ToastUtil.showToast(
-      //   'Connected',
-      //   'You are online',
-      //   snackPosition: SnackPosition.BOTTOM,
-      // );
       navigateToMainScreen();
     } else {
       ToastUtil.showToast(
         'No Internet',
         'Please check your internet connection',
-     
       );
     }
   }
 
   void navigateToMainScreen() {
-    Get.offAll(() => MainScreen());
+    if (!Get.currentRoute.contains('MainScreen')) {
+      Get.off(
+        () => MainScreen(),
+        transition: Transition.fadeIn,
+        duration: const Duration(milliseconds: 500),
+      );
+    }
   }
 
   @override
   void onClose() {
+    _navigationDebouncer?.cancel();
     connectionStream?.cancel();
     super.onClose();
   }

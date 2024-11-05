@@ -29,9 +29,9 @@ class _SplashScreenState extends State<SplashScreen> {
 
     Future.delayed(Duration(seconds: 2), () {
        Get.offNamed(AppRoutes.AUTHWRAPPER);
-      WidgetsBinding.instance.addPostFrameCallback((_) {
+      // WidgetsBinding.instance.addPostFrameCallback((_) {
        
-      });
+      // });
     });
   }
 

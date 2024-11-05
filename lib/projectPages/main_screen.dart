@@ -22,23 +22,7 @@ class MainScreen extends GetWidget<MainScreenController> {
       () => Scaffold(
         extendBodyBehindAppBar: true,
         resizeToAvoidBottomInset: false,
-        body: SafeArea(
-          child: Stack(
-            // Changed SafeArea to Stack
-            children: [
-              SafeArea(
-                child: controller.pages[controller.selectedIndex.value],
-              ),
-              Positioned(
-                bottom: ScaleUtil.height(
-                    30), // Adjust this value based on your bottom nav height
-                left: 0,
-                right: 0,
-                child: NetworkStatusBanner(),
-              ),
-            ],
-          ),
-        ),
+        body:  controller.pages[controller.selectedIndex.value],
         bottomNavigationBar: _buildBottomNavigationBar(),
       ),
     );

@@ -5977,7 +5977,8 @@ androidx.core.app.PendingIntentCompat$Api26Impl
 androidx.core.app.PendingIntentCompat$Flags
 androidx.core.app.PendingIntentCompat$GatedCallback
 androidx.core.app.PendingIntentCompat
-androidx.core.app.Person$Api22Impl
+androidx.core.app.Person$Api22Impl:
+    private void <init>()
 androidx.core.app.Person$Api28Impl:
     private void <init>()
 androidx.core.app.Person$Builder:
@@ -5991,7 +5992,6 @@ androidx.core.app.Person:
     private static final java.lang.String URI_KEY
     public static androidx.core.app.Person fromPersistableBundle(android.os.PersistableBundle)
     public androidx.core.app.Person$Builder toBuilder()
-    public android.os.PersistableBundle toPersistableBundle()
 androidx.core.app.PictureInPictureModeChangedInfo:
     public final android.content.res.Configuration getNewConfig()
 androidx.core.app.RemoteActionCompat$Api26Impl
@@ -6115,8 +6115,6 @@ androidx.core.content.IntentSanitizer$Builder
 androidx.core.content.IntentSanitizer
 androidx.core.content.LocusIdCompat$Api29Impl:
     private void <init>()
-androidx.core.content.LocusIdCompat:
-    public java.lang.String getId()
 androidx.core.content.MimeTypeFilter
 androidx.core.content.PackageManagerCompat$Api30Impl
 androidx.core.content.PackageManagerCompat$UnusedAppRestrictionsStatus
@@ -6148,9 +6146,32 @@ androidx.core.content.pm.PermissionInfoCompat$Api28Impl
 androidx.core.content.pm.PermissionInfoCompat$Protection
 androidx.core.content.pm.PermissionInfoCompat$ProtectionFlags
 androidx.core.content.pm.PermissionInfoCompat
-androidx.core.content.pm.ShortcutInfoChangeListener
-androidx.core.content.pm.ShortcutInfoCompat$Api33Impl
-androidx.core.content.pm.ShortcutInfoCompat$Builder
+androidx.core.content.pm.ShortcutInfoChangeListener:
+    public void <init>()
+    public void onShortcutRemoved(java.util.List)
+    public void onShortcutUpdated(java.util.List)
+androidx.core.content.pm.ShortcutInfoCompat$Api33Impl:
+    private void <init>()
+androidx.core.content.pm.ShortcutInfoCompat$Builder:
+    public void <init>(android.content.Context,android.content.pm.ShortcutInfo)
+    public void <init>(androidx.core.content.pm.ShortcutInfoCompat)
+    public androidx.core.content.pm.ShortcutInfoCompat$Builder addCapabilityBinding(java.lang.String)
+    public androidx.core.content.pm.ShortcutInfoCompat$Builder addCapabilityBinding(java.lang.String,java.lang.String,java.util.List)
+    public androidx.core.content.pm.ShortcutInfoCompat$Builder setActivity(android.content.ComponentName)
+    public androidx.core.content.pm.ShortcutInfoCompat$Builder setAlwaysBadged()
+    public androidx.core.content.pm.ShortcutInfoCompat$Builder setCategories(java.util.Set)
+    public androidx.core.content.pm.ShortcutInfoCompat$Builder setDisabledMessage(java.lang.CharSequence)
+    public androidx.core.content.pm.ShortcutInfoCompat$Builder setExcludedFromSurfaces(int)
+    public androidx.core.content.pm.ShortcutInfoCompat$Builder setExtras(android.os.PersistableBundle)
+    public androidx.core.content.pm.ShortcutInfoCompat$Builder setIsConversation()
+    public androidx.core.content.pm.ShortcutInfoCompat$Builder setLocusId(androidx.core.content.LocusIdCompat)
+    public androidx.core.content.pm.ShortcutInfoCompat$Builder setLongLived()
+    public androidx.core.content.pm.ShortcutInfoCompat$Builder setLongLived(boolean)
+    public androidx.core.content.pm.ShortcutInfoCompat$Builder setPerson(androidx.core.app.Person)
+    public androidx.core.content.pm.ShortcutInfoCompat$Builder setPersons(androidx.core.app.Person[])
+    public androidx.core.content.pm.ShortcutInfoCompat$Builder setRank(int)
+    public androidx.core.content.pm.ShortcutInfoCompat$Builder setSliceUri(android.net.Uri)
+    public androidx.core.content.pm.ShortcutInfoCompat$Builder setTransientExtras(android.os.Bundle)
 androidx.core.content.pm.ShortcutInfoCompat$Surface
 androidx.core.content.pm.ShortcutInfoCompat:
     private static final java.lang.String EXTRA_LOCUS_ID
@@ -6159,37 +6180,19 @@ androidx.core.content.pm.ShortcutInfoCompat:
     private static final java.lang.String EXTRA_PERSON_COUNT
     private static final java.lang.String EXTRA_SLICE_URI
     public static final int SURFACE_LAUNCHER
-    android.content.ComponentName mActivity
-    java.util.Set mCategories
-    android.content.Context mContext
-    java.lang.CharSequence mDisabledMessage
     int mDisabledReason
-    int mExcludedSurfaces
-    android.os.PersistableBundle mExtras
     boolean mHasKeyFieldsOnly
-    androidx.core.graphics.drawable.IconCompat mIcon
-    java.lang.String mId
-    android.content.Intent[] mIntents
     boolean mIsAlwaysBadged
     boolean mIsCached
     boolean mIsDeclaredInManifest
     boolean mIsDynamic
-    boolean mIsEnabled
     boolean mIsImmutable
-    boolean mIsLongLived
     boolean mIsPinned
-    java.lang.CharSequence mLabel
     long mLastChangedTimestamp
-    androidx.core.content.LocusIdCompat mLocusId
-    java.lang.CharSequence mLongLabel
     java.lang.String mPackageName
-    androidx.core.app.Person[] mPersons
-    int mRank
     android.os.Bundle mTransientExtras
     android.os.UserHandle mUser
-    void <init>()
     android.content.Intent addToIntent(android.content.Intent)
-    private android.os.PersistableBundle buildLegacyExtrasBundle()
     static java.util.List fromShortcuts(android.content.Context,java.util.List)
     public android.content.ComponentName getActivity()
     public java.util.Set getCategories()
@@ -6215,16 +6218,53 @@ androidx.core.content.pm.ShortcutInfoCompat:
     public boolean isDeclaredInManifest()
     public boolean isDynamic()
     public boolean isEnabled()
-    public boolean isExcludedFromSurfaces(int)
     public boolean isImmutable()
     public boolean isPinned()
-    public android.content.pm.ShortcutInfo toShortcutInfo()
-androidx.core.content.pm.ShortcutInfoCompatSaver$NoopImpl
-androidx.core.content.pm.ShortcutInfoCompatSaver
+androidx.core.content.pm.ShortcutInfoCompatSaver$NoopImpl:
+    public synthetic bridge java.lang.Object removeShortcuts(java.util.List)
+    public java.lang.Void removeShortcuts(java.util.List)
+androidx.core.content.pm.ShortcutInfoCompatSaver:
+    public java.util.List getShortcuts()
+    public abstract java.lang.Object removeShortcuts(java.util.List)
 androidx.core.content.pm.ShortcutManagerCompat$1
 androidx.core.content.pm.ShortcutManagerCompat$Api25Impl
 androidx.core.content.pm.ShortcutManagerCompat$ShortcutMatchFlags
-androidx.core.content.pm.ShortcutManagerCompat
+androidx.core.content.pm.ShortcutManagerCompat:
+    static final java.lang.String ACTION_INSTALL_SHORTCUT
+    private static final int DEFAULT_MAX_ICON_DIMENSION_DP
+    private static final int DEFAULT_MAX_ICON_DIMENSION_LOWRAM_DP
+    public static final java.lang.String EXTRA_SHORTCUT_ID
+    public static final int FLAG_MATCH_CACHED
+    public static final int FLAG_MATCH_DYNAMIC
+    public static final int FLAG_MATCH_MANIFEST
+    public static final int FLAG_MATCH_PINNED
+    static final java.lang.String INSTALL_SHORTCUT_PERMISSION
+    private static final java.lang.String SHORTCUT_LISTENER_INTENT_FILTER_ACTION
+    private static final java.lang.String SHORTCUT_LISTENER_META_DATA_KEY
+    private void <init>()
+    public static boolean addDynamicShortcuts(android.content.Context,java.util.List)
+    static boolean convertUriIconToBitmapIcon(android.content.Context,androidx.core.content.pm.ShortcutInfoCompat)
+    static void convertUriIconsToBitmapIcons(android.content.Context,java.util.List)
+    public static android.content.Intent createShortcutResultIntent(android.content.Context,androidx.core.content.pm.ShortcutInfoCompat)
+    public static void disableShortcuts(android.content.Context,java.util.List,java.lang.CharSequence)
+    public static void enableShortcuts(android.content.Context,java.util.List)
+    public static java.util.List getDynamicShortcuts(android.content.Context)
+    private static int getIconDimensionInternal(android.content.Context,boolean)
+    public static int getIconMaxHeight(android.content.Context)
+    public static int getIconMaxWidth(android.content.Context)
+    public static int getMaxShortcutCountPerActivity(android.content.Context)
+    static java.util.List getShortcutInfoChangeListeners()
+    private static java.lang.String getShortcutInfoCompatWithLowestRank(java.util.List)
+    public static java.util.List getShortcuts(android.content.Context,int)
+    public static boolean isRateLimitingActive(android.content.Context)
+    public static boolean isRequestPinShortcutSupported(android.content.Context)
+    public static boolean pushDynamicShortcut(android.content.Context,androidx.core.content.pm.ShortcutInfoCompat)
+    public static void removeDynamicShortcuts(android.content.Context,java.util.List)
+    public static void removeLongLivedShortcuts(android.content.Context,java.util.List)
+    public static boolean requestPinShortcut(android.content.Context,androidx.core.content.pm.ShortcutInfoCompat,android.content.IntentSender)
+    static void setShortcutInfoChangeListeners(java.util.List)
+    static void setShortcutInfoCompatSaver(androidx.core.content.pm.ShortcutInfoCompatSaver)
+    public static boolean updateShortcuts(android.content.Context,java.util.List)
 androidx.core.content.pm.ShortcutXmlParser
 androidx.core.content.res.CamColor:
     private static final float CHROMA_SEARCH_ENDPOINT
@@ -6594,7 +6634,8 @@ androidx.core.net.MailTo
 androidx.core.net.ParseException
 androidx.core.net.TrafficStatsCompat$Api24Impl
 androidx.core.net.TrafficStatsCompat
-androidx.core.net.UriCompat
+androidx.core.net.UriCompat:
+    private void <init>()
 androidx.core.net.UriKt
 androidx.core.os.BuildCompat$PrereleaseSdkCheck
 androidx.core.os.BuildCompat:
@@ -49194,10 +49235,7 @@ androidx.core.app.SharedElementCallback:
 androidx.core.content.ContextCompat$LegacyServiceMapHolder
 androidx.core.content.ContextCompat:
     public static java.io.File createFilesDir(java.io.File)
-androidx.core.content.pm.ShortcutInfoCompat:
-    public abstract java.lang.String getId()
-    public abstract androidx.core.content.LocusIdCompat getLocusId()
-    public abstract java.lang.CharSequence getShortLabel()
+androidx.core.content.pm.ShortcutInfoChangeListener
 androidx.core.graphics.PaintCompat:
     public static androidx.core.util.Pair obtainEmptyRects()
 androidx.core.graphics.TypefaceCompat:

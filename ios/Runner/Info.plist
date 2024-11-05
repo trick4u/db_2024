@@ -1,4 +1,3 @@
-<?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
@@ -48,32 +47,57 @@
 	<key>UIBackgroundModes</key>
     <array>
         <string>remote-notification</string>
-		  <string>audio</string>
+		<string>audio</string>
     </array>
-
-    <!-- If you want to play custom sounds -->
     <key>UILocalNotificationSoundName</key>
     <string>notification_sound.wav</string>
-
-    <!-- For iOS 10 and above -->
     <key>NSCalendarsUsageDescription</key>
     <string>This app requires access to the calendar to schedule event reminders.</string>
-
     <key>NSRemindersUsageDescription</key>
     <string>This app requires access to reminders to create event reminders.</string>
-
-    <!-- For requesting notification permissions -->
     <key>NSUserNotificationUsageDescription</key>
     <string>This app requires permission to send you event reminders and updates.</string>
-
 	<key>NSPhotoLibraryUsageDescription</key>
-<string>This app requires access to the photo library to upload images.</string>
-<key>NSCameraUsageDescription</key>
-<string>This app requires access to the camera to take photos.</string>
-<key>NSMicrophoneUsageDescription</key>
-<string>This app requires access to the microphone to record videos.</string>
-
-
-
+    <string>This app requires access to the photo library to upload images.</string>
+    <key>NSCameraUsageDescription</key>
+    <string>This app requires access to the camera to take photos.</string>
+    <key>NSMicrophoneUsageDescription</key>
+    <string>This app requires access to the microphone to record videos.</string>
+    <!-- Quick Actions Configuration -->
+    <key>UIApplicationShortcutItems</key>
+    <array>
+        <dict>
+            <key>UIApplicationShortcutItemIconFile</key>
+            <string>QuickActionHome</string>
+            <key>UIApplicationShortcutItemTitle</key>
+            <string>Home</string>
+            <key>UIApplicationShortcutItemType</key>
+            <string>action_home</string>
+        </dict>
+        <dict>
+            <key>UIApplicationShortcutItemIconFile</key>
+            <string>QuickActionCalendar</string>
+            <key>UIApplicationShortcutItemTitle</key>
+            <string>Calendar</string>
+            <key>UIApplicationShortcutItemType</key>
+            <string>action_calendar</string>
+        </dict>
+        <dict>
+            <key>UIApplicationShortcutItemIconFile</key>
+            <string>QuickActionStats</string>
+            <key>UIApplicationShortcutItemTitle</key>
+            <string>Statistics</string>
+            <key>UIApplicationShortcutItemType</key>
+            <string>action_stats</string>
+        </dict>
+        <dict>
+            <key>UIApplicationShortcutItemIconFile</key>
+            <string>QuickActionAddTask</string>
+            <key>UIApplicationShortcutItemTitle</key>
+            <string>Add Task</string>
+            <key>UIApplicationShortcutItemType</key>
+            <string>action_add_task</string>
+        </dict>
+    </array>
 </dict>
 </plist>

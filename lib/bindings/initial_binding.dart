@@ -29,6 +29,9 @@ class InitialBinding extends Bindings {
     Get.lazyPut<ProfileController>(() => ProfileController(), fenix: true);
     
        Get.lazyPut<PomodoroController>(() => PomodoroController(), fenix: true);
-     Get.put(NetworkController(), permanent: true);
+
+    Get.lazyPut<NetworkController>(() => NetworkController(),
+        fenix: true, );
+    //  Get.put(NetworkController(), permanent: true);
   }
 }
