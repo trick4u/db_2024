@@ -18,21 +18,28 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   void initState() {
     super.initState();
-    _navigateToNextScreen();
+    // Ensure navigation happens after widget is fully mounted
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _navigateToNextScreen();
+    });
   }
 
-  _navigateToNextScreen() async {
-    // await Future.delayed(
-    //   Duration(seconds: 2),
-    // ); // Adjust duration as needed
-    // Get.offNamed(AppRoutes.AUTHWRAPPER);
-
-    Future.delayed(Duration(seconds: 2), () {
-       Get.offNamed(AppRoutes.AUTHWRAPPER);
-      // WidgetsBinding.instance.addPostFrameCallback((_) {
-       
-      // });
-    });
+  Future<void> _navigateToNextScreen() async {
+    try {
+      // Use a more reliable way to delay
+      await Future.delayed(const Duration(seconds: 2));
+      
+      // Check if the widget is still mounted before navigating
+      if (mounted) {
+        await Get.offNamed(AppRoutes.AUTHWRAPPER);
+      }
+    } catch (e) {
+      debugPrint('Navigation error: $e');
+      // Implement proper error handling here
+      if (mounted) {
+        Get.offNamed(AppRoutes.AUTHWRAPPER);
+      }
+    }
   }
 
   @override

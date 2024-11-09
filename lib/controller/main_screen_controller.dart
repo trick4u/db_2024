@@ -60,6 +60,8 @@ class MainScreenController extends GetxController
     Get.lazyPut(() => ProfileController());
     Get.lazyPut(() => StatisticsController());
     Get.lazyPut<CalendarController>(() => CalendarController());
+    final calendarController = Get.find<CalendarController>();
+    calendarController.fetchRandomBackgroundImage();
     QuickActionsService.initialize();
     AwesomeNotifications().setListeners(
       onActionReceivedMethod: NotificationService.onActionReceivedMethod,
@@ -139,6 +141,31 @@ class MainScreenController extends GetxController
       ),
       schedule: NotificationCalendar(
         hour: 08,
+        minute: 05,
+        second: 0,
+        millisecond: 0,
+        repeats: true,
+        timeZone: await AwesomeNotifications().getLocalTimeZoneIdentifier(),
+        preciseAlarm: true,
+      ),
+    );
+    print("Daily notification scheduled for Android");
+  }
+
+   Future<void> _scheduleAndroidNotificationNight() async {
+    await AwesomeNotifications().cancelSchedule(10);
+
+    await AwesomeNotifications().createNotification(
+      content: NotificationContent(
+        id: 10,
+        channelKey: 'basic_channel',
+        title: 'Daily Reminder',
+        body: 'Start your day with purpose!',
+        notificationLayout: NotificationLayout.Default,
+        payload: {'navigation': '/main_screen'},
+      ),
+      schedule: NotificationCalendar(
+        hour: 22,
         minute: 05,
         second: 0,
         millisecond: 0,

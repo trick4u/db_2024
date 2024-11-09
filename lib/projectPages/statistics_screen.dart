@@ -26,7 +26,7 @@ class StatisticsScreen extends GetView<StatisticsController> {
           children: [
             ScaleUtil.sizedBox(height: 16),
             Text(
-              "your stats",
+              "your stats .",
               style: appTheme.titleLarge.copyWith(
                 fontSize: ScaleUtil.fontSize(20),
               ),
