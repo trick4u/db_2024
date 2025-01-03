@@ -236,10 +236,9 @@ class MyApp extends StatelessWidget {
           darkTheme: appTheme.themeData,
           themeMode: appTheme.isDarkMode ? ThemeMode.dark : ThemeMode.light,
           initialBinding: InitialBinding(),
+             initialRoute: AppRoutes.SPLASH,
           home: SplashScreen(), // Change this line
-          getPages: [
-            ...AppRoutes.routes,
-          ],
+   getPages: AppRoutes.routes,  
           builder: (context, child) {
             ScaleUtil.init(context);
             return MediaQuery(

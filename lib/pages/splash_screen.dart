@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:animate_do/animate_do.dart';
 import 'package:flutter/material.dart';
 
@@ -6,6 +8,7 @@ import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:tushar_db/app_routes.dart';
 
+import '../controller/network_controller.dart';
 import '../services/app_theme.dart';
 import '../services/scale_util.dart';
 
@@ -15,31 +18,94 @@ class SplashScreen extends StatefulWidget {
 }
 
 class _SplashScreenState extends State<SplashScreen> {
+  Timer? _navigationTimer;
+  bool _isNavigating = false;
+  final _minimumSplashDuration = const Duration(seconds: 2);
+  DateTime? _startTime;
+
   @override
   void initState() {
     super.initState();
-    // Ensure navigation happens after widget is fully mounted
+    _startTime = DateTime.now();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      _navigateToNextScreen();
+      _initializeApp();
     });
   }
 
-  Future<void> _navigateToNextScreen() async {
-    try {
-      // Use a more reliable way to delay
-      await Future.delayed(const Duration(seconds: 2));
-      
-      // Check if the widget is still mounted before navigating
+Future<void> _initializeApp() async {
+   await _navigateToNextScreen(true);
+  if (_isNavigating) return;
+  _isNavigating = true;
+
+  try {
+    // Shorter timeout since we're assuming online by default
+    _navigationTimer = Timer(const Duration(seconds: 2), () {
       if (mounted) {
-        await Get.offNamed(AppRoutes.AUTHWRAPPER);
+        _handleTimeout();
       }
+    });
+
+    // final networkController = Get.find<NetworkController>();
+    // await networkController.checkInitialConnection();
+
+    // Ensure minimum splash duration
+    final elapsedTime = DateTime.now().difference(_startTime!);
+    if (elapsedTime < _minimumSplashDuration) {
+      await Future.delayed(_minimumSplashDuration - elapsedTime);
+    }
+
+    if (!mounted) return;
+
+    _navigationTimer?.cancel();
+    await _navigateToNextScreen(true); // Always navigate as online initially
+    
+  } catch (e) {
+    debugPrint('Splash screen initialization error: $e');
+    if (mounted) {
+      _handleTimeout();
+    }
+  }
+}
+
+  Future<void> _navigateToNextScreen(bool isOnline) async {
+    if (_isNavigating) return;
+    _isNavigating = true;
+
+    try {
+      final route = isOnline ? AppRoutes.AUTHWRAPPER : AppRoutes.NETWORK;
+      await Get.offNamed(route);
     } catch (e) {
       debugPrint('Navigation error: $e');
-      // Implement proper error handling here
+      // Retry navigation once
+      await Future.delayed(const Duration(milliseconds: 500));
       if (mounted) {
-        Get.offNamed(AppRoutes.AUTHWRAPPER);
+        final route = isOnline ? AppRoutes.AUTHWRAPPER : AppRoutes.NETWORK;
+        await Get.offNamed(route);
       }
+    } finally {
+      _isNavigating = false;
     }
+  }
+
+  Future<void> _handleTimeout() async {
+    _navigationTimer?.cancel();
+    final networkController = Get.find<NetworkController>();
+    await _navigateToNextScreen(networkController.isOnline.value);
+  }
+
+  Future<void> _handleError() async {
+    _navigationTimer?.cancel();
+    await Future.delayed(const Duration(seconds: 1));
+    if (mounted) {
+      final networkController = Get.find<NetworkController>();
+      await _navigateToNextScreen(networkController.isOnline.value);
+    }
+  }
+
+  @override
+  void dispose() {
+    _navigationTimer?.cancel();
+    super.dispose();
   }
 
   @override

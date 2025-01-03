@@ -5,20 +5,20 @@ import 'package:tushar_db/projectController/calendar_controller.dart';
 import 'package:tushar_db/projectController/profile_controller.dart';
 import 'package:tushar_db/projectController/statistics_controller.dart';
 
-
 import '../controller/main_screen_controller.dart';
 import '../controller/network_controller.dart';
 import '../controller/splash_controller.dart';
 
 import '../projectController/page_one_controller.dart';
 import '../projectController/pomodoro_controller.dart';
-
+import '../services/auth_service.dart';
 
 class InitialBinding extends Bindings {
   @override
   void dependencies() {
 //  Get.lazyPut<SplashController>(() => SplashController());
-
+    Get.put(NetworkController(), permanent: true);
+    Get.put(AuthService(), permanent: true);
     Get.lazyPut<MainScreenController>(() => MainScreenController(),
         fenix: true);
 
@@ -27,11 +27,9 @@ class InitialBinding extends Bindings {
     Get.lazyPut<StatisticsController>(() => StatisticsController(),
         fenix: true);
     Get.lazyPut<ProfileController>(() => ProfileController(), fenix: true);
-    
-       Get.lazyPut<PomodoroController>(() => PomodoroController(), fenix: true);
 
-    Get.lazyPut<NetworkController>(() => NetworkController(),
-        fenix: true, );
+    Get.lazyPut<PomodoroController>(() => PomodoroController(), fenix: true);
+
     //  Get.put(NetworkController(), permanent: true);
   }
 }

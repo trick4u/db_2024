@@ -98,6 +98,7 @@ dependencies:
   flutter_dotenv: ^5.2.1
   audioplayers: ^6.1.0
   quick_actions: ^1.0.8
+  shimmer: ^3.0.0
 
   
 

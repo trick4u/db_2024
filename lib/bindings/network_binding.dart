@@ -7,6 +7,9 @@ import '../controller/network_controller.dart';
 class NetworkBinding extends Bindings {
   @override
   void dependencies() {
-    Get.lazyPut<NetworkController>(() => NetworkController(), );
+    Get.lazyPut<NetworkController>(
+      () => NetworkController(),
+      fenix: true,
+    );
   }
 }

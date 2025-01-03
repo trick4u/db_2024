@@ -2,6 +2,7 @@ import 'dart:async';
 
 
 
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:internet_connection_checker_plus/internet_connection_checker_plus.dart';
 import 'package:tushar_db/app_routes.dart';
@@ -14,95 +15,104 @@ class NetworkController extends GetxController {
   RxBool isOnline = true.obs;
   StreamSubscription? connectionStream;
   bool isInitialCheck = true;
-  // Add a debouncer to prevent rapid state changes
   Timer? _navigationDebouncer;
-
+  Timer? _debounceTimer;
+  final _internetChecker = InternetConnection();
+  
   @override
   void onInit() {
     super.onInit();
     checkInitialConnection();
-    listenToConnectionChanges();
   }
 
   Future<void> checkInitialConnection() async {
-    isOnline.value = await InternetConnection().hasInternetAccess;
-    if (!isOnline.value) {
-      Get.offNamedUntil(AppRoutes.NETWORK, (route) => false);
+    try {
+      // Start with assuming online to prevent blocking app launch
+      isOnline.value = true;
+      
+      // Try to verify connection in background
+      _verifyConnectionInBackground();
+      
+      // Start listening for future changes
+      listenToConnectionChanges();
+      
+    } catch (e) {
+      debugPrint('Initial connection check error: $e');
+      // Keep default online value to allow app to proceed
+    } finally {
+      isInitialCheck = false;
     }
-    isInitialCheck = false;
+  }
+
+  Future<void> _verifyConnectionInBackground() async {
+    try {
+      final hasInternet = await _internetChecker.hasInternetAccess
+          .timeout(const Duration(seconds: 5), onTimeout: () => true);
+      
+      // Only update if it's different from current status
+      if (hasInternet != isOnline.value) {
+        isOnline.value = hasInternet;
+        if (!hasInternet && !isInitialCheck) {
+          _handleConnectionChange(hasInternet);
+        }
+      }
+    } catch (e) {
+      debugPrint('Background connection verification error: $e');
+      // Keep existing status on error
+    }
   }
 
   void listenToConnectionChanges() {
-    connectionStream = InternetConnection().onStatusChange.listen((event) async {
-      switch (event) {
-        case InternetStatus.connected:
-          if (!isInitialCheck && !isOnline.value) {
-            isOnline.value = true;
-            // Cancel any pending navigation
-            _navigationDebouncer?.cancel();
-            // Add a small delay before navigation to allow UI to update
-            _navigationDebouncer = Timer(const Duration(milliseconds: 300), () {
-              if (isOnline.value) {
-                // Only navigate if we're still online after the delay
-                if (!Get.currentRoute.contains('MainScreen')) {
-                  Get.off(
-                    () => MainScreen(),
-                    transition: Transition.fadeIn,
-                    duration: const Duration(milliseconds: 500),
-                  );
-                }
-              }
-            });
+    connectionStream?.cancel();
+    connectionStream = _internetChecker.onStatusChange.listen(
+      (status) {
+        _debounceTimer?.cancel();
+        _debounceTimer = Timer(const Duration(milliseconds: 800), () {
+          final isNowOnline = status == InternetStatus.connected;
+          if (isOnline.value != isNowOnline) {
+            isOnline.value = isNowOnline;
+            _handleConnectionChange(isNowOnline);
           }
-          break;
-        case InternetStatus.disconnected:
-          isOnline.value = false;
-          if (!isInitialCheck) {
-            // Cancel any pending navigation
-            _navigationDebouncer?.cancel();
-            ToastUtil.showToast(
-              'No Internet',
-              'Please check your internet connection',
-            );
-            if (!Get.currentRoute.contains('NETWORK')) {
-              Get.offNamedUntil(
-                AppRoutes.NETWORK,
-                (route) => false,
-          
-              );
-            }
-          }
-          break;
+        });
+      },
+      onError: (error) {
+        debugPrint('Connection stream error: $error');
+      },
+    );
+  }
+
+  void _handleConnectionChange(bool isNowOnline) {
+    _navigationDebouncer?.cancel();
+    _navigationDebouncer = Timer(const Duration(milliseconds: 500), () {
+      final currentRoute = Get.currentRoute;
+      final targetRoute = isNowOnline ? AppRoutes.AUTHWRAPPER : AppRoutes.NETWORK;
+      
+      if (!currentRoute.contains(isNowOnline ? 'AUTHWRAPPER' : 'NETWORK')) {
+        Get.offAllNamed(targetRoute);
       }
     });
   }
 
-  Future<void> checkNetworkConnectivity() async {
-    bool hasInternet = await InternetConnection().hasInternetAccess;
-    isOnline.value = hasInternet;
-    if (hasInternet) {
-      navigateToMainScreen();
-    } else {
-      ToastUtil.showToast(
-        'No Internet',
-        'Please check your internet connection',
-      );
-    }
-  }
-
-  void navigateToMainScreen() {
-    if (!Get.currentRoute.contains('MainScreen')) {
-      Get.off(
-        () => MainScreen(),
-        transition: Transition.fadeIn,
-        duration: const Duration(milliseconds: 500),
-      );
+  Future<void> retryConnection() async {
+    try {
+      final hasInternet = await _internetChecker.hasInternetAccess
+          .timeout(const Duration(seconds: 5));
+      
+      if (hasInternet) {
+        isOnline.value = true;
+        Get.offAllNamed(AppRoutes.AUTHWRAPPER);
+      } else {
+        isOnline.value = false;
+      }
+    } catch (e) {
+      debugPrint('Retry connection error: $e');
     }
   }
 
   @override
   void onClose() {
     _navigationDebouncer?.cancel();
+    _debounceTimer?.cancel();
     connectionStream?.cancel();
     super.onClose();
   }

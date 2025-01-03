@@ -6,36 +6,33 @@ import '../app_routes.dart';
 import '../pages/login_page.dart';
 import '../projectPages/main_screen.dart';
 import 'auth_service.dart';
+import 'shimmer_loading.dart';
 
 class AuthWrapper extends StatelessWidget {
   final authService = Get.find<AuthService>();
+  static const int timeoutDuration = 10;
 
   @override
   Widget build(BuildContext context) {
     return Obx(() {
-      if (authService.user.value == null) {
-        return MyHomePage();
-      }
-      
       return FutureBuilder<bool>(
-        future: authService.isUserInDatabase(),
+        future: _checkAuthStatus(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Scaffold(
-              body: Center(child: CircularProgressIndicator()),
+            return Scaffold(
+              body: ShimmerLoading(),
             );
           }
-          
+
           if (snapshot.hasError) {
             return Scaffold(
               body: Center(
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    const Text('An error occurred'),
+                    const Text('Unable to connect. Please try again.'),
                     ElevatedButton(
                       onPressed: () {
-                        // Add retry functionality
                         Get.offNamed(AppRoutes.AUTHWRAPPER);
                       },
                       child: const Text('Retry'),
@@ -46,10 +43,26 @@ class AuthWrapper extends StatelessWidget {
             );
           }
 
-        
-          return snapshot.data == true ? MainScreen() : MyHomePage();
+          // Default to MyHomePage if anything goes wrong
+          final isAuthenticated = snapshot.data ?? false;
+          return isAuthenticated ? MainScreen() : MyHomePage();
         },
       );
     });
+  }
+
+  Future<bool> _checkAuthStatus() async {
+    try {
+      if (authService.user.value == null) return false;
+
+      // Add timeout to prevent infinite waiting
+      final isInDb = await authService.isUserInDatabase()
+          .timeout(const Duration(seconds: timeoutDuration));
+      
+      return isInDb;
+    } catch (e) {
+      debugPrint('Auth check error: $e');
+      return false;
+    }
   }
 }

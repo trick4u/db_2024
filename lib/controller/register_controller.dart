@@ -34,7 +34,7 @@ class RegisterController extends GetxController {
   RxBool isRegisterButtonActive = false.obs;
 
   Timer? _debounce;
-    RxBool canCheckUsername = false.obs;
+  RxBool canCheckUsername = false.obs;
 
   @override
   void onInit() {
@@ -62,8 +62,6 @@ class RegisterController extends GetxController {
     super.onClose();
   }
 
-
-
   void _validateName() {
     final name = nameController.text.trim();
     isNameValid.value = name.length >= 5 && name.length <= 20;
@@ -87,7 +85,8 @@ class RegisterController extends GetxController {
         passwordController.text == confirmPasswordController.text;
     _updateRegisterButtonState();
   }
-   void validateUsername() {
+
+  void validateUsername() {
     final username = usernameController.text.trim();
     isUsernameValid.value = isValidUsername(username);
     isUsernameEmpty.value = username.isEmpty;
@@ -95,11 +94,11 @@ class RegisterController extends GetxController {
     _updateRegisterButtonState();
   }
 
-    void onUsernameChanged() {
+  void onUsernameChanged() {
     final username = usernameController.text.trim();
     isUsernameValid.value = isValidUsername(username);
     isUsernameEmpty.value = username.isEmpty;
-    
+
     if (_debounce?.isActive ?? false) _debounce!.cancel();
     _debounce = Timer(const Duration(milliseconds: 500), () {
       if (isUsernameValid.value) {
@@ -121,7 +120,7 @@ class RegisterController extends GetxController {
         doPasswordsMatch.value;
   }
 
-bool isValidUsername(String username) {
+  bool isValidUsername(String username) {
     return username.length >= 7 && username.length <= 15;
   }
 
@@ -129,7 +128,7 @@ bool isValidUsername(String username) {
     return RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(email);
   }
 
- Future<void> checkUsernameAvailability() async {
+  Future<void> checkUsernameAvailability() async {
     final username = usernameController.text.trim();
     if (!isValidUsername(username)) {
       ToastUtil.showToast('Error', 'Invalid username format or length');

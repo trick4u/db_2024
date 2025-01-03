@@ -20,7 +20,6 @@ import '../services/work_manager.dart';
 import '../widgets/event_bottomSheet.dart';
 import 'package:flutter/services.dart';
 
-
 class CalendarController extends GetxController with WidgetsBindingObserver {
   CalendarFormat calendarFormat = CalendarFormat.week;
   Rx<DateTime> focusedDay = DateTime.now().obs;
@@ -37,7 +36,6 @@ class CalendarController extends GetxController with WidgetsBindingObserver {
 
   final AudioPlayer _successPlayer = AudioPlayer();
   bool _isSoundLoaded = false;
-
 
   RxBool isLoading = true.obs;
   RxBool hasError = false.obs;
@@ -60,7 +58,7 @@ class CalendarController extends GetxController with WidgetsBindingObserver {
   RxInt backgroundChangeCount = 0.obs;
   RxBool isChangingBackground = false.obs;
 
- @override
+  @override
   void onInit() async {
     super.onInit();
     WidgetsBinding.instance.addObserver(this);
@@ -68,14 +66,14 @@ class CalendarController extends GetxController with WidgetsBindingObserver {
     await _initializeCalendar();
   }
 
- @override
+  @override
   void onClose() {
     WidgetsBinding.instance.removeObserver(this);
     _successPlayer.dispose();
     super.onClose();
   }
 
-Future<void> _loadSound() async {
+  Future<void> _loadSound() async {
     try {
       await _successPlayer.setSource(AssetSource('success.mp3'));
       _isSoundLoaded = true;
@@ -964,7 +962,7 @@ Future<void> _loadSound() async {
           updateData['completedAt'] = Timestamp.fromDate(DateTime.now());
           updateData['hasReminder'] = false;
           updateData['reminderTime'] = null;
-          
+
           // Play success sound
           if (_isSoundLoaded) {
             try {
@@ -984,7 +982,7 @@ Future<void> _loadSound() async {
 
         // Update local state
         QuickEventModel event = QuickEventModel.fromFirestore(eventDoc);
-        
+
         // If completing the event and it had a reminder, cancel it
         if (!currentStatus && event.hasReminder) {
           await cancelNotification(event);
@@ -1008,9 +1006,10 @@ Future<void> _loadSound() async {
             event.date.month,
             event.date.day,
           );
-          
+
           if (eventsGrouped.containsKey(eventDate)) {
-            int groupIndex = eventsGrouped[eventDate]!.indexWhere((e) => e.id == eventId);
+            int groupIndex =
+                eventsGrouped[eventDate]!.indexWhere((e) => e.id == eventId);
             if (groupIndex != -1) {
               eventsGrouped[eventDate]![groupIndex] = updatedEvent;
             }
@@ -1025,7 +1024,6 @@ Future<void> _loadSound() async {
 
         // Trigger UI update
         update();
-        
       } else {
         print('Event document not found: $eventId');
       }
