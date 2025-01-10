@@ -23,6 +23,7 @@ class ProfileScreen extends GetWidget<ProfileController> {
       appBar: AppBar(
         centerTitle: true,
         elevation: 2,
+        automaticallyImplyLeading: false,
         title: Obx(
           () => Text(
             controller.name.value.toLowerCase(),
